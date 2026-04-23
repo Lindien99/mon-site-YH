@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allemagne — Guide de Yvon</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de l'Allemagne.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{--gold:#c9a84c;--gold-light:#e8c97a;--crimson:#8b1a1a;--parchment:#f5ead8;--schwarz:#0a0a0a;--rot:#c8102e;--gelb:#ffce00;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#06050e;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+    /* ── HERO ── */
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(200,16,46,.12) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,206,0,.07) 0%,transparent 60%);}
+    /* Bandes tricolores subtiles en arrière-plan */
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--schwarz) 0%,var(--schwarz) 33%,var(--rot) 33%,var(--rot) 66%,var(--gelb) 66%,var(--gelb) 100%);opacity:.35;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:rgba(255,206,0,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gelb);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gelb),transparent);margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gelb);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    /* ── AIGLE HERO ── */
+    .eagle-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+    /* ── SECTIONS ── */
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gelb);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+    /* ── MAP ── */
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(255,206,0,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(200,16,46,.1);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(10,8,20,.85);border:1px solid rgba(255,206,0,.5);border-radius:3px;color:#ffce00;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+    /* ── CARDS ── */
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);border:1px solid rgba(255,206,0,.1);padding:36px 32px;transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--rot),var(--gelb));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(255,206,0,.03);border-color:rgba(255,206,0,.28);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;color:rgba(255,206,0,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gelb);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gelb);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+    /* ── TIMELINE ── */
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gelb) 10%,var(--gelb) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gelb);box-shadow:0 0 12px rgba(255,206,0,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gelb);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+    /* ── FOOTER ── */
+    footer{border-top:1px solid rgba(255,206,0,.1);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gelb);opacity:.6;}
+    /* ── ANIMS ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){.hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}#leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}}
+    /* ── Modale Wikipedia ── */
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;border:1px solid rgba(255,206,0,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#08060f;border-bottom:1px solid rgba(255,206,0,.2);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gelb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-ext{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#06050e;text-decoration:none;padding:5px 14px;background:var(--gelb);border:1px solid var(--gelb);border-radius:3px;font-weight:700;transition:background .2s,color .2s;}
+    #wiki-modal-ext:hover{background:var(--gold-light);border-color:var(--gold-light);color:#06050e;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:none;border:1px solid rgba(245,234,216,.25);border-radius:3px;color:rgba(245,234,216,.75);font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;line-height:1;cursor:pointer;padding:5px 12px;transition:color .2s,border-color .2s,background .2s;}
+    #wiki-modal-close:hover{color:var(--parchment);border-color:var(--parchment);background:rgba(245,234,216,.08);}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;background:rgba(200,16,46,.95);border-top:1px solid rgba(255,206,0,.3);font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+    /* ── Desktop : réduire le watermark DEUTSCHLAND et le monter vers le haut ── */
+    @media(min-width:900px){.hero-year{font-size:clamp(4rem,7vw,7rem) !important;top:12% !important;transform:translateX(-50%) !important;}}
+    /* ── Zoom en dessous du bouton Style de Carte ── */
+    .leaflet-top.leaflet-right{display:flex !important;flex-direction:column !important;align-items:flex-end !important;}
+    .leaflet-top.leaflet-right .leaflet-control-zoom{order:10 !important;}
+  </style>
+</head>
+<body>
+
+<!-- ── Modale Wikipedia ── -->
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener" title="Rechercher sur Google">🔍 Google</a>
+        <a id="wiki-modal-ext" href="#" target="_blank" rel="noopener">↗ Ouvrir</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle = '';
+function openWiki(url, title){
+  _wikiCurrentTitle = title || 'Allemagne';
+  var u = url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1 && u.indexOf('fr.m.wikipedia.org')!==-1)
+    u += (u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(_wikiCurrentTitle + ' Allemagne');
+  document.getElementById('wiki-modal-frame').src = u;
+  document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
+  document.getElementById('wiki-modal-ext').href = u;
+  document.getElementById('wiki-modal-google').href = googleUrl;
+  document.getElementById('wiki-banner-google').href = googleUrl;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var frame = document.getElementById('wiki-modal-frame');
+  frame.onload = function(){
+    try {
+      var doc = frame.contentDocument || frame.contentWindow.document;
+      var pageTitle = doc.title || '';
+      if(pageTitle.indexOf('Recherche')!==-1||pageTitle.indexOf('non trouvée')!==-1||pageTitle.indexOf('Search results')!==-1||pageTitle.indexOf('not found')!==-1){
+        document.getElementById('wiki-error-banner').classList.add('show');
+      }
+    } catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src = '';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeWiki(); });
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-year">DEUTSCHLAND</div>
+  <div class="hero-eyebrow">Allemagne · Guide du Voyageur</div>
+  <h1 class="hero-title">Châteaux, Forêts<br>&amp; <em>Merveilles d'Allemagne</em></h1>
+  <p class="hero-subtitle">Monuments, châteaux rhénans, cathédrales gothiques, musées, brasseries &amp; Marchés de Noël</p>
+
+  <!-- AIGLE BUNDESADLER — style Léonard de Vinci, plume sépia & or -->
+  <div class="eagle-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" style="filter:drop-shadow(0 4px 18px rgba(255,206,0,.28))">
+      <!-- Étude anatomique de l'Aigle fédéral — Bundesadler — tracé à la plume, style carnets de Léonard -->
+      <!-- Corps principal — masse centrale, forme oblongue -->
+      <path d="M80 40 Q60 42 52 58 Q44 74 48 92 Q52 108 68 118 Q80 125 92 118 Q108 108 112 92 Q116 74 108 58 Q100 42 80 40 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Reflet doré sur le poitrail — lumière Renaissance -->
+      <path d="M68 52 Q74 44 84 44 Q94 44 100 52 Q92 48 80 47 Q70 47 68 52 Z"
+            fill="#f0d040" opacity="0.4"/>
+      <!-- Plumes du ventre — hachures sépia léonardesques -->
+      <path d="M60 78 Q66 72 74 74 Q80 75 86 74 Q94 72 100 78" fill="none" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M58 86 Q65 80 74 82 Q80 83 86 82 Q95 80 102 86" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M60 94 Q66 89 74 90 Q80 91 86 90 Q94 89 100 94" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M63 102 Q68 98 74 99 Q80 100 86 99 Q92 98 97 102" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- AILE GAUCHE — déployée, tracé anatomique précis -->
+      <path d="M52 68 Q38 55 18 50 Q10 48 6 52 Q10 56 20 58 Q8 56 8 62 Q16 66 28 65 Q14 65 16 72 Q26 74 40 70 Q28 72 32 80 Q44 80 54 75 Q48 82 52 90 Q64 88 68 80 Q60 74 52 68 Z"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.7" opacity="0.92"/>
+      <!-- Reflet aile gauche -->
+      <path d="M52 68 Q40 60 24 55 Q40 58 50 66 Z" fill="#d4a010" opacity="0.35"/>
+      <!-- Nervures des plumes — aile gauche -->
+      <line x1="52" y1="68" x2="18" y2="52" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="52" y1="75" x2="20" y2="64" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="54" y1="82" x2="30" y2="74" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- AILE DROITE — déployée, symétrie héraldique -->
+      <path d="M108 68 Q122 55 142 50 Q150 48 154 52 Q150 56 140 58 Q152 56 152 62 Q144 66 132 65 Q146 65 144 72 Q134 74 120 70 Q132 72 128 80 Q116 80 106 75 Q112 82 108 90 Q96 88 92 80 Q100 74 108 68 Z"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.7" opacity="0.92"/>
+      <path d="M108 68 Q120 60 136 55 Q120 58 110 66 Z" fill="#d4a010" opacity="0.35"/>
+      <line x1="108" y1="68" x2="142" y2="52" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="108" y1="75" x2="140" y2="64" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="106" y1="82" x2="130" y2="74" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- COU — puissant, plumes en écailles -->
+      <path d="M70 42 Q72 34 80 30 Q88 34 90 42 Q86 38 80 37 Q74 38 70 42 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Plumes du cou -->
+      <path d="M72 40 Q74 36 78 36" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M88 40 Q86 36 82 36" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+
+      <!-- TÊTE — profil légèrement tourné, tracé au compas -->
+      <ellipse cx="80" cy="24" rx="14" ry="12" fill="#c8960a" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Masque du crâne — ombre anatomique -->
+      <path d="M68 20 Q72 15 80 14 Q88 15 92 20 Q88 17 80 16 Q72 17 68 20 Z" fill="#f0d040" opacity="0.35"/>
+      <!-- Plumes crâniales — huppe subtile -->
+      <path d="M76 13 Q78 9 80 8 Q82 9 84 13" fill="none" stroke="#c8960a" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M74 14 Q75 10 78 8" fill="none" stroke="#a07010" stroke-width="0.8" stroke-linecap="round"/>
+      <path d="M86 14 Q85 10 82 8" fill="none" stroke="#a07010" stroke-width="0.8" stroke-linecap="round"/>
+
+      <!-- ŒUIL — cercle parfait au compas, pupille précise -->
+      <circle cx="86" cy="20" r="4" fill="#1a0800" stroke="#c8960a" stroke-width="0.6"/>
+      <circle cx="86" cy="20" r="2.2" fill="#2a1000"/>
+      <circle cx="87.2" cy="18.8" r="1" fill="white" opacity="0.75"/>
+
+      <!-- BEC RECOURBÉ — aigle héraldique, hooked beak -->
+      <path d="M92 22 Q102 20 104 24 Q102 28 94 26 Q98 27 96 24 Z"
+            fill="#d4a020" stroke="#8a6010" stroke-width="0.6"/>
+      <!-- Narine -->
+      <ellipse cx="95" cy="23" rx="1.2" ry="0.7" fill="#7a4808" opacity="0.6"/>
+
+      <!-- QUEUE — plumes étalées en éventail, étude botanique léonardesque -->
+      <path d="M68 118 Q60 128 52 138 Q56 140 62 136 Q58 142 64 144 Q70 140 72 132 Q70 142 76 144 Q82 140 80 130 Q80 142 86 144 Q92 140 88 130 Q88 142 94 144 Q100 140 96 132 Q98 142 104 140 Q106 136 100 130 Q106 136 110 134 Q108 128 100 118 Z"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Nervures plumes de queue -->
+      <line x1="60" y1="120" x2="56" y2="142" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="68" y1="122" x2="66" y2="144" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="76" y1="124" x2="76" y2="144" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="84" y1="124" x2="84" y2="144" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="92" y1="122" x2="94" y2="144" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="100" y1="120" x2="104" y2="142" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+
+      <!-- SERRES — anatomie précise, griffes recourbées -->
+      <!-- Patte gauche -->
+      <line x1="68" y1="118" x2="60" y2="132" stroke="#8a6010" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="60" y1="132" x2="52" y2="136" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/>
+      <line x1="60" y1="132" x2="56" y2="140" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <line x1="60" y1="132" x2="62" y2="141" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <line x1="60" y1="132" x2="67" y2="138" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <!-- Griffes gauches -->
+      <path d="M52 136 Q49 138 50 141" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+      <path d="M56 140 Q53 143 55 146" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+      <path d="M62 141 Q60 145 62 148" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+      <!-- Patte droite -->
+      <line x1="92" y1="118" x2="100" y2="132" stroke="#8a6010" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="100" y1="132" x2="108" y2="136" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/>
+      <line x1="100" y1="132" x2="104" y2="140" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <line x1="100" y1="132" x2="98" y2="141" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <line x1="100" y1="132" x2="93" y2="138" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/>
+      <!-- Griffes droites -->
+      <path d="M108 136 Q111 138 110 141" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+      <path d="M104 140 Q107 143 105 146" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+      <path d="M98 141 Q100 145 98 148" fill="none" stroke="#6a3808" stroke-width="0.9" stroke-linecap="round"/>
+
+      <!-- Écu sur la poitrine — bouclier héraldique tricolore (Bundesadler authentique) -->
+      <path d="M72 88 Q72 76 80 74 Q88 76 88 88 Q88 100 80 106 Q72 100 72 88 Z"
+            fill="#c8102e" stroke="#8a0010" stroke-width="0.8"/>
+      <!-- Bande dorée centrale de l'écu -->
+      <path d="M72 93 Q72 88 72 84 Q80 82 88 84 Q88 88 88 93 Z"
+            fill="#ffce00" opacity="0.85" stroke="none"/>
+      <!-- Lignes de détail sur l'écu -->
+      <line x1="72" y1="84" x2="88" y2="84" stroke="#7a0008" stroke-width="0.5"/>
+      <line x1="72" y1="93" x2="88" y2="93" stroke="#7a0008" stroke-width="0.5"/>
+
+      <!-- Annotation style carnet de Léonard — note anatomique -->
+      <text x="112" y="70" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Aquila</text>
+      <text x="112" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">imperialis</text>
+      <line x1="110" y1="72" x2="108" y2="68" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — monuments historiques, châteaux médiévaux, cathédrales gothiques, musées, sites UNESCO, palais royaux, villes médiévales, Forêt-Noire, brasseries &amp; Biergärten, Marchés de Noël, mémoriaux de guerre, châteaux rhénans, archéologie, gastronomie, faune sauvage, spas thermaux et golf.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">46</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">150+</div><div class="stat-label">Sites au total</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez l'Allemagne</h2>
+</div>
+
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MONUMENTS GRID — 35 monuments historiques
+══════════════════════════════════════════════════════ -->
+<div class="section-header reveal">
+  <div class="section-tag">Histoire — du Saint-Empire à la Réunification</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porte_de_Brandebourg','Porte de Brandebourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Berlin</div><h3 class="card-name">Porte de Brandebourg</h3><p class="card-context">Symbole de l'unité allemande retrouvée, érigée en 1791 par Carl G. Langhans pour Frédéric-Guillaume II. La quadrige dorée domine l'avenue Unter den Linden.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Neuschwanstein','Château de Neuschwanstein')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Bavière, Allgäu</div><h3 class="card-name">Château de Neuschwanstein</h3><p class="card-context">Le château de conte de fées du roi Louis II de Bavière (1869). Modèle du château de La Belle au Bois Dormant de Disney. 1,5 million de visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Cologne','Cathédrale de Cologne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Cologne, Rhénanie</div><h3 class="card-name">Cathédrale de Cologne</h3><p class="card-context">Chef-d'œuvre gothique, construction de 1248 à 1880 — 632 ans ! Reliques des Rois Mages. Plus haute cathédrale du monde de 1880 à 1884 (157 m). UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_l%27Holocauste_(Berlin)','Mémorial de l\'Holocauste')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Berlin</div><h3 class="card-name">Mémorial de l'Holocauste</h3><p class="card-context">2 711 stèles de béton conçues par Peter Eisenman (2005). Mémorial aux Juifs d'Europe assassinés. Lieu de mémoire et de recueillement au cœur de Berlin.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mur_de_Berlin','Mur de Berlin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Berlin</div><h3 class="card-name">East Side Gallery — Mur de Berlin</h3><p class="card-context">1,3 km du mur de Berlin couvert de fresques depuis 1990. Symbole de la Guerre Froide et de la Réunification du 9 novembre 1989. Plus longue galerie d'art en plein air du monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hermannsdenkmal','Hermannsdenkmal')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Forêt de Teutoburg, NRW</div><h3 class="card-name">Hermannsdenkmal — Arminius</h3><p class="card-context">Statue colossale d'Arminius, chef des Chérusques vainqueur de Rome à Teutobourg (9 ap. J.-C.). 54 m de haut. Symbole de l'identité germanique, inauguré en 1875.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_Sanssouci','Palais de Sanssouci')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Potsdam, Brandebourg</div><h3 class="card-name">Palais de Sanssouci</h3><p class="card-context">Résidence d'été de Frédéric le Grand (1747). Rococo prussien, terrasses de vigne, Salle de marbre. Versailles de Prusse. Tombe de Frédéric II. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Reichstag_(bâtiment)','Reichstag de Berlin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Berlin</div><h3 class="card-name">Reichstag — Coupole de Verre</h3><p class="card-context">Parlement allemand, coupole transparente de Norman Foster (1999). Symbole de la démocratie retrouvée. L'inscription « Dem Deutschen Volke » (Au peuple allemand) date de 1916.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wartburg','Château de la Wartburg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Eisenach, Thuringe</div><h3 class="card-name">Château de la Wartburg</h3><p class="card-context">Luther y traduit le Nouveau Testament en allemand (1521–1522). Résidence de Sainte-Élisabeth de Hongrie. Berceau de la langue allemande moderne. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ruines_de_Heidelberg','Château de Heidelberg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Heidelberg, Bade-Wurtemberg</div><h3 class="card-name">Château de Heidelberg</h3><p class="card-context">Majestueuses ruines Renaissance dominant le Neckar. Résidence des Électeurs palatins du XIIIe au XVIIe s. Le tonneau géant contient 220 000 litres de vin.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Topographie_de_la_Terreur','Topographie de la Terreur')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Berlin</div><h3 class="card-name">Topographie de la Terreur</h3><p class="card-context">Sur l'ancienne centrale de la SS et de la Gestapo. Exposition permanente sur la violence nazie 1933–1945. Fragments du Mur en toile de fond. Entrée libre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Marienplatz_(Munich)','Marienplatz de Munich')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Munich, Bavière</div><h3 class="card-name">Marienplatz — Neues Rathaus</h3><p class="card-context">Cœur de Munich. Hôtel de ville néo-gothique (1909) et son célèbre Glockenspiel à automates — 43 cloches, 32 figures. Tour de l'ancien hôtel de ville du XVe s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Speyer','Cathédrale de Spire')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Spire (Speyer), Rhénanie</div><h3 class="card-name">Cathédrale de Spire</h3><p class="card-context">Plus grande cathédrale romane du monde, fondée en 1030 par Conrad II. Nécropole de 8 empereurs et rois du Saint-Empire. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Hohenzollern','Château des Hohenzollern')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Bisingen, Bade-Wurtemberg</div><h3 class="card-name">Château des Hohenzollern</h3><p class="card-context">Berceau de la dynastie prussienne et impériale allemande. Sommet du Zollerberg (855 m), reconstruit au XIXe s. dans un style néo-gothique romantique saisissant.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nürnberger_Burg','Château impérial de Nuremberg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Nuremberg, Bavière</div><h3 class="card-name">Château Impérial de Nuremberg</h3><p class="card-context">Résidence favorite des empereurs du Saint-Empire germanique du XIe au XIIIe s. Kaiserburg dominant la vieille ville médiévale. Tour Sinwell du XIIIe siècle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pergamonmuseum','Pergamonmuseum')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Berlin, Île aux Musées</div><h3 class="card-name">Pergamonmuseum</h3><p class="card-context">L'autel de Pergame (IIe s. av. J.-C.), la Porte d'Ishtar de Babylone, la Voie des Processions. Île aux Musées UNESCO. L'un des musées les plus visités d'Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_Nymphenburg','Palais de Nymphenburg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Munich, Bavière</div><h3 class="card-name">Palais de Nymphenburg</h3><p class="card-context">Résidence d'été des rois de Bavière (XVIIe–XIXe s.). Façade de 700 m, jardins à la française et parc anglais. Lieu de naissance de Louis II. Galerie des Beautés de Ludwig I.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Rothenburg_ob_der_Tauber','Rothenburg ob der Tauber')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Bavière, Franconie</div><h3 class="card-name">Rothenburg ob der Tauber</h3><p class="card-context">Ville médiévale la mieux préservée d'Allemagne, remparts complets du XIVe s. Route Romantique. Plongée dans le Moyen-Âge — ruelles de guingois, puits et tours.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Oktoberfest','Oktoberfest de Munich')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Munich, Bavière</div><h3 class="card-name">Oktoberfest — Theresienwiese</h3><p class="card-context">La plus grande fête populaire du monde (1810). 6 millions de visiteurs, 7 millions de litres de bière. La Bavaria en bronze (19 m) veille sur la prairie depuis 1850.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_d%27Aix-la-Chapelle','Cathédrale d\'Aix-la-Chapelle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Aix-la-Chapelle, NRW</div><h3 class="card-name">Cathédrale d'Aix-la-Chapelle</h3><p class="card-context">Chapelle Palatine de Charlemagne (800 ap. J.-C.), 1er site UNESCO d'Allemagne (1978). Trône de Charlemagne, reliques impériales. Coronations de 30 rois allemands.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rocher_de_la_Lor%C3%A9lei','Rocher de la Lorelei')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Vallée du Rhin, Rhénanie</div><h3 class="card-name">Rocher de la Lorelei</h3><p class="card-context">Ardoise schisteuse de 132 m dominant le Rhin au point le plus étroit et le plus dangereux. La sirène de la légende romantique. Heinrich Heine en fit le poème le plus célèbre d'Allemagne (1824). UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Melk','Abbaye de Lorsch')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Lorsch, Hesse</div><h3 class="card-name">Abbaye Carolingienne de Lorsch</h3><p class="card-context">Torhalle carolingienne du IXe s., l'une des plus anciennes constructions d'Europe centrale conservées. Centre spirituel du Saint-Empire. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_la_bataille_des_Nations','Völkerschlachtdenkmal')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Leipzig, Saxe</div><h3 class="card-name">Völkerschlachtdenkmal — Leipzig</h3><p class="card-context">Mémorial colossal (91 m) de la Bataille des Nations d'octobre 1813 contre Napoléon. 600 000 soldats, 90 000 morts. Inauguré en 1913 pour le centenaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zwinger_(Dresde)','Zwinger de Dresde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Dresde, Saxe</div><h3 class="card-name">Zwinger de Dresde</h3><p class="card-context">Chef-d'œuvre baroque de Matthäus Pöppelmann (1728), commandé par Auguste le Fort. Galerie des maîtres anciens, Madone Sixtine de Raphaël. Dresde, Florence de l'Elbe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Hohenschwangau','Château de Hohenschwangau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Schwangau, Bavière</div><h3 class="card-name">Château de Hohenschwangau</h3><p class="card-context">Château néo-gothique de Maximilien II (1837), enfance de Louis II. Fresques du cycle du Cygne inspirées par les légendes médiévales qui nourrirent l'œuvre de Wagner.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Semperoper','Semperoper de Dresde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Dresde, Saxe</div><h3 class="card-name">Semperoper — Opéra Royal de Saxe</h3><p class="card-context">Opéra de Gottfried Semper (1841), reconstruit en 1985. Wagner y créa Der Fliegende Holländer et Tannhäuser. Richard Strauss y dirigea 7 créations mondiales.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Bamberg','Cathédrale de Bamberg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Bamberg, Bavière</div><h3 class="card-name">Cathédrale de Bamberg</h3><p class="card-context">Cathédrale romane des XIe–XIIIe s., le Cavalier de Bamberg (vers 1230) — première statue équestre médiévale d'Europe. Tombe de l'Empereus Henri II. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Chapelle_Sixtine_de_l%27Allemagne','Wieskirche')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Steingaden, Bavière</div><h3 class="card-name">Wieskirche — Église du Pré</h3><p class="card-context">Joyau du rococo bavarois, Dominikus Zimmermann (1754). Surnommée la «Chapelle Sixtine de l'Allemagne» pour ses stucs et fresques d'une virtuosité prodigieuse. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alte_Pinakothek','Alte Pinakothek de Munich')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Munich, Bavière</div><h3 class="card-name">Alte Pinakothek de Munich</h3><p class="card-context">L'un des plus anciens musées d'art du monde (1836). Chef-d'œuvres de Dürer, Rubens, Raphaël, Titien. Autoportrait de Dürer à 28 ans — le regard le plus célèbre de la peinture allemande.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Eltz','Château d\'Eltz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Wierschem, Rhénanie-Palatinat</div><h3 class="card-name">Château d'Eltz</h3><p class="card-context">Château médiéval habité sans interruption depuis 800 ans par la même famille. Trois dynasties, 100 pièces, 8 maisons-tours (XIIe–XVIIe s.). Joyau dans la vallée de la Moselle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Feldherrnhalle','Feldherrnhalle de Munich')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Munich, Bavière</div><h3 class="card-name">Residenz — Trésor Royal de Munich</h3><p class="card-context">La plus grande résidence urbaine d'Allemagne, 130 salles. Trésor avec la couronne de Bavière, les joyaux de la couronne des Wittelsbach. Opéra Cuvilliés, chef-d'œuvre rococo.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Frauenkirche_de_Dresde','Frauenkirche de Dresde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Dresde, Saxe</div><h3 class="card-name">Frauenkirche de Dresde</h3><p class="card-context">Symbole de la réconciliation européenne. Bombardée en 1945, reconstruite pierre par pierre (1994–2005). La coupole en grès de 96 m domine la silhouette baroque de Dresde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Schwerin','Château de Schwerin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Schwerin, Mecklembourg</div><h3 class="card-name">Château de Schwerin</h3><p class="card-context">Île romantique au milieu du lac. Style néo-Renaissance inspiré de Chambord (1845–1857). Siège du parlement du Mecklembourg-Poméranie-Occidentale. 83 tours et tourelles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porta_Nigra','Porta Nigra')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Trèves (Trier), Rhénanie</div><h3 class="card-name">Porta Nigra — Augusta Treverorum</h3><p class="card-context">La plus grande porte romaine subsistant au nord des Alpes (IIe s.). Trèves, capitale romaine, compte plus de monuments antiques que tout autre ville d'Allemagne. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Moritzburg','Château de Moritzburg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Moritzburg, Saxe</div><h3 class="card-name">Château de Moritzburg</h3><p class="card-context">Pavillon de chasse baroque d'Auguste le Fort (1726), entouré d'un lac artificiel en pleine forêt saxonne. Décors intérieurs de cuir doré et de plumes de faisan. Cendrillon y fut filmé.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TIMELINE
+══════════════════════════════════════════════════════ -->
+<div class="section-header reveal">
+  <div class="section-tag">Du Saint-Empire Romain Germanique à la République Fédérale</div>
+  <h2 class="section-title">Histoire de l'Allemagne</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">9 ap. J.-C.</div>
+      <div class="timeline-event"><strong>Bataille de Teutobourg.</strong> Arminius (Hermann) écrase trois légions romaines dans la forêt de Teutoburg. Rome renonce à la conquête de la Germanie. Le Rhin devient frontière de l'Empire.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">800</div>
+      <div class="timeline-event"><strong>Sacre de Charlemagne.</strong> Couronné Empereur d'Occident le 25 décembre 800 à Rome par le pape Léon III. Fondation du Saint-Empire. Aix-la-Chapelle, capitale carolingienne, centre culturel de l'Europe chrétienne.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1096–1291</div>
+      <div class="timeline-event"><strong>Croisades et Ordre Teutonique.</strong> L'Allemagne participe aux Croisades. Fondation de l'Ordre Teutonique (1190), qui colonise et christianise la Prusse orientale. Les grandes cathédrales gothiques s'élèvent.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1517</div>
+      <div class="timeline-event"><strong>Réforme Protestante — Martin Luther.</strong> Luther affiche ses 95 thèses à Wittenberg. Traduction de la Bible en allemand à la Wartburg (1521). La Réforme divise l'Europe et enfante la guerre de Trente Ans (1618–1648).</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1701–1786</div>
+      <div class="timeline-event"><strong>Royaume de Prusse — Frédéric le Grand.</strong> Frédéric II (le Grand), roi philosophe ami de Voltaire, fait de la Prusse une grande puissance. Sanssouci, palais de la musique et des arts. La Prusse rivalise avec l'Autriche des Habsbourg.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1813</div>
+      <div class="timeline-event"><strong>Bataille de Leipzig — Défaite de Napoléon.</strong> La Bataille des Nations (16–19 oct.) oppose Napoléon à une coalition de 300 000 soldats. 90 000 morts. La plus grande bataille de l'histoire avant 1914. Fin de l'hégémonie française en Europe.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1871</div>
+      <div class="timeline-event"><strong>Unification — IIe Reich.</strong> Guillaume Ier proclamé Kaiser dans la Galerie des Glaces de Versailles le 18 janvier 1871. Bismarck réunit 39 États en un Empire. Période de puissance industrielle et culturelle : Wagner, Nietzsche, Brahms.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1914–1918</div>
+      <div class="timeline-event"><strong>Première Guerre mondiale.</strong> Déclenchée en août 1914. Front Ouest bloqué dans les tranchées. 2 millions de soldats allemands morts. Traité de Versailles : perte de l'Alsace-Lorraine, des colonies, de 13% du territoire. Abdication du Kaiser.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1933–1945</div>
+      <div class="timeline-event"><strong>IIIe Reich — Hitlér au pouvoir.</strong> Hitler chancelier le 30 janvier 1933. Seconde Guerre mondiale déclenchée le 1er septembre 1939. Shoah : 6 millions de Juifs assassinés. Capitulation le 8 mai 1945. L'Allemagne divisée en deux États.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1949–1961</div>
+      <div class="timeline-event"><strong>RFA et RDA — Rideau de fer.</strong> La République Fédérale (Bonn) et la République Démocratique (Berlin-Est) coexistent. Construction du Mur de Berlin le 13 août 1961. 3,5 millions d'Allemands de l'Est avaient fui vers l'Ouest.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1989–1990</div>
+      <div class="timeline-event"><strong>Chute du Mur — Réunification.</strong> La foule renverse le Mur le 9 novembre 1989. Réunification officielle le 3 octobre 1990. Berlin redevient capitale. L'Allemagne réunifiée compte 83 millions d'habitants, première économie européenne.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇩🇪</div>
+  <p class="footer-text">Guide du Voyageur · Allemagne · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic</p>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════
+     LEAFLET MAP
+══════════════════════════════════════════════════════ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('leaflet-map', {
+  scrollWheelZoom: true,
+  tap: false,
+  zoomControl: false
+}).setView([51.2, 10.4], 6);
+
+L.control.zoom({position:'topright'}).addTo(map);
+setTimeout(function(){ map.invalidateSize(true); }, 300);
+window.addEventListener('resize', function(){ map.invalidateSize(); });
+// Tile layer managed by the map style switcher panel below
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+// ── ICÔNES 17 catégories — style Léonard de Vinci ──
+
+// Monument historique — colonne romaine sépia & or
+var iconM = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,140,20,.8))"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#8a1010"/><rect x="8" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="16" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="24" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="6" y="6" width="24" height="3" rx="0.5" fill="#a07010"/><path d="M18 1 L6 6 L30 6 Z" fill="#7a4a08"/><rect x="7" y="25" width="4.5" height="3.5" rx="0.3" fill="#8a6010" opacity="0.5"/><rect x="15.5" y="25" width="4.5" height="3.5" rx="0.3" fill="#8a6010" opacity="0.5"/><rect x="23.5" y="25" width="4.5" height="3.5" rx="0.3" fill="#8a6010" opacity="0.5"/></svg>');
+
+// Château — tour crénelée rhénane
+var iconC = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,60,160,.8))"><rect x="4" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="7.5" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="11" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="22" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="25.5" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="29" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="4" y="11" width="10" height="21" rx="1" fill="#2a5cbf"/><rect x="22" y="11" width="10" height="21" rx="1" fill="#2a5cbf"/><rect x="6" y="17" width="22" height="15" rx="1" fill="#2a5cbf"/><rect x="14" y="26" width="8" height="6" fill="#0e1e4a"/><rect x="6" y="15" width="5" height="6" rx="1" fill="#0e1e4a"/><rect x="25" y="15" width="5" height="6" rx="1" fill="#0e1e4a"/></svg>');
+
+// Cathédrale — flèche gothique
+var iconK = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(120,40,180,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6a1fa0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8b2fc9"/><path d="M18 1 L14 10 L22 10 Z" fill="#5a1a8a"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6a1fa0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#5a1a8a"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#3a0a6a"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#3a0a6a"/></svg>');
+
+// Musée — temple néo-classique
+var iconG = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,130,80,.8))"><rect x="4" y="30" width="28" height="3" fill="#145c38"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="4" y="10" width="28" height="3" fill="#1a6840"/><path d="M18 3 L4 10 L32 10 Z" fill="#145c38"/><circle cx="9" cy="23" r="2" fill="#e8c97a" opacity="0.7"/><circle cx="18" cy="21" r="2" fill="#8b2fc9" opacity="0.7"/><circle cx="27" cy="23" r="2" fill="#8b1a1a" opacity="0.7"/></svg>');
+
+// UNESCO — étoile rayonnante or
+var iconU = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#d4a020" stroke="#8a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#ffce00" opacity="0.5"/></svg>');
+
+// Palais royal — fronton baroque
+var iconP = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,50,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#5a3e0a"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5510" stroke-width="0.6"/><rect x="6" y="19" width="24" height="4" fill="#e8c878" opacity="0.55"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5510" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5510" stroke-width="0.6"/><circle cx="18" cy="13" r="2" fill="none" stroke="#7a5510" stroke-width="0.7"/><circle cx="18" cy="13" r="1" fill="#f0d878" opacity="0.85"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+// Ville médiévale — maisons à colombages
+var iconV = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,60,20,.8))"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="6" y="12" width="8" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="26" y="16" width="6" height="6" fill="#9a6030"/><rect x="7" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="27" y="19" width="3" height="3" rx="1" fill="#3a1a05"/><path d="M4 20 L10 12 L18 12 L30 16 L32 20 Z" fill="#c87828" opacity="0.3"/></svg>');
+
+// Architecture romane — arc en plein cintre
+var iconA = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,120,140,.8))"><rect x="12" y="4" width="12" height="4" rx="1" fill="#148c8c"/><rect x="8" y="8" width="20" height="4" rx="1" fill="#1aadad"/><rect x="6" y="12" width="24" height="18" rx="2" fill="#1aadad"/><rect x="10" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><rect x="21" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><path d="M14 22 Q14 18 18 18 Q22 18 22 22" fill="#0a5a5a"/><rect x="14" y="22" width="8" height="8" rx="1" fill="#0a5a5a"/></svg>');
+
+// Abbaye / Monastère
+var iconAb = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,10,.8))"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#ffce00"/></svg>');
+
+// Villes touristiques — étoile rouge & or
+var iconT = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,16,46,.8))"><circle cx="18" cy="16" r="12" fill="#c8102e"/><circle cx="18" cy="16" r="8" fill="#e0304e"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="#ffce00" font-weight="bold">★</text></svg>');
+
+// BRASSERIE & BIERGARTEN — chope de bière style sépia
+var iconBeer = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,120,10,.85))"><!-- Corps de la chope --><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.8"/><!-- Anse droite --><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><!-- Mousse débordante --><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/><!-- Bulles de bière --><circle cx="15" cy="20" r="1" fill="#ffce00" opacity="0.5"/><circle cx="19" cy="23" r="0.8" fill="#ffce00" opacity="0.4"/><circle cx="22" cy="18" r="1.1" fill="#ffce00" opacity="0.45"/><!-- Reflet doré --><rect x="13" y="14" width="2.5" height="12" rx="1" fill="white" opacity="0.2"/><!-- Bande tricolore sur la chope --><rect x="10" y="27" width="16" height="1.5" rx="0" fill="#c8102e" opacity="0.6"/><rect x="10" y="25.5" width="16" height="1.5" rx="0" fill="#0a0a0a" opacity="0.4"/></svg>');
+
+// MARCHÉS DE NOËL — sapin étoilé sépia & or
+var iconXmas = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(10,100,40,.85))"><!-- Tronc --><rect x="16" y="30" width="4" height="5" rx="0.5" fill="#5a3010"/><!-- Corps du sapin — 3 niveaux --><path d="M18 4 L10 16 L14 16 L8 26 L14 26 L11 32 L25 32 L22 26 L28 26 L22 16 L26 16 Z" fill="#1a7028" stroke="#0e4a18" stroke-width="0.6"/><!-- Reflet lumineux --><path d="M18 5 L13 14 L18 12 Z" fill="#28a840" opacity="0.4"/><!-- Étoile au sommet --><polygon points="18,2 19.2,5.5 23,5.5 20,7.5 21.2,11 18,9 14.8,11 16,7.5 13,5.5 16.8,5.5" fill="#ffce00" stroke="#c8960a" stroke-width="0.4"/><!-- Boules de décoration --><circle cx="15" cy="18" r="1.5" fill="#c8102e" stroke="#8a0010" stroke-width="0.4"/><circle cx="21" cy="20" r="1.5" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/><circle cx="14" cy="25" r="1.5" fill="#1a4aa0" stroke="#0e2a6a" stroke-width="0.4"/><circle cx="22" cy="24" r="1.5" fill="#c8102e" stroke="#8a0010" stroke-width="0.4"/><!-- Guirlande -- ligne ondulée --><path d="M13 18 Q16 16 18 17 Q20 18 23 16" fill="none" stroke="#ffce00" stroke-width="0.6" opacity="0.7"/><!-- Lumière de bougie sous le sapin --><path d="M17 32 Q18 30 19 32" fill="#ffce00" opacity="0.5"/></svg>');
+
+// MÉMORIAUX DE GUERRE — colonne brisée sépia
+var iconWar = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,60,80,.9))"><!-- Socle --><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><!-- Colonne brisée --><rect x="14" y="8" width="8" height="23" rx="0.5" fill="#5a5a6a" stroke="#3a3a4a" stroke-width="0.5"/><!-- Cassure de la colonne --><path d="M14 20 L16 22 L22 20 L22 21 L16 23 L14 21 Z" fill="#3a3a4a"/><!-- Cannelures --><line x1="16" y1="8" x2="16" y2="31" stroke="#3a3a4a" stroke-width="0.4"/><line x1="18" y1="8" x2="18" y2="19" stroke="#3a3a4a" stroke-width="0.4"/><line x1="18" y1="22" x2="18" y2="31" stroke="#3a3a4a" stroke-width="0.4"/><line x1="20" y1="8" x2="20" y2="31" stroke="#3a3a4a" stroke-width="0.4"/><!-- Chapiteau fragmenté --><path d="M12 8 L24 8 L22 5 L14 5 Z" fill="#4a4a5a" stroke="#3a3a4a" stroke-width="0.4"/><!-- Fragment tombé --><path d="M22 22 L28 26 L26 28 L20 24 Z" fill="#5a5a6a" stroke="#3a3a4a" stroke-width="0.4"/><!-- Étoile de deuil --><circle cx="18" cy="3" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.7"/><circle cx="18" cy="3" r="1" fill="#c9a84c" opacity="0.6"/></svg>');
+
+// CHÂTEAUX DU RHIN — château à rocher sépia
+var iconRhein = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(40,80,160,.85))"><!-- Rocher --><path d="M4 34 Q8 28 14 28 Q18 26 22 28 Q28 28 32 34 Z" fill="#5a5040" stroke="#3a3020" stroke-width="0.5"/><!-- Corps principal --><rect x="10" y="16" width="16" height="12" rx="0.5" fill="#8070a0" stroke="#5a5080" stroke-width="0.6"/><!-- Tour gauche --><rect x="6" y="10" width="7" height="18" rx="0.5" fill="#7060a0" stroke="#5a5080" stroke-width="0.5"/><!-- Tour droite --><rect x="23" y="12" width="7" height="16" rx="0.5" fill="#7060a0" stroke="#5a5080" stroke-width="0.5"/><!-- Crénaux tour gauche --><rect x="6" y="8" width="1.8" height="3" fill="#7060a0"/><rect x="9" y="8" width="1.8" height="3" fill="#7060a0"/><rect x="12" y="8" width="1.8" height="3" fill="#7060a0"/><!-- Crénaux tour droite --><rect x="23" y="10" width="1.8" height="3" fill="#7060a0"/><rect x="26" y="10" width="1.8" height="3" fill="#7060a0"/><rect x="29" y="10" width="1.8" height="3" fill="#7060a0"/><!-- Porte entree --><path d="M15 28 Q15 22 18 22 Q21 22 21 28" fill="#2a1808"/><rect x="15" y="24" width="6" height="4" fill="#2a1808"/><!-- Fenêtres --><rect x="8" y="14" width="3" height="4" rx="0.5" fill="#2a1808"/><rect x="25" y="16" width="3" height="4" rx="0.5" fill="#2a1808"/><!-- Étendard --><line x1="9.5" y1="8" x2="9.5" y2="3" stroke="#c9a84c" stroke-width="0.8"/><path d="M9.5 3 L16 5 L9.5 7 Z" fill="#c8102e" stroke="#8a0010" stroke-width="0.4"/></svg>');
+
+// NATURE / FORÊT-NOIRE — arbres sépia
+var iconNa = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,100,50,.8))"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1e6030" stroke="#0e4020" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28a040" opacity="0.4"/><circle cx="10" cy="12" r="5" fill="#28903c"/><circle cx="26" cy="14" r="4" fill="#1e7028"/></svg>');
+
+// ARCHÉOLOGIE — amphore romaine
+var iconArch = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,120,20,.8))"><rect x="6" y="28" width="24" height="4" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="18" fill="#c9a84c"/><rect x="16" y="10" width="4" height="18" fill="#c9a84c"/><rect x="24" y="10" width="4" height="18" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>');
+
+// GASTRONOMIE — saucisse & bretzel sépia
+var iconGast = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><!-- Bretzel --><path d="M18 8 Q14 4 10 8 Q6 12 10 16 Q12 18 15 16 Q18 14 18 18 Q18 22 14 24 Q10 26 10 22 Q10 18 14 18" fill="none" stroke="#b07010" stroke-width="2.8" stroke-linecap="round"/><!-- Deuxième boucle --><path d="M18 8 Q22 4 26 8 Q30 12 26 16 Q24 18 21 16 Q18 14 18 18 Q18 22 22 24 Q26 26 26 22 Q26 18 22 18" fill="none" stroke="#b07010" stroke-width="2.8" stroke-linecap="round"/><!-- Sel sur le bretzel --><circle cx="12" cy="10" r="1" fill="white" opacity="0.8"/><circle cx="24" cy="10" r="1" fill="white" opacity="0.8"/><circle cx="18" cy="18" r="0.8" fill="white" opacity="0.8"/><!-- Saucisse (Bratwurst) --><path d="M8 30 Q14 26 22 28 Q28 30 30 28" fill="none" stroke="#c06010" stroke-width="3.5" stroke-linecap="round"/><path d="M8 30 Q14 26 22 28 Q28 30 30 28" fill="none" stroke="#e08030" stroke-width="2" stroke-linecap="round" opacity="0.5"/><!-- Striures du gril --><line x1="12" y1="29.5" x2="12" y2="27" stroke="#8a4008" stroke-width="0.6" opacity="0.7"/><line x1="16" y1="28" x2="16" y2="26" stroke="#8a4008" stroke-width="0.6" opacity="0.7"/><line x1="20" y1="28.5" x2="20" y2="26.5" stroke="#8a4008" stroke-width="0.6" opacity="0.7"/><line x1="24" y1="28.5" x2="24" y2="27" stroke="#8a4008" stroke-width="0.6" opacity="0.7"/></svg>');
+
+// THERMAL / SPA — source chaude
+var iconSpa = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,120,180,.85))"><!-- Bassin --><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8" stroke="#0e3a7a" stroke-width="0.7"/><!-- Eau --><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><!-- Vague de surface --><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><!-- Vapeur 1 --><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><!-- Vapeur 2 --><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><!-- Vapeur 3 --><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><!-- Bord du bassin --><ellipse cx="18" cy="28" rx="13" ry="5" fill="none" stroke="#c9a84c" stroke-width="0.6" opacity="0.6"/></svg>');
+
+// GOLF — green sépia
+var iconGolf = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,40,10,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#3a7a28" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#4a9a34" opacity="0.7"/><ellipse cx="12" cy="29.5" rx="3" ry="1" fill="#1a4a10" opacity="0.55"/><circle cx="12" cy="29" r="1.8" fill="#1a3008"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c8102e" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/><circle cx="19.5" cy="27.2" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="21.2" cy="27.5" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="20.2" cy="29" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/></svg>');
+
+// AIGLE — icône de faune (Bundesadler simplifié)
+var iconWild = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,100,10,.85))"><!-- Corps --><path d="M18 20 Q12 18 10 14 Q10 10 14 9 Q18 8 22 9 Q26 10 26 14 Q24 18 18 20 Z" fill="#c8960a" stroke="#7a5008" stroke-width="0.7"/><!-- Aile gauche étalée --><path d="M10 14 Q4 10 2 8 Q6 10 10 12 Q6 8 7 6 Q11 9 12 12 Z" fill="#b07010" opacity="0.9"/><!-- Aile droite étalée --><path d="M26 14 Q32 10 34 8 Q30 10 26 12 Q30 8 29 6 Q25 9 24 12 Z" fill="#b07010" opacity="0.9"/><!-- Tête --><circle cx="18" cy="8" r="4.5" fill="#c8960a" stroke="#7a5008" stroke-width="0.6"/><!-- Oeil --><circle cx="19.5" cy="7" r="1.5" fill="#1a0800"/><circle cx="20" cy="6.5" r="0.5" fill="white" opacity="0.7"/><!-- Bec --><path d="M22 8 L26 9 L22 10 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.4"/><!-- Queue --><path d="M14 20 Q12 28 10 32 Q14 30 16 26 Q17 30 18 32 Q19 30 20 26 Q22 30 26 32 Q24 28 22 20 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/><!-- Serres --><line x1="14" y1="26" x2="11" y2="30" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/><line x1="22" y1="26" x2="25" y2="30" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/></svg>');
+
+// DATA — 17 catégories
+var DATA = {
+  monument:{icon:iconM,color:'#c9a84c',label:'⚔️ Monument historique',pts:[
+    {lat:52.5163,lng:13.3777,n:"Porte de Brandebourg",c:"Berlin",d:"Symbole de la réunification allemande. Érigée en 1791, elle incarna 28 ans la division Est/Ouest.",u:"https://fr.m.wikipedia.org/wiki/Porte_de_Brandebourg?useskin=vector"},
+    {lat:52.5186,lng:13.4081,n:"East Side Gallery — Mur de Berlin",c:"Berlin",d:"1,3 km du mur de Berlin couvert de fresques. Symbole de la Réunification du 9 novembre 1989.",u:"https://fr.m.wikipedia.org/wiki/East_Side_Gallery?useskin=vector"},
+    {lat:52.5138,lng:13.3827,n:"Mémorial de l'Holocauste",c:"Berlin",d:"2 711 stèles de béton — Peter Eisenman (2005). Mémorial aux Juifs d'Europe assassinés.",u:"https://fr.m.wikipedia.org/wiki/M%C3%A9morial_de_l%27Holocauste_(Berlin)?useskin=vector"},
+    {lat:51.8976,lng:8.8396,n:"Hermannsdenkmal",c:"Detmold, NRW",d:"Statue d'Arminius (54 m), vainqueur de Rome à Teutobourg en l'an 9. Inauguré 1875.",u:"https://fr.m.wikipedia.org/wiki/Hermannsdenkmal?useskin=vector"},
+    {lat:51.3397,lng:12.3731,n:"Völkerschlachtdenkmal",c:"Leipzig, Saxe",d:"Mémorial colossal (91 m) de la Bataille des Nations contre Napoléon — oct. 1813.",u:"https://fr.m.wikipedia.org/wiki/V%C3%B6lkerschlachtdenkmal?useskin=vector"},
+    {lat:52.5208,lng:13.3761,n:"Reichstag — Coupole de Verre",c:"Berlin",d:"Parlement allemand, coupole transparente de Norman Foster (1999). Symbole de la démocratie.",u:"https://fr.m.wikipedia.org/wiki/Reichstag_(b%C3%A2timent)?useskin=vector"},
+    {lat:48.1351,lng:11.5820,n:"Marienplatz — Neues Rathaus",c:"Munich, Bavière",d:"Cœur de Munich. Glockenspiel néo-gothique, 43 cloches, 32 figures automates.",u:"https://fr.m.wikipedia.org/wiki/Marienplatz_(Munich)?useskin=vector"},
+    {lat:52.5037,lng:13.3396,n:"Topographie de la Terreur",c:"Berlin",d:"Ancienne centrale SS et Gestapo. Fragments du Mur en toile de fond. Entrée libre.",u:"https://fr.m.wikipedia.org/wiki/Topographie_de_la_Terreur?useskin=vector"},
+    {lat:50.9419,lng:11.9560,n:"Château de la Wartburg",c:"Eisenach, Thuringe",d:"Luther y traduit la Bible (1521). Berceau de la langue allemande moderne. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Wartburg?useskin=vector"},
+    {lat:53.6355,lng:11.4012,n:"Château de Schwerin",c:"Schwerin, Mecklembourg",d:"Île romantique au milieu du lac. Inspiré de Chambord. 83 tours et tourelles.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Schwerin?useskin=vector"}
+  ]},
+  castle:{icon:iconC,color:'#2a5cbf',label:'🏰 Château & Forteresse',pts:[
+    {lat:47.5576,lng:10.7498,n:"Château de Neuschwanstein",c:"Schwangau, Bavière",d:"Château de conte de fées de Louis II (1869). Modèle du château Disney. 1,5 M visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Neuschwanstein?useskin=vector"},
+    {lat:49.3988,lng:8.7169,n:"Château de Heidelberg",c:"Heidelberg, Bade-Wurtemberg",d:"Ruines Renaissance au-dessus du Neckar. Électeurs palatins. Tonneau de 220 000 litres.",u:"https://fr.m.wikipedia.org/wiki/Ruines_de_Heidelberg?useskin=vector"},
+    {lat:50.1637,lng:7.3331,n:"Château d&#39;Eltz",c:"Wierschem, Rhénanie",d:"Habité sans interruption depuis 800 ans par la même famille. Joyau de la Moselle.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_d%27Eltz?useskin=vector"},
+    {lat:48.3232,lng:9.0579,n:"Château des Hohenzollern",c:"Bisingen, Bade-Wurtemberg",d:"Berceau de la dynastie impériale. Sommet du Zollerberg (855 m). Néo-gothique romantique.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Hohenzollern?useskin=vector"},
+    {lat:49.4581,lng:11.0454,n:"Château Impérial de Nuremberg",c:"Nuremberg, Bavière",d:"Résidence favorite des empereurs du Saint-Empire. Tour Sinwell du XIIIe siècle.",u:"https://fr.m.wikipedia.org/wiki/N%C3%BCrnberger_Burg?useskin=vector"},
+    {lat:47.5569,lng:10.7402,n:"Château de Hohenschwangau",c:"Schwangau, Bavière",d:"Enfance de Louis II. Fresques du cycle du Cygne, légendes médiévales et Wagner.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Hohenschwangau?useskin=vector"},
+    {lat:53.7694,lng:12.9163,n:"Château de Güstrow",c:"Güstrow, Mecklembourg",d:"Plus beau château Renaissance du nord de l&#39;Allemagne (XVIe s.). Résidence des ducs de Mecklembourg.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_G%C3%BCstrow?useskin=vector"},
+    {lat:51.5455,lng:11.9515,n:"Château de Querfurt",c:"Querfurt, Saxe-Anhalt",d:"L'une des plus grandes forteresses médiévales d'Allemagne centrale. Tour du XIe siècle.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Querfurt?useskin=vector"},
+    {lat:50.0646,lng:8.6209,n:"Château de Frankenstein",c:"Mühltal, Hesse",d:"Ruines du château médiéval inspirant la légende de Frankenstein. Mary Shelley y trouva son inspiration.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Frankenstein_(Hesse)?useskin=vector"},
+    {lat:50.9372,lng:10.3044,n:"Château de Tenneberg",c:"Waltershausen, Thuringe",d:"Château médiéval dominant la Thuringe. Ancienne résidence des comtes de Gleichen.",u:"https://fr.m.wikipedia.org/wiki/Wartburg?useskin=vector"}
+  ]},
+  cathedral:{icon:iconK,color:'#6a1fa0',label:'⛪ Cathédrale & Basilique',pts:[
+    {lat:50.9413,lng:6.9583,n:"Cathédrale de Cologne",c:"Cologne, Rhénanie",d:"Chef-d&#39;œuvre gothique 1248–1880. Reliques des Rois Mages. 157 m, UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Cologne?useskin=vector"},
+    {lat:49.3205,lng:8.4418,n:"Cathédrale de Spire",c:"Spire, Rhénanie",d:"Plus grande cathédrale romane du monde (1030). 8 empereurs y sont inhumés. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Speyer?useskin=vector"},
+    {lat:50.7742,lng:6.0836,n:"Cathédrale d'Aix-la-Chapelle",c:"Aix-la-Chapelle, NRW",d:"Chapelle de Charlemagne (800). 1er UNESCO d'Allemagne. Trône de Charlemagne.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_d%27Aix-la-Chapelle?useskin=vector"},
+    {lat:51.0504,lng:13.7373,n:"Frauenkirche de Dresde",c:"Dresde, Saxe",d:"Reconstruite 1994–2005. Symbole de réconciliation. Coupole de grès de 96 m.",u:"https://fr.m.wikipedia.org/wiki/Frauenkirche_de_Dresde?useskin=vector"},
+    {lat:49.8988,lng:10.8986,n:"Cathédrale de Bamberg",c:"Bamberg, Bavière",d:"Roman XIe–XIIIe s. Le Cavalier de Bamberg — 1ère statue équestre médiévale d&#39;Europe. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Bamberg?useskin=vector"},
+    {lat:47.8061,lng:10.8818,n:"Wieskirche — Église du Pré",c:"Steingaden, Bavière",d:"Rococo bavarois de Zimmermann (1754). «Chapelle Sixtine de l&#39;Allemagne». UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Wieskirche?useskin=vector"},
+    {lat:49.3200,lng:8.4426,n:"Cathédrale de Worms",c:"Worms, Rhénanie",d:"Cathédrale romane du XIe s. où Luther parla au Parlement en 1521 — 'Ich stehe hier'.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Worms?useskin=vector"},
+    {lat:48.0006,lng:7.8479,n:"Cathédrale de Fribourg-en-Brisgau",c:"Freiburg, Bade-Wurtemberg",d:"Tour en dentelle de grès rouge (116 m). Jakobsweg. Vue panoramique sur la Forêt-Noire.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Fribourg-en-Brisgau?useskin=vector"},
+    {lat:52.3745,lng:9.7395,n:"Cathédrale de Hanovre — Marktkirche",c:"Hanovre, Basse-Saxe",d:"Chef-d&#39;œuvre gothique du XIVe s. Briques nordiques. Fenêtres de Chagall.",u:"https://fr.m.wikipedia.org/wiki/Marktkirche_de_Hanovre?useskin=vector"},
+    {lat:51.4547,lng:7.0116,n:"Cathédrale d'Essen",c:"Essen, Rhénanie",d:"Trésor médiéval exceptionnel — Madone d'or de l'an 980, la plus ancienne statue de la Vierge d'Occident.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_d%27Essen?useskin=vector"}
+  ]},
+  museum:{icon:iconG,color:'#1e8250',label:'🎨 Musée & Galerie',pts:[
+    {lat:52.5211,lng:13.3966,n:"Pergamonmuseum",c:"Berlin",d:"Autel de Pergame, Porte d&#39;Ishtar de Babylone. Île aux Musées UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pergamonmuseum?useskin=vector"},
+    {lat:48.1485,lng:11.5696,n:"Alte Pinakothek",c:"Munich, Bavière",d:"Dürer, Rubens, Raphaël, Titien. Autoportrait de Dürer à 28 ans.",u:"https://fr.m.wikipedia.org/wiki/Alte_Pinakothek?useskin=vector"},
+    {lat:51.0545,lng:13.7402,n:"Zwinger de Dresde",c:"Dresde, Saxe",d:"Galerie des maîtres anciens, Madone Sixtine de Raphaël. Baroque de Pöppelmann.",u:"https://fr.m.wikipedia.org/wiki/Zwinger_(Dresde)?useskin=vector"},
+    {lat:52.5090,lng:13.3765,n:"Neues Museum — Nefertiti",c:"Berlin",d:"Buste de Néfertiti (1340 av. J.-C.), la star de Berlin. David Chipperfield, UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Neues_Museum_(Berlin)?useskin=vector"},
+    {lat:48.7875,lng:9.1941,n:"Staatsgalerie Stuttgart",c:"Stuttgart, Bade-Wurtemberg",d:"Collection d&#39;art de la Renaissance au XXe s. Extension de James Stirling (1984).",u:"https://fr.m.wikipedia.org/wiki/Staatsgalerie_Stuttgart?useskin=vector"},
+    {lat:52.5230,lng:13.4060,n:"Bode Museum",c:"Berlin, Île aux Musées",d:"Sculptures de l&#39;Antiquité au XVIIIe s. Pièces de monnaie antiques. Architecture wilhelmienne.",u:"https://fr.m.wikipedia.org/wiki/Bode-Museum?useskin=vector"},
+    {lat:48.1555,lng:11.5799,n:"Deutsches Museum",c:"Munich, Bavière",d:"Le plus grand musée des sciences et techniques du monde (73 000 objets). Île de la Isar.",u:"https://fr.m.wikipedia.org/wiki/Deutsches_Museum?useskin=vector"},
+    {lat:51.0595,lng:13.7454,n:"Grünes Gewölbe",c:"Dresde, Saxe",d:"Trésor d'Auguste le Fort — la collection de joyaux historiques la plus riche d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Gr%C3%BCnes_Gew%C3%B6lbe?useskin=vector"},
+    {lat:53.5491,lng:10.0072,n:"Kunsthalle Hamburg",c:"Hambourg",d:"Collection de peinture de la Moyen Âge à l&#39;art contemporain. Gaspar David Friedrich.",u:"https://fr.m.wikipedia.org/wiki/Kunsthalle_Hamburg?useskin=vector"},
+    {lat:51.4617,lng:7.0150,n:"Museum Folkwang",c:"Essen, Rhénanie",d:"L'une des plus belles collections d'art moderne — Gauguin, Van Gogh, Cézanne.",u:"https://fr.m.wikipedia.org/wiki/Museum_Folkwang?useskin=vector"}
+  ]},
+  unesco:{icon:iconU,color:'#d4a020',label:'🌟 Site UNESCO',pts:[
+    {lat:50.7739,lng:6.0830,n:"Cathédrale d'Aix-la-Chapelle",c:"Aix-la-Chapelle",d:"1er site UNESCO d'Allemagne (1978). Chapelle de Charlemagne, coronations royales.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_d%27Aix-la-Chapelle?useskin=vector"},
+    {lat:52.3965,lng:13.0587,n:"Palais de Sanssouci",c:"Potsdam, Brandebourg",d:"Versailles de Prusse, Frédéric le Grand (1747). Rococo prussien, jardins en terrasses. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Sanssouci?useskin=vector"},
+    {lat:49.3200,lng:8.4418,n:"Cathédrales de Spire, Worms, Mayence",c:"Rhénanie-Palatinat",d:"Trois cathédrales romanes impériales du Rhin supérieur. Trio UNESCO remarquable.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Speyer?useskin=vector"},
+    {lat:50.9413,lng:6.9583,n:"Cathédrale de Cologne",c:"Cologne, NRW",d:"Cathédrale gothique (1248–1880). Reliques des Rois Mages. UNESCO 1996.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Cologne?useskin=vector"},
+    {lat:51.8448,lng:10.5405,n:"Mines de Rammelsberg",c:"Goslar, Basse-Saxe",d:"1 000 ans d&#39;exploitation minière continue. Goslar médiévale. UNESCO 1992.",u:"https://fr.m.wikipedia.org/wiki/Mines_de_Rammelsberg?useskin=vector"},
+    {lat:49.8988,lng:10.8986,n:"Vieille ville de Bamberg",c:"Bamberg, Bavière",d:"Vieille ville médiévale quasi intacte. Hôtel de ville sur pilotis. UNESCO 1993.",u:"https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Bamberg?useskin=vector"},
+    {lat:50.9419,lng:11.9560,n:"Wartburg",c:"Eisenach, Thuringe",d:"Luther, Sainte-Élisabeth, Chanson des Nibelungen. UNESCO 1999.",u:"https://fr.m.wikipedia.org/wiki/Wartburg?useskin=vector"},
+    {lat:51.8283,lng:12.2395,n:"Bauhaus — Dessau",c:"Dessau, Saxe-Anhalt",d:"École du Bauhaus (Gropius), révolution du design moderne 1919–1933. UNESCO 1996.",u:"https://fr.m.wikipedia.org/wiki/Bauhaus?useskin=vector"},
+    {lat:51.6355,lng:7.2213,n:"Colonie Industrielle de Zollverein",c:"Essen, Rhénanie",d:"Mine de charbon et cokerie — la plus belle mine du monde (architecte Schupp). UNESCO 2001.",u:"https://fr.m.wikipedia.org/wiki/Complexe_industriel_de_la_mine_de_charbon_de_Zollverein?useskin=vector"},
+    {lat:49.0069,lng:8.4037,n:"Jardin du Rhin supérieur — Forêt-Noire",c:"Bade-Wurtemberg",d:"Paysage culturel du Rhin supérieur. Cathédrale de Fribourg, Vignoble, Forêt-Noire. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Forêt-Noire?useskin=vector"}
+  ]},
+  palace:{icon:iconP,color:'#c8a050',label:'👑 Palais Royal & Résidence',pts:[
+    {lat:52.3965,lng:13.0587,n:"Palais de Sanssouci",c:"Potsdam, Brandebourg",d:"Résidence d&#39;été de Frédéric le Grand (1747). Rococo prussien. Tombe de Frédéric II.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Sanssouci?useskin=vector"},
+    {lat:48.1426,lng:11.5027,n:"Palais de Nymphenburg",c:"Munich, Bavière",d:"Résidence d&#39;été des rois de Bavière. Façade de 700 m. Lieu de naissance de Louis II.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Nymphenburg?useskin=vector"},
+    {lat:48.1397,lng:11.5785,n:"Residenz de Munich",c:"Munich, Bavière",d:"130 salles, trésor royal des Wittelsbach. Opéra Cuvilliés, chef-d&#39;œuvre rococo.",u:"https://fr.m.wikipedia.org/wiki/R%C3%A9sidence_de_Munich?useskin=vector"},
+    {lat:52.4012,lng:13.0600,n:"Nouveau Palais de Potsdam",c:"Potsdam, Brandebourg",d:"Dernier grand palais prussien (1769). 200 salles. Façade triomphale de Frédéric le Grand.",u:"https://fr.m.wikipedia.org/wiki/Nouveau_Palais_(Potsdam)?useskin=vector"},
+    {lat:52.4132,lng:13.0554,n:"Palais de Charlottenhof",c:"Potsdam, Brandebourg",d:"Villa néo-classique de Schinkel dans le Parc de Sanssouci. Influence de la villa italienne.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Charlottenhof?useskin=vector"},
+    {lat:48.7061,lng:9.1532,n:"Ludwigsbourg — Versailles de Souabe",c:"Ludwigsbourg, Bade-Wurtemberg",d:"Château baroque le mieux conservé d&#39;Allemagne (452 pièces). Jardins à la française. Fabrique de porcelaine.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Ludwigsbourg?useskin=vector"},
+    {lat:48.0221,lng:10.8957,n:"Résidence de Kempten",c:"Kempten, Bavière",d:"Résidence baroque des Princes-Abbés (1651). Première reconstruction baroque sur sol germanique après la Guerre de Trente Ans.",u:"https://fr.m.wikipedia.org/wiki/R%C3%A9sidence_de_Kempten?useskin=vector"},
+    {lat:51.0572,lng:13.7461,n:"Palais Zwinger",c:"Dresde, Saxe",d:"Palais baroque d&#39;Auguste le Fort (1728). Galerie des maîtres anciens, Madone Sixtine.",u:"https://fr.m.wikipedia.org/wiki/Zwinger_(Dresde)?useskin=vector"}
+  ]},
+  medieval:{icon:iconV,color:'#7a4a1a',label:'🏘️ Villes Médiévales',pts:[
+    {lat:49.3788,lng:10.1798,n:"Rothenburg ob der Tauber",c:"Franconie, Bavière",d:"Ville médiévale la mieux préservée d&#39;Allemagne. Remparts complets du XIVe s. Route Romantique.",u:"https://fr.m.wikipedia.org/wiki/Rothenburg_ob_der_Tauber?useskin=vector"},
+    {lat:49.8988,lng:10.8986,n:"Bamberg",c:"Haute-Franconie, Bavière",d:"Vieille ville UNESCO quasi intacte. Hôtel de ville sur l'Île. 1 000 ans d'histoire. Bière fumée.",u:"https://fr.m.wikipedia.org/wiki/Bamberg?useskin=vector"},
+    {lat:51.5122,lng:11.2875,n:"Quedlinburg",c:"Saxe-Anhalt",d:"500 maisons à colombages conservées. Château-abbaye des Ottoniens. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Quedlinburg?useskin=vector"},
+    {lat:49.4530,lng:11.0767,n:"Nuremberg médiévale",c:"Nuremberg, Bavière",d:"Forteresse impériale, vieille ville médiévale, marché de Noël le plus célèbre d&#39;Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Nuremberg?useskin=vector"},
+    {lat:53.0793,lng:8.8017,n:"Brême médiévale",c:"Brême",d:"Hôtel de ville gothique et Roland — UNESCO 2004. Hansevile marchande depuis le XIe s.",u:"https://fr.m.wikipedia.org/wiki/Br%C3%AAme?useskin=vector"},
+    {lat:53.5661,lng:9.9869,n:"Speicherstadt de Hambourg",c:"Hambourg",d:"Quartier des entrepôts en brique rouge sur l'Elbe (XIXe s.). Plus grand ensemble d'entrepôts du monde. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Speicherstadt?useskin=vector"},
+    {lat:50.3433,lng:7.5753,n:"Koblenz médiévale",c:"Koblenz, Rhénanie",d:"Confluence du Rhin et de la Moselle — le Deutsches Eck (angle allemand). Forteresse d&#39;Ehrenbreitstein.",u:"https://fr.m.wikipedia.org/wiki/Coblence?useskin=vector"},
+    {lat:48.5165,lng:9.0581,n:"Tübingen",c:"Tübingen, Bade-Wurtemberg",d:"Vieille ville universitaire en escaliers sur le Neckar. Château Hohentübingen. Hölderlin, Hegel, Schelling.",u:"https://fr.m.wikipedia.org/wiki/T%C3%BCbingen?useskin=vector"},
+    {lat:48.9920,lng:12.3820,n:"Regensburg",c:"Ratisbonne, Bavière",d:"Vieux-pont du XIIe s., cathédrale gothique. Ville la mieux préservée d&#39;Allemagne. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Ratisbonne?useskin=vector"},
+    {lat:47.9990,lng:7.8421,n:"Freiburg im Breisgau",c:"Fribourg-en-Brisgau, BW",d:"Cathédrale en dentelle de grès. Vieille ville avec ruisseaux (Bächle). Porte du Schwarzwald.",u:"https://fr.m.wikipedia.org/wiki/Fribourg-en-Brisgau?useskin=vector"}
+  ]},
+  roman:{icon:iconA,color:'#148c8c',label:'🏛️ Architecture Romane & Antique',pts:[
+    {lat:49.7535,lng:6.6394,n:"Porta Nigra",c:"Trèves (Trier), Rhénanie",d:"Plus grande porte romaine au nord des Alpes (IIe s.). Trèves, ancienne capitale romaine. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Porta_Nigra?useskin=vector"},
+    {lat:49.7551,lng:6.6381,n:"Thermes Impériaux de Trèves",c:"Trèves, Rhénanie",d:"Parmi les plus grands thermes romains d&#39;Europe. Kaltwasserbad encore visible. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Thermes_imp%C3%A9riaux_de_Tr%C3%A8ves?useskin=vector"},
+    {lat:49.7522,lng:6.6399,n:"Amphithéâtre de Trèves",c:"Trèves, Rhénanie",d:"Amphithéâtre romain du IIe s., capacité 20 000 spectateurs. Caves à lions conservées. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Amphith%C3%A9%C3%A2tre_de_Tr%C3%A8ves?useskin=vector"},
+    {lat:50.7742,lng:6.0836,n:"Cathédrale d'Aix-la-Chapelle — Thermes",c:"Aix-la-Chapelle, NRW",d:"Sources thermales romaines sous la ville — Aquae Granni. Charlemagne aimait s'y baigner.",u:"https://fr.m.wikipedia.org/wiki/Aix-la-Chapelle?useskin=vector"},
+    {lat:51.8448,lng:10.5405,n:"Limes — Frontière de l&#39;Empire",c:"Germanie Supérieure",d:"Le Limes germanique — 550 km de murailles et tours romaines. Classé UNESCO en 2005.",u:"https://fr.m.wikipedia.org/wiki/Limes_germanique?useskin=vector"},
+    {lat:49.4521,lng:6.9594,n:"Villa romaine de Wachenheim",c:"Moselle, Rhénanie",d:"Mosaïques romaines exceptionnelles du IVe s. Villa de la Moselle.",u:"https://fr.m.wikipedia.org/wiki/Wachenheim?useskin=vector"},
+    {lat:48.4005,lng:9.7951,n:"Grotte de l&#39;Homme de Hohle Fels",c:"Alb-Danube, Bade-Wurtemberg",d:"Vénus de Hohle Fels (35 000 ans) — plus ancienne statuette humaine. Grottes UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Grottes_et_art_de_l%27%C3%82ge_de_glace_dans_le_Jura_souabe?useskin=vector"},
+    {lat:53.8508,lng:10.6863,n:"Château de Lübeck — Holstentor",c:"Lübeck, Schleswig-Holstein",d:"Holstentor — porte médiévale hanseatique (1478). Symbole de Lübeck. Ancienne capitale de la Hanse. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Holstentor?useskin=vector"}
+  ]},
+  abbey:{icon:iconAb,color:'#5a3010',label:'⛩️ Abbayes & Monastères',pts:[
+    {lat:47.7069,lng:9.0954,n:"Abbaye de Reichenau",c:"Île de Reichenau, Bade-Wurtemberg",d:"Monastère bénédictin carolingien. Fresques ottoniennes du Xe s. Île du Lac de Constance. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Reichenau?useskin=vector"},
+    {lat:49.7584,lng:9.1620,n:"Abbaye de Bronnbach",c:"Wertheim, Bade-Wurtemberg",d:"Abbaye cistercienne du XIIe s. dans la vallée de la Tauber. Cloître baroque conservé.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Bronnbach?useskin=vector"},
+    {lat:47.6944,lng:8.6325,n:"Abbaye de Saint-Gall",c:"Saint-Gall, proche frontière",d:"Bibliothèque baroque (1758), 170 000 manuscrits médiévaux. UNESCO. Haut lieu culturel carolingien.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Saint-Gall?useskin=vector"},
+    {lat:49.2035,lng:10.8127,n:"Abbaye d&#39;Ebrach",c:"Ebrach, Bavière",d:"Abbaye cistercienne fondée en 1127. Église baroque du XVIIIe s. Nécropole des princes de Würzburg.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_d%27Ebrach?useskin=vector"},
+    {lat:53.6217,lng:10.8740,n:"Monastère de Loccum",c:"Loccum, Basse-Saxe",d:"L'un des monastères cisterciens les mieux conservés d'Europe. Vie monastique continue depuis 1163.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Loccum?useskin=vector"},
+    {lat:51.8280,lng:9.0386,n:"Abbaye de Corvey",c:"Höxter, Rhénanie",d:"Westwerk carolingien du IXe s., un des rares en Europe. Bibliothèque de Heinrich Hoffmann. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Corvey?useskin=vector"},
+    {lat:47.7535,lng:8.8312,n:"Abbaye de Beuron",c:"Beuron, Bade-Wurtemberg",d:"Spectaculaire abbaye bénédictine dans les gorges du Danube. École d&#39;art sacré beuronaise.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Beuron?useskin=vector"},
+    {lat:49.9530,lng:11.5772,n:"Abbaye de Banz",c:"Bad Staffelstein, Bavière",d:"Abbaye baroque dominant la vallée du Main. Baldassarre Neumann. Vue panoramique sur la Franconie.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Banz?useskin=vector"}
+  ]},
+  tourist:{icon:iconT,color:'#c8102e',label:'⭐ Villes Touristiques',pts:[
+    {lat:52.5200,lng:13.4050,n:"Berlin",c:"Capitale fédérale",d:"Capitale réunifiée. Culture, nuit, histoire. Olympe de la scène artistique européenne.",u:"https://fr.m.wikipedia.org/wiki/Berlin?useskin=vector"},
+    {lat:48.1351,lng:11.5820,n:"Munich",c:"Capitale de Bavière",d:"Oktoberfest, BMW, Marienplatz, Englischer Garten. Porte des Alpes. La ville la plus heureuse d&#39;Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Munich?useskin=vector"},
+    {lat:53.5753,lng:10.0153,n:"Hambourg",c:"Hambourg",d:"Porte de l&#39;Allemagne sur le monde. Reeperbahn, Hafencity, Miniatur Wunderland. Beatles en 1960.",u:"https://fr.m.wikipedia.org/wiki/Hambourg?useskin=vector"},
+    {lat:50.1109,lng:8.6821,n:"Francfort-sur-le-Main",c:"Hesse",d:"Skyline unique en Europe. Römerberg médiéval. Goethe natif. Saucisses vertes et Riesling.",u:"https://fr.m.wikipedia.org/wiki/Francfort-sur-le-Main?useskin=vector"},
+    {lat:49.4521,lng:11.0767,n:"Nuremberg",c:"Bavière",d:"Vieille ville impériale. Marché de Noël — le plus célèbre du monde (Christkindlesmarkt).",u:"https://fr.m.wikipedia.org/wiki/Nuremberg?useskin=vector"},
+    {lat:51.0504,lng:13.7373,n:"Dresde",c:"Saxe",d:"Florence de l'Elbe. Zwinger, Semperoper, Frauenkirche. Vallée de l'Elbe baroque.",u:"https://fr.m.wikipedia.org/wiki/Dresde?useskin=vector"},
+    {lat:53.8508,lng:10.6863,n:"Lübeck",c:"Schleswig-Holstein",d:"Marzipan, Thomas Mann, Holstentor. Capitale de la Hanse, UNESCO.",u:"https://fr.m.wikipedia.org/wiki/L%C3%BCbeck?useskin=vector"},
+    {lat:50.9333,lng:6.9603,n:"Cologne",c:"Rhénanie-du-Nord-Westphalie",d:"La cathédrale gothique, le carnaval. Plus grande ville de Rhénanie.",u:"https://fr.m.wikipedia.org/wiki/Cologne?useskin=vector"},
+    {lat:49.3988,lng:8.6724,n:"Heidelberg",c:"Bade-Wurtemberg",d:"Université la plus ancienne d&#39;Allemagne (1386). Château. Douceur de vivre sur le Neckar.",u:"https://fr.m.wikipedia.org/wiki/Heidelberg?useskin=vector"},
+    {lat:47.9990,lng:7.8421,n:"Fribourg-en-Brisgau",c:"Bade-Wurtemberg",d:"La ville la plus ensoleillée d&#39;Allemagne. Porte de la Forêt-Noire. Vins du Bade.",u:"https://fr.m.wikipedia.org/wiki/Fribourg-en-Brisgau?useskin=vector"}
+  ]},
+  // ── CATÉGORIES SPÉCIFIQUES À L'ALLEMAGNE ──
+  brasserie:{icon:iconBeer,color:'#d4a020',label:'🍺 Brasseries & Biergärten',pts:[
+    {lat:48.1351,lng:11.5820,n:"Hofbräuhaus München",c:"Munich, Bavière",d:"Brasserie royale fondée en 1589 par Guillaume V. 1 000 places. Hitler y tint ses premiers discours. 10 000 litres/jour.",u:"https://fr.m.wikipedia.org/wiki/Hofbr%C3%A4uhaus_M%C3%BCnchen?useskin=vector"},
+    {lat:49.8988,lng:10.8986,n:"Bamberg — Capitale de la Bière",c:"Bamberg, Bavière",d:"9 brasseries pour 70 000 habitants — record mondial. Rauchbier (bière fumée) spécialité unique au monde.",u:"https://fr.m.wikipedia.org/wiki/Bamberg?useskin=vector"},
+    {lat:51.4825,lng:7.2162,n:"Brauerei Dortmund",c:"Dortmund, NRW",d:"Dortmund produisait plus de bière que Munich au XIXe s. Capitale mondiale du Dortmunder Export.",u:"https://fr.m.wikipedia.org/wiki/Dortmund?useskin=vector"},
+    {lat:48.1351,lng:11.6200,n:"Augustiner Biergarten",c:"Munich, Bavière",d:"Plus grande brasserie artisanale de Munich (1328). Le Biergarten sous les marronniers — tradition depuis 1812.",u:"https://fr.m.wikipedia.org/wiki/Augustiner-Br%C3%A4u?useskin=vector"},
+    {lat:48.8333,lng:9.7833,n:"Hoepfner Brauerei Karlsruhe",c:"Karlsruhe, Bade-Wurtemberg",d:"Brasserie château du XIXe s. à l&#39;architecture néo-Renaissance. Visite et dégustation.",u:"https://fr.m.wikipedia.org/wiki/Karlsruhe?useskin=vector"},
+    {lat:51.0504,lng:13.7373,n:"Dresdner Felsenkeller",c:"Dresde, Saxe",d:"Brasserie creusée dans le rocher (1838). Caves voûtées de grès. Pilsner et Schwarzbier saxons.",u:"https://fr.m.wikipedia.org/wiki/Dresde?useskin=vector"},
+    {lat:53.5753,lng:10.0153,n:"Ratsherrn Brauerei Hamburg",c:"Hambourg",d:"Brasserie artisanale dans les entrepôts historiques de Hambourg. Craft beer de l&#39;Elbe.",u:"https://fr.m.wikipedia.org/wiki/Hambourg?useskin=vector"},
+    {lat:50.9413,lng:6.9583,n:"Früh Kölsch Köln",c:"Cologne, Rhénanie",d:"Kölsch — bière blonde servie en verre de 20 cl (Stange), spécificité protégée de Cologne. 24 brasseries.",u:"https://fr.m.wikipedia.org/wiki/K%C3%B6lsch_(bi%C3%A8re)?useskin=vector"}
+  ]},
+  noel:{icon:iconXmas,color:'#1a7028',label:'🎄 Marchés de Noël',pts:[
+    {lat:49.4521,lng:11.0767,n:"Christkindlesmarkt Nuremberg",c:"Nuremberg, Bavière",d:"Le marché de Noël le plus célèbre du monde (XIVe s.). Le Christkind, ange de lumière, l&#39;inaugure chaque année.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Nuremberg?useskin=vector"},
+    {lat:50.9413,lng:6.9583,n:"Weihnachtsmarkt de Cologne",c:"Cologne, Rhénanie",d:"7 marchés de Noël simultanés, dont celui sous la cathédrale gothique. 3 millions de visiteurs.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Cologne?useskin=vector"},
+    {lat:51.0504,lng:13.7373,n:"Striezelmarkt de Dresde",c:"Dresde, Saxe",d:"Le plus ancien marché de Noël d&#39;Allemagne (1434). Stollen géant. Pyramide de Noël de 14 m.",u:"https://fr.m.wikipedia.org/wiki/Striezelmarkt?useskin=vector"},
+    {lat:48.1351,lng:11.5820,n:"Christkindlmarkt Munich",c:"Munich, Bavière",d:"Marché de Noël à l&#39;ombre de la Frauenkirche. Crèche géante, vin chaud, Lebkuchen.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Munich?useskin=vector"},
+    {lat:52.3745,lng:9.7395,n:"Weihnachtsmarkt Hanovre",c:"Hanovre, Basse-Saxe",d:"L'un des plus grands marchés de Noël d'Allemagne. 180 chalets sur la Opernplatz.",u:"https://fr.m.wikipedia.org/wiki/Hanovre?useskin=vector"},
+    {lat:48.5965,lng:7.7468,n:"Marché de Noël de Strasbourg",c:"Strasbourg (influence)",d:"À la frontière alsacienne, le «Christkindelsmärik» de Strasbourg — tradition germanique depuis 1570.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Strasbourg?useskin=vector"},
+    {lat:54.3233,lng:10.1228,n:"Weihnachtsmarkt Kiel",c:"Kiel, Schleswig-Holstein",d:"Marché de Noël nordique face à la mer Baltique. Ambiance scandinave et traditions maritimes.",u:"https://fr.m.wikipedia.org/wiki/Kiel?useskin=vector"},
+    {lat:53.5753,lng:10.0153,n:"Weihnachtsmarkt Hamburg",c:"Hambourg",d:"7 marchés dans la ville. Le marché du Rathaus sous l&#39;immense Hôtel de ville néo-Renaissance.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Hambourg?useskin=vector"}
+  ]},
+  memorial:{icon:iconWar,color:'#5a5a6a',label:'🕯️ Mémoriaux de Guerre',pts:[
+    {lat:52.5138,lng:13.3827,n:"Mémorial de l&#39;Holocauste",c:"Berlin",d:"2 711 stèles — Peter Eisenman (2005). Mémorial aux 6 millions de Juifs assassinés.",u:"https://fr.m.wikipedia.org/wiki/M%C3%A9morial_de_l%27Holocauste_(Berlin)?useskin=vector"},
+    {lat:52.5037,lng:13.3396,n:"Topographie de la Terreur",c:"Berlin",d:"Centrale SS et Gestapo. Fragments du Mur. Entrée libre. 1 million de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Topographie_de_la_Terreur?useskin=vector"},
+    {lat:51.3397,lng:12.3731,n:"Völkerschlachtdenkmal",c:"Leipzig, Saxe",d:"Mémorial (91 m) de la Bataille des Nations contre Napoléon, octobre 1813.",u:"https://fr.m.wikipedia.org/wiki/V%C3%B6lkerschlachtdenkmal?useskin=vector"},
+    {lat:52.5186,lng:13.4081,n:"East Side Gallery",c:"Berlin",d:"1,3 km du Mur de Berlin couvert de fresques. Mémorial vivant de la Réunification.",u:"https://fr.m.wikipedia.org/wiki/East_Side_Gallery?useskin=vector"},
+    {lat:51.3233,lng:12.4194,n:"Mémorial de la bataille de Leipzig",c:"Leipzig, Saxe",d:"Crypte avec les noms de 91 000 morts. Torches allumées pour les commémorations.",u:"https://fr.m.wikipedia.org/wiki/V%C3%B6lkerschlachtdenkmal?useskin=vector"},
+    {lat:50.8623,lng:6.0774,n:"Cimetière militaire de Lommel",c:"Belgique/NRW frontier",d:"Plus grand cimetière militaire allemand en Belgique. 38 560 soldats. Croix sombres en basalte.",u:"https://fr.m.wikipedia.org/wiki/Cimeti%C3%A8re_militaire_allemand_de_Lommel?useskin=vector"},
+    {lat:48.1351,lng:11.4500,n:"Camp de Dachau",c:"Dachau, Bavière",d:"Premier camp de concentration nazi (1933). Mémorial et musée permanent. 200 000 déportés.",u:"https://fr.m.wikipedia.org/wiki/Camp_de_concentration_de_Dachau?useskin=vector"},
+    {lat:51.1657,lng:10.4515,n:"Kyffhäuserdenkmal",c:"Kyffhäuser, Thuringe",d:"Monument impérial de Guillaume Ier (46 m). Légende de l&#39;Empereur Barberousse endormi dans la montagne.",u:"https://fr.m.wikipedia.org/wiki/Monument_de_Kyffh%C3%A4user?useskin=vector"}
+  ]},
+  rhin:{icon:iconRhein,color:'#6050a0',label:'🏰 Châteaux du Rhin',pts:[
+    {lat:50.2633,lng:7.7617,n:"Rocher de la Lorelei",c:"Sankt Goarshausen, Rhénanie",d:"Ardoise de 132 m. Sirène de Heinrich Heine (1824). Rhin le plus étroit et dangereux. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Rocher_de_la_Lor%C3%A9lei?useskin=vector"},
+    {lat:50.1637,lng:7.3331,n:"Château d&#39;Eltz",c:"Wierschem, Rhénanie",d:"800 ans dans la même famille. 100 pièces, 8 maisons-tours. Joyau de la Moselle.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_d%27Eltz?useskin=vector"},
+    {lat:50.2657,lng:7.6253,n:"Château de Rheinfels",c:"Sankt Goar, Rhénanie",d:"Plus grande ruine du Rhin moyen (XIIIe s.). Résista aux Français en 1692. Vue époustouflante.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Rheinfels?useskin=vector"},
+    {lat:50.1539,lng:7.6985,n:"Château de Maus",c:"Wellmich, Rhénanie",d:"'Château de la Souris' face au Château de l&#39;Ennemi — rivalité des comtes du Rhin. XIVe s.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Maus?useskin=vector"},
+    {lat:50.1547,lng:7.7295,n:"Château Katz",c:"Sankt Goarshausen, Rhénanie",d:"'Château du Chat' dominant la Lorelei. Électeurs de Trèves vs Katzenelnbogen. XIVe s. Vue sur le Rhin.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_Katz?useskin=vector"},
+    {lat:50.0831,lng:7.8984,n:"Château de Rheinstein",c:"Trechtingshausen, Rhénanie",d:"Château restauré par le prince de Prusse (1825). Belvédère du Rhin. Escalier en colimaçon.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Rheinstein?useskin=vector"},
+    {lat:50.0514,lng:7.8699,n:"Château de Reichenstein",c:"Trechtingshausen, Rhénanie",d:"Château des seigneurs brigands (Raubritter). Chevaliers Teutoniques. Collection de chasse médiévale.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Reichenstein?useskin=vector"},
+    {lat:49.9783,lng:7.9128,n:"Château de Gutenfels",c:"Kaub, Rhénanie",d:"Châteaux jumelés — Gutenfels et île-forteresse de Pfalzgrafenstein en plein Rhin (XIVe s.).",u:"https://fr.m.wikipedia.org/wiki/Pfalzgrafenstein?useskin=vector"},
+    {lat:50.3591,lng:7.5893,n:"Château de Stolzenfels",c:"Koblenz, Rhénanie",d:"Restauré par Schinkel pour le roi de Prusse (1845). Style néo-gothique romantique. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Stolzenfels?useskin=vector"},
+    {lat:49.9196,lng:7.9023,n:"Château de Sonneck",c:"Niederheimbach, Rhénanie",d:"Château des seigneurs brigands (XIIIe s.) restauré par les princes de Prusse. Vue splendide sur le Rhin.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Sonneck?useskin=vector"}
+  ]},
+  nature:{icon:iconNa,color:'#1e6030',label:'🌲 Parcs & Forêt-Noire',pts:[
+    {lat:47.9337,lng:8.1800,n:"Forêt-Noire (Schwarzwald)",c:"Bade-Wurtemberg",d:"Sombres forêts de sapins, sources du Danube, coucous, Bollenhut. Randonnées mythiques.",u:"https://fr.m.wikipedia.org/wiki/For%C3%AAt-Noire?useskin=vector"},
+    {lat:47.5553,lng:10.7501,n:"Parc National de Berchtesgaden",c:"Berchtesgaden, Bavière",d:"Seul parc national alpin d&#39;Allemagne. Lac Königssee aux eaux émeraude. Watzmann (2 713 m).",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Berchtesgaden?useskin=vector"},
+    {lat:53.1607,lng:13.8206,n:"Parc National de Müritz",c:"Mecklembourg",d:"Plus grand parc national terrestre d&#39;Allemagne. 117 lacs, cigognes, grues cendrées.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_M%C3%BCritz?useskin=vector"},
+    {lat:51.0618,lng:13.4000,n:"Parc National de la Suisse Saxonne",c:"Saxe",d:"Formations de grès spectaculaires (Bastei). Pont de rocher de 76 m. Elbe romantique.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Suisse_saxonne?useskin=vector"},
+    {lat:51.5855,lng:10.4028,n:"Parc National du Harz",c:"Basse-Saxe/Saxe-Anhalt",d:"Forêts de hêtres, Brocken (1 141 m) — montagne des sorcières. Chemin de fer à vapeur.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Harz?useskin=vector"},
+    {lat:49.3467,lng:8.8367,n:"Parc Naturel de l&#39;Odenwald",c:"Hesse/Bade-Wurtemberg",d:"Massif boisé romantique. Chemin des Nibelungen. Abbaye de Lorsch. Vue sur la plaine rhénane.",u:"https://fr.m.wikipedia.org/wiki/Odenwald?useskin=vector"},
+    {lat:47.7030,lng:9.0700,n:"Lac de Constance (Bodensee)",c:"Bade-Wurtemberg/Bavière",d:"'La mer intérieure de l&#39;Allemagne'. Île de Reichenau UNESCO, fleurs, vins, cathédrale de Constance.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Constance?useskin=vector"},
+    {lat:54.4338,lng:9.9500,n:"Schleswig-Holstein Wadden Sea",c:"Schleswig-Holstein",d:"Mer des Wadden — la plus grande zone intertidale du monde. Phoques, avocettes. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Mer_des_Wadden?useskin=vector"}
+  ]},
+  archaeology:{icon:iconArch,color:'#b47814',label:'🏺 Archéologie & Monuments Antiques',pts:[
+    {lat:49.7535,lng:6.6394,n:"Porta Nigra & Monuments Romains",c:"Trèves, Rhénanie",d:"Porte romaine, thermes, amphithéâtre, basilique. Trèves — la Rome du Nord. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Monuments_romains_de_Tr%C3%A8ves?useskin=vector"},
+    {lat:51.8448,lng:10.5405,n:"Limes Germanique",c:"Germanie Supérieure",d:"550 km de fortifications romaines. 900 tours, 60 forts. UNESCO 2005. Frontière de Rome.",u:"https://fr.m.wikipedia.org/wiki/Limes_germanique?useskin=vector"},
+    {lat:51.7456,lng:8.7630,n:"Grotte de l'Extrionat",c:"Detmold, NRW",d:"Ossements humains vieux de 120 000 ans. Homo neanderthalensis — l'homme de Néandertal.",u:"https://fr.m.wikipedia.org/wiki/Homme_de_N%C3%A9andertal?useskin=vector"},
+    {lat:48.4005,lng:9.7951,n:"Grottes de l'Âge de Glace — Jura Souabe",c:"Alb-Danube, BW",d:"Vénus de Hohle Fels (35 000 ans). Premières œuvres d'art humain. UNESCO 2017.",u:"https://fr.m.wikipedia.org/wiki/Grottes_et_art_de_l%27%C3%82ge_de_glace_dans_le_Jura_souabe?useskin=vector"},
+    {lat:51.8283,lng:12.2395,n:"Bauhaus Dessau",c:"Dessau, Saxe-Anhalt",d:"École fondée par Gropius (1919). Révolution du design. Bâtiments UNESCO 1996.",u:"https://fr.m.wikipedia.org/wiki/Bauhaus?useskin=vector"},
+    {lat:49.8164,lng:6.6378,n:"Villa romaine de Nennig",c:"Nennig, Sarre",d:"La plus grande mosaïque romaine conservée au nord des Alpes (IIe–IIIe s., 164 m²).",u:"https://fr.m.wikipedia.org/wiki/Villa_romaine_de_Nennig?useskin=vector"},
+    {lat:49.3551,lng:8.1518,n:"Forteresse romaine de Saalburg",c:"Bad Homburg, Hesse",d:"Fort romain entièrement reconstruit (IIe s.). Musée du Limes. Légion XXII Primigenia.",u:"https://fr.m.wikipedia.org/wiki/Saalburg?useskin=vector"},
+    {lat:52.5211,lng:13.3966,n:"Île aux Musées de Berlin",c:"Berlin",d:"Pergamon, Néfertiti, Altar de Zeus. 5 musées sur une île de la Spree. UNESCO 1999.",u:"https://fr.m.wikipedia.org/wiki/%C3%8Ele_aux_Mus%C3%A9es?useskin=vector"}
+  ]},
+  gastronomy:{icon:iconGast,color:'#c06010',label:'🌭 Gastronomie Allemande',pts:[
+    {lat:48.1351,lng:11.5820,n:"Bratwurst — Munich, Bavière",c:"Munich, Bavière",d:"Weißwurst (saucisse blanche), Leberkäse, bretzel géant, choucroute. Cuisine bavaroise authentique.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_bavaroise?useskin=vector"},
+    {lat:49.4521,lng:11.0767,n:"Nuremberg — Bratwurst IGP",c:"Nuremberg, Bavière",d:"La Nürnberger Rostbratwurst — taille petite, 3 dans un petit pain. IGP protégée depuis 2003.",u:"https://fr.m.wikipedia.org/wiki/Nürnberger_Rostbratwurst?useskin=vector"},
+    {lat:53.8508,lng:10.6863,n:"Lübecker Marzipan",c:"Lübeck, Schleswig-Holstein",d:"Massepain de Lübeck — amandes, sucre, eau de rose. Protégé IGP. Symbole de la ville depuis le XIVe s.",u:"https://fr.m.wikipedia.org/wiki/Massepain?useskin=vector"},
+    {lat:51.0504,lng:13.7373,n:"Christstollen de Dresde",c:"Dresde, Saxe",d:"Le Dresdner Christstollen — gâteau de Noël aux fruits confits, amandes et massepain. IGP. Fête du Stollen.",u:"https://fr.m.wikipedia.org/wiki/Stollen?useskin=vector"},
+    {lat:50.9413,lng:6.9583,n:"Kölsch & Küche Cologne",c:"Cologne, Rhénanie",d:"Halve Hahn — pain de seigle, fromage de Hollande. Reibekuchen, pommes de terre râpées. Kölsch servi au Stange.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_rh%C3%A9nane?useskin=vector"},
+    {lat:53.5753,lng:10.0153,n:"Poisson fumé de Hambourg",c:"Hambourg",d:"Aalsuppe (soupe d&#39;anguille), Labskaus (matelot), Franzbrötchen. Marché aux poissons le dimanche matin.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_hambourgeoise?useskin=vector"},
+    {lat:48.7875,lng:9.1941,n:"Spätzle du Bade-Wurtemberg",c:"Stuttgart, Bade-Wurtemberg",d:"Spätzle (pâtes souabes) et Maultaschen (raviolis géants). Vins du Bade — Pinot noir et Riesling.",u:"https://fr.m.wikipedia.org/wiki/Sp%C3%A4tzle?useskin=vector"},
+    {lat:47.9990,lng:7.8421,n:"Schwarzwälder Kirschtorte",c:"Forêt-Noire, BW",d:"Forêt-Noire (gâteau) — cerise, crème chantilly, Kirschwasser. Créée à Tübingen en 1930.",u:"https://fr.m.wikipedia.org/wiki/For%C3%AAt-Noire_(g%C3%A2teau)?useskin=vector"}
+  ]},
+  wildlife:{icon:iconWild,color:'#b07010',label:'🦅 Faune Sauvage — Aigle & Nature',pts:[
+    {lat:47.5553,lng:10.7501,n:"Aigle royal des Alpes bavaroises",c:"Berchtesgaden, Bavière",d:"Aquila chrysaetos — aigle royal dans les Alpes. Envergure 2,30 m. Symbole de l&#39;Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Aigle_royal?useskin=vector"},
+    {lat:53.1607,lng:13.8206,n:"Grues cendrées — Müritz",c:"Mecklembourg",d:"Migration de 50 000 grues cendrées chaque automne sur le Lac de Müritz. Spectacle unique.",u:"https://fr.m.wikipedia.org/wiki/Grue_cendr%C3%A9e?useskin=vector"},
+    {lat:54.4338,lng:9.9500,n:"Phoques gris — Mer des Wadden",c:"Schleswig-Holstein",d:"Colony de 30 000 phoques gris. Plus grande population de la Mer du Nord. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Phoque_gris?useskin=vector"},
+    {lat:51.5855,lng:10.4028,n:"Lynx du Harz",c:"Harz, Basse-Saxe",d:"Réintroduction réussie du lynx boréal (2000). 100 individus dans le Harz. Nuit dans la forêt.",u:"https://fr.m.wikipedia.org/wiki/Lynx_bor%C3%A9al?useskin=vector"},
+    {lat:47.9337,lng:8.1800,n:"Cerf élaphe — Forêt-Noire",c:"Bade-Wurtemberg",d:"Cervus elaphus — le grand cerf brame en automne dans la Forêt-Noire. Présence de blaireaux et renards.",u:"https://fr.m.wikipedia.org/wiki/Cerf_%C3%A9laphe?useskin=vector"},
+    {lat:50.9419,lng:11.9560,n:"Cigognes blanches de Thuringe",c:"Thuringe",d:"La Thuringe est l&#39;un des berceaux des cigognes blanches en Allemagne centrale. Retour chaque printemps.",u:"https://fr.m.wikipedia.org/wiki/Cigogne_blanche?useskin=vector"},
+    {lat:54.3233,lng:10.1228,n:"Marsouin de la Baltique",c:"Kiel, Schleswig-Holstein",d:"Phocoena phocoena — marsouin commun de la mer Baltique. Population menacée, protection renforcée.",u:"https://fr.m.wikipedia.org/wiki/Marsouin_commun?useskin=vector"},
+    {lat:51.0618,lng:13.4000,n:"Balbuzard pêcheur — Suisse Saxonne",c:"Saxe",d:"Pandion haliaetus — retour du balbuzard après 150 ans d&#39;absence. Nidification sur les rochers de grès.",u:"https://fr.m.wikipedia.org/wiki/Balbuzard_p%C3%AAcheur?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'♨️ Spas Thermaux & Stations',pts:[
+    {lat:48.7614,lng:8.2390,n:"Baden-Baden",c:"Bade-Wurtemberg",d:"Reine des stations thermales. Kurhaus, casino, thermes romains. Brahms, Dostïevski, Victoria y séjournèrent.",u:"https://fr.m.wikipedia.org/wiki/Baden-Baden?useskin=vector"},
+    {lat:50.7742,lng:6.0836,n:"Aix-la-Chapelle — Aquae Granni",c:"NRW",d:"Sources thermales romaines. Charlemagne aimait se baigner dans les 74°C sulfureux. Thermes Carolus.",u:"https://fr.m.wikipedia.org/wiki/Aix-la-Chapelle?useskin=vector"},
+    {lat:48.5265,lng:9.0566,n:"Bad Urach",c:"Alb Souabe, Bade-Wuÿrtemberg",d:"Thermes naturels dans les gorges souabes. Cascade romantique, château des comtes de Wurtemberg.",u:"https://fr.m.wikipedia.org/wiki/Bad_Urach?useskin=vector"},
+    {lat:48.0131,lng:8.0550,n:"Bad Krozingen",c:"Bade-Wurtemberg",d:"Eaux thermales dans la plaine du Rhin, face à l&#39;Alsace. Soleil de la plaine du Bade.",u:"https://fr.m.wikipedia.org/wiki/Bad_Krozingen?useskin=vector"},
+    {lat:47.7228,lng:11.2153,n:"Bad Tölz",c:"Bavière, Alpes",d:"Station thermale bavaroise face aux Alpes. Isar limpide, iodin naturel, vieille ville à fresques.",u:"https://fr.m.wikipedia.org/wiki/Bad_T%C3%B6lz?useskin=vector"},
+    {lat:50.3680,lng:8.0720,n:"Wiesbaden",c:"Hesse",d:"Capitale de Hesse, 26 sources thermales chaudes. Kurhaus Belle Époque. 'Nice allemande'.",u:"https://fr.m.wikipedia.org/wiki/Wiesbaden?useskin=vector"},
+    {lat:51.4694,lng:7.0125,n:"Bad Neuenahr-Ahrweiler",c:"Rhénanie",d:"Station thermale dans la vallée de l&#39;Ahr, vignoble de Pinot noir sur ardoise. Sources carbonatées.",u:"https://fr.m.wikipedia.org/wiki/Bad_Neuenahr-Ahrweiler?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#3a7a28',label:'⛳ Terrains de Golf',pts:[
+    {lat:52.3965,lng:13.0587,n:"Potsdamer Golf & Country Club",c:"Potsdam, Brandebourg",d:"18 trous dans les parcs UNESCO de Sanssouci. Parcours royal au cœur de la Prusse.",u:"https://fr.m.wikipedia.org/wiki/Potsdam?useskin=vector"},
+    {lat:47.9714,lng:11.4584,n:"Golf Club Starnberg",c:"Starnberg, Bavière",d:"18 trous face aux Alpes bavaroises et au lac de Starnberg. Panorama de l&#39;Alpenvorland.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Starnberg?useskin=vector"},
+    {lat:52.5200,lng:13.4050,n:"Golf Club Berliner",c:"Berlin",d:"Le golf de Berlin — sport favori des diplomates et hommes d&#39;affaires de la capitale fédérale.",u:"https://fr.m.wikipedia.org/wiki/Berlin?useskin=vector"},
+    {lat:53.5753,lng:10.0153,n:"Hamburg Golf Club",c:"Hambourg",d:"Fondé en 1906. Le plus ancien golf d&#39;Allemagne. Parcours anglais en plein Alstertal.",u:"https://fr.m.wikipedia.org/wiki/Hambourg?useskin=vector"},
+    {lat:48.7614,lng:8.2390,n:"Golf Club Baden-Baden",c:"Baden-Baden, BW",d:"Golf de luxe dans la capitale des spas. Belle Époque, casino, forêt de pins.",u:"https://fr.m.wikipedia.org/wiki/Baden-Baden?useskin=vector"},
+    {lat:47.5553,lng:10.7501,n:"Golfclub Zugspitze",c:"Berchtesgaden, Bavière",d:"Golf à 1 000 m d'altitude, face à la Zugspitze (2 962 m). Le green le plus panoramique d'Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Zugspitze?useskin=vector"},
+    {lat:49.3988,lng:8.6724,n:"Golf Club Heidelberg",c:"Heidelberg, Bade-Wurtemberg",d:"18 trous dans la vallée du Neckar, ombragé par les collines boisées de l&#39;Odenwald.",u:"https://fr.m.wikipedia.org/wiki/Heidelberg?useskin=vector"}
+  ]}
+};
+
+// Groupes Leaflet
+var groups = {};
+var activeGroups = {};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat] = L.layerGroup();
+  activeGroups[cat] = true;
+  DATA[cat].pts.forEach(function(p){
+    var mk = L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+p.u+'\',\''+p.n+'\')},200);" style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#c9a84c;cursor:pointer;text-decoration:none;font-weight:700;">Wikipédia →</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el = document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){
+    map.removeLayer(groups[cat]);
+    activeGroups[cat]=false;
+    if(el){el.style.opacity='0.48';el.style.color='#999';}
+  } else {
+    groups[cat].addTo(map);
+    activeGroups[cat]=true;
+    if(el){el.style.opacity='1';el.style.color='#222';}
+  }
+}
+
+// ── PANNEAU FILTRES ──
+var fc = L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d = L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+
+    var ROWS = [
+      {cat:'monument',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#8a1010"/><rect x="8" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><rect x="16" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><rect x="24" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><rect x="6" y="6" width="24" height="3" rx="0.5" fill="#a07010"/><path d="M18 1 L6 6 L30 6 Z" fill="#7a4a08"/></svg>', label:'Monuments Historiques', count:10},
+      {cat:'castle',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="7.5" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="11" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="22" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="25.5" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="29" y="7" width="2.5" height="5" fill="#1e3aa0"/><rect x="4" y="11" width="10" height="21" rx="1" fill="#2a5cbf"/><rect x="22" y="11" width="10" height="21" rx="1" fill="#2a5cbf"/><rect x="6" y="17" width="22" height="15" rx="1" fill="#2a5cbf"/><rect x="14" y="26" width="8" height="6" fill="#0e1e4a"/></svg>', label:'Châteaux & Forteresses', count:10},
+      {cat:'cathedral',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6a1fa0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8b2fc9"/><path d="M18 1 L14 10 L22 10 Z" fill="#5a1a8a"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6a1fa0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#5a1a8a"/></svg>', label:'Cathédrales & Basiliques', count:10},
+      {cat:'museum',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="30" width="28" height="3" fill="#145c38"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#1e8250"/><rect x="4" y="10" width="28" height="3" fill="#1a6840"/><path d="M18 3 L4 10 L32 10 Z" fill="#145c38"/></svg>', label:'Musées & Galeries', count:10},
+      {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#d4a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:10},
+      {cat:'palace',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#5a3e0a"/><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/></svg>', label:'Palais Royaux', count:8},
+      {cat:'medieval',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="6" y="12" width="8" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="7" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/></svg>', label:'Villes Médiévales', count:10},
+      {cat:'roman',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#148c8c"/><rect x="8" y="8" width="4" height="18" fill="#1aadad"/><rect x="16" y="8" width="4" height="18" fill="#1aadad"/><rect x="24" y="8" width="4" height="18" fill="#1aadad"/><rect x="6" y="6" width="24" height="3" rx="1" fill="#0a5a5a"/><path d="M18 2 L6 6 L30 6 Z" fill="#085050"/></svg>', label:'Architecture Romane', count:8},
+      {cat:'abbey',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#ffce00"/></svg>', label:'Abbayes & Monastères', count:8},
+      {cat:'tourist',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="16" r="12" fill="#c8102e"/><circle cx="18" cy="16" r="8" fill="#e0304e"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="#ffce00" font-weight="bold">★</text></svg>', label:'Villes Touristiques', count:10},
+      {cat:'brasserie',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.8"/><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/></svg>', label:'Brasseries & Biergärten', count:8},
+      {cat:'noel',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L10 16 L14 16 L8 26 L14 26 L11 32 L25 32 L22 26 L28 26 L22 16 L26 16 Z" fill="#1a7028"/><polygon points="18,2 19.2,5.5 23,5.5 20,7.5 21.2,11 18,9 14.8,11 16,7.5 13,5.5 16.8,5.5" fill="#ffce00"/><circle cx="15" cy="18" r="1.5" fill="#c8102e"/><circle cx="21" cy="20" r="1.5" fill="#c9a84c"/></svg>', label:'Marchés de Noël', count:8},
+      {cat:'memorial',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><rect x="14" y="8" width="8" height="23" rx="0.5" fill="#5a5a6a"/><path d="M14 20 L16 22 L22 20 L22 21 L16 23 L14 21 Z" fill="#3a3a4a"/><circle cx="18" cy="3" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.7"/></svg>', label:'Mémoriaux de Guerre', count:8},
+      {cat:'rhin',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q8 28 14 28 Q18 26 22 28 Q28 28 32 34 Z" fill="#5a5040"/><rect x="10" y="16" width="16" height="12" rx="0.5" fill="#8070a0"/><rect x="6" y="10" width="7" height="18" rx="0.5" fill="#7060a0"/><rect x="23" y="12" width="7" height="16" rx="0.5" fill="#7060a0"/><line x1="9.5" y1="8" x2="9.5" y2="3" stroke="#c9a84c" stroke-width="0.8"/><path d="M9.5 3 L16 5 L9.5 7 Z" fill="#c8102e"/></svg>', label:'Châteaux du Rhin', count:10},
+      {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1e6030"/><circle cx="10" cy="12" r="5" fill="#28903c"/><circle cx="26" cy="14" r="4" fill="#1e7028"/></svg>', label:'Parcs & Forêt-Noire', count:8},
+      {cat:'archaeology', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="16" fill="#c9a84c"/><rect x="16" y="10" width="4" height="16" fill="#c9a84c"/><rect x="24" y="10" width="4" height="16" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>', label:'Archéologie & Antique', count:8},
+      {cat:'gastronomy',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 8 Q14 4 10 8 Q6 12 10 16 Q12 18 15 16 Q18 14 18 18 Q18 22 14 24 Q10 26 10 22" fill="none" stroke="#b07010" stroke-width="2.5" stroke-linecap="round"/><path d="M18 8 Q22 4 26 8 Q30 12 26 16 Q24 18 21 16 Q18 14 18 18 Q18 22 22 24 Q26 26 26 22" fill="none" stroke="#b07010" stroke-width="2.5" stroke-linecap="round"/><path d="M8 30 Q14 26 22 28 Q28 30 30 28" fill="none" stroke="#c06010" stroke-width="3" stroke-linecap="round"/></svg>', label:'Gastronomie Allemande', count:8},
+      {cat:'wildlife',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 20 Q12 18 10 14 Q10 10 14 9 Q18 8 22 9 Q26 10 26 14 Q24 18 18 20 Z" fill="#c8960a"/><path d="M10 14 Q4 10 2 8 Q6 10 10 12 Q6 8 7 6 Q11 9 12 12 Z" fill="#b07010" opacity="0.9"/><path d="M26 14 Q32 10 34 8 Q30 10 26 12 Q30 8 29 6 Q25 9 24 12 Z" fill="#b07010" opacity="0.9"/><circle cx="18" cy="8" r="4.5" fill="#c8960a"/><circle cx="19.5" cy="7" r="1.5" fill="#1a0800"/><path d="M22 8 L26 9 L22 10 Z" fill="#d4a020"/></svg>', label:'Faune — Aigle & Nature', count:8},
+      {cat:'spa',         svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Spas Thermaux', count:7},
+      {cat:'golf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#3a7a28" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#1a3008"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c8102e" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>', label:'Terrains de Golf', count:7}
+    ];
+
+    var html =
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;'
+          +'scrollbar-width:thin;scrollbar-color:#ffce00 #f5ead8;">';
+
+    ROWS.forEach(function(r){
+      html += '<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+
+    html +=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)"  style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#c9a84c;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#c8102e;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+
+    d.innerHTML = html;
+
+    var st = document.createElement('style');
+    st.textContent =
+      '#listebox::-webkit-scrollbar{width:5px;}'
+      +'#listebox::-webkit-scrollbar-track{background:#f5ead8;}'
+      +'#listebox::-webkit-scrollbar-thumb{background:#ffce00;border-radius:3px;}';
+    d.appendChild(st);
+
+    d.querySelector('#fc-header').addEventListener('click', function(){ togglePanel(); });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc = new fc();
+fc.addTo(map);
+
+// ── PANNEAU CARTES ──
+var currentTile = null;
+
+var TILES = [
+  {
+    id: 'standard',
+    label: 'Standard',
+    desc: 'OpenStreetMap classique',
+    emoji: '🗺️',
+    url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    opts: {attribution:'© OpenStreetMap', subdomains:'abc', maxZoom:20},
+    active: true
+  },
+  {
+    id: 'political',
+    label: 'Politique',
+    desc: 'Pays europ\u00e9ens color\u00e9s',
+    emoji: '🌍',
+    url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    opts: {attribution:'© CartoDB', subdomains:'abcd', maxZoom:20}
+  },
+  {
+    id: 'topo',
+    label: 'Relief',
+    desc: 'Carte topographique',
+    emoji: '🏔️',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    opts: {attribution:'© OpenTopoMap', maxZoom:17}
+  },
+  {
+    id: 'watercolor',
+    label: 'Aquarelle',
+    desc: 'Style peinture artistique',
+    emoji: '🎨',
+    url: 'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg',
+    opts: {attribution:'© Stamen / Cooper Hewitt', maxZoom:18}
+  },
+  {
+    id: 'satellite',
+    label: 'Satellite',
+    desc: 'Vue aérienne ESRI',
+    emoji: '🛰️',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    opts: {attribution:'© Esri', maxZoom:19}
+  }
+];
+
+// Init default tile layer
+currentTile = L.tileLayer(TILES[0].url, TILES[0].opts).addTo(map);
+
+// ── COUCHE GEOJSON POLITIQUE ──
+var politicalLayer = null;
+
+// Couleurs distinctes pour chaque pays européen
+var COUNTRY_COLORS = {
+  'Germany':        '#ffce00', 'France':         '#4e91d6', 'Poland':         '#e8a0a0',
+  'Italy':          '#90c97a', 'Spain':          '#f4a460', 'Portugal':       '#b8d4f0',
+  'Netherlands':    '#ff8c42', 'Belgium':        '#ffd966', 'Luxembourg':     '#c9a0dc',
+  'Switzerland':    '#ff6b6b', 'Austria':        '#a8d8a8', 'Czech Republic': '#87ceeb',
+  'Czechia':        '#87ceeb', 'Slovakia':       '#dda0dd', 'Hungary':        '#98fb98',
+  'Romania':        '#f0c080', 'Bulgaria':       '#90ee90', 'Croatia':        '#87cefa',
+  'Slovenia':       '#ffb6c1', 'Serbia':         '#d2b48c', 'Bosnia and Herz.':'#b0c4de',
+  'Bosnia and Herzegovina':'#b0c4de',
+  'Montenegro':     '#98d8c8', 'Albania':        '#ffa07a', 'North Macedonia': '#c8b4e8',
+  'Greece':         '#7ec8e3', 'Turkey':         '#e8c4a0', 'Ukraine':        '#b8d4a8',
+  'Moldova':        '#d4c0a8', 'Belarus':        '#a8c8d8', 'Lithuania':      '#c8e8a0',
+  'Latvia':         '#d8b8a8', 'Estonia':        '#a8d8c8', 'Finland':        '#c8d8f0',
+  'Sweden':         '#f0d8a8', 'Norway':         '#d8c8f0', 'Denmark':        '#f0a8a8',
+  'Iceland':        '#c8e0f0', 'Ireland':        '#a8d8b0', 'United Kingdom': '#d8a8c8',
+  'Russia':         '#d4c8b8', 'Kosovo':         '#e8d8a8'
+};
+
+function getCountryColor(name) {
+  if (COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  // Fallback pastel palette for unmapped countries
+  var hash = 0;
+  for (var i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  var hue = Math.abs(hash) % 360;
+  return 'hsl(' + hue + ',55%,75%)';
+}
+
+function buildPoliticalLayer() {
+  if (politicalLayer) return; // already built
+  // Fetch Europe GeoJSON from public API
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      // Filter to Europe + nearby (lat 35-72, lon -25 to 45)
+      var euroFeatures = data.features.filter(function(f) {
+        if (!f.geometry) return false;
+        var name = (f.properties.ADMIN || f.properties.name || '');
+        var europeanCountries = [
+          'Germany','France','Poland','Italy','Spain','Portugal','Netherlands',
+          'Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia',
+          'Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia',
+          'Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece',
+          'Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia',
+          'Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom',
+          'Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino',
+          'Vatican City','Malta','Cyprus'
+        ];
+        return europeanCountries.indexOf(name) !== -1;
+      });
+
+      politicalLayer = L.geoJSON({type:'FeatureCollection', features: euroFeatures}, {
+        style: function(feature) {
+          var name = feature.properties.ADMIN || feature.properties.name || '';
+          var col = getCountryColor(name);
+          return {
+            fillColor: col,
+            fillOpacity: 0.55,
+            color: '#444',
+            weight: 1.2,
+            opacity: 0.9
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          var name = feature.properties.ADMIN || feature.properties.name || '';
+          layer.bindTooltip(name, {
+            permanent: false,
+            direction: 'center',
+            className: 'country-tooltip'
+          });
+          layer.on('mouseover', function(e) {
+            e.target.setStyle({fillOpacity: 0.78, weight: 2.2, color: '#222'});
+          });
+          layer.on('mouseout', function(e) {
+            politicalLayer.resetStyle(e.target);
+          });
+        }
+      });
+
+      // Add label layer on top
+      var labelTile = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+        {attribution:'© CartoDB', subdomains:'abcd', maxZoom:20, pane:'overlayPane'}
+      );
+      politicalLayer._labelLayer = labelTile;
+
+      // If political is currently active, add to map now
+      if (document.getElementById('tb-political') &&
+          document.getElementById('tb-political').style.borderLeft.indexOf('255, 206, 0') !== -1) {
+        politicalLayer.addTo(map);
+        labelTile.addTo(map);
+      }
+    })
+    .catch(function(e){ console.warn('GeoJSON load failed:', e); });
+}
+
+function switchTile(id) {
+  var t = TILES.find(function(x){ return x.id === id; });
+  if (!t) return;
+
+  // Remove current tile
+  if (currentTile) map.removeLayer(currentTile);
+
+  // Remove political layers if switching away
+  if (politicalLayer) {
+    if (map.hasLayer(politicalLayer)) map.removeLayer(politicalLayer);
+    if (politicalLayer._labelLayer && map.hasLayer(politicalLayer._labelLayer))
+      map.removeLayer(politicalLayer._labelLayer);
+  }
+
+  if (id === 'political') {
+    // Light base + GeoJSON colors + labels on top
+    currentTile = L.tileLayer(t.url, t.opts).addTo(map);
+    buildPoliticalLayer();
+    if (politicalLayer) {
+      politicalLayer.addTo(map);
+      if (politicalLayer._labelLayer) politicalLayer._labelLayer.addTo(map);
+    }
+  } else {
+    currentTile = L.tileLayer(t.url, t.opts).addTo(map);
+  }
+
+  // Update UI
+  TILES.forEach(function(x){
+    var el = document.getElementById('tb-'+x.id);
+    if (!el) return;
+    if (x.id === id) {
+      el.style.background = '#fff8e8';
+      el.style.borderLeft = '3px solid #ffce00';
+    } else {
+      el.style.background = 'transparent';
+      el.style.borderLeft = '3px solid transparent';
+    }
+  });
+}
+
+var mc = L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d = L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+
+    var html =
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+
+    TILES.forEach(function(t, idx){
+      var isActive = idx === 0;
+      html += '<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive ? '#ffce00' : 'transparent')+';'
+        +'background:'+(isActive ? '#fff8e8' : 'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="if(document.getElementById(\'tb-'+t.id+'\').style.borderLeft!==\'3px solid rgb(255, 206, 0)\')this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="font-size:.82rem;font-weight:700;color:#222;flex:1;">'+t.label+'</span>'
+        +'</div>';
+    });
+
+    html += '</div>';
+    d.innerHTML = html;
+
+    var mapPanelOpen = false;
+    d.querySelector('#mc-header').addEventListener('click', function(){
+      mapPanelOpen = !mapPanelOpen;
+      var body  = d.querySelector('#map-body');
+      var arrow = d.querySelector('#map-arrow');
+      if(mapPanelOpen){
+        body.style.maxHeight = '220px';
+        body.style.opacity   = '1';
+        arrow.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.maxHeight = '0';
+        body.style.opacity   = '0';
+        arrow.style.transform = 'rotate(-90deg)';
+      }
+    });
+
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc = new mc();
+mc.addTo(map);
+
+// Remove the default tileLayer added earlier (we re-add via switchTile logic)
+// The first tile was already added in TILES init above
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el = document.getElementById('fb-'+cat);
+    if(show){
+      if(!activeGroups[cat]){ groups[cat].addTo(map); activeGroups[cat]=true; }
+      if(el){ el.style.opacity='1'; el.style.color='#222'; }
+    } else {
+      if(activeGroups[cat]){ map.removeLayer(groups[cat]); activeGroups[cat]=false; }
+      if(el){ el.style.opacity='0.48'; el.style.color='#999'; }
+    }
+  });
+}
+
+var panelOpen = window.innerWidth > 600;
+function applyPanelState(){
+  var body  = document.getElementById('filter-body');
+  var arrow = document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){
+    body.style.maxHeight = '400px';
+    body.style.opacity   = '1';
+    arrow.style.transform = 'rotate(0deg)';
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+}
+function togglePanel(){ panelOpen = !panelOpen; applyPanelState(); }
+setTimeout(function(){ if(window.innerWidth<=600){ panelOpen=false; } applyPanelState(); }, 100);
+map.on('click', function(){ if(window.innerWidth<=600 && panelOpen){ panelOpen=false; applyPanelState(); } });
+
+// SCROLL REVEAL
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>
