@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tchéquie — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Tchéquie.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#D7141A;      /* rouge tchèque */
+      --blanc:#f8f8f8;
+      --bleu:#11457E;       /* bleu tchèque */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --boheme:#1a0e2a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#020408;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(215,20,26,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 80% 80%,rgba(17,69,126,.08) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 33%,var(--blanc) 33%,var(--blanc) 66%,var(--bleu) 66%,var(--bleu) 100%);opacity:.5;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,18vw,13rem);font-weight:300;
+      color:rgba(215,20,26,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(215,20,26,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(215,20,26,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,4,8,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(215,20,26,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold),var(--bleu));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(215,20,26,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(215,20,26,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(215,20,26,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#020408;border-bottom:1px solid rgba(215,20,26,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #8a0808;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#a81018;border-color:#a81018;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(215,20,26,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Tchéquie';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Tchéquie');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">ČESKO</div>
+  <div class="hero-eyebrow">Tchéquie · Guide du Voyageur</div>
+  <h1 class="hero-title">Prague Dorée,<br>&amp; <em>Bières de Bohême</em></h1>
+  <p class="hero-subtitle">Château de Prague, Kafka, Pilsner Urquell, châteaux de Bohême &amp; Moravie — le coeur de l'Europe</p>
+
+  <!-- LION BLANC TCHÈQUE — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(215,20,26,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Lion blanc à double queue — symbole de Bohême -->
+      <!-- Corps du lion tchèque -->
+      <path d="M38 106 Q32 90 36 74 Q42 58 58 52 Q72 46 86 50 Q102 56 110 70 Q118 86 114 102 Q108 118 90 124 Q70 128 54 120 Q40 114 38 106 Z"
+            fill="#f0ece4" stroke="#c8b090" stroke-width="0.8"/>
+      <path d="M46 60 Q60 50 76 50 Q92 52 102 62 Q92 56 76 55 Q60 56 46 60 Z" fill="white" opacity="0.5"/>
+
+      <!-- Hachures plumes corps — sépia -->
+      <path d="M44 78 Q56 72 70 74 Q78 75 86 74 Q96 72 104 78" fill="none" stroke="#b09070" stroke-width="0.55"/>
+      <path d="M42 90 Q54 84 70 86 Q78 87 86 86 Q98 84 106 90" fill="none" stroke="#b09070" stroke-width="0.5"/>
+      <path d="M44 102 Q56 97 70 98 Q78 99 86 98 Q96 97 104 102" fill="none" stroke="#b09070" stroke-width="0.45"/>
+
+      <!-- Crinière -->
+      <path d="M38 72 Q26 58 28 44 Q34 36 44 36" fill="#d0c8b8" stroke="#a09070" stroke-width="0.7" opacity="0.9"/>
+      <path d="M42 56 Q30 50 26 38 Q30 30 40 28 Q46 32 44 40" fill="none" stroke="#a09070" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M50 42 Q42 32 44 20 Q50 14 58 16 Q60 22 56 28" fill="none" stroke="#a09070" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M64 38 Q62 26 66 16 Q72 10 78 14 Q78 22 74 28" fill="none" stroke="#a09070" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M78 40 Q82 28 90 22 Q98 18 102 26 Q100 32 94 34" fill="none" stroke="#a09070" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M90 50 Q100 40 108 38 Q114 40 114 48 Q110 54 104 54" fill="none" stroke="#a09070" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête du lion -->
+      <ellipse cx="74" cy="44" rx="22" ry="18" fill="#f0ece4" stroke="#c8b090" stroke-width="0.8"/>
+
+      <!-- Bec crochu doré -->
+      <path d="M60 54 Q56 58 54 64 Q58 60 62 56 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+
+      <!-- Oeil -->
+      <circle cx="81" cy="40" r="5.5" fill="#1a0800" stroke="#c8b090" stroke-width="0.7"/>
+      <circle cx="81" cy="40" r="3" fill="#2a1000"/>
+      <circle cx="82.5" cy="38.5" r="1.2" fill="white" opacity="0.8"/>
+
+      <!-- Couronne royale tchèque — Couronne de Saint-Venceslas -->
+      <path d="M56 30 L92 30 L90 34 L58 34 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M59 30 Q59 24 62 22 Q64 26 64 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M70 30 Q70 22 74 19 Q78 22 78 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M83 30 Q83 24 86 22 Q88 26 88 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <!-- Croix sur la couronne -->
+      <line x1="74" y1="15" x2="74" y2="21" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="71" y1="17.5" x2="77" y2="17.5" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="74" cy="21" r="2" fill="#D7141A" opacity="0.9"/>
+      <circle cx="62" cy="24" r="1.8" fill="#D7141A" opacity="0.85"/>
+      <circle cx="86" cy="24" r="1.8" fill="#D7141A" opacity="0.85"/>
+
+      <!-- Ecu — Damier rouge et blanc de Bohême -->
+      <path d="M60 84 Q60 76 74 74 Q88 76 88 84 Q88 94 74 100 Q60 94 60 84 Z"
+            fill="#D7141A" stroke="#8a0808" stroke-width="0.7"/>
+      <!-- Damier blanc (symbole Bohême) -->
+      <rect x="61" y="80" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="73" y="80" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="67" y="84" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="79" y="84" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="61" y="88" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="73" y="88" width="6" height="4" fill="#f8f8f8" opacity="0.9"/>
+
+      <!-- Double queue du lion tchèque — caractéristique unique -->
+      <!-- Queue 1 -->
+      <path d="M90 116 Q102 118 112 110 Q120 102 116 96 Q112 92 108 96 Q112 96 110 102 Q108 108 100 110 Z"
+            fill="#d0c8b8" stroke="#a09070" stroke-width="0.6"/>
+      <path d="M112 96 Q116 88 118 84 Q116 90 112 94 Z" fill="#c9a84c"/>
+      <!-- Queue 2 -->
+      <path d="M92 120 Q100 130 110 128 Q118 124 116 116 Q112 112 108 116 Q112 116 110 122 Q106 126 98 124 Z"
+            fill="#d0c8b8" stroke="#a09070" stroke-width="0.6"/>
+      <path d="M112 116 Q118 110 120 106 Q118 112 114 116 Z" fill="#c9a84c"/>
+
+      <!-- Patte -->
+      <path d="M50 116 Q42 124 44 130 Q48 130 52 126 Q50 122 48 118 Z" fill="#d0c8b8" stroke="#a09070" stroke-width="0.6"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="72" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="10" y="80" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">boemicus</text>
+      <line x1="28" y1="74" x2="38" y2="72" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="130" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="140" cy="50" r="0.9" fill="#D7141A" opacity="0.4"/>
+      <circle cx="18" cy="122" r="1.1" fill="#11457E" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Prague la Dorée et son château, Český Krumlov dans les méandres de la Vltava, bières Pilsner et Budvar, thermes de Karlovy Vary, Kutná Hora et l'Église des Ossements, châteaux de Moravie, Kafka &amp; littérature, cristal de Bohême, gastronomie &amp; vins de Moravie.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">160L</div><div class="stat-label">Bière / habitant / an</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Tchéquie</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Tchèques aux Habsbourg</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Prague','Prague — La Ville aux Cent Clochers')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Prague, Bohême</div><h3 class="card-name">Prague — La Ville Dorée</h3><p class="card-context">UNESCO 1992 — vieille ville avec son centre historique exceptionnel. Château de Prague (le plus grand château médiéval du monde), Pont Charles, Place de la Vieille Ville, Horloge Astronomique. Kafka, Mozart, Dvořák. La plus belle ville d'Europe centrale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Prague','Château de Prague')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Prague — Hradčany</div><h3 class="card-name">Château de Prague — Le Plus Grand du Monde</h3><p class="card-context">Le plus grand château médiéval du monde (70 000 m²) — résidence des rois de Bohême et des présidents. Cathédrale Saint-Guy, Palais Royal, Basilique Saint-Georges. Couronne de Saint-Venceslas. Vue panoramique sur Prague depuis 70 m de hauteur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Český_Krumlov','Český Krumlov')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Český Krumlov, Bohême du Sud</div><h3 class="card-name">Český Krumlov — Le Joyau de Bohême</h3><p class="card-context">UNESCO 1992 — village médiéval parfaitement préservé dans un méandre de la Vltava. Château baroque du XVIe s. avec théâtre baroque baroque unique. Tour ronde peinte à fresque. Egon Schiele y vécut. La ville la plus magique de Tchéquie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pont_Charles','Pont Charles — Prague')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Prague</div><h3 class="card-name">Pont Charles — Karluv Most</h3><p class="card-context">Le pont médiéval le plus célèbre d'Europe centrale (1357) — 516 m de long, 30 statues baroques de saints. Commandé par Charles IV à 5h31 du matin (chiffres magiques). Traverse la Vltava entre la Vieille Ville et Malá Strana. Rendez-vous de Prague.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Kutná_Hora','Kutná Hora — Église des Ossements')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Kutná Hora, Bohême centrale</div><h3 class="card-name">Kutná Hora &amp; L'Église des Ossements</h3><p class="card-context">UNESCO 1995 — la ville de l'argent médiéval, rivale de Prague. Église Sainte-Barbe (gothique). L'Ossaire de Sedlec — décoré avec les ossements de 40 000 humains (lustres, armoiries). La ville qui finançait le royaume de Bohême au Moyen Age.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Karlovy_Vary','Karlovy Vary — Les Thermes Royaux')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Karlovy Vary, Bohême de l'Ouest</div><h3 class="card-name">Karlovy Vary — La Perle Thermale</h3><p class="card-context">La plus célèbre station thermale d'Europe centrale — fondée par Charles IV (1370). 13 sources chaudes dont la Vřídlo (72°C, 2 000 L/min). Beethoven, Goethe, Paganini, Peter the Great y séjournèrent. Festival International du Film. Architecture Belle Époque.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Telč','Telč — La Ville Renaissance')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Telč, Moravie du Sud</div><h3 class="card-name">Telč — La Place Renaissance</h3><p class="card-context">UNESCO 1992 — la place de Telč entourée de maisons Renaissance et Baroque — l'une des plus belles d'Europe. Château Renaissance du XVIe s. La ville dont toutes les façades sont peintes de couleurs pastel. Conservée dans son état du XVIe s. comme sous cloche.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Brno','Brno — Capitale de Moravie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Brno, Moravie</div><h3 class="card-name">Brno — La Capitale Morave</h3><p class="card-context">Deuxième ville de Tchéquie — centre culturel et universitaire. Château de Špilberk (ancienne prison redoutée). Villa Tugendhat de Mies van der Rohe (UNESCO 2001). Cathédrale Saint-Pierre. Grégor Mendel y découvrit les lois de la génétique (1865).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pilsen','Plzeň — La Ville de la Bière')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Plzeň, Bohême de l'Ouest</div><h3 class="card-name">Plzeň — Berceau du Pilsner</h3><p class="card-context">La ville qui inventa le Pilsner en 1842 — Pilsner Urquell, la bière la plus imitée du monde. Brasserie Pilsner Urquell visitables (caves à 9°C). Grande Synagogue — la 3e plus grande du monde. Capitale Européenne de la Culture 2015.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Olomouc','Olomouc — La Cité Baroque')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Olomouc, Moravie centrale</div><h3 class="card-name">Olomouc — La Perle de Moravie</h3><p class="card-context">L'une des villes les mieux préservées de Tchéquie — 6 fontaines baroques, colonne de la Sainte-Trinité (UNESCO 2000). Cathédrale Saint-Venceslas. Université fondée en 1573. Fromage Olomoucké tvarůžky. Mozart y composa son 6e Quatuor à 11 ans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Horloge_astronomique_de_Prague','Horloge Astronomique de Prague')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Prague — Place de la Vieille Ville</div><h3 class="card-name">Horloge Astronomique — Orloj</h3><p class="card-context">L'horloge médiévale la plus célèbre du monde (1410) — la troisième plus ancienne encore en fonctionnement. Défilé des 12 apôtres chaque heure. Calendrier lunaire, zodiacal et solaire. La légende du maître Hanuš aveuglé après l'avoir construite.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lednice','Château de Lednice-Valtice')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Lednice-Valtice, Moravie du Sud</div><h3 class="card-name">Lednice-Valtice — Le Pays des Merveilles</h3><p class="card-context">UNESCO 1996 — le plus beau paysage culturel de Tchéquie. Château néo-gothique de Lednice au milieu de parcs et étangs. Château baroque de Valtice. 200 km² de jardins romantiques avec pavillons, colonnes et monuments. La Versailles morave.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Liberec','Liberec — La Porte des Géants')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Krkonoše, Bohême du Nord</div><h3 class="card-name">Monts des Géants — Krkonoše</h3><p class="card-context">Le parc national le plus visité de Tchéquie — Sněžka (1 602 m), plus haut sommet. Ski en hiver, randonnées en été. Cascade de Pančavský (148 m). Patrimoine naturel intact. Frontière avec la Pologne. Le toit de la Bohême.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/České_Budějovice','České Budějovice — La Bière Budvar')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">České Budějovice, Bohême du Sud</div><h3 class="card-name">České Budějovice — La Ville de Budvar</h3><p class="card-context">La ville où naquit le vrai Budweiser — Budvar, brassée depuis 1895 (le conflit avec Anheuser-Busch dure depuis 1907). Grande place médiévale de 133x133 m aux maisons à arcades. Tour noire. Porte des Bouchers. Patrimoine médiéval intact de Bohême du Sud.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Hluboka','Château de Hluboká')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Hluboká nad Vltavou, Bohême du Sud</div><h3 class="card-name">Château de Hluboká — Le Windsor Tchèque</h3><p class="card-context">Surnommé "le château de Windsor tchèque" — reconstruit en style Tudor néo-gothique au XIXe s. par la famille Schwarzenberg. 141 chambres, galerie de peintures. Le château de conte de fées dominant la Vltava. L'un des plus visités de Bohême.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Třeboň','Třeboň — La Ville des Étangs')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Třeboň, Bohême du Sud</div><h3 class="card-name">Třeboň — Le Pays des Étangs</h3><p class="card-context">La région des étangs — 500 étangs artificiels du Moyen Age élevés pour la pisciculture. L'étang de Rožmberk (489 ha) — le plus grand de Tchéquie. Carpe au beurre de Třeboň — spécialité nationale. UNESCO réserve de biosphère. Thermes de Třeboň.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Franz_Kafka','Kafka — Prague et la Littérature')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Prague</div><h3 class="card-name">Kafka &amp; La Littérature Tchèque</h3><p class="card-context">Franz Kafka (1883–1924) — né à Prague, il y passa presque toute sa vie. La Métamorphose, Le Procès, Le Château. Musée Kafka, statue controversée de David Černý. Milan Kundera, Jaroslav Hašek (le Brave Soldat Chvéïk). Prague — capitale littéraire de l'Europe centrale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mariánské_Lázně','Mariánské Lázně — Les Thermes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Mariánské Lázně, Bohême de l'Ouest</div><h3 class="card-name">Mariánské Lázně — L'Autre Perle Thermale</h3><p class="card-context">UNESCO 2021 — Grande Station Thermale de l'Europe. Colonnade chantante (fontaine musicale). Goethe, Chopin, Mark Twain, le roi Edward VII y séjournèrent. 40 sources minérales. Architecture néo-classique intacte. Triangle thermal de Bohême de l'Ouest.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Konopiště','Château de Konopište')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Konopište, Bohême centrale</div><h3 class="card-name">Château de Konopište</h3><p class="card-context">Résidence de l'Archiduc François-Ferdinand d'Autriche — dont l'assassinat à Sarajevo déclencha la Première Guerre mondiale (28 juin 1914). Collection de 300 000 pièces d'armurerie. Roseraie. Le château du destin de l'Europe. Forêt de cerfs.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/České_Švýcarsko','Bohême Saxonne — Rochers')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Bohême Saxonne, Bohême du Nord</div><h3 class="card-name">Bohême Saxonne — Les Rochers de Grès</h3><p class="card-context">Parc national de la Bohême Saxonne — formations rocheuses spectaculaires de grès, gorges de l'Elbe, arche de Pravčická brána (la plus grande arche naturelle d'Europe). Paysage de tableau romantique. Caspar David Friedrich y puisa son inspiration.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Karlštejn','Château de Karlštejn')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Karlštejn, Bohême centrale</div><h3 class="card-name">Château de Karlštejn</h3><p class="card-context">Le château le plus visité de Tchéquie après Prague — construit par Charles IV (1348) pour garder les joyaux de la Couronne de Bohême. Tour du Grand Réservoir, Chapelle de la Sainte-Croix aux 129 peintures gothiques. Dominant la forêt de Bohême centrale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Moravský_kras','Karst de Moravie — Grottes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Moravský Kras, Moravie du Sud</div><h3 class="card-name">Karst de Moravie — Les Grottes</h3><p class="card-context">Le plus grand karst de Tchéquie — 1 100 grottes dont les Grottes Punkva visitables. Gouffre de Macocha (138 m de profondeur). Rivière souterraine. Stalactites géantes. Bateaux électriques dans les galeries. Paysage karstique de premier ordre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mikulov','Mikulov — La Toscane de Moravie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Mikulov, Moravie du Sud</div><h3 class="card-name">Mikulov — La Toscane Morave</h3><p class="card-context">Village viticole aux collines couvertes de vignes dominant le lac de Nové Mlýny. Château baroque blanc dominant la ville, ancienne communauté juive. Vins de Moravie — Welschriesling, Pálava. La région viticole la plus méridionale de Tchéquie. Douceur de vivre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Loket','Château de Loket')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Loket, Bohême de l'Ouest</div><h3 class="card-name">Loket — Le Château sur le Coude</h3><p class="card-context">Château médiéval sur un éperon rocheux dans un méandre de l'Ohře ("le coude"). Goethe y séjourna 8 fois. Prisonnier jadis Beethoven. Porcelaine de Bohême — la région produit la plus belle porcelaine du monde (Meissen s'en inspira). À 12 km de Karlovy Vary.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pilsner_Urquell','Pilsner Urquell — La Bière')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Plzeň, Bohême de l'Ouest</div><h3 class="card-name">Pilsner Urquell — L'Original</h3><p class="card-context">La bière blonde limpide inventée à Plzeň le 5 octobre 1842 — Josef Groll brasse la première Pilsner. 65% de toutes les bières du monde sont des Pilsner. Brasserie Pilsner Urquell visitables — caves à 9°C, houblon de Žatec. La révolution brassicole mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Žatec','Žatec — La Capitale du Houblon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Žatec, Bohême du Nord-Ouest</div><h3 class="card-name">Žatec — La Capitale Mondiale du Houblon</h3><p class="card-context">UNESCO 2023 — Žatec et le paysage du houblon de Bohême. Le houblon Žatec (Saaz) — le plus aromatique du monde, utilisé dans toutes les grandes bières. Câbles tendus dans les champs de 7 m de haut. Musée du Houblon et de la Bière. La saveur unique des bières tchèques.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Litomyšl','Château de Litomyšl')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Litomyšl, Bohême de l'Est</div><h3 class="card-name">Litomyšl — Château et Smetana</h3><p class="card-context">UNESCO 1999 — château Renaissance (XVIe s.) aux façades en sgraffites — l'une des plus importantes demeures de la Renaissance tchèque. Lieu de naissance de Bedřich Smetana (1824) — compositeur de La Moldau (Vltava). Festival Smetana annuel dans la cour.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bohemian_Switzerland','Rochers de Bohême Saxonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Hřensko, Bohême du Nord</div><h3 class="card-name">Pravčická Brána — La Grande Arche</h3><p class="card-context">La plus grande arche naturelle d'Europe (26,5 m de haut, 16 m de large) dans le parc national de la Suisse Bohémienne. Gorges de Kamenice. Bateaux sur les gorges. Clocher Bastei visible depuis la Saxon Switzerland allemande voisine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Brasserie_Budweiser_Budvar','Brasserie Budvar')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">České Budějovice, Bohême du Sud</div><h3 class="card-name">Budvar — Le Vrai Budweiser</h3><p class="card-context">La Brasserie Budvar — brassant depuis 1895 le vrai Budweiser de České Budějovice. Le conflit juridique avec Anheuser-Busch pour le nom "Budweiser" dure depuis plus d'un siècle. Brasserie entièrement visitables. La bière des rois de Bohême. Nationale tchèque.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vignoble_de_Moravie','Vins de Moravie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Moravie du Sud</div><h3 class="card-name">Route des Vins de Moravie</h3><p class="card-context">96% du vin tchèque vient de Moravie — Welschriesling, Müller-Thurgau, Pálava, Frankovka. Caves troglodytes à Valtice, Znojmo, Mikulov. Routes cyclables entre vignes. Vins blancs fruités aux arômes alpins. La Moravie — la Bourgogne des Pays Tchèques.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_tchèque','Gastronomie Tchèque')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Tchéquie entière</div><h3 class="card-name">Svíčková &amp; Trdelník</h3><p class="card-context">Svíčková na smetaně (filet de bœuf à la crème). Svíčková, vepřo-knedlo-zelo (porc-quenelles-chou). Trdelník — pâtisserie roulée grillée. Knedlíky (quenelles). Bramboráky (galettes de pommes de terre). Bière à 50 cents au pub. Cuisine généreuse et réconfortante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Šumava','Šumava — La Forêt de Bohême')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Šumava, Bohême du Sud-Ouest</div><h3 class="card-name">Šumava — La Forêt Magique</h3><p class="card-context">Le plus grand parc national de Tchéquie — forêt primaire aux lacs tourbeux, loups, loutres, lynx. Lac de Černé (lac de sorcières). Source de la Vltava. "Forêt de Bohême" — nom germanique. Réserve de biosphère UNESCO. La nature vierge de Bohême.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cristal_de_Bohême','Cristal de Bohême')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Bohême du Nord</div><h3 class="card-name">Cristal de Bohême</h3><p class="card-context">La Bohême — première région cristallière du monde depuis le XVIe s. Moser, Riedel, Bohemia Crystal. Usines visitables à Jablonec nad Nisou et Liberec. Soufflage de verre à la bouche. Le cristal de Bohême — transparent, lumineux, d'une pureté incomparable.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Buchlov','Château de Buchlov')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Buchlov, Moravie du Sud</div><h3 class="card-name">Buchlov — Forteresse Royale de Moravie</h3><p class="card-context">Forteresse royale du XIIIe s. sur une colline de forêt. Vue sur les Carpates blanches et la plaine morave. Les monts Bílé Karpaty aux orchidées sauvages — réserve de biosphère UNESCO. Slivovice (eau-de-vie de prunes) — spécialité morave. Folklore vivant.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Josefov','Josefov — Quartier Juif de Prague')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Prague — Josefov</div><h3 class="card-name">Josefov — Le Quartier Juif de Prague</h3><p class="card-context">UNESCO 1992 — l'ancien ghetto juif de Prague, le mieux préservé d'Europe centrale. Six synagogues, le vieux cimetière juif (12 couches superposées). Golem de Prague — le rabbin Loew créa le Golem pour défendre la communauté. Franz Kafka y naquit.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Přemyslides à Václav Havel</div>
+  <h2 class="section-title">Histoire de la Tchéquie</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">830 — 1306</div>
+      <div class="timeline-event"><strong>Les Přemyslides et la Grande Moravie.</strong> Grande Moravie (833–907) — le premier État slave. Saints Cyrille et Méthode inventent l'alphabet cyrillique (863). Les Přemyslides unifient la Bohême — Saint Venceslas, patron de la Tchéquie (tué par son frère en 935). Prague fondée sur les collines de la Vltava. Le duché de Bohême devient royaume (1198).</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1316 — 1378</div>
+      <div class="timeline-event"><strong>Charles IV — L'Âge d'Or de Bohême.</strong> Charles IV — "le père de la patrie" — roi de Bohême et Empereur du Saint-Empire. Prague devient la troisième ville du monde après Paris et Constantinople. Université Charles fondée (1348 — la première d'Europe centrale). Château de Prague, cathédrale Saint-Guy, Pont Charles construits. L'apogée de la Bohême médiévale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1415 — 1437</div>
+      <div class="timeline-event"><strong>Jan Hus et les Guerres Hussites.</strong> Jan Hus — précurseur de la Réforme — brûlé à Constance (6 juillet 1415). Les Hussites se révoltent — guerres hussites (1419–1434). Jan Žižka — le général aveugle invaincu. Les Hussites battent cinq croisades papales. La Bohême — première nation protestante d'Europe, un siècle avant Luther.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1620 — 1918</div>
+      <div class="timeline-event"><strong>Les Habsbourg et la Domination.</strong> Bataille de la Montagne Blanche (1620) — défaite bohémienne, début de la "Ère des Ténèbres". 300 ans de domination habsbourgeoise. Germanisation forcée. Réveil national tchèque au XIXe s. — Dvořák, Smetana, Mucha. La Première Guerre mondiale — l'Empire austro-hongrois s'effondre. Tomáš Masaryk proclame la République tchécoslovaque le 28 octobre 1918.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1938 — 1948</div>
+      <div class="timeline-event"><strong>Munich et Occupation.</strong> Accords de Munich (30 sept. 1938) — la France et le Royaume-Uni abandonnent la Tchécoslovaquie à Hitler. Occupation nazie (1939–1945). Destruction de Lidice (1942) en représailles à l'assassinat de Heydrich. Libération en mai 1945. Coup de Prague (1948) — les communistes prennent le pouvoir.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1968</div>
+      <div class="timeline-event"><strong>Le Printemps de Prague.</strong> Alexander Dubček — "socialisme à visage humain". Liberté de presse, réformes. Le 21 août 1968 — 500 000 soldats soviétiques envahissent la Tchécoslovaquie. Jan Palach se brûle vif en protestation (janvier 1969). La normalisation — 20 ans de plomb. Václav Havel et la Charte 77 résistent.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1989 — aujourd'hui</div>
+      <div class="timeline-event"><strong>La Révolution de Velours.</strong> Novembre 1989 — la Révolution de Velours. Václav Havel, dramaturge dissident, élu président. Transition pacifique vers la démocratie. Divorce de Velours — séparation pacifique avec la Slovaquie (1er janvier 1993). Adhésion à l'OTAN (1999) et à l'UE (2004). Prague — capitale culturelle de l'Europe depuis 2000.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇨🇿</div>
+  <p class="footer-text">Guide du Voyageur · Tchéquie · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([49.8,15.5],7);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(215,20,26,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#7a0808"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#D7141A" stroke="#7a0808" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#b00810"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#b00810"/><rect x="6" y="8" width="2" height="4" fill="#b00810"/><rect x="9" y="8" width="2" height="4" fill="#b00810"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#600008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#D7141A"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconBiere=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,120,10,.85))"><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.8"/><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/><circle cx="15" cy="20" r="1" fill="#FAE042" opacity="0.5"/><circle cx="19" cy="23" r="0.8" fill="#FAE042" opacity="0.4"/><circle cx="22" cy="18" r="1.1" fill="#FAE042" opacity="0.45"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconCulture=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,40,160,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0" stroke="#4a2080" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#8050c0" opacity="0.6"/><circle cx="14" cy="14" r="3" fill="#D7141A" opacity="0.8"/><path d="M18 8 Q24 12 26 16 Q24 20 18 20 Q12 20 10 16 Q12 12 18 8" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>');
+
+var iconGrotte=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,100,.8))"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060" stroke="#2a1040" stroke-width="0.7"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/><path d="M14 34 Q14 28 18 26 Q22 28 22 34 Z" fill="#c9a84c" opacity="0.4"/><path d="M12 22 Q14 18 18 16 Q22 18 24 22" fill="none" stroke="#e8c840" stroke-width="1" opacity="0.6"/><circle cx="18" cy="16" r="1.8" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconRocher=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,80,120,.8))"><path d="M4 32 Q6 24 12 20 L18 6 L24 20 Q30 24 32 32 Z" fill="#c8d0e0" stroke="#8090b0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white" opacity="0.6"/><path d="M8 30 Q12 26 18 28 Q24 26 28 30" fill="#6080a0" opacity="0.5"/><path d="M18 20 Q22 22 26 28 Q22 26 18 27 Q14 26 10 28 Q14 22 18 20 Z" fill="#9090a8" opacity="0.5"/></svg>');
+
+var iconMusique=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(215,20,26,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#D7141A" stroke="#8a0010" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#b01020"/><line x1="20" y1="10" x2="28" y2="6" stroke="#D7141A" stroke-width="1.2" stroke-linecap="round"/><line x1="20" y1="14" x2="28" y2="10" stroke="#D7141A" stroke-width="1" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#b01020"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#b01020"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#D7141A" stroke="#7a0808" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#D7141A',label:'🏙️ Villes Historiques',pts:[
+    {lat:50.0755,lng:14.4378,n:"Prague — La Ville Dorée",c:"Prague, Bohême",d:"UNESCO 1992. Château, Pont Charles, Place de la Vieille Ville, Horloge Astronomique. La plus belle ville d'Europe centrale.",u:"https://fr.m.wikipedia.org/wiki/Prague?useskin=vector"},
+    {lat:49.1951,lng:16.6068,n:"Brno — Capitale de Moravie",c:"Brno, Moravie",d:"2e ville. Špilberk, Villa Tugendhat (UNESCO). Mendel découvrit la génétique ici.",u:"https://fr.m.wikipedia.org/wiki/Brno?useskin=vector"},
+    {lat:49.7475,lng:13.3776,n:"Plzeň — Berceau du Pilsner",c:"Plzeň, Bohême de l\'Ouest",d:"Pilsner Urquell (1842). Grande Synagogue (3e au monde). Capitale Européenne de la Culture 2015.",u:"https://fr.m.wikipedia.org/wiki/Plzeň?useskin=vector"},
+    {lat:49.5938,lng:17.2509,n:"Olomouc — La Perle de Moravie",c:"Olomouc, Moravie centrale",d:"6 fontaines baroques. Colonne Sainte-Trinité UNESCO. Mozart y composa à 11 ans.",u:"https://fr.m.wikipedia.org/wiki/Olomouc?useskin=vector"},
+    {lat:48.9747,lng:14.4744,n:"České Budějovice — Budvar",c:"Bohême du Sud",d:"Vrai Budweiser depuis 1895. Grande place médiévale de 133x133 m. Bohême du Sud.",u:"https://fr.m.wikipedia.org/wiki/České_Budějovice?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:50.0906,lng:14.4003,n:"Château de Prague",c:"Prague — Hradčany",d:"Plus grand château médiéval du monde (70 000 m²). Cathédrale Saint-Guy. Couronne de Saint-Venceslas.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Prague?useskin=vector"},
+    {lat:48.8128,lng:14.3175,n:"Český Krumlov",c:"Bohême du Sud",d:"UNESCO 1992. Village médiéval dans un méandre de la Vltava. Théâtre baroque unique.",u:"https://fr.m.wikipedia.org/wiki/Český_Krumlov?useskin=vector"},
+    {lat:49.9581,lng:14.1892,n:"Château de Karlštejn",c:"Bohême centrale",d:"Construit par Charles IV (1348) pour les joyaux de la Couronne. Le plus visité après Prague.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Karlštejn?useskin=vector"},
+    {lat:49.0503,lng:14.1725,n:"Château de Hluboká",c:"Bohême du Sud",d:"Windsor tchèque. Néo-gothique Tudor (XIXe s.). Schwarzenberg. 141 chambres.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Hluboká_nad_Vltavou?useskin=vector"},
+    {lat:49.7386,lng:16.8836,n:"Château de Buchlov",c:"Moravie du Sud",d:"Forteresse royale (XIIIe s.). Vue sur les Carpates blanches. Slivovice morave.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Buchlov?useskin=vector"}
+  ]},
+  biere:{icon:iconBiere,color:'#d4a020',label:'🍺 Bières & Brasseries',pts:[
+    {lat:49.7475,lng:13.3776,n:"Pilsner Urquell — L\'Original",c:"Plzeň",d:"La Pilsner inventée le 5 octobre 1842. 65% des bières mondiales sont des Pilsner.",u:"https://fr.m.wikipedia.org/wiki/Pilsner_Urquell?useskin=vector"},
+    {lat:48.9747,lng:14.4744,n:"Budvar — Le Vrai Budweiser",c:"České Budějovice",d:"Brasserie depuis 1895. Conflit centenaire avec Anheuser-Busch. Bière royale de Bohême.",u:"https://fr.m.wikipedia.org/wiki/Budweiser_Budvar?useskin=vector"},
+    {lat:50.3294,lng:13.5384,n:"Žatec — Capitale du Houblon",c:"Bohême du Nord-Ouest",d:"UNESCO 2023. Houblon Saaz — le plus aromatique au monde. La saveur unique des bières tchèques.",u:"https://fr.m.wikipedia.org/wiki/Žatec?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Bière U Fleků — Prague",c:"Prague",d:"La plus ancienne brasserie de Prague (1499). La seule bière noire (tmavé) brassée en ville.",u:"https://fr.m.wikipedia.org/wiki/U_Fleků?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:50.0755,lng:14.4378,n:"Prague Historique",c:"Prague",d:"UNESCO 1992. Vieille ville, Malá Strana, Hradčany, Josefov. Joyau de l\'Europe centrale.",u:"https://fr.m.wikipedia.org/wiki/Prague?useskin=vector"},
+    {lat:48.8128,lng:14.3175,n:"Český Krumlov",c:"Bohême du Sud",d:"UNESCO 1992. Village médiéval parfaitement préservé. Château baroque Renaissance.",u:"https://fr.m.wikipedia.org/wiki/Český_Krumlov?useskin=vector"},
+    {lat:49.4483,lng:15.5886,n:"Telč — Place Renaissance",c:"Moravie du Sud",d:"UNESCO 1992. Maisons Renaissance et baroques. Château du XVIe s. Conservé sous cloche.",u:"https://fr.m.wikipedia.org/wiki/Telč?useskin=vector"},
+    {lat:49.9514,lng:17.9092,n:"Holašovice — Village Baroque",c:"Bohême du Sud",d:"UNESCO 1998. Village baroque paysan parfaitement préservé. Fermes des XVIIIe-XIXe s.",u:"https://fr.m.wikipedia.org/wiki/Holašovice?useskin=vector"},
+    {lat:48.8067,lng:16.8461,n:"Lednice-Valtice",c:"Moravie du Sud",d:"UNESCO 1996. 200 km² de paysage romantique. Château néo-gothique et jardin monumental.",u:"https://fr.m.wikipedia.org/wiki/Domaine_culturel_de_Lednice-Valtice?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Art',pts:[
+    {lat:50.0880,lng:14.4213,n:"Musée National de Prague",c:"Prague — Václavské náměstí",d:"Le plus grand musée de Tchéquie. Collections de sciences naturelles et d\'histoire tchèque.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_de_Prague?useskin=vector"},
+    {lat:50.0856,lng:14.4130,n:"Musée Mucha — Prague",c:"Prague",d:"L\'Art Nouveau d\'Alphonse Mucha — peintre tchèque iconique. Épopée Slave (20 tableaux).",u:"https://fr.m.wikipedia.org/wiki/Alphonse_Mucha?useskin=vector"},
+    {lat:49.1951,lng:16.6068,n:"Villa Tugendhat — Brno",c:"Brno",d:"UNESCO 2001. Chef-d\'oeuvre de Mies van der Rohe (1930). Architecture moderne pionnière.",u:"https://fr.m.wikipedia.org/wiki/Villa_Tugendhat?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Musée Kafka — Prague",c:"Prague — Malá Strana",d:"Musée dédié à Franz Kafka né à Prague. La Métamorphose, Le Procès, Le Château.",u:"https://fr.m.wikipedia.org/wiki/Franz_Kafka?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💧 Thermes & Spa',pts:[
+    {lat:50.2282,lng:12.8716,n:"Karlovy Vary — La Perle Thermale",c:"Bohême de l\'Ouest",d:"13 sources. Vřídlo (72°C). Goethe, Beethoven, Pierre le Grand. Festival du Film.",u:"https://fr.m.wikipedia.org/wiki/Karlovy_Vary?useskin=vector"},
+    {lat:49.9647,lng:12.7014,n:"Mariánské Lázně",c:"Bohême de l\'Ouest",d:"UNESCO 2021. 40 sources. Colonnade chantante. Goethe, Chopin, Mark Twain.",u:"https://fr.m.wikipedia.org/wiki/Mariánské_Lázně?useskin=vector"},
+    {lat:50.0792,lng:12.3597,n:"Františkovy Lázně",c:"Bohême de l\'Ouest",d:"Triangle thermal de Bohême. Sources ferrugineuses froides. Architecture néo-classique.",u:"https://fr.m.wikipedia.org/wiki/Františkovy_Lázně?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:50.7364,lng:15.7375,n:"Krkonoše — Monts des Géants",c:"Bohême du Nord",d:"Parc national le plus visité. Sněžka (1 602 m). Ski, randonnées, cascades.",u:"https://fr.m.wikipedia.org/wiki/Krkonoše?useskin=vector"},
+    {lat:49.0167,lng:13.5167,n:"Šumava — La Forêt de Bohême",c:"Bohême du Sud-Ouest",d:"Plus grand parc national. Forêt primaire, loups, loutres, lynx. Source de la Vltava.",u:"https://fr.m.wikipedia.org/wiki/Šumava?useskin=vector"},
+    {lat:50.8833,lng:14.1667,n:"Bohême Saxonne — Rochers",c:"Bohême du Nord",d:"Arche de Pravčická brána (plus grande d\'Europe). Gorges de l\'Elbe. Caspar David Friedrich.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Suisse_de_Bohême?useskin=vector"},
+    {lat:49.3500,lng:16.7000,n:"Karst de Moravie",c:"Moravie du Sud",d:"1 100 grottes. Gouffre de Macocha (138 m). Rivière souterraine. Bateaux électriques.",u:"https://fr.m.wikipedia.org/wiki/Moravský_kras?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#7a1840',label:'🍷 Vins de Moravie',pts:[
+    {lat:48.8061,lng:16.6394,n:"Mikulov — La Toscane Morave",c:"Moravie du Sud",d:"Vignes, château baroque blanc, ancienne communauté juive. Pálava, Welschriesling.",u:"https://fr.m.wikipedia.org/wiki/Mikulov?useskin=vector"},
+    {lat:48.8461,lng:16.7564,n:"Valtice — Caves Viticoles",c:"Moravie du Sud",d:"Caves Valtice (UNESCO). 200 vins. Dégustation dans caves souterraines. Paysage de vignes.",u:"https://fr.m.wikipedia.org/wiki/Valtice?useskin=vector"},
+    {lat:48.8392,lng:16.1511,n:"Znojmo — Route des Vins",c:"Moravie du Sud",d:"Ville médiévale aux 10 km de caves souterraines. Znojemský hrozen — festival du vin médiéval.",u:"https://fr.m.wikipedia.org/wiki/Znojmo?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🥩 Gastronomie Tchèque',pts:[
+    {lat:50.0755,lng:14.4378,n:"Svíčková de Prague",c:"Prague",d:"Svíčková na smetaně — filet de bœuf à la crème, cranberry, quenelle. Plat national.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_tchèque?useskin=vector"},
+    {lat:49.7475,lng:13.3776,n:"Trdelník de Plzeň",c:"Plzeň",d:"Trdelník — pâtisserie roulée grillée sur broche. Knedlíky (quenelles). Cuisine de Bohême.",u:"https://fr.m.wikipedia.org/wiki/Trdelník?useskin=vector"},
+    {lat:49.5938,lng:17.2509,n:"Fromage d\'Olomouc",c:"Olomouc",d:"Olomoucké tvarůžky — le fromage à l\'odeur forte le plus célèbre de Tchéquie. Protégé AOC.",u:"https://fr.m.wikipedia.org/wiki/Olomoucké_tvarůžky?useskin=vector"}
+  ]},
+  culture:{icon:iconCulture,color:'#7040b0',label:'📚 Culture & Littérature',pts:[
+    {lat:50.0867,lng:14.4214,n:"Josefov — Quartier Juif de Prague",c:"Prague",d:"UNESCO 1992. 6 synagogues. Vieux cimetière (12 couches). Golem. Kafka y naquit.",u:"https://fr.m.wikipedia.org/wiki/Josefov?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Kafka — Prague Littéraire",c:"Prague",d:"Kafka (1883–1924), Kundera, Hašek (Brave Soldat Chvéïk). Prague capitale littéraire.",u:"https://fr.m.wikipedia.org/wiki/Franz_Kafka?useskin=vector"},
+    {lat:50.0869,lng:14.4208,n:"Théâtre National de Prague",c:"Prague",d:"Symbole de la renaissance nationale tchèque (1883). Opéra, ballet, théâtre. Doré et majestueux.",u:"https://fr.m.wikipedia.org/wiki/Théâtre_national_de_Prague?useskin=vector"}
+  ]},
+  grotte:{icon:iconGrotte,color:'#3a2060',label:'🦇 Grottes & Souterrain',pts:[
+    {lat:49.3500,lng:16.7000,n:"Grottes Punkva — Macocha",c:"Moravie du Sud",d:"Gouffre de Macocha (138 m). Rivière Punkva. Bateaux souterrains. Stalactites géantes.",u:"https://fr.m.wikipedia.org/wiki/Grottes_Punkva?useskin=vector"},
+    {lat:49.4667,lng:18.1333,n:"Grottes de Demänovská",c:"Moravie / Slovaquie",d:"Réseau de grottes calcaires des Tatras du Petit. Lacs souterrains, stalactites.",u:"https://fr.m.wikipedia.org/wiki/Grottes_de_Demänovská?useskin=vector"},
+    {lat:48.9167,lng:14.1833,n:"Grottes de Bozkov",c:"Bohême du Nord",d:"Les plus grandes grottes dolomitiques de Bohême. Lacs souterrains de couleur émeraude.",u:"https://fr.m.wikipedia.org/wiki/Tchéquie?useskin=vector"}
+  ]},
+  rocher:{icon:iconRocher,color:'#6080a0',label:'🪨 Rochers & Paysages',pts:[
+    {lat:50.8833,lng:14.1667,n:"Pravčická Brána — Grande Arche",c:"Bohême du Nord",d:"Plus grande arche naturelle d\'Europe (26,5 m). Gorges de Kamenice. Carte postale nationale.",u:"https://fr.m.wikipedia.org/wiki/Pravčická_brána?useskin=vector"},
+    {lat:50.6833,lng:15.6000,n:"Rochers d\'Adršpach-Teplice",c:"Bohême du Nord-Est",d:"Labyrinthe de rochers de grès de 70 m. Lac bleu. Les plus beaux rochers de Tchéquie.",u:"https://fr.m.wikipedia.org/wiki/Rochers_d%27Adrspach-Teplice?useskin=vector"},
+    {lat:50.4333,lng:14.0833,n:"Bohême Centrale — Rochers de Skaln",c:"Bohême centrale",d:"Rochers de grès au bord de la Vltava. Forêts de pins. Escalade. Paysage romantique.",u:"https://fr.m.wikipedia.org/wiki/Pays_de_Bohême?useskin=vector"}
+  ]},
+  musique:{icon:iconMusique,color:'#D7141A',label:'🎼 Musique & Arts',pts:[
+    {lat:49.8731,lng:16.3150,n:"Litomyšl — Smetana",c:"Bohême de l\'Est",d:"UNESCO 1999. Château Renaissance. Lieu de naissance de Smetana (La Moldau, 1824).",u:"https://fr.m.wikipedia.org/wiki/Litomyšl?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Dvořák — Prague",c:"Prague",d:"Antonín Dvořák (1841–1904) — Symphonie du Nouveau Monde. Musée Dvořák à Prague.",u:"https://fr.m.wikipedia.org/wiki/Antonín_Dvořák?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Festival de Prague — Printemps Musical",c:"Prague",d:"Festival de musique classique le plus important d\'Europe centrale (depuis 1946). Mai-juin.",u:"https://fr.m.wikipedia.org/wiki/Printemps_de_Prague_(musique)?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:50.2282,lng:12.8716,n:"Golf de Karlovy Vary",c:"Karlovy Vary",d:"Golf Loket — parcours dans les collines boisées. Vue sur le château de Loket.",u:"https://fr.m.wikipedia.org/wiki/Karlovy_Vary?useskin=vector"},
+    {lat:50.0755,lng:14.4378,n:"Golf de Prague",c:"Prague",d:"Plusieurs clubs autour de Prague. Golf Průhonice dans le parc du château. Bohême centrale.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Tchéquie?useskin=vector"},
+    {lat:48.8061,lng:16.6394,n:"Golf de Moravie du Sud",c:"Mikulov, Moravie",d:"Golf entre vignes et collines moraves. Vue sur Mikulov. Paysage de la Toscane morave.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Tchéquie?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#D7141A\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#D7141A"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#b00810"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#b00810"/><rect x="6" y="8" width="2" height="4" fill="#b00810"/></svg>', label:'Villes Historiques', count:5},
+      {cat:'chateau', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Forteresses', count:5},
+      {cat:'biere',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020"/><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/></svg>', label:'Bières &amp; Brasseries', count:4},
+      {cat:'unesco',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'musee',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Art', count:4},
+      {cat:'spa',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Thermes &amp; Spa', count:3},
+      {cat:'nature',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'vin',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins de Moravie', count:3},
+      {cat:'gastro',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Tchèque', count:3},
+      {cat:'culture', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0"/><circle cx="14" cy="14" r="3" fill="#D7141A" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>', label:'Culture &amp; Littérature', count:3},
+      {cat:'grotte',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/></svg>', label:'Grottes &amp; Souterrain', count:3},
+      {cat:'rocher',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 32 Q6 24 12 20 L18 6 L24 20 Q30 24 32 32 Z" fill="#c8d0e0" stroke="#8090b0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white" opacity="0.6"/></svg>', label:'Rochers &amp; Paysages', count:3},
+      {cat:'musique', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#D7141A"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#b01020"/></svg>', label:'Musique &amp; Arts', count:3},
+      {cat:'golf',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#D7141A"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#D7141A #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#D7141A;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#11457E;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#D7141A;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#f8a8a8',
+  'Czechia':'#f8a8a8','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #D7141A';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#D7141A':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'D7141A\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

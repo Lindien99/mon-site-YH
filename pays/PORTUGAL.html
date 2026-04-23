@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portugal — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels du Portugal.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --verde:#006600;     /* vert portugais */
+      --vermelho:#FF0000;  /* rouge portugais */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --azul:#003399;      /* bleu azulejo */
+      --ocre:#c8860a;      /* ocre lusitanien */
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#04060a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,102,0,.15) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,0,0,.08) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--verde) 0%,var(--verde) 38%,var(--vermelho) 38%,var(--vermelho) 62%,var(--verde) 62%,var(--verde) 100%);opacity:.4;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(0,102,0,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(0,102,0,.3);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(0,102,0,.1);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(4,6,10,.88);border:1px solid rgba(200,134,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(0,102,0,.15);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--verde),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(0,102,0,.04);border-color:rgba(200,134,10,.3);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(0,102,0,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,134,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(0,102,0,.2);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,134,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#04060a;border-bottom:1px solid rgba(0,102,0,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--verde);border:1px solid #004400;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#008800;border-color:#008800;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(255,0,0,.92);border-top:1px solid rgba(200,134,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Portugal';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Portugal');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">PORTUGAL</div>
+  <div class="hero-eyebrow">Portugal · Guide du Voyageur</div>
+  <h1 class="hero-title">Fado, Azulejos<br>&amp; <em>Âme du Portugal</em></h1>
+  <p class="hero-subtitle">Châteaux mauresques, monastères manuélins, vignobles du Douro, Algarve dorée &amp; épopée des Grandes Découvertes</p>
+
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(0,102,0,.3))" shape-rendering="geometricPrecision">
+
+      <!-- Corps du lion héraldique portugais -->
+      <path d="M46 108 Q38 92 40 76 Q42 60 54 52 Q66 44 80 44 Q96 44 108 56 Q120 70 116 90 Q112 108 96 116 Q80 124 62 118 Q52 114 46 108 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M54 58 Q66 48 80 48 Q94 48 104 58 Q94 52 80 51 Q68 51 54 58 Z" fill="#f0d040" opacity="0.3"/>
+
+      <!-- Crinière -->
+      <path d="M44 70 Q32 56 34 42 Q40 34 50 34 Q54 38 54 46" fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M48 54 Q36 48 32 36 Q36 28 46 26 Q52 30 50 38" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M56 40 Q48 30 50 18 Q56 12 64 14 Q66 20 62 26" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M70 36 Q68 24 72 14 Q78 8 84 12 Q84 20 80 26" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M84 38 Q88 26 96 20 Q104 16 108 24 Q106 30 100 32" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M96 48 Q106 38 114 36 Q120 38 120 46 Q116 52 110 52" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête -->
+      <ellipse cx="80" cy="42" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M62 36 Q70 26 80 24 Q90 26 98 36 Q90 30 80 29 Q70 30 62 36 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Oeil -->
+      <circle cx="87" cy="38" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="87" cy="38" r="3" fill="#2a1000"/>
+      <circle cx="88.5" cy="36.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau -->
+      <path d="M70 46 Q74 50 80 50 Q86 50 90 46" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="80" cy="52" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <ellipse cx="77" cy="51" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+      <ellipse cx="83" cy="51" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+
+      <!-- Moustaches -->
+      <line x1="74" y1="53" x2="52" y2="50" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="74" y1="55" x2="52" y2="56" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="86" y1="53" x2="108" y2="50" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="86" y1="55" x2="108" y2="56" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+
+      <!-- Patte avant avec sphère armillaire (symbole du Portugal) -->
+      <path d="M100 78 Q110 70 116 58 Q120 50 118 44" fill="#b07808" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Sphère armillaire simplifiée -->
+      <circle cx="118" cy="36" r="10" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+      <ellipse cx="118" cy="36" rx="10" ry="4" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+      <line x1="118" y1="26" x2="118" y2="46" stroke="#c9a84c" stroke-width="0.8"/>
+      <line x1="108" y1="36" x2="128" y2="36" stroke="#c9a84c" stroke-width="0.8"/>
+
+      <!-- Patte arrière -->
+      <path d="M56 110 Q48 118 46 128 Q50 128 54 124 Q56 130 60 130 Q64 126 62 120 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Queue -->
+      <path d="M96 116 Q108 120 118 112 Q126 104 122 96 Q118 92 114 96 Q118 96 116 102 Q112 110 104 112 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M114 96 Q118 88 122 84 Q120 90 116 94 Z" fill="#d4a020"/>
+
+      <!-- Hachures corps -->
+      <path d="M58 78 Q68 72 78 74 Q84 75 90 74 Q98 72 104 78" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M56 88 Q66 82 78 84 Q84 85 90 84 Q98 82 106 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M58 98 Q68 93 78 94 Q84 95 90 94 Q98 93 104 98" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Couronne royale portugaise -->
+      <path d="M62 28 L98 28 L96 34 L64 34 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M65 28 Q65 22 68 20 Q70 24 70 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M76 28 Q76 20 80 17 Q84 20 84 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M90 28 Q90 22 93 20 Q95 24 95 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <circle cx="80" cy="18" r="3" fill="#FF0000" opacity="0.9"/>
+      <circle cx="68" cy="22" r="2" fill="#003399" opacity="0.85"/>
+      <circle cx="93" cy="22" r="2" fill="#003399" opacity="0.85"/>
+
+      <!-- Ecu — croix portugaise sur le poitrail -->
+      <path d="M70 88 Q70 80 80 78 Q90 80 90 88 Q90 98 80 104 Q70 98 70 88 Z" fill="#006600" stroke="#004400" stroke-width="0.8"/>
+      <!-- Croix blanche -->
+      <rect x="70" y="87" width="20" height="3" fill="#f5f5f5" opacity="0.95"/>
+      <rect x="78.5" y="79" width="3" height="18" fill="#f5f5f5" opacity="0.95"/>
+      <!-- 5 quinas (blason du Portugal) -->
+      <circle cx="80" cy="88" r="1.5" fill="#003399" opacity="0.9"/>
+      <circle cx="76" cy="84" r="1" fill="#003399" opacity="0.8"/>
+      <circle cx="84" cy="84" r="1" fill="#003399" opacity="0.8"/>
+      <circle cx="76" cy="92" r="1" fill="#003399" opacity="0.8"/>
+      <circle cx="84" cy="92" r="1" fill="#003399" opacity="0.8"/>
+
+      <!-- Annotation Leonard -->
+      <text x="12" y="70" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="12" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">lusitanus</text>
+      <line x1="26" y1="72" x2="44" y2="70" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles / caravelles -->
+      <circle cx="130" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="140" cy="50" r="0.9" fill="#c9a84c" opacity="0.4"/>
+      <circle cx="22" cy="118" r="1.1" fill="#006600" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — châteaux mauresques, monastères manuélins, palais royaux, cathédrales, azulejos, vignobles du Douro, Algarve, fado, sites UNESCO, gastronomie, Grandes Découvertes, surf, golf, îles de Madère et des Açores &amp; culture populaire.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">800+</div><div class="stat-label">km de côtes</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez le Portugal</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Maures à Vasco de Gama</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tour_de_Bel%C3%A9m','Tour de Belém')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Lisbonne</div><h3 class="card-name">Tour de Belém</h3><p class="card-context">Chef-d'œuvre de l'architecture manuéline (1519), symbole du Portugal des Grandes Découvertes. Gardienne de l'embouchure du Tage. UNESCO 1983. Construite sous Manuel Ier pour célébrer le retour de Vasco de Gama.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mona%C3%A8re_des_Jer%C3%B3nimos','Monastère des Jerónimos')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Lisbonne — Belém</div><h3 class="card-name">Monastère des Jerónimos</h3><p class="card-context">UNESCO 1983 — joyau absolu du style manuélin (1502). Financé par les épices de Vasco de Gama. Tombeau de Vasco de Gama et de Luís de Camões. Cloître d'une beauté inégalée. Symbole de la puissance maritime portugaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_national_de_Sintra','Palais National de Sintra')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Sintra</div><h3 class="card-name">Palais National de Sintra</h3><p class="card-context">UNESCO 1995 — palais médiéval aux deux cheminées coniques emblématiques. Résidence royale depuis le XIVe s. Azulejos exceptionnels. Sintra, la ville romantique des rois du Portugal nichée dans la Serra.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_des_Maures','Château des Maures — Sintra')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Sintra</div><h3 class="card-name">Château des Maures</h3><p class="card-context">Forteresse maure du VIIIe s. dominant Sintra depuis 412 m. Murailles spectaculaires sur la Serra. Vue sur l'Atlantique. Pris par Afonso Henriques, premier roi du Portugal, en 1147. UNESCO 1995.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_national_de_Pena','Palais National de Pena')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Sintra</div><h3 class="card-name">Palais de Pena</h3><p class="card-context">Palais romantique aux couleurs éclatantes (1854) du roi Ferdinand II — le roi artiste. Mélange féerique de styles néo-gothique, néo-manuélin et mauresque. L'un des plus beaux châteaux d'Europe. UNESCO 1995.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alf%C3%A2ma','Alfama — Lisbonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Lisbonne</div><h3 class="card-name">Alfama — Le Berceau du Fado</h3><p class="card-context">Le plus vieux quartier de Lisbonne — ruelles pavées, maisons aux azulejos, miradouros. Berceau du fado, musique de l'âme portugaise. Château de São Jorge dominant la colline. Survivant du tremblement de terre de 1755.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Couvent_du_Christ','Couvent du Christ — Tomar')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Tomar</div><h3 class="card-name">Couvent du Christ — Tomar</h3><p class="card-context">UNESCO 1983 — siège des Templiers puis des Chevaliers du Christ. L'église ronde (charola) du XIIe s. est unique en Europe. Fenêtre manuéline de la salle du Chapitre — chef-d'œuvre absolu de la sculpture portugaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alcoba%C3%A7a','Monastère d\'Alcobaça')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Alcobaça</div><h3 class="card-name">Monastère d'Alcobaça</h3><p class="card-context">UNESCO 1989 — première grande œuvre gothique du Portugal (XIIe s.), fondée par Afonso Henriques. Tombeau de Pedro Ier et d'Inês de Castro — la plus belle histoire d'amour du Portugal. Sarcophages sculptés d'une beauté saisissante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mosta%C3%A8re_de_Batalha','Monastère de Batalha')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Batalha</div><h3 class="card-name">Monastère de Batalha</h3><p class="card-context">UNESCO 1983 — construit pour commémorer la victoire d'Aljubarrota (1385) sur la Castille. Gothique flamboyant et manuélin. Les Chapelles Imparfaites — jamais achevées, restent ouvertes sur le ciel depuis 600 ans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Lisbonne','Cathédrale de Lisbonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Lisbonne</div><h3 class="card-name">Cathédrale de Lisbonne — Sé</h3><p class="card-context">La plus ancienne église de Lisbonne (1147), construite sur une mosquée après la Reconquista. Style roman fortifié aux deux tours imposantes. Trésor exceptionnel — reliques de Saint Vincent, patron de Lisbonne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_national_de_Mafra','Palais National de Mafra')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Mafra</div><h3 class="card-name">Palais National de Mafra</h3><p class="card-context">UNESCO 2019 — colossal palais-couvent baroque (1730) de Jean V, financé par l'or du Brésil. 1 200 pièces, 156 cloches, bibliothèque de 36 000 volumes. Modèle de l'Escorial espagnol en version portugaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Douro_(Portugal)','Vignobles du Haut-Douro')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Vallée du Douro</div><h3 class="card-name">Vignobles du Haut-Douro</h3><p class="card-context">UNESCO 2001 — plus ancienne région viticole délimitée du monde (1756). Terrasses sculptées à flanc de montagne sur 25 000 ha. Vin de Porto, Douro rouge. Croisières en bateau rabelo sur le fleuve.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Évora','Évora — Ville-Musée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Évora, Alentejo</div><h3 class="card-name">Évora — Ville-Musée UNESCO</h3><p class="card-context">UNESCO 1986 — ville entièrement classée, musée à ciel ouvert depuis 2 000 ans. Temple romain d'Auguste (Ier s.), cathédrale gothique, Capela dos Ossos (chapelle des crânes). Cœur de l'Alentejo mystique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Guimarães','Château de Guimarães')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Guimarães</div><h3 class="card-name">Guimarães — Berceau du Portugal</h3><p class="card-context">UNESCO 2001 — ici naquit Afonso Henriques, premier roi du Portugal (1128). Château médiéval du Xe s. Palais des Ducs de Bragance. Inscription sur les murs : "Aqui nasceu Portugal" (Ici naquit le Portugal).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porto','Porto — Ville de Vin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Porto</div><h3 class="card-name">Porto — Centre Historique UNESCO</h3><p class="card-context">UNESCO 1996 — Ribeira aux maisons colorées, caves de Porto de Vila Nova de Gaia, Pont Dom-Luís I (Eiffel). Livraria Lello — librairie la plus belle du monde. Azulejos de la gare de São Bento.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fatima_(Portugal)','Sanctuaire de Fátima')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Fátima, Leiria</div><h3 class="card-name">Sanctuaire de Fátima</h3><p class="card-context">Le plus grand lieu de pèlerinage catholique d'Europe occidentale — 6 millions de pèlerins par an. Apparitions de la Vierge à trois bergers en 1917. Basilique, Chapelle des Apparitions, Basilique de la Trinité (2007).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_S%C3%A3o_Jorge','Château São Jorge — Lisbonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Lisbonne</div><h3 class="card-name">Château São Jorge</h3><p class="card-context">Forteresse maure dominant Lisbonne depuis la colline la plus haute. Résidence royale portugaise du XIIe au XVIe s. Murailles et tours médiévales intactes. Vue panoramique sur Lisbonne, le Tage et le pont du 25-Avril.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Quinta_da_Regaleira','Quinta da Regaleira')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Sintra</div><h3 class="card-name">Quinta da Regaleira</h3><p class="card-context">Domaine initiatique (1910) aux symboles maçonniques, templiers et alchimiques. Puits initiatique inversé de 27 m. Jardins labyrinthiques. Grotte. L'un des lieux les plus mystérieux et fascinants du Portugal. UNESCO 1995.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Obidos','Óbidos — La Ville Médiévale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Óbidos, Oeste</div><h3 class="card-name">Óbidos — Ville Médiévale</h3><p class="card-context">Ville médiévale intacte dans ses remparts du XIIe s. — la plus belle du Portugal. Maisons blanches aux volets bleus et jaunes, fleurs de bougainvillée. Tradition de la Ginja (cerise) servie dans des coupes en chocolat.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Madère','Île de Madère')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Madère, Atlantique</div><h3 class="card-name">Île de Madère</h3><p class="card-context">L'île fleur de l'Atlantique — laurisylve UNESCO 1999 (forêt subtropicale de 15 millions d'années). Levadas (irrigation centenaire), Cabo Girão (falaise la plus haute d'Europe), vin de Madère légendaire, Funchal.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Açores','Îles des Açores')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Açores, Atlantique</div><h3 class="card-name">Archipel des Açores</h3><p class="card-context">9 îles volcaniques au milieu de l'Atlantique. Lacs de cratère (Sete Cidades), baleines, caldeiras fumantes, prairies d'émeraude. Angra do Heroísmo UNESCO 1983. Première région d'Europe à voir le lever du soleil.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pr%C3%A9histoire_au_Portugal','Grottes de l\'Escoural')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Alentejo</div><h3 class="card-name">Cromeleque dos Almendres</h3><p class="card-context">Plus grand ensemble mégalithique de la péninsule ibérique — 95 menhirs en ellipse (4 000 av. J.-C.). Stonehenge portugais. Aux abords d'Évora. Alignements solsticiaux. Paysage de liège et de lumière alentejane.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Algarve','Algarve — Côte Dorée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Algarve</div><h3 class="card-name">Algarve — Les Falaises Dorées</h3><p class="card-context">200 km de côtes aux falaises d'ocre et de silex sculptées par l'Atlantique. Praia da Marinha, Ponta da Piedade, Sagres — bout du monde médiéval. Faro, Lagos, Tavira. Dernière étape avant l'Océan infini.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cap_Saint-Vincent','Cap Saint-Vincent')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Sagres, Algarve</div><h3 class="card-name">Cap Saint-Vincent — Fin du Monde</h3><p class="card-context">Le point le plus sud-occidental de l'Europe continentale. Phare sur falaise de 75 m. Les caravelles de Vasco de Gama y prenaient leur dernière vue de l'Europe avant l'Atlantique. Couchers de soleil légendaires.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Praça_do_Comércio','Praça do Comércio — Lisbonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Lisbonne</div><h3 class="card-name">Praça do Comércio</h3><p class="card-context">La plus grande place de Lisbonne, ouverte sur le Tage. Reconstruite après le tremblement de terre de 1755 par le Marquis de Pombal. Arc triomphal de la Rua Augusta. Statue équestre de Joseph Ier. Cœur néo-classique de Lisbonne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_Queluz','Palais de Queluz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Queluz, Lisbonne</div><h3 class="card-name">Palais de Queluz</h3><p class="card-context">Le Versailles portugais (1747–1794) — résidence d'été des rois du Portugal. Jardins à la française, fontaines, azulejos sur canaux. Marie Ire, la reine folle, y mourut en 1816. Aujourd'hui résidence d'État officielle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Braga','Bom Jesus do Monte — Braga')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Braga</div><h3 class="card-name">Bom Jesus do Monte</h3><p class="card-context">UNESCO 2019 — sanctuaire baroque au sommet d'une colline. Escalier monumental à 577 marches orné de fontaines symbolisant les 5 sens. Plus ancienne funiculaire d'eau du monde (1882). Lieu de pèlerinage majeur du nord.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Porto','Cathédrale de Porto')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Porto</div><h3 class="card-name">Cathédrale de Porto — Sé</h3><p class="card-context">Cathédrale romane forteresse (XIIe s.) dominant le Douro. Cloître gothique aux azulejos bleus de Van Loo (1729). Tombeau de Jean Ier et de Philippa de Lancastre. Symbole de la résistance et de l'identité du Porto médiéval.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Castelo_de_Almourol','Château d\'Almourol')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Constância, Ribatejo</div><h3 class="card-name">Château d'Almourol</h3><p class="card-context">Château médiéval templier (XIIe s.) sur un îlot rocheux au milieu du Tage — l'un des plus beaux châteaux du Portugal. Construit sur des ruines romaines. Légendes de fées et de trésors. Accessible uniquement en barque.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Peneda-Gerês','Parc National de Peneda-Gerês')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Minho</div><h3 class="card-name">Parc National de Peneda-Gerês</h3><p class="card-context">Le seul parc national du Portugal — forêts de chênes et lauriers, loups ibériques, aigles royaux, vaches Garrana. Granit, cascades, villages de schiste. Thermes de Gerês. Nature préservée depuis 1971.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tavira','Tavira — Perle de l\'Algarve')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Tavira, Algarve Est</div><h3 class="card-name">Tavira — Perle de l'Algarve</h3><p class="card-context">La ville la plus élégante de l'Algarve — 37 églises, pont romain, toits en selle de cheval uniques. Îles barrières et pêche au thon traditionnelle. Architecture mauresque et baroque entremêlées. Douceur de vivre à la portugaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Museu_Nacional_do_Azulejo','Musée National de l\'Azulejo')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Lisbonne</div><h3 class="card-name">Musée National de l'Azulejo</h3><p class="card-context">Dans l'ancien couvent da Madre de Deus (XVIe s.). La plus grande collection d'azulejos du monde — 15 000 pièces du XVe s. à nos jours. Panorama de Lisbonne en azulejos (1738) — 23 m de long, avant le tremblement de terre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Serra_da_Estrela','Serra da Estrela')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Beira Interior</div><h3 class="card-name">Serra da Estrela</h3><p class="card-context">Le plus haut sommet du Portugal continental (1 993 m). Fromage Serra da Estrela — le plus célèbre du pays. Ski en hiver, randonnée, chiens Rafeiro da Estrela. Vallées glaciaires sculptées dans le granit.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Livraria_Lello','Librairie Lello — Porto')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Porto</div><h3 class="card-name">Librairie Lello</h3><p class="card-context">La librairie la plus belle du monde (1906) — escalier en colimaçon rouge, vitraux, boiseries néo-gothiques. Aurait inspiré J.K. Rowling pour Harry Potter (elle enseignait l'anglais à Porto). 4 000 visiteurs par jour.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Castelo_de_Marvão','Château de Marvão')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Marvão, Alentejo</div><h3 class="card-name">Marvão — Village dans les Nuages</h3><p class="card-context">Village médiéval fortifié à 862 m, à la frontière espagnole. Château du XIIIe s. suspendu au-dessus des nuages. Vue jusqu'en Espagne par temps clair. Maisons blanches, rues pavées, silence absolu. L'Alentejo magique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De la Lusitanie aux Grandes Découvertes</div>
+  <h2 class="section-title">Histoire du Portugal</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">218 av. J.-C. — 409</div>
+      <div class="timeline-event"><strong>Lusitanie romaine.</strong> Les Romains conquièrent la péninsule ibérique. La Lusitanie devient une province romaine prospère. Évora (Liberalitas Julia), Conimbriga, Braga (Bracara Augusta). Le chef lusitanien Viriatus résiste héroïquement à Rome (147–139 av. J.-C.). Pont romain de Tavira encore debout.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">711 — 1249</div>
+      <div class="timeline-event"><strong>Occupation maure — La Reconquista.</strong> Les Maures traversent Gibraltar et occupent la péninsule ibérique. 500 ans de civilisation arabe laissent des traces profondes — Alfama, azulejos, architecture maure. Afonso Henriques proclame le Royaume du Portugal en 1139. La Reconquista s'achève avec la prise de Faro en 1249.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1385 — 1415</div>
+      <div class="timeline-event"><strong>Jean Ier et l'Alliance anglaise.</strong> Victoire d'Aljubarrota (1385) — le Portugal écrase la Castille. Jean Ier fonde la dynastie d'Avis. Traité de Windsor (1386) avec l'Angleterre — la plus ancienne alliance encore en vigueur. Prise de Ceuta (1415) — premier pas des Grandes Découvertes. Henri le Navigateur établit son école de navigation à Sagres.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1498 — 1520</div>
+      <div class="timeline-event"><strong>Apogée — Les Grandes Découvertes.</strong> Vasco de Gama atteint l'Inde par le Cap de Bonne-Espérance (1498). Pedro Álvares Cabral découvre le Brésil (1500). Magellan entame le premier tour du monde (1519). Le Portugal contrôle le commerce mondial des épices. L'or et le poivre financent les chefs-d'œuvre manuélins.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1755</div>
+      <div class="timeline-event"><strong>Le Grand Tremblement de Terre.</strong> Le 1er novembre 1755 — tremblement de terre de magnitude 9, tsunami et incendies rasent Lisbonne en 6 minutes. 60 000 morts. Le Marquis de Pombal reconstruit Lisbonne en style néo-classique en 5 ans. La Baixa Pombalina — quartier antisismique précurseur — naît des décombres.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1910 — 1974</div>
+      <div class="timeline-event"><strong>République &amp; Estado Novo.</strong> Révolution républicaine du 5 octobre 1910. Salazar instaure l'Estado Novo (1932–1968) — régime autoritaire et colonial. Le Portugal reste neutre pendant la Seconde Guerre mondiale. La PIDE (police secrète) réprime toute opposition. L'empire colonial s'effrite face aux guerres d'indépendance.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">25 avril 1974</div>
+      <div class="timeline-event"><strong>Révolution des Œillets.</strong> Des militaires progressistes renversent la dictature avec des œillets dans leurs fusils — la révolution la plus pacifique et la plus fleurie de l'histoire. La démocratie est rétablie. Les colonies (Angola, Mozambique, Timor) accèdent à l'indépendance. Le Portugal rejoint la CEE en 1986. Expo 98 à Lisbonne — renaissance mondiale.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇵🇹</div>
+  <p class="footer-text">Guide du Voyageur · Portugal · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([39.5,-8.0],6);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconChato=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(0,102,0,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#004400"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#006600" stroke="#004400" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#008800" stroke="#004400" stroke-width="0.5"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#008800" stroke="#004400" stroke-width="0.5"/><rect x="6" y="8" width="2" height="4" fill="#008800"/><rect x="9" y="8" width="2" height="4" fill="#008800"/><rect x="24" y="8" width="2" height="4" fill="#008800"/><rect x="27" y="8" width="2" height="4" fill="#008800"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#003300"/></svg>');
+
+var iconManuel=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(0,51,153,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#003399"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#0044cc"/><path d="M18 1 L14 10 L22 10 Z" fill="#002266"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#003399"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#002266"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#001144"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#001144"/><circle cx="18" cy="2" r="1.5" fill="#c9a84c"/></svg>');
+
+var iconPalais=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5010" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5010" stroke-width="0.6"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconAzulejo=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(0,51,153,.8))"><rect x="4" y="4" width="28" height="28" rx="2" fill="#003399" stroke="#001a66" stroke-width="0.7"/><rect x="6" y="6" width="10" height="10" rx="1" fill="#0044cc" stroke="#002277" stroke-width="0.5"/><rect x="20" y="6" width="10" height="10" rx="1" fill="#0044cc" stroke="#002277" stroke-width="0.5"/><rect x="6" y="20" width="10" height="10" rx="1" fill="#0044cc" stroke="#002277" stroke-width="0.5"/><rect x="20" y="20" width="10" height="10" rx="1" fill="#0044cc" stroke="#002277" stroke-width="0.5"/><path d="M9 9 Q11 7 13 9 Q11 11 9 9 Z" fill="#f5f0e8" opacity="0.6"/><path d="M23 9 Q25 7 27 9 Q25 11 23 9 Z" fill="#f5f0e8" opacity="0.6"/><path d="M9 23 Q11 21 13 23 Q11 25 9 23 Z" fill="#f5f0e8" opacity="0.6"/><path d="M23 23 Q25 21 27 23 Q25 25 23 23 Z" fill="#f5f0e8" opacity="0.6"/><rect x="15" y="4" width="6" height="28" fill="#f5f0e8" opacity="0.15"/><rect x="4" y="15" width="28" height="6" fill="#f5f0e8" opacity="0.15"/></svg>');
+
+var iconFado=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(120,40,10,.9))"><path d="M8 28 Q7 20 10 14 Q13 8 18 8 Q23 8 26 14 Q29 20 28 28 Q26 30 18 31 Q10 30 8 28 Z" fill="#8a3010" stroke="#5a1808" stroke-width="0.7"/><line x1="18" y1="8" x2="18" y2="4" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><path d="M14 5 L22 5 L21 8 L15 8 Z" fill="#c9a84c"/><line x1="10" y1="18" x2="26" y2="18" stroke="#c8960a" stroke-width="0.6" opacity="0.6"/><line x1="10" y1="22" x2="26" y2="22" stroke="#c8960a" stroke-width="0.6" opacity="0.6"/><circle cx="12" cy="14" r="1.5" fill="#c9a84c"/><circle cx="24" cy="14" r="1.5" fill="#c9a84c"/><path d="M8 28 Q12 32 18 33 Q24 32 28 28" fill="none" stroke="#5a1808" stroke-width="0.6"/></svg>');
+
+var iconVinho=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><path d="M10 16 Q14 20 18 20 Q22 20 26 16 Q22 19 18 19 Q14 19 10 16 Z" fill="#e05080" opacity="0.4"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="12" y="32" width="12" height="3" rx="1" fill="#5a0820"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 30 Q6 26 10 28 Q14 30 18 28 Q22 26 26 28 Q30 30 34 28 L34 34 L2 34 Z" fill="#1464a8" opacity="0.8"/><path d="M10 30 Q14 24 18 22 Q22 24 26 30 Z" fill="#2a5a20"/><rect x="16" y="10" width="4" height="14" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="8" width="8" height="4" rx="0.5" fill="#006600"/><path d="M14 8 L18 4 L22 8 Z" fill="#004400"/><line x1="18" y1="6" x2="10" y2="2" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/><line x1="18" y1="6" x2="26" y2="2" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/></svg>');
+
+var iconSurf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,180,.85))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#2060b0" stroke="#1040a0" stroke-width="0.6"/><path d="M2 26 Q8 22 14 24 Q20 26 26 22 Q30 20 34 22" fill="none" stroke="#60a0e0" stroke-width="1.2" opacity="0.7"/><ellipse cx="22" cy="14" rx="4" ry="12" transform="rotate(-15,22,14)" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/><circle cx="22" cy="8" r="2.5" fill="#c8960a"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#006600" stroke="#004400" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconFood=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,80,20,.85))"><path d="M6 22 Q6 14 12 10 Q16 8 18 8 Q20 8 24 10 Q30 14 30 22 Q30 28 24 30 Q20 32 18 32 Q16 32 12 30 Q6 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><path d="M8 20 Q12 18 18 18 Q24 18 28 20" fill="none" stroke="#e8a030" stroke-width="1" opacity="0.5"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><path d="M16 32 Q18 36 20 32" fill="none" stroke="#8a5008" stroke-width="1" stroke-linecap="round"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,30,100,.8))"><rect x="4" y="30" width="28" height="3" fill="#3a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="4" y="10" width="28" height="3" fill="#3a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="9" cy="23" r="2" fill="#c9a84c" opacity="0.7"/><circle cx="18" cy="21" r="2" fill="#006600" opacity="0.7"/><circle cx="27" cy="23" r="2" fill="#FF0000" opacity="0.7"/></svg>');
+
+var iconDecouverte=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,51,153,.85))"><path d="M2 22 Q4 18 8 20 Q12 22 18 20 Q24 18 28 20 Q32 22 34 20 L34 28 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a4a98" stroke="#0a2a78" stroke-width="0.6"/><path d="M4 22 Q10 18 18 20 Q26 18 32 22" fill="none" stroke="#4a80d0" stroke-width="1" opacity="0.7"/><rect x="16" y="8" width="4" height="16" fill="#f5ead8"/><path d="M10 8 L18 4 L26 8 L24 12 L12 12 Z" fill="#c8102e" stroke="#8a0010" stroke-width="0.5"/><line x1="16" y1="10" x2="20" y2="10" stroke="#8a0010" stroke-width="0.8"/><circle cx="18" cy="8" r="1.5" fill="#c9a84c"/></svg>');
+
+var iconAlgarve=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><path d="M2 28 Q6 22 10 24 Q14 20 18 18 Q22 20 26 24 Q30 22 34 28 L34 34 L2 34 Z" fill="#c8860a" stroke="#8a5a08" stroke-width="0.7"/><path d="M6 28 Q10 24 14 26 Q18 22 22 26 Q26 24 30 28" fill="none" stroke="#e8b030" stroke-width="1.2" opacity="0.7"/><circle cx="18" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M18 2 L19.5 6.5 L24 6.5 L20.5 9 L22 13.5 L18 11 L14 13.5 L15.5 9 L12 6.5 L16.5 6.5 Z" fill="#f0c020" opacity="0.6"/><path d="M2 28 Q6 24 10 26 Q14 28 18 26 Q22 24 26 26 Q30 28 34 26" fill="none" stroke="#1a6ab0" stroke-width="1.5" opacity="0.6"/></svg>');
+
+var iconMegalithe=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,60,20,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#5a4010"/><rect x="8" y="10" width="4" height="21" rx="0.6" fill="#8a7040" stroke="#5a4010" stroke-width="0.4"/><rect x="16" y="10" width="4" height="21" rx="0.6" fill="#8a7040" stroke="#5a4010" stroke-width="0.4"/><rect x="24" y="10" width="4" height="21" rx="0.6" fill="#8a7040" stroke="#5a4010" stroke-width="0.4"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#6a5020"/><path d="M18 3 L6 8 L30 8 Z" fill="#5a4010"/></svg>');
+
+var iconFado2=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,20,10,.9))"><path d="M10 30 Q9 22 12 16 Q15 10 18 10 Q21 10 24 16 Q27 22 26 30 Q24 32 18 33 Q12 32 10 30 Z" fill="#7a2808" stroke="#4a1008" stroke-width="0.7"/><line x1="18" y1="10" x2="18" y2="6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><path d="M15 7 L21 7 L20 10 L16 10 Z" fill="#c9a84c"/><line x1="12" y1="20" x2="24" y2="20" stroke="#c8960a" stroke-width="0.6" opacity="0.6"/><line x1="12" y1="24" x2="24" y2="24" stroke="#c8960a" stroke-width="0.6" opacity="0.6"/></svg>');
+
+var DATA={
+  monument:{icon:iconChato,color:'#006600',label:'🏰 Châteaux Mauresques',pts:[
+    {lat:38.6916,lng:-9.2160,n:"Tour de Belém",c:"Lisbonne",d:"Chef-d'oeuvre manuélin (1519). Symbole des Grandes Découvertes. UNESCO 1983. Gardienne du Tage.",u:"https://fr.m.wikipedia.org/wiki/Tour_de_Belém?useskin=vector"},
+    {lat:38.7012,lng:-9.1759,n:"Château São Jorge",c:"Lisbonne",d:"Forteresse maure dominant Lisbonne. Résidence royale du XIIe au XVIe s. Vue panoramique sur le Tage.",u:"https://fr.m.wikipedia.org/wiki/Castelo_de_São_Jorge?useskin=vector"},
+    {lat:38.7877,lng:-9.3904,n:"Château des Maures — Sintra",c:"Sintra",d:"Forteresse maure du VIIIe s. à 412 m. Prise par Afonso Henriques en 1147. UNESCO 1995.",u:"https://fr.m.wikipedia.org/wiki/Château_des_Maures?useskin=vector"},
+    {lat:39.6617,lng:-8.8220,n:"Château d'Almourol",c:"Constância, Ribatejo",d:"Château templier du XIIe s. sur un îlot du Tage. Accessible uniquement en barque. Légendes de fées.",u:"https://fr.m.wikipedia.org/wiki/Castelo_de_Almourol?useskin=vector"},
+    {lat:37.0194,lng:-7.9322,n:"Château de Silves",c:"Silves, Algarve",d:"Château rouge de l'ancienne capitale maure de l'Algarve (XIIe s.). Vue sur vignobles et orangeraies.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Silves?useskin=vector"},
+    {lat:39.3556,lng:-8.6883,n:"Château de Tomar",c:"Tomar",d:"Forteresse templière dominant Tomar. Le Couvent du Christ est intégré aux murailles. Vue sur la plaine du Ribatejo.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Tomar?useskin=vector"}
+  ]},
+  manuelino:{icon:iconManuel,color:'#003399',label:'⛪ Monastères Manuélins',pts:[
+    {lat:38.6978,lng:-9.2067,n:"Monastère des Jerónimos",c:"Lisbonne — Belém",d:"UNESCO 1983. Joyau manuélin (1502). Tombeaux de Vasco de Gama et Camões. Financé par les épices.",u:"https://fr.m.wikipedia.org/wiki/Monastère_des_Jerónimos?useskin=vector"},
+    {lat:39.6553,lng:-8.8239,n:"Couvent du Christ — Tomar",c:"Tomar",d:"UNESCO 1983. Siège des Templiers. Église ronde unique. Fenêtre manuéline — chef-d'oeuvre de sculpture.",u:"https://fr.m.wikipedia.org/wiki/Couvent_du_Christ?useskin=vector"},
+    {lat:39.5533,lng:-8.8272,n:"Monastère d'Alcobaça",c:"Alcobaça",d:"UNESCO 1989. Premier gothique du Portugal. Tombeaux de Pedro Ier et Inês de Castro. Fondé par Afonso Henriques.",u:"https://fr.m.wikipedia.org/wiki/Monastère_d%27Alcobaça?useskin=vector"},
+    {lat:39.6600,lng:-8.8249,n:"Monastère de Batalha",c:"Batalha",d:"UNESCO 1983. Commémoration d'Aljubarrota (1385). Chapelles Imparfaites ouvertes sur le ciel. Gothique flamboyant.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Batalha?useskin=vector"},
+    {lat:38.7089,lng:-9.3894,n:"Palais National de Sintra",c:"Sintra",d:"UNESCO 1995. Palais médiéval aux deux cheminées coniques. Azulejos exceptionnels. Résidence royale depuis le XIVe s.",u:"https://fr.m.wikipedia.org/wiki/Palais_national_de_Sintra?useskin=vector"}
+  ]},
+  palais:{icon:iconPalais,color:'#c8a020',label:'👑 Palais Royaux',pts:[
+    {lat:38.7975,lng:-9.3908,n:"Palais de Pena — Sintra",c:"Sintra",d:"Palais romantique aux couleurs éclatantes (1854). Mélange néo-gothique, manuélin et mauresque. UNESCO 1995.",u:"https://fr.m.wikipedia.org/wiki/Palais_national_de_Pena?useskin=vector"},
+    {lat:38.7560,lng:-9.2580,n:"Palais de Queluz",c:"Queluz, Lisbonne",d:"Versailles portugais (1747). Jardins à la française, canaux, azulejos. Résidence de Marie Ire la reine folle.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Queluz?useskin=vector"},
+    {lat:38.9470,lng:-9.3260,n:"Palais National de Mafra",c:"Mafra",d:"UNESCO 2019. Colossal palais-couvent baroque (1730). 1 200 pièces. Financé par l'or du Brésil.",u:"https://fr.m.wikipedia.org/wiki/Palais_national_de_Mafra?useskin=vector"},
+    {lat:38.7700,lng:-9.3800,n:"Quinta da Regaleira",c:"Sintra",d:"Domaine initiatique (1910). Puits initiatique inversé de 27 m. Symboles maçonniques et templiers. UNESCO 1995.",u:"https://fr.m.wikipedia.org/wiki/Quinta_da_Regaleira?useskin=vector"},
+    {lat:41.6740,lng:-8.3590,n:"Palais des Ducs de Bragance",c:"Guimarães",d:"Palais ducal reconstruit (XVe s.). Tapisseries d'Arras, armes, céramiques. Adjacent au berceau du Portugal.",u:"https://fr.m.wikipedia.org/wiki/Palais_des_ducs_de_Bragance?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:41.4428,lng:-8.2956,n:"Centre de Porto",c:"Porto",d:"UNESCO 1996. Ribeira colorée, caves de Porto à Vila Nova de Gaia, Pont Dom-Luís I.",u:"https://fr.m.wikipedia.org/wiki/Centre_historique_de_Porto?useskin=vector"},
+    {lat:38.5701,lng:-7.9090,n:"Évora — Ville-Musée",c:"Évora, Alentejo",d:"UNESCO 1986. Temple romain, cathédrale gothique, chapelle des crânes. 2 000 ans d'histoire.",u:"https://fr.m.wikipedia.org/wiki/Évora?useskin=vector"},
+    {lat:41.4420,lng:-8.2970,n:"Guimarães — Berceau du Portugal",c:"Guimarães",d:"UNESCO 2001. Aqui nasceu Portugal. Château médiéval du Xe s. Afonso Henriques né ici en 1110.",u:"https://fr.m.wikipedia.org/wiki/Centre_historique_de_Guimarães?useskin=vector"},
+    {lat:41.1333,lng:-8.6167,n:"Alto Douro Vinhateiro",c:"Vallée du Douro",d:"UNESCO 2001. Plus ancienne région viticole délimitée du monde (1756). 25 000 ha de terrasses.",u:"https://fr.m.wikipedia.org/wiki/Région_viticole_du_Alto_Douro?useskin=vector"},
+    {lat:32.7607,lng:-16.9595,n:"Laurisylve de Madère",c:"Madère",d:"UNESCO 1999. Forêt subtropicale de 15 millions d'années. Plus grande laurisylve du monde.",u:"https://fr.m.wikipedia.org/wiki/Laurisylve_de_Madère?useskin=vector"},
+    {lat:38.6553,lng:-27.2196,n:"Centre d'Angra do Heroísmo",c:"Açores, Terceira",d:"UNESCO 1983. Première capitale des Açores. Architecture Renaissance portugaise en plein Atlantique.",u:"https://fr.m.wikipedia.org/wiki/Angra_do_Heroísmo?useskin=vector"}
+  ]},
+  azulejo:{icon:iconAzulejo,color:'#003399',label:'🔵 Azulejos & Architecture',pts:[
+    {lat:38.7215,lng:-9.1336,n:"Gare de São Bento",c:"Porto",d:"Gare aux 20 000 azulejos de Jorge Colaço (1930). Scènes de l'histoire du Portugal. La gare la plus belle du monde.",u:"https://fr.m.wikipedia.org/wiki/Gare_de_São_Bento?useskin=vector"},
+    {lat:38.7228,lng:-9.1502,n:"Musée National de l'Azulejo",c:"Lisbonne",d:"15 000 pièces du XVe s. à nos jours. Panorama de Lisbonne avant 1755. Dans l'ancien couvent da Madre de Deus.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_de_l%27Azulejo?useskin=vector"},
+    {lat:38.7168,lng:-9.1399,n:"Alfama — Azulejos de Lisbonne",c:"Lisbonne",d:"Quartier historique couvert d'azulejos. Miradouro Santa Luzia aux azulejos monumentaux. Berceau du fado.",u:"https://fr.m.wikipedia.org/wiki/Alfama?useskin=vector"},
+    {lat:41.1579,lng:-8.6291,n:"Igreja do Carmo — Porto",c:"Porto",d:"Façade entièrement couverte d'azulejos bleus et blancs. L'une des plus belles façades azulejos du Portugal.",u:"https://fr.m.wikipedia.org/wiki/Igreja_do_Carmo_(Porto)?useskin=vector"}
+  ]},
+  fado:{icon:iconFado,color:'#7a2808',label:'🎸 Fado & Culture',pts:[
+    {lat:38.7109,lng:-9.1459,n:"Alfama — Berceau du Fado",c:"Lisbonne",d:"Ruelles d'Alfama où le fado est né. Casas de fado authentiques. Musée du Fado. Amália Rodrigues.",u:"https://fr.m.wikipedia.org/wiki/Fado?useskin=vector"},
+    {lat:38.7153,lng:-9.1421,n:"Musée du Fado",c:"Lisbonne — Alfama",d:"Musée dédié au fado — la musique de l'âme portugaise. Instruments, costumes, enregistrements historiques.",u:"https://fr.m.wikipedia.org/wiki/Musée_du_Fado?useskin=vector"},
+    {lat:40.2033,lng:-8.4103,n:"Fado de Coimbra",c:"Coimbra",d:"Le fado de Coimbra — plus académique, chanté par les étudiants. Cape noire, guitare portugaise. Tradition universitaire.",u:"https://fr.m.wikipedia.org/wiki/Fado?useskin=vector"},
+    {lat:38.6986,lng:-9.2060,n:"Monument aux Découvertes",c:"Lisbonne — Belém",d:"Padrão dos Descobrimentos (1960). 52 m. Henri le Navigateur en proue. Mosaïque de la Rose des Vents au sol.",u:"https://fr.m.wikipedia.org/wiki/Monument_des_Découvertes?useskin=vector"}
+  ]},
+  vinho:{icon:iconVinho,color:'#7a1840',label:'🍷 Vins & Gastronomie',pts:[
+    {lat:41.1333,lng:-8.6167,n:"Caves de Porto — Vila Nova de Gaia",c:"Porto",d:"Les grandes caves de vin de Porto — Taylor, Graham, Sandeman. Dégustations sur les rives du Douro.",u:"https://fr.m.wikipedia.org/wiki/Vin_de_Porto?useskin=vector"},
+    {lat:41.1500,lng:-7.8000,n:"Pinhão — Coeur du Douro",c:"Vallée du Douro",d:"Village viticole au coeur du Douro. Gare aux azulejos viticoles. Croisières en bateau rabelo. Quintas historiques.",u:"https://fr.m.wikipedia.org/wiki/Pinhão?useskin=vector"},
+    {lat:38.5701,lng:-7.9090,n:"Gastronomie Alentejana",c:"Évora, Alentejo",d:"Carne de porco à alentejana, migas, açorda. Vins d'Alentejo. Huile d'olive et liège. La table la plus riche du Portugal.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_portugaise?useskin=vector"},
+    {lat:38.7075,lng:-9.1364,n:"Pastéis de Belém",c:"Lisbonne — Belém",d:"La pâtisserie originale des Pastéis de nata depuis 1837. Recette secrète des moines des Jerónimos. File d'attente mondiale.",u:"https://fr.m.wikipedia.org/wiki/Pastel_de_nata?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌲 Parcs & Nature',pts:[
+    {lat:41.7800,lng:-8.1800,n:"Parc National Peneda-Gerês",c:"Minho",d:"Seul parc national du Portugal. Loups ibériques, aigles royaux, vaches Garrana. Granit, cascades, thermes.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Peneda-Gerês?useskin=vector"},
+    {lat:40.3000,lng:-7.6200,n:"Serra da Estrela",c:"Beira Interior",d:"Plus haut sommet continental (1 993 m). Fromage Serra da Estrela. Ski en hiver. Paysages glaciaires.",u:"https://fr.m.wikipedia.org/wiki/Serra_da_Estrela?useskin=vector"},
+    {lat:37.3197,lng:-8.8000,n:"Parc Naturel du Sud-Ouest Alentejano",c:"Algarve — Alentejo côtier",d:"Côte sauvage la moins touchée du Portugal. Falaises de 50 m. Dalles rocheuses, cigognes noires, loutres.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_du_Sud-Ouest_alentejano_et_Costa_Vicentina?useskin=vector"},
+    {lat:39.4500,lng:-8.1800,n:"Forêt de Monfurado",c:"Alentejo central",d:"Montado — forêt de liège et chênes-verts. Porcs noirs ibériques. Cigognes, vautours fauves. Paysage unique.",u:"https://fr.m.wikipedia.org/wiki/Montado?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#1464a8',label:'🏝️ Îles Atlantiques',pts:[
+    {lat:32.7607,lng:-16.9595,n:"Funchal — Madère",c:"Île de Madère",d:"Capitale de Madère. Jardin botanique, Monte, toboggan en osier, vin de Madère. Laurisylve UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Funchal?useskin=vector"},
+    {lat:37.7412,lng:-25.6756,n:"Ponta Delgada — Açores",c:"São Miguel, Açores",d:"Capitale des Açores. Lac de Sete Cidades, caldeira de Furnas, thermes naturels. Nature volcanique époustouflante.",u:"https://fr.m.wikipedia.org/wiki/Ponta_Delgada?useskin=vector"},
+    {lat:39.7167,lng:-31.1333,n:"Flores — Açores",c:"Flores, Açores",d:"L'île la plus occidentale de l'Europe. Cascades, lacs de cratère, hortensias bleus. Bout du monde atlantique.",u:"https://fr.m.wikipedia.org/wiki/Flores_(Açores)?useskin=vector"},
+    {lat:33.0667,lng:-16.3333,n:"Porto Santo",c:"Porto Santo, Madère",d:"Île aux 9 km de plage de sable doré. Christophe Colomb y vécut. Mer chaude, paysage désertique de rêve.",u:"https://fr.m.wikipedia.org/wiki/Porto_Santo?useskin=vector"}
+  ]},
+  surf:{icon:iconSurf,color:'#2060b0',label:'🏄 Surf & Océan',pts:[
+    {lat:39.3500,lng:-9.3667,n:"Nazaré — Vagues Géantes",c:"Nazaré, Oeste",d:"Record du monde de la plus grande vague surfée — 26 m (2017). Phare du Fort de São Miguel. Tradition de la pêche.",u:"https://fr.m.wikipedia.org/wiki/Nazaré_(Portugal)?useskin=vector"},
+    {lat:37.0833,lng:-8.9333,n:"Sagres — École de Surf",c:"Sagres, Algarve",d:"Vagues de l'Atlantique sauvage. École de navigation d'Henri le Navigateur. Cap Saint-Vincent à 6 km.",u:"https://fr.m.wikipedia.org/wiki/Sagres?useskin=vector"},
+    {lat:39.5653,lng:-9.0583,n:"Peniche — Capitale du Surf",c:"Peniche, Oeste",d:"Supertubos — l'une des meilleures vagues droites du monde. Championnat du Monde de Surf chaque automne.",u:"https://fr.m.wikipedia.org/wiki/Peniche?useskin=vector"},
+    {lat:38.7133,lng:-9.4750,n:"Guincho — Plage Sauvage",c:"Cascais, Estremadura",d:"Plage sauvage face au Cap Roca — l'extrémité occidentale de l'Europe. Dunes, vents forts, surf et kitesurf.",u:"https://fr.m.wikipedia.org/wiki/Guincho?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Tourisme',pts:[
+    {lat:37.1000,lng:-8.3333,n:"Golf de Vilamoura",c:"Vilamoura, Algarve",d:"Capitale européenne du golf — 8 parcours dont le légendaire Old Course (1969). 4 000 ha. Marina de luxe.",u:"https://fr.m.wikipedia.org/wiki/Vilamoura?useskin=vector"},
+    {lat:37.0833,lng:-8.2333,n:"Golf de Vale do Lobo",c:"Vale do Lobo, Algarve",d:"Falaises de l'Algarve, fairways sur l'Atlantique. Le Royal Course — trou 16 sur falaise vertigineuse.",u:"https://fr.m.wikipedia.org/wiki/Vale_do_Lobo?useskin=vector"},
+    {lat:38.4300,lng:-8.8500,n:"Golf de Troia",c:"Setúbal, Péninsule de Troia",d:"Parcours le long de l'Atlantique et du delta du Sado. Dauphins dans l'estuaire. Nature préservée.",u:"https://fr.m.wikipedia.org/wiki/Tróia?useskin=vector"}
+  ]},
+  gastronomie:{icon:iconFood,color:'#c8780a',label:'🍽️ Gastronomie',pts:[
+    {lat:38.7075,lng:-9.1364,n:"Pastéis de Belém",c:"Lisbonne — Belém",d:"Recette secrète depuis 1837. Les vrais pastéis de nata. File d'attente mondiale. Cannelle et sucre glace.",u:"https://fr.m.wikipedia.org/wiki/Pastel_de_nata?useskin=vector"},
+    {lat:41.1406,lng:-8.6131,n:"Mercado do Bolhão",c:"Porto",d:"Le marché couvert de Porto (1914) — poissons, fromages, charcuteries, fruits. Tripes à la mode de Porto.",u:"https://fr.m.wikipedia.org/wiki/Marché_do_Bolhão?useskin=vector"},
+    {lat:38.7116,lng:-9.1390,n:"Mercado da Ribeira",c:"Lisbonne",d:"Marché couvert de 1882 transformé en food hall. 35 restaurants. Temps Out Market — gastronomie portugaise moderne.",u:"https://fr.m.wikipedia.org/wiki/Marché_de_la_Ribeira?useskin=vector"},
+    {lat:37.1333,lng:-7.6500,n:"Gastronomie de l'Algarve",c:"Algarve",d:"Cataplana aux fruits de mer, ameijoas, percebes, chipirones. Fruits et amandes. Le meilleur de la mer portugaise.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_portugaise?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#5a28a8',label:'🏛️ Musées & Arts',pts:[
+    {lat:38.6978,lng:-9.2067,n:"Musée du Coach — Belém",c:"Lisbonne",d:"La plus grande collection de carrosses royaux au monde. Carrosses du XVIe au XIXe s. Nouveau musée (2015).",u:"https://fr.m.wikipedia.org/wiki/Musée_national_des_Carrosses?useskin=vector"},
+    {lat:38.7235,lng:-9.1504,n:"Musée National d'Art Ancien",c:"Lisbonne",d:"Le plus grand musée du Portugal. Panneaux de Saint Vincent de Fora de Nuno Gonçalves. Art portugais du XVe s.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_d%27Art_ancien?useskin=vector"},
+    {lat:41.5333,lng:-8.4167,n:"Musée Alberto Sampaio",c:"Guimarães",d:"Dans le cloître roman collégial. Trésor exceptionnel — la chemise de Jean Ier à la bataille d'Aljubarrota.",u:"https://fr.m.wikipedia.org/wiki/Musée_Alberto_Sampaio?useskin=vector"},
+    {lat:40.2033,lng:-8.4103,n:"Musée National Machado de Castro",c:"Coimbra",d:"Dans l'ancien palais épiscopal. Sous-bassements romains. L'une des plus importantes collections d'art médiéval.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_Machado_de_Castro?useskin=vector"}
+  ]},
+  decouverte:{icon:iconDecouverte,color:'#1a4a98',label:'⚓ Grandes Découvertes',pts:[
+    {lat:38.6938,lng:-9.2063,n:"Monument des Découvertes",c:"Lisbonne — Belém",d:"Padrão dos Descobrimentos (1960). 52 m. Henri le Navigateur en proue. Rose des Vents de 50 m au sol.",u:"https://fr.m.wikipedia.org/wiki/Monument_des_Découvertes?useskin=vector"},
+    {lat:36.9981,lng:-8.9314,n:"École de Navigation de Sagres",c:"Sagres, Algarve",d:"Forteresse de Sagres — centre de navigation d'Henri le Navigateur (XVe s.). Rosa dos Ventos gravée dans le sol.",u:"https://fr.m.wikipedia.org/wiki/Fortaleza_de_Sagres?useskin=vector"},
+    {lat:38.6978,lng:-9.2067,n:"Musée de la Marine",c:"Lisbonne — Belém",d:"Caravelles, astrolabes, cartes anciennes. L'épopée maritime portugaise en 17 000 pièces. Dans les Jerónimos.",u:"https://fr.m.wikipedia.org/wiki/Musée_de_la_Marine_(Lisbonne)?useskin=vector"},
+    {lat:41.1406,lng:-8.6131,n:"Prince Henri le Navigateur",c:"Porto — Maison natale",d:"Porto, ville natale du Prince Henri (1394). Maison des Infants. Initiateur des Grandes Découvertes.",u:"https://fr.m.wikipedia.org/wiki/Henri_le_Navigateur?useskin=vector"}
+  ]},
+  algarve:{icon:iconAlgarve,color:'#c8860a',label:'🏖️ Algarve & Plages',pts:[
+    {lat:37.0833,lng:-8.4167,n:"Praia da Marinha",c:"Lagoa, Algarve",d:"La plus belle plage du Portugal — falaises sculptées en arches et grottes. Eau cristalline turquoise.",u:"https://fr.m.wikipedia.org/wiki/Praia_da_Marinha?useskin=vector"},
+    {lat:37.0839,lng:-8.6731,n:"Ponta da Piedade",c:"Lagos, Algarve",d:"Promontoire aux falaises d'ocre sculptées en arches, colonnes et grottes. Barques pour explorer les caves.",u:"https://fr.m.wikipedia.org/wiki/Ponta_da_Piedade?useskin=vector"},
+    {lat:37.0082,lng:-8.9950,n:"Cap Saint-Vincent",c:"Sagres, Algarve",d:"Point le plus sud-ouest de l'Europe. Phare sur falaise de 75 m. Couchers de soleil légendaires.",u:"https://fr.m.wikipedia.org/wiki/Cap_Saint-Vincent?useskin=vector"},
+    {lat:37.1264,lng:-7.6456,n:"Tavira — Perle de l'Algarve",c:"Tavira, Algarve Est",d:"37 églises, pont romain, toits en selle de cheval uniques. La ville la plus élégante de l'Algarve.",u:"https://fr.m.wikipedia.org/wiki/Tavira?useskin=vector"},
+    {lat:37.0194,lng:-7.9322,n:"Lagos — Plages et Histoire",c:"Lagos, Algarve",d:"Vieille ville fortifiée, Praia Dona Ana, grottes marines. Premier marché aux esclaves d'Europe (1444).",u:"https://fr.m.wikipedia.org/wiki/Lagos_(Portugal)?useskin=vector"}
+  ]},
+  megalithe:{icon:iconMegalithe,color:'#8a7040',label:'🗿 Mégalithes & Préhistoire',pts:[
+    {lat:38.5547,lng:-8.0764,n:"Cromeleque dos Almendres",c:"Évora, Alentejo",d:"Plus grand ensemble mégalithique d'Ibérie — 95 menhirs en ellipse (4 000 av. J.-C.). Stonehenge portugais.",u:"https://fr.m.wikipedia.org/wiki/Cromeleque_dos_Almendres?useskin=vector"},
+    {lat:38.5697,lng:-8.0833,n:"Anta Grande do Zambujeiro",c:"Évora, Alentejo",d:"Plus grand dolmen de la péninsule ibérique (6 m de hauteur). Tombe collective du Néolithique.",u:"https://fr.m.wikipedia.org/wiki/Anta_Grande_do_Zambujeiro?useskin=vector"},
+    {lat:37.4936,lng:-8.7611,n:"Menires de Vale Maria do Meio",c:"Évora Monte, Alentejo",d:"Alignements de menhirs dans le paysage de liège alentejano. Paysage préhistorique unique.",u:"https://fr.m.wikipedia.org/wiki/Préhistoire_du_Portugal?useskin=vector"}
+  ]},
+  religieux:{icon:iconFado2,color:'#8a3010',label:'🙏 Pèlerinages & Religion',pts:[
+    {lat:39.6281,lng:-8.6733,n:"Sanctuaire de Fátima",c:"Fátima, Leiria",d:"6 millions de pèlerins/an. Apparitions de 1917. Basilique de la Trinité (2007). Plus grand pèlerinage d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Fátima_(Portugal)?useskin=vector"},
+    {lat:41.5511,lng:-8.4244,n:"Bom Jesus do Monte",c:"Braga",d:"UNESCO 2019. Escalier baroque à 577 marches. Fontaines des 5 sens. Plus ancienne funiculaire à eau (1882).",u:"https://fr.m.wikipedia.org/wiki/Bom_Jesus_do_Monte?useskin=vector"},
+    {lat:41.5533,lng:-8.4267,n:"Braga — Ville Épiscopale",c:"Braga, Minho",d:"La Rome portugaise — ville la plus religieuse du Portugal. Cathédrale du XIe s. Plus de 30 églises baroques.",u:"https://fr.m.wikipedia.org/wiki/Braga?useskin=vector"},
+    {lat:40.2033,lng:-8.4103,n:"Vieille Cathédrale de Coimbra",c:"Coimbra",d:"Cathédrale forteresse romane (1184). La mieux conservée de la Reconquista. Université médiévale à côté.",u:"https://fr.m.wikipedia.org/wiki/Vieille_cathédrale_de_Coimbra?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#006600\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'monument',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#006600"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#008800"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#008800"/><rect x="6" y="8" width="2" height="4" fill="#008800"/><rect x="9" y="8" width="2" height="4" fill="#008800"/></svg>', label:'Châteaux Mauresques', count:6},
+      {cat:'manuelino',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#003399"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#0044cc"/><path d="M18 1 L14 10 L22 10 Z" fill="#002266"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#002266"/></svg>', label:'Monastères Manuélins', count:5},
+      {cat:'palais',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Palais Royaux', count:5},
+      {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:6},
+      {cat:'azulejo',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="2" fill="#003399"/><rect x="6" y="6" width="10" height="10" rx="1" fill="#0044cc"/><rect x="20" y="6" width="10" height="10" rx="1" fill="#0044cc"/><rect x="6" y="20" width="10" height="10" rx="1" fill="#0044cc"/><rect x="20" y="20" width="10" height="10" rx="1" fill="#0044cc"/></svg>', label:'Azulejos & Architecture', count:4},
+      {cat:'fado',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 30 Q9 22 12 16 Q15 10 18 10 Q21 10 24 16 Q27 22 26 30 Q24 32 18 33 Q12 32 10 30 Z" fill="#7a2808"/><line x1="18" y1="10" x2="18" y2="6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>', label:'Fado & Culture', count:4},
+      {cat:'vinho',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins & Gastronomie', count:4},
+      {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs & Nature', count:4},
+      {cat:'ile',         svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q10 26 18 28 Q26 26 34 30 L34 34 L2 34 Z" fill="#1464a8"/><path d="M10 30 Q14 24 18 22 Q22 24 26 30 Z" fill="#2a5a20"/><rect x="16" y="10" width="4" height="14" fill="#f5ead8"/><rect x="14" y="8" width="8" height="4" fill="#006600"/></svg>', label:'Îles Atlantiques', count:4},
+      {cat:'surf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#2060b0"/><ellipse cx="22" cy="14" rx="4" ry="12" transform="rotate(-15,22,14)" fill="#c9a84c"/></svg>', label:'Surf & Océan', count:4},
+      {cat:'golf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#006600"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf & Tourisme', count:3},
+      {cat:'gastronomie', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q6 14 12 10 Q16 8 18 8 Q20 8 24 10 Q30 14 30 22 Q30 28 24 30 Q18 32 12 30 Q6 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie', count:4},
+      {cat:'musee',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="30" width="28" height="3" fill="#3a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#5a28a8"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées & Arts', count:4},
+      {cat:'decouverte',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 22 Q8 18 18 20 Q28 18 34 22 L34 28 Q28 26 18 28 Q8 26 2 28 Z" fill="#1a4a98"/><rect x="16" y="8" width="4" height="16" fill="#f5ead8"/><path d="M10 8 L18 4 L26 8 L24 12 L12 12 Z" fill="#c8102e"/></svg>', label:'Grandes Découvertes', count:4},
+      {cat:'algarve',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 28 Q6 22 10 24 Q14 20 18 18 Q22 20 26 24 Q30 22 34 28 L34 34 L2 34 Z" fill="#c8860a"/><circle cx="18" cy="8" r="7" fill="#ffce00" opacity="0.9"/></svg>', label:'Algarve & Plages', count:5},
+      {cat:'megalithe',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#5a4010"/><rect x="8" y="8" width="4" height="21" rx="0.6" fill="#8a7040"/><rect x="16" y="8" width="4" height="21" rx="0.6" fill="#8a7040"/><rect x="24" y="8" width="4" height="21" rx="0.6" fill="#8a7040"/><path d="M18 3 L6 8 L30 8 Z" fill="#5a4010"/></svg>', label:'Mégalithes & Préhistoire', count:3},
+      {cat:'religieux',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 30 Q9 22 12 16 Q15 10 18 10 Q21 10 24 16 Q27 22 26 30 Q24 32 18 33 Q12 32 10 30 Z" fill="#7a2808"/><line x1="18" y1="10" x2="18" y2="6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><path d="M15 7 L21 7 L20 10 L16 10 Z" fill="#c9a84c"/></svg>', label:'Pèlerinages & Religion', count:4}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#006600 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#f0f8f0\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#006600;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#FF0000;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#006600;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f4a460','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#f0f8f0';el.style.borderLeft='3px solid #006600';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#006600':'transparent')+';'
+        +'background:'+(isActive?'#f0f8f0':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#f0f8f0\'" onmouseout="if(!this.style.borderLeft.includes(\'006600\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

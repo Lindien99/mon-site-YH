@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grèce — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Grèce.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --bleu:#0D5EAF;      /* bleu grec */
+      --blanc:#f8f8f8;
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --marbre:#e8e0d0;
+      --azur:#1a6eb5;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#03060e;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(13,94,175,.16) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(200,150,10,.07) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--bleu) 0%,var(--bleu) 20%,var(--blanc) 20%,var(--blanc) 40%,var(--bleu) 40%,var(--bleu) 60%,var(--blanc) 60%,var(--blanc) 80%,var(--bleu) 80%,var(--bleu) 100%);opacity:.4;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(13,94,175,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(13,94,175,.3);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(13,94,175,.12);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(3,6,14,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(13,94,175,.15);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--bleu),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(13,94,175,.04);border-color:rgba(200,160,10,.3);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(13,94,175,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(13,94,175,.2);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#03060e;border-bottom:1px solid rgba(13,94,175,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--bleu);border:1px solid #083d7a;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#1a6eb5;border-color:#1a6eb5;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(13,94,175,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Grèce';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Grèce');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">HELLAS</div>
+  <div class="hero-eyebrow">Grèce · Guide du Voyageur</div>
+  <h1 class="hero-title">Temples, Îles<br>&amp; <em>Lumière de Grèce</em></h1>
+  <p class="hero-subtitle">Acropole d'Athènes, îles des Cyclades, Météores, Delphes, Santorin &amp; berceau de la civilisation occidentale</p>
+
+  <!-- CHOUETTE D'ATHENA — style Léonard de Vinci, plume sépia -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(13,94,175,.3))" shape-rendering="geometricPrecision">
+
+      <!-- Corps de la chouette - symbole d'Athéna -->
+      <ellipse cx="80" cy="95" rx="32" ry="38" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Ventre clair -->
+      <ellipse cx="80" cy="100" rx="20" ry="26" fill="#e8c060" opacity="0.5"/>
+
+      <!-- Plumes du corps - hachures sépia -->
+      <path d="M52 85 Q60 80 68 82 Q74 83 80 82 Q86 83 92 82 Q100 80 108 85" fill="none" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M50 95 Q58 90 68 92 Q74 93 80 92 Q86 93 92 92 Q102 90 110 95" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M52 105 Q60 100 68 102 Q74 103 80 102 Q86 103 92 102 Q100 100 108 105" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M55 115 Q62 111 68 112 Q74 113 80 112 Q86 113 92 112 Q98 111 105 115" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Aile gauche -->
+      <path d="M48 88 Q34 80 24 68 Q20 60 24 54 Q30 50 36 56 Q30 58 32 66 Q36 74 44 82 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6" opacity="0.9"/>
+      <!-- Nervures aile gauche -->
+      <line x1="48" y1="88" x2="26" y2="60" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="48" y1="94" x2="28" y2="70" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+
+      <!-- Aile droite -->
+      <path d="M112 88 Q126 80 136 68 Q140 60 136 54 Q130 50 124 56 Q130 58 128 66 Q124 74 116 82 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6" opacity="0.9"/>
+      <line x1="112" y1="88" x2="134" y2="60" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="112" y1="94" x2="132" y2="70" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+
+      <!-- Tête de la chouette - ronde -->
+      <circle cx="80" cy="58" r="28" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Disque facial -->
+      <ellipse cx="80" cy="62" rx="22" ry="20" fill="#d4a020" opacity="0.4"/>
+
+      <!-- Touffes auriculaires caractéristiques -->
+      <path d="M62 34 Q58 24 62 18 Q66 24 68 30 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M98 34 Q102 24 98 18 Q94 24 92 30 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- GRANDS YEUX - caractéristique de la chouette d'Athéna -->
+      <!-- Oeil gauche -->
+      <circle cx="68" cy="58" r="11" fill="#1a0800" stroke="#c8960a" stroke-width="0.8"/>
+      <circle cx="68" cy="58" r="8" fill="#f0c840"/>
+      <circle cx="68" cy="58" r="5" fill="#1a0800"/>
+      <circle cx="70" cy="56" r="2" fill="white" opacity="0.8"/>
+      <!-- Oeil droit -->
+      <circle cx="92" cy="58" r="11" fill="#1a0800" stroke="#c8960a" stroke-width="0.8"/>
+      <circle cx="92" cy="58" r="8" fill="#f0c840"/>
+      <circle cx="92" cy="58" r="5" fill="#1a0800"/>
+      <circle cx="94" cy="56" r="2" fill="white" opacity="0.8"/>
+
+      <!-- Bec crochu -->
+      <path d="M76 68 Q80 72 84 68 Q82 74 80 76 Q78 74 76 68 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.5"/>
+
+      <!-- Colonne ionique stylisée à gauche - symbole de la Grèce antique -->
+      <rect x="16" y="110" width="10" height="36" rx="0" fill="#e8e0d0" stroke="#c8b090" stroke-width="0.6"/>
+      <!-- Chapiteau ionique -->
+      <rect x="12" y="108" width="18" height="3" rx="0.5" fill="#d4c8a0"/>
+      <path d="M12 108 Q16 104 21 108" fill="none" stroke="#c8b090" stroke-width="0.8"/>
+      <path d="M21 108 Q26 104 30 108" fill="none" stroke="#c8b090" stroke-width="0.8"/>
+      <!-- Base -->
+      <rect x="10" y="144" width="22" height="4" rx="0.5" fill="#d4c8a0"/>
+      <!-- Cannelures -->
+      <line x1="19" y1="111" x2="19" y2="144" stroke="#c8b090" stroke-width="0.4"/>
+      <line x1="22" y1="111" x2="22" y2="144" stroke="#c8b090" stroke-width="0.4"/>
+
+      <!-- Colonne dorique à droite -->
+      <rect x="134" y="110" width="10" height="36" rx="0" fill="#e8e0d0" stroke="#c8b090" stroke-width="0.6"/>
+      <rect x="131" y="107" width="16" height="4" rx="0" fill="#d4c8a0"/>
+      <rect x="130" y="144" width="18" height="4" rx="0.5" fill="#d4c8a0"/>
+      <line x1="138" y1="111" x2="138" y2="144" stroke="#c8b090" stroke-width="0.4"/>
+      <line x1="141" y1="111" x2="141" y2="144" stroke="#c8b090" stroke-width="0.4"/>
+
+      <!-- Queue de la chouette -->
+      <path d="M62 130 Q68 138 80 140 Q92 138 98 130 Q90 136 80 137 Q70 136 62 130 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Etoile grecque et branche d'olivier -->
+      <path d="M74 44 Q76 40 78 36 Q80 32 82 36 Q84 40 86 44" fill="none" stroke="#0D5EAF" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="80" cy="34" r="3" fill="#0D5EAF" opacity="0.7"/>
+
+      <!-- Annotation Léonard -->
+      <text x="38" y="150" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Athena</text>
+      <text x="38" y="158" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">noctua</text>
+      <line x1="52" y1="152" x2="62" y2="130" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles méditerranéennes -->
+      <circle cx="130" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="20" cy="38" r="0.9" fill="#0D5EAF" opacity="0.5"/>
+      <circle cx="144" cy="80" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — temples antiques, acropoles, sites archéologiques, îles des Cyclades, monastères byzantins, mythologie, musées, gastronomie grecque, plages, sites UNESCO, philosophie, sports antiques, îles Ioniennes, Crète minoenne, théâtres antiques, architecture &amp; nature.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">18</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">6 000</div><div class="stat-label">Îles &amp; Îlots</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Grèce</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De Homère à la Démocratie moderne</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Acropole_d%27Ath%C3%A8nes','Acropole d\'Athènes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Athènes</div><h3 class="card-name">Acropole d'Athènes</h3><p class="card-context">Le symbole absolu de la civilisation occidentale. Le Parthénon (447–432 av. J.-C.) dédié à Athéna, l'Érechthéion aux Caryatides, les Propylées. UNESCO 1987. La colline sacrée visible de toute la ville.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Santorin','Santorin — Île de la Caldera')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Santorin, Cyclades</div><h3 class="card-name">Santorin — Caldeira Volcanique</h3><p class="card-context">Île volcanique aux maisons blanches et dômes bleus perchées sur la caldeira. Couchers de soleil légendaires depuis Oia. Ancienne Akrotiri minoenne engloutie par l'éruption de 1640 av. J.-C. La plus belle île du monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Delphes','Delphes — Oracle du Monde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Delphes, Phocide</div><h3 class="card-name">Delphes — L'Oracle du Monde</h3><p class="card-context">UNESCO 1987 — nombril du monde antique. Temple d'Apollon, la Pythie, le théâtre et le stade sur les pentes du Parnasse. Toutes les cités grecques venaient consulter l'oracle. "Connais-toi toi-même" inscrit sur le fronton.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Météores','Météores — Monastères dans les Nuages')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Kalambaka, Thessalie</div><h3 class="card-name">Météores — Monastères dans les Nuages</h3><p class="card-context">UNESCO 1988 — monastères byzantins perchés au sommet de colonnes de grès de 400 m. 6 monastères encore habités sur 24. Fondés aux XIVe–XVe s. Accessible autrefois uniquement par filet ou échelle de corde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Olympie','Olympie — Berceau des Jeux')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Olympie, Péloponnèse</div><h3 class="card-name">Olympie — Berceau des Jeux Olympiques</h3><p class="card-context">UNESCO 1989 — site des premiers Jeux Olympiques (776 av. J.-C.). Temple de Zeus abritait la statue chryséléphantine — l'une des 7 Merveilles du monde. Stade de 192 m. La flamme olympique est allumée ici.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cnossos','Cnossos — Palais du Minotaure')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Héraklion, Crète</div><h3 class="card-name">Cnossos — Le Labyrinthe du Minotaure</h3><p class="card-context">Palais minoen (2000–1400 av. J.-C.) — la première civilisation avancée d'Europe. Fresques spectaculaires, plomberie sophistiquée, écriture linéaire B. Légende du Minotaure et du Labyrinthe. Arthur Evans reconstruit le palais.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Épidaure','Épidaure — Théâtre Antique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Épidaure, Péloponnèse</div><h3 class="card-name">Épidaure — Acoustique Parfaite</h3><p class="card-context">UNESCO 1988 — théâtre du IVe s. av. J.-C. (14 000 places) à l'acoustique parfaite. On entend une pièce de monnaie tomber depuis le dernier rang. Festival annuel en été. Sanctuaire d'Asclépios — dieu de la médecine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mykonos','Mykonos — Île du Vent')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Mykonos, Cyclades</div><h3 class="card-name">Mykonos — Île du Vent et des Moulins</h3><p class="card-context">Les célèbres moulins à vent de Kato Mili dominant la mer Égée. Petit Venise aux maisons colorées au bord de l'eau. Île voisine de Délos — lieu de naissance d'Apollon et d'Artémis. Vie nocturne légendaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mycènes','Mycènes — Cité des Atrides')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Mycènes, Péloponnèse</div><h3 class="card-name">Mycènes — La Porte des Lions</h3><p class="card-context">UNESCO 1999 — forteresse mycénienne (1600 av. J.-C.) d'Agamemnon. La Porte des Lions (XIIIe s. av. J.-C.) est la première sculpture monumentale d'Europe. Schliemann y découvrit le masque d'Agamemnon en or.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mont_Athos','Mont Athos — République Monastique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Chalcidique, Macédoine</div><h3 class="card-name">Mont Athos — République des Moines</h3><p class="card-context">UNESCO 1988 — presqu'île autonome avec 20 monastères orthodoxes. Accessible uniquement aux hommes munis d'un diamonitirion spécial. 2 000 moines. Bibliothèques inestimables. Haut lieu de la spiritualité orthodoxe mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Agora_d%27Ath%C3%A8nes','Agora d\'Athènes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Athènes</div><h3 class="card-name">Agora d'Athènes</h3><p class="card-context">Le coeur de la démocratie athénienne — berceau de la philosophie occidentale. Socrate y enseignait, Aristote y débattait. Temple d'Héphaïstos (449 av. J.-C.) — le mieux conservé de Grèce. Stoa d'Attalos reconstituée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Corfou','Corfou — Île Verte Ionienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Corfou, Îles Ioniennes</div><h3 class="card-name">Corfou — La Perle Ionienne</h3><p class="card-context">UNESCO 2007 — vieille ville vénitienne aux ruelles étroites. Forteresses vénitiennes, palais des Saints-Michel-et-Georges. Île d'Ulysse selon certains. Oliviers millénaires, eau turquoise. Influence italienne et grecque mêlées.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sparte','Sparte — Cité des Guerriers')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Sparte, Laconie</div><h3 class="card-name">Sparte — La Cité Guerrière</h3><p class="card-context">La légendaire cité-État spartiate — 300 Spartiates aux Thermopyles (480 av. J.-C.). Mystras médiévale voisine UNESCO. Agésilas, Léonidas, la phalange hoplitique. La beauté de la plaine de l'Eurotas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Délos','Délos — Île Sacrée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Délos, Cyclades</div><h3 class="card-name">Délos — Île Sacrée d'Apollon</h3><p class="card-context">UNESCO 1990 — l'île la plus sacrée du monde grec antique. Lieu de naissance d'Apollon et d'Artémis. Personne ne pouvait y naître ni mourir. Ruines exceptionnelles. Accessible uniquement en ferry depuis Mykonos.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Thessalonique','Thessalonique — 2e Ville de Grèce')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Thessalonique, Macédoine</div><h3 class="card-name">Thessalonique — Monuments Paléochrétiens</h3><p class="card-context">UNESCO 1988 — 15 monuments paléochrétiens et byzantins. Rotonde de Galère, Arc de Galère, basiliques byzantines aux mosaïques d'or. Fondée par Cassandre en 315 av. J.-C. Ancienne capitale de l'Empire romain d'Orient.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_archéologique_national_d%27Athènes','Musée National d\'Athènes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Athènes</div><h3 class="card-name">Musée Archéologique National</h3><p class="card-context">Le plus grand musée de Grèce et l'un des plus importants du monde. Masque d'Agamemnon, Poséidon du Cap Artémision, jeunes kouroï. 11 000 pièces de la préhistoire à l'Antiquité tardive. La Grèce en un lieu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hydre_(île)','Hydra — Île Sans Voitures')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Hydra, Saronique</div><h3 class="card-name">Hydra — L'Île des Artistes</h3><p class="card-context">Île sans voitures ni motos — seuls les ânes, les bateaux et les pieds. Maisons de capitaines du XVIIIe s. en pierre grise. Leonard Cohen y vécut et composa. Artistes du monde entier attirés par ce joyau préservé.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cnossos','Palais de Phaïstos — Crète')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Messara, Crète</div><h3 class="card-name">Phaïstos — Palais Minoen</h3><p class="card-context">Deuxième palais minoen de Crète (1900 av. J.-C.), sur une colline dominant la plaine de Messara. Le Disque de Phaïstos — inscription mystérieuse non déchiffrée découverte en 1908. Vue sur le Mont Ida (Zeus).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rhodes','Rhodes — Île des Chevaliers')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Rhodes, Dodécanèse</div><h3 class="card-name">Rhodes — Cité Médiévale UNESCO</h3><p class="card-context">UNESCO 1988 — ville médiévale la mieux préservée de la Méditerranée. Palais du Grand Maître des Chevaliers Hospitaliers. Rue des Chevaliers intacte depuis le XIVe s. Le Colosse de Rhodes était l'une des 7 Merveilles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_du_Parnasse','Mont Parnasse — Domaine des Muses')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Phocide</div><h3 class="card-name">Mont Parnasse — Les Muses</h3><p class="card-context">Le mont sacré des Muses et d'Apollon dans la mythologie grecque. Domaine de Delphes à ses pieds. Station de ski d'Arachova en hiver. Gorges de la Plistos. Sentiers de randonnée sur les traces des dieux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Acropole_de_Lindos','Acropole de Lindos')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Lindos, Rhodes</div><h3 class="card-name">Acropole de Lindos</h3><p class="card-context">Temple d'Athéna Lindia (IVe s. av. J.-C.) perché à 116 m au-dessus de la mer de cobalt. Village blanc aux ruelles pavées de galets. Saint Paul débarqua dans la baie de Saint-Paul en 51 apr. J.-C.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vergina','Vergina — Tombes Royales Macédoniennes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Vergina, Macédoine</div><h3 class="card-name">Vergina — Tombes de Philippe II</h3><p class="card-context">UNESCO 1996 — tombes royales macédoniennes, dont celle de Philippe II, père d'Alexandre le Grand. Découverte par Manolis Andronikos en 1977. Larnax d'or au symbole du Soleil de Vergina. La Macédoine antique révélée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zakynthos','Zakynthos — Île de la Tortue')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Zakynthos, Îles Ioniennes</div><h3 class="card-name">Zakynthos — Navagio Beach</h3><p class="card-context">La célèbre Plage du Naufrage (Navagio) — épave sur une plage de sable blanc entre falaises blanches et eau turquoise. La photo la plus partagée de Grèce. Tortues Caretta caretta dans la baie de Laganas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Égine_(île)','Temple d\'Aphaia — Égine')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Égine, Saronique</div><h3 class="card-name">Temple d'Aphaia — Égine</h3><p class="card-context">Temple dorique (500 av. J.-C.) extraordinairement bien conservé — 25 colonnes encore debout. Combiné avec l'Acropole et le Sounion, il forme le triangle d'or de la Grèce antique. Pistaches d'Égine mondialement connues.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sounion','Cap Sounion — Temple de Poséidon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Cap Sounion, Attique</div><h3 class="card-name">Cap Sounion — Temple de Poséidon</h3><p class="card-context">Temple de Poséidon (444 av. J.-C.) sur une falaise de 60 m dominant la mer Égée. Lord Byron y grava son nom. Couchers de soleil parmi les plus beaux de Grèce. La sentinelle de la mer face à l'Égée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Crète','Crète — La Grande Île')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Crète</div><h3 class="card-name">Crète — Les Gorges de Samaria</h3><p class="card-context">Les gorges de Samaria — 16 km parmi les plus longues d'Europe. Parc national. Mouflon crétois (agrimi), cyprès de Crète. Chemin qui descend de 1 250 m jusqu'à la mer Libyenne. La Crète sauvage et majestueuse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Paros','Paros — Île du Marbre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Paros, Cyclades</div><h3 class="card-name">Paros — Le Marbre des Dieux</h3><p class="card-context">Le marbre de Paros — le plus translucide du monde — servit à sculpter la Vénus de Milo et la Victoire de Samothrace. Village de Naoussa au port pittoresque. Grottes de Marathi. Mer des Cyclades turquoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Corinthe','Corinthe — Cité du Commerce')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Corinthe, Péloponnèse</div><h3 class="card-name">Corinthe &amp; l'Isthme</h3><p class="card-context">Temple d'Apollon (540 av. J.-C.) — parmi les plus anciens de Grèce. Canal de Corinthe (1893) — 6 km taillés dans la roche. Acrocorinthe — forteresse de 575 m dominant deux mers. Apôtre Paul y séjourna.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Naxos','Naxos — Île des Cyclades')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Naxos, Cyclades</div><h3 class="card-name">Naxos — La Grande Cyclades</h3><p class="card-context">La plus grande île des Cyclades. Portara (porte du temple d'Apollon inachevé, VIe s. av. J.-C.) — symbole de Naxos. Montagne de Zas (1 001 m). Kouros géants inachevés dans les carrières de marbre antiques.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mystras','Mystras — Byzance en Péloponnèse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Mystras, Laconie</div><h3 class="card-name">Mystras — La Byzance du Péloponnèse</h3><p class="card-context">UNESCO 1989 — cité byzantine fantôme sur les pentes du Taygète. Palais des Despotes, fresques du XIVe s. d'une beauté sublime. Gémiste Pléthon y enseignait le platonisme. Abandonnée au XIXe s., préservée comme un rêve.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Thermopyles','Thermopyles — Les 300 Spartiates')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Thermopyles, Phthiotide</div><h3 class="card-name">Thermopyles — Les 300 Spartiates</h3><p class="card-context">Défilé où 300 Spartiates de Léonidas tinrent tête à l'armée perse de Xerxès (480 av. J.-C.). Inscription légendaire sur la stèle : "Passant, va dire à Sparte que nous sommes morts pour obéir à ses lois." Monument universel.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Leucade','Leucade — Île Ionienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Leucade, Îles Ioniennes</div><h3 class="card-name">Leucade &amp; Plage de Porto Katsiki</h3><p class="card-context">L'une des plus belles plages du monde — falaises blanches de 100 m plongeant dans une mer couleur émeraude. Île reliée au continent par un pont flottant. Sapho y aurait sauté de la falaise blanche par amour déçu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mont_Olympe','Mont Olympe — Trône des Dieux')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Olympe, Piérie</div><h3 class="card-name">Mont Olympe — Trône des Dieux</h3><p class="card-context">Le plus haut sommet de Grèce (2 917 m) — demeure des 12 dieux olympiens. Premier parc national de Grèce (1938). Zeus, Héra, Athéna, Poséidon, Apollon y régnaient selon la mythologie. Randonnée au sommet Mytikas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Héraklion','Héraklion — Musée Minoen')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Héraklion, Crète</div><h3 class="card-name">Musée Archéologique d'Héraklion</h3><p class="card-context">Le plus grand musée de Crète — collections minoennes incomparables. Fresques de Cnossos, Disque de Phaïstos, Déesse aux serpents, bijoux en or, sarcophage d'Haghia Triada. La civilisation minoenne en son intégralité.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Némée','Jeux Néméens — Némée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Némée, Péloponnèse</div><h3 class="card-name">Némée — Lion d'Héraclès</h3><p class="card-context">Temple de Zeus de Némée (320 av. J.-C.) — site des Jeux Néméens, l'un des 4 grands jeux panhelléniques. Héraclès y tua le Lion de Némée. Vignobles d'Agiorgitiko — le meilleur vin rouge du Péloponnèse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De la préhistoire à la modernité</div>
+  <h2 class="section-title">Histoire de la Grèce</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">3000 — 1100 av. J.-C.</div>
+      <div class="timeline-event"><strong>Civilisations minoenne et mycénienne.</strong> La civilisation minoenne de Crète (3000–1450 av. J.-C.) — Cnossos, fresques, écriture linéaire A. Les Mycéniens prennent le relais — Mycènes, Troie (1184 av. J.-C.), écriture linéaire B. L'Age des Ténèbres suit leur effondrement mystérieux.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">776 — 479 av. J.-C.</div>
+      <div class="timeline-event"><strong>Grèce archaïque et guerres médiques.</strong> Premiers Jeux Olympiques (776 av. J.-C.). Naissance de la philosophie — Thalès, Pythagore, Héraclite. Athènes invente la démocratie (Clisthène, 508 av. J.-C.). Les Grecs repoussent l'invasion perse à Marathon (490), Salamine (480) et Platées (479).</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">479 — 323 av. J.-C.</div>
+      <div class="timeline-event"><strong>Age d'Or — Périclès et Alexandre.</strong> Périclès fait construire le Parthénon (447 av. J.-C.). Socrate, Platon, Aristote révolutionnent la pensée humaine. Sophocle, Euripide, Aristophane inventent le théâtre. Alexandre le Grand (356–323 av. J.-C.) conquiert un empire de la Grèce à l'Inde.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">146 av. J.-C. — 330 apr. J.-C.</div>
+      <div class="timeline-event"><strong>Domination romaine.</strong> Rome conquiert la Grèce (146 av. J.-C.) mais est culturellement conquise par elle : "Graecia capta ferum victorem cepit." Paul de Tarse évangélise la Grèce (50 apr. J.-C.). Constantin fonde Constantinople (330) — la Grèce entre dans l'ère byzantine.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">330 — 1453</div>
+      <div class="timeline-event"><strong>Empire byzantin.</strong> Constantinople — Nouvelle Rome — rayonne pendant 1 000 ans. Sainte-Sophie, mosaïques d'or, art iconographique. Les Croisés saccagent Constantinople (1204). Les Ottomans de Mehmed II prennent Constantinople le 29 mai 1453 — fin du monde antique.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1453 — 1821</div>
+      <div class="timeline-event"><strong>Occupation ottomane.</strong> 400 ans de domination ottomane. La langue grecque et la culture orthodoxe survivent grâce aux monastères. Les Phanariotes maintiennent la culture hellénique à Constantinople. Lord Byron et les philhellènes européens soutiennent la cause grecque.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1821 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Indépendance et Grèce moderne.</strong> Révolution du 25 mars 1821. Lord Byron meurt à Missolonghi (1824) pour la cause grecque. Indépendance reconnue en 1830. Jeux Olympiques modernes à Athènes (1896). Catastrophe d'Asie Mineure (1922). Dictature des colonels (1967–1974). Démocratie restaurée, adhésion à la CEE (1981).</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇬🇷</div>
+  <p class="footer-text">Guide du Voyageur · Grèce · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([38.5,24.0],6);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconTemple=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,10,.8))"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#8a6010"/><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d890" stroke="#b09040" stroke-width="0.4"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d890" stroke="#b09040" stroke-width="0.4"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d890" stroke="#b09040" stroke-width="0.4"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(13,94,175,.9))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a6eb5" stroke="#0D5EAF" stroke-width="0.6"/><path d="M4 28 Q10 24 18 26 Q26 24 32 26" fill="none" stroke="#60a8e0" stroke-width="1" opacity="0.7"/><rect x="14" y="8" width="6" height="16" rx="0.5" fill="#f8f8f8" stroke="#e8e0d0" stroke-width="0.4"/><path d="M14 8 Q17 4 20 8" fill="#1a6eb5"/><ellipse cx="17" cy="20" rx="4" ry="3" fill="#60b0e8" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,30,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#3a1060"/><circle cx="18" cy="22" r="3" fill="#e8c840" opacity="0.7"/></svg>');
+
+var iconByzantin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,20,160,.8))"><rect x="10" y="20" width="16" height="14" rx="0.5" fill="#8040b0" stroke="#5a1890" stroke-width="0.5"/><path d="M10 20 Q18 10 26 20" fill="#6030a0" stroke="#5a1890" stroke-width="0.5"/><ellipse cx="18" cy="20" rx="8" ry="4" fill="#9050c0" opacity="0.5"/><line x1="18" y1="2" x2="18" y2="12" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/><line x1="14" y1="6" x2="22" y2="6" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/><rect x="14" y="28" width="8" height="6" fill="#4a1070"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconMytho=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><polygon points="18,2 21.5,12 32,12 23.5,18.5 27,29 18,22.5 9,29 12.5,18.5 4,12 14.5,12" fill="#c8a020" stroke="#8a6010" stroke-width="0.7"/><circle cx="18" cy="16" r="5" fill="#e8d040" opacity="0.7"/><line x1="18" y1="10" x2="18" y2="22" stroke="#8a6010" stroke-width="0.6"/><line x1="12" y1="16" x2="24" y2="16" stroke="#8a6010" stroke-width="0.6"/></svg>');
+
+var iconPlage=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a6eb5" stroke="#0D5EAF" stroke-width="0.6"/><path d="M2 26 Q8 22 14 24 Q20 26 26 22 Q30 20 34 22" fill="none" stroke="#60a8e0" stroke-width="1.2" opacity="0.7"/><circle cx="22" cy="8" r="6" fill="#ffce00" opacity="0.9"/><path d="M12 18 L20 10" stroke="#e8a020" stroke-width="1.5" stroke-linecap="round"/><path d="M8 20 L12 20 L12 12 L8 14 Z" fill="#e8c060" opacity="0.7"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/><line x1="10" y1="6" x2="10" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="18" y1="4" x2="18" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="26" y1="6" x2="26" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconPhilo=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(40,20,100,.8))"><circle cx="18" cy="14" r="10" fill="none" stroke="#0D5EAF" stroke-width="1.5"/><circle cx="18" cy="14" rx="10" ry="4" fill="none" stroke="#0D5EAF" stroke-width="0.8"/><line x1="18" y1="4" x2="18" y2="24" stroke="#0D5EAF" stroke-width="0.8"/><circle cx="18" cy="14" r="3" fill="#c9a84c"/><line x1="8" y1="24" x2="28" y2="30" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><text x="12" y="36" font-family="Georgia,serif" font-size="8" fill="#c9a84c" opacity="0.8">φ</text></svg>');
+
+var iconTheâtre=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,60,10,.8))"><path d="M4 32 Q4 20 18 16 Q32 20 32 32 Z" fill="#c8a020" stroke="#8a6010" stroke-width="0.6"/><path d="M6 32 Q6 22 18 18 Q30 22 30 32" fill="#d4b030" opacity="0.5"/><path d="M8 32 Q8 24 18 20 Q28 24 28 32" fill="#c8a020" opacity="0.3"/><rect x="14" y="10" width="8" height="6" rx="2" fill="#8a3010"/><line x1="18" y1="4" x2="18" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#0D5EAF" stroke="#083d7a" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconArcheo=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(140,100,20,.8))"><rect x="6" y="28" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="18" fill="#e8c840"/><rect x="16" y="10" width="4" height="18" fill="#e8c840"/><rect x="24" y="10" width="4" height="18" fill="#e8c840"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#c09010"/><path d="M18 2 L6 8 L30 8 Z" fill="#a07808"/></svg>');
+
+var iconSport=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><circle cx="18" cy="10" r="5" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/><path d="M14 15 L10 28 L14 26 L18 30 L22 26 L26 28 L22 15" fill="#c8a020" stroke="#8a6010" stroke-width="0.6"/><line x1="10" y1="22" x2="26" y2="22" stroke="#8a6010" stroke-width="0.8"/><path d="M4 34 L10 28 L26 28 L32 34" fill="none" stroke="#8a6010" stroke-width="1" stroke-linecap="round"/></svg>');
+
+var iconVolcano=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,60,10,.9))"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#e8e0d0" stroke="#c0b080" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f8f0e0"/><path d="M14 4 Q16 2 18 0 Q20 2 22 4 Q20 3 18 3 Q16 3 14 4 Z" fill="#c8102e" opacity="0.8"/><path d="M14 6 Q16 4 18 3 Q20 4 22 6" fill="none" stroke="#ff4020" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/><path d="M8 26 Q12 24 16 26 Q20 28 24 26 Q28 24 28 28" fill="#1a6eb5" opacity="0.7"/></svg>');
+
+var iconCrete=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(140,80,10,.85))"><rect x="6" y="20" width="24" height="14" rx="0.5" fill="#c8780a" stroke="#8a5008" stroke-width="0.6"/><rect x="8" y="14" width="8" height="8" fill="#d4a020"/><rect x="20" y="14" width="8" height="8" fill="#d4a020"/><path d="M6 20 L18 10 L30 20" fill="#b06010" stroke="#8a4008" stroke-width="0.5"/><rect x="14" y="24" width="8" height="10" fill="#8a4008"/><path d="M10 18 Q12 16 14 18" fill="none" stroke="#e8b040" stroke-width="0.8"/><path d="M22 18 Q24 16 26 18" fill="none" stroke="#e8b040" stroke-width="0.8"/></svg>');
+
+var DATA={
+  temple:{icon:iconTemple,color:'#c8a020',label:'🏛️ Temples Antiques',pts:[
+    {lat:37.9715,lng:23.7267,n:"Acropole d'Athènes",c:"Athènes",d:"Parthénon, Érechthéion, Propylées. Le symbole de la civilisation occidentale. UNESCO 1987.",u:"https://fr.m.wikipedia.org/wiki/Acropole_d%27Athènes?useskin=vector"},
+    {lat:38.4777,lng:22.5012,n:"Temple d'Apollon — Delphes",c:"Delphes, Phocide",d:"Nombril du monde antique. La Pythie rendait ses oracles ici. UNESCO 1987.",u:"https://fr.m.wikipedia.org/wiki/Delphes?useskin=vector"},
+    {lat:37.6379,lng:21.6300,n:"Temple de Zeus — Olympie",c:"Olympie, Péloponnèse",d:"Abritait la statue de Zeus — 7e Merveille du monde. Jeux Olympiques depuis 776 av. J.-C. UNESCO 1989.",u:"https://fr.m.wikipedia.org/wiki/Olympie?useskin=vector"},
+    {lat:37.6583,lng:22.7551,n:"Temple d'Aphaia — Égine",c:"Égine, Saronique",d:"Dorique (500 av. J.-C.), 25 colonnes intactes. Triangle d'or avec l'Acropole et Sounion.",u:"https://fr.m.wikipedia.org/wiki/Temple_d%27Aphaia?useskin=vector"},
+    {lat:37.6500,lng:24.0167,n:"Temple de Poséidon — Sounion",c:"Cap Sounion, Attique",d:"Sur falaise de 60 m dominant l'Égée (444 av. J.-C.). Lord Byron y grava son nom.",u:"https://fr.m.wikipedia.org/wiki/Cap_Sounion?useskin=vector"},
+    {lat:37.9015,lng:22.7558,n:"Temple d'Héra — Corinthe",c:"Corinthe, Péloponnèse",d:"Temple d'Apollon (540 av. J.-C.) parmi les plus anciens de Grèce. Canal de Corinthe voisin.",u:"https://fr.m.wikipedia.org/wiki/Corinthe?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#0D5EAF',label:'🏝️ Îles & Cyclades',pts:[
+    {lat:36.3932,lng:25.4615,n:"Santorin — Caldeira",c:"Santorin, Cyclades",d:"Maisons blanches et dômes bleus sur la caldeira volcanique. Couchers de soleil légendaires d'Oia.",u:"https://fr.m.wikipedia.org/wiki/Santorin?useskin=vector"},
+    {lat:37.4467,lng:25.3289,n:"Mykonos",c:"Mykonos, Cyclades",d:"Moulins à vent de Kato Mili, Petit Venise. Île festive et mythologique près de Délos.",u:"https://fr.m.wikipedia.org/wiki/Mykonos?useskin=vector"},
+    {lat:37.1045,lng:25.3760,n:"Naxos — La Grande Cyclades",c:"Naxos, Cyclades",d:"Plus grande île des Cyclades. Portara (VIe s. av. J.-C.). Kouros géants dans les carrières.",u:"https://fr.m.wikipedia.org/wiki/Naxos?useskin=vector"},
+    {lat:37.0892,lng:25.1469,n:"Paros — Île du Marbre",c:"Paros, Cyclades",d:"Marbre de Paros — le plus translucide du monde. Vénus de Milo sculptée dans ce marbre.",u:"https://fr.m.wikipedia.org/wiki/Paros?useskin=vector"},
+    {lat:37.3375,lng:26.5367,n:"Rhodes — Cité Médiévale",c:"Rhodes, Dodécanèse",d:"UNESCO 1988. Ville médiévale des Chevaliers Hospitaliers la mieux préservée de Méditerranée.",u:"https://fr.m.wikipedia.org/wiki/Rhodes?useskin=vector"},
+    {lat:37.8490,lng:20.7481,n:"Corfou — Île Ionienne",c:"Corfou, Ioniennes",d:"UNESCO 2007. Vieille ville vénitienne. Influences italienne et grecque mêlées. Île verdoyante.",u:"https://fr.m.wikipedia.org/wiki/Corfou?useskin=vector"},
+    {lat:37.7825,lng:20.9000,n:"Zakynthos — Navagio Beach",c:"Zakynthos, Ioniennes",d:"Plage du Naufrage entre falaises blanches. Tortues Caretta caretta dans la baie de Laganas.",u:"https://fr.m.wikipedia.org/wiki/Zakynthos?useskin=vector"},
+    {lat:37.3500,lng:23.4667,n:"Hydra — Île des Artistes",c:"Hydra, Saronique",d:"Sans voitures ni motos. Maisons de capitaines. Leonard Cohen y vécut. Joyau préservé.",u:"https://fr.m.wikipedia.org/wiki/Hydre_(île)?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🏺 Musées & Collections',pts:[
+    {lat:37.9893,lng:23.7322,n:"Musée Archéologique National",c:"Athènes",d:"Plus grand musée de Grèce. Masque d'Agamemnon, Poséidon du Cap Artémision, kouroï.",u:"https://fr.m.wikipedia.org/wiki/Musée_archéologique_national_d%27Athènes?useskin=vector"},
+    {lat:37.9716,lng:23.7267,n:"Musée de l'Acropole",c:"Athènes",d:"Nouveau musée (2009) sous lequel on voit des fouilles. Frises du Parthénon, Caryatides.",u:"https://fr.m.wikipedia.org/wiki/Musée_de_l%27Acropole?useskin=vector"},
+    {lat:35.3378,lng:25.1328,n:"Musée Archéologique d'Héraklion",c:"Héraklion, Crète",d:"Collections minoennes incomparables. Fresques de Cnossos, Disque de Phaïstos, Déesse aux serpents.",u:"https://fr.m.wikipedia.org/wiki/Musée_archéologique_d%27Héraklion?useskin=vector"},
+    {lat:40.5225,lng:22.9583,n:"Musée de Thessalonique",c:"Thessalonique",d:"Larnax d'or de Philippe II, bijoux macédoniens. Collections des royaumes hellénistiques.",u:"https://fr.m.wikipedia.org/wiki/Musée_archéologique_de_Thessalonique?useskin=vector"}
+  ]},
+  byzantin:{icon:iconByzantin,color:'#8040b0',label:'✝️ Monuments Byzantins',pts:[
+    {lat:39.7217,lng:21.6289,n:"Météores",c:"Kalambaka, Thessalie",d:"UNESCO 1988. 6 monastères sur colonnes de grès de 400 m. Fondés aux XIVe-XVe s.",u:"https://fr.m.wikipedia.org/wiki/Météores?useskin=vector"},
+    {lat:40.1581,lng:24.3269,n:"Mont Athos",c:"Chalcidique, Macédoine",d:"UNESCO 1988. 20 monastères orthodoxes. Accessible uniquement aux hommes. 2 000 moines.",u:"https://fr.m.wikipedia.org/wiki/Mont_Athos?useskin=vector"},
+    {lat:40.6436,lng:22.9442,n:"Thessalonique — Monuments Byzantins",c:"Thessalonique",d:"UNESCO 1988. 15 monuments paléochrétiens. Rotonde de Galère, mosaïques d'or.",u:"https://fr.m.wikipedia.org/wiki/Thessalonique?useskin=vector"},
+    {lat:36.9120,lng:22.4265,n:"Mystras — Byzance du Péloponnèse",c:"Mystras, Laconie",d:"UNESCO 1989. Cité byzantine fantôme sur le Taygète. Fresques du XIVe s., palais des Despotes.",u:"https://fr.m.wikipedia.org/wiki/Mystras?useskin=vector"},
+    {lat:35.5092,lng:24.0175,n:"Monastère d'Arkadi",c:"Réthymnon, Crète",d:"Monastère fortifié crétois (XVIe s.). Résistance héroïque des Crétois en 1866 face aux Ottomans.",u:"https://fr.m.wikipedia.org/wiki/Monastère_d%27Arkadi?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:38.4777,lng:22.5012,n:"Delphes",c:"Phocide",d:"UNESCO 1987. Nombril du monde. Temple d'Apollon, oracle, théâtre sur les pentes du Parnasse.",u:"https://fr.m.wikipedia.org/wiki/Delphes?useskin=vector"},
+    {lat:37.6379,lng:21.6300,n:"Olympie",c:"Péloponnèse",d:"UNESCO 1989. Berceau des Jeux Olympiques (776 av. J.-C.). Temple de Zeus — 7e Merveille.",u:"https://fr.m.wikipedia.org/wiki/Olympie?useskin=vector"},
+    {lat:40.3654,lng:21.9086,n:"Vergina — Tombes Macédoniennes",c:"Vergina, Macédoine",d:"UNESCO 1996. Tombe de Philippe II, père d'Alexandre le Grand. Larnax d'or.",u:"https://fr.m.wikipedia.org/wiki/Vergina?useskin=vector"},
+    {lat:37.3157,lng:23.0756,n:"Mycènes — Porte des Lions",c:"Mycènes, Péloponnèse",d:"UNESCO 1999. Forteresse d'Agamemnon, première sculpture monumentale d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Mycènes?useskin=vector"},
+    {lat:37.3950,lng:23.1497,n:"Épidaure — Théâtre Antique",c:"Épidaure, Péloponnèse",d:"UNESCO 1988. Acoustique parfaite, 14 000 places (IVe s. av. J.-C.).",u:"https://fr.m.wikipedia.org/wiki/Épidaure?useskin=vector"},
+    {lat:37.3958,lng:25.2708,n:"Délos — Île Sacrée",c:"Délos, Cyclades",d:"UNESCO 1990. Île de naissance d'Apollon et Artémis. Plus grand sanctuaire du monde grec.",u:"https://fr.m.wikipedia.org/wiki/Délos?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:40.0833,lng:22.3500,n:"Mont Olympe",c:"Piérie, Macédoine",d:"2 917 m — plus haut sommet de Grèce. Demeure des dieux selon la mythologie. Premier parc national.",u:"https://fr.m.wikipedia.org/wiki/Mont_Olympe?useskin=vector"},
+    {lat:38.4722,lng:22.4722,n:"Mont Parnasse",c:"Phocide",d:"Mont sacré d'Apollon et des Muses. Gorges de Plistos, ski à Arachova. Domaine de Delphes.",u:"https://fr.m.wikipedia.org/wiki/Parnasse?useskin=vector"},
+    {lat:35.2839,lng:23.9731,n:"Gorges de Samaria",c:"La Canée, Crète",d:"16 km dans le Parc national — parmi les plus longues d'Europe. Mouflon crétois. Mer Libyenne.",u:"https://fr.m.wikipedia.org/wiki/Gorges_de_Samaria?useskin=vector"},
+    {lat:41.0500,lng:24.5167,n:"Lac Kerkini",c:"Serres, Macédoine",d:"Zone humide protégée. Pélicans dalmates, hérons pourprés, 300 espèces d'oiseaux. Delta du Strymon.",u:"https://fr.m.wikipedia.org/wiki/Lac_Kerkini?useskin=vector"}
+  ]},
+  mytho:{icon:iconMytho,color:'#c8a020',label:'⚡ Mythologie & Légendes',pts:[
+    {lat:37.9680,lng:23.7380,n:"Agora d'Athènes — Socrate",c:"Athènes",d:"Berceau de la démocratie et de la philosophie. Socrate y enseignait. Temple d'Héphaïstos intact.",u:"https://fr.m.wikipedia.org/wiki/Agora_d%27Athènes?useskin=vector"},
+    {lat:38.9833,lng:22.4333,n:"Thermopyles — 300 Spartiates",c:"Phthiotide",d:"Défilé où 300 Spartiates de Léonidas tinrent tête à l'armée perse (480 av. J.-C.).",u:"https://fr.m.wikipedia.org/wiki/Thermopyles?useskin=vector"},
+    {lat:35.2983,lng:25.1622,n:"Cnossos — Labyrinthe du Minotaure",c:"Héraklion, Crète",d:"Palais minoen (2000 av. J.-C.). Légende du Minotaure et de Thésée. Premières fresques d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Cnossos?useskin=vector"},
+    {lat:37.3157,lng:23.0756,n:"Mycènes — Agamemnon",c:"Péloponnèse",d:"Porte des Lions (XIIIe s. av. J.-C.). Masque d'Agamemnon en or. Epopée de l'Iliade.",u:"https://fr.m.wikipedia.org/wiki/Mycènes?useskin=vector"}
+  ]},
+  plage:{icon:iconPlage,color:'#1a6eb5',label:'🏖️ Plages & Mer Égée',pts:[
+    {lat:37.8622,lng:20.6247,n:"Porto Katsiki — Leucade",c:"Leucade, Ioniennes",d:"Falaises blanches de 100 m sur mer émeraude. Parmi les plus belles plages du monde.",u:"https://fr.m.wikipedia.org/wiki/Leucade?useskin=vector"},
+    {lat:37.8592,lng:20.7531,n:"Myrtos Beach — Céphalonie",c:"Céphalonie, Ioniennes",d:"Plage de galets blancs entre falaises verdoyantes et mer cobalt. La plus photogénique de Grèce.",u:"https://fr.m.wikipedia.org/wiki/Céphalonie?useskin=vector"},
+    {lat:36.3361,lng:25.3864,n:"Plage Rouge de Santorin",c:"Santorin, Cyclades",d:"Plage aux roches volcaniques rouges. Formation géologique unique au monde. Mer turquoise.",u:"https://fr.m.wikipedia.org/wiki/Santorin?useskin=vector"},
+    {lat:35.0483,lng:25.7061,n:"Vai — Plage aux Palmiers",c:"Sitia, Crète",d:"La seule forêt de palmiers sauvages d'Europe (5 000 dattiers). Plage exotique en Grèce.",u:"https://fr.m.wikipedia.org/wiki/Crète?useskin=vector"},
+    {lat:37.7797,lng:20.8953,n:"Navagio — Plage du Naufrage",c:"Zakynthos, Ioniennes",d:"Épave sur sable blanc entre falaises blanches. Photo la plus partagée de Grèce.",u:"https://fr.m.wikipedia.org/wiki/Zakynthos?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍷 Gastronomie Grecque',pts:[
+    {lat:37.9755,lng:23.7348,n:"Plaka — Tavernes Athéniennes",c:"Athènes",d:"Quartier historique aux pieds de l'Acropole. Tavernes, mezze, ouzo, souvlaki. Gastronomie grecque.",u:"https://fr.m.wikipedia.org/wiki/Plaka?useskin=vector"},
+    {lat:36.4500,lng:28.2167,n:"Vins de Rhodes",c:"Rhodes, Dodécanèse",d:"La plus ancienne tradition viticole de Grèce — 2 400 ans. Vin Muscat de Lindos. Cépages indigènes.",u:"https://fr.m.wikipedia.org/wiki/Vin_de_Grèce?useskin=vector"},
+    {lat:37.0392,lng:22.1147,n:"Huile d'olive de Kalamata",c:"Kalamata, Messénie",d:"Olives de Kalamata — les plus réputées du monde. AOC. Huile vierge extra incomparable.",u:"https://fr.m.wikipedia.org/wiki/Kalamata?useskin=vector"},
+    {lat:35.5008,lng:24.0181,n:"Fromages Crétois — Graviera",c:"Crète",d:"Graviera de Crète AOC — fromage à pâte dure. Feta AOP. Miel du Hymette. Produits authentiques.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_grecque?useskin=vector"}
+  ]},
+  philo:{icon:iconPhilo,color:'#0D5EAF',label:'📚 Philosophie & Sciences',pts:[
+    {lat:37.9755,lng:23.7337,n:"Académie de Platon — Athènes",c:"Athènes",d:"Bois sacré où Platon enseigna (387 av. J.-C. - 529 apr.). Berceau de la philosophie occidentale.",u:"https://fr.m.wikipedia.org/wiki/Académie_de_Platon?useskin=vector"},
+    {lat:37.9758,lng:23.7262,n:"Lycée d'Aristote",c:"Athènes",d:"École péripatéticienne d'Aristote (335 av. J.-C.). Fondements de la logique, biologie, physique.",u:"https://fr.m.wikipedia.org/wiki/Lycée_d%27Aristote?useskin=vector"},
+    {lat:37.4186,lng:23.1317,n:"École de Pythagore — Samos",c:"Samos, Îles de l'Égée",d:"Île natale de Pythagore. Héraion de Samos — UNESCO. Eupalinos et le tunnel antique.",u:"https://fr.m.wikipedia.org/wiki/Pythagore?useskin=vector"}
+  ]},
+  theatre:{icon:iconTheâtre,color:'#c8a020',label:'🎭 Théâtres Antiques',pts:[
+    {lat:37.5975,lng:23.0783,n:"Théâtre d'Épidaure",c:"Épidaure, Péloponnèse",d:"Acoustique parfaite (IVe s. av. J.-C.). 14 000 places. On entend un murmure depuis le dernier rang.",u:"https://fr.m.wikipedia.org/wiki/Théâtre_d%27Épidaure?useskin=vector"},
+    {lat:37.9712,lng:23.7241,n:"Odéon d'Hérode Atticus",c:"Athènes",d:"Théâtre de pierre (161 apr. J.-C.) aux pieds de l'Acropole. Concerts d'été sous la Cité antique.",u:"https://fr.m.wikipedia.org/wiki/Odéon_d%27Hérode_Atticus?useskin=vector"},
+    {lat:38.4826,lng:22.4999,n:"Théâtre de Delphes",c:"Delphes, Phocide",d:"Théâtre grec (IVe s. av. J.-C.) avec vue sur la vallée de l'Amphissa. 5 000 places.",u:"https://fr.m.wikipedia.org/wiki/Delphes?useskin=vector"},
+    {lat:37.6394,lng:21.6303,n:"Stade et Théâtre d'Olympie",c:"Olympie, Péloponnèse",d:"Stade de 192 m où couraient les athlètes des premiers Jeux. Théâtre adjacent.",u:"https://fr.m.wikipedia.org/wiki/Olympie?useskin=vector"}
+  ]},
+  archeo:{icon:iconArcheo,color:'#b47814',label:'🔍 Sites Archéologiques',pts:[
+    {lat:35.2983,lng:25.1622,n:"Cnossos",c:"Héraklion, Crète",d:"Palais minoen (2000–1400 av. J.-C.). Fresques, plomberie, écriture linéaire. Première Europe.",u:"https://fr.m.wikipedia.org/wiki/Cnossos?useskin=vector"},
+    {lat:35.0561,lng:24.8186,n:"Phaïstos",c:"Messara, Crète",d:"Deuxième palais minoen. Disque de Phaïstos mystérieux (1700 av. J.-C.). Vue sur le Mont Ida.",u:"https://fr.m.wikipedia.org/wiki/Phaïstos?useskin=vector"},
+    {lat:37.3157,lng:23.0756,n:"Mycènes",c:"Péloponnèse",d:"UNESCO 1999. Forteresse cyclopéenne (1600 av. J.-C.). Porte des Lions, trésor d'Atrée.",u:"https://fr.m.wikipedia.org/wiki/Mycènes?useskin=vector"},
+    {lat:36.9069,lng:28.0369,n:"Site d'Halicarnasse",c:"Dodécanèse voisin",d:"Mausolée d'Halicarnasse — 4e Merveille du monde antique. Kos, île d'Hippocrate voisine.",u:"https://fr.m.wikipedia.org/wiki/Halicarnasse?useskin=vector"}
+  ]},
+  sport:{icon:iconSport,color:'#c8a020',label:'🏃 Jeux & Sports Antiques',pts:[
+    {lat:37.6379,lng:21.6300,n:"Olympie — Jeux Olympiques",c:"Péloponnèse",d:"Premiers Jeux Olympiques en 776 av. J.-C. La flamme olympique est allumée ici tous les 4 ans.",u:"https://fr.m.wikipedia.org/wiki/Olympie?useskin=vector"},
+    {lat:37.5975,lng:23.0783,n:"Jeux Néméens — Némée",c:"Péloponnèse",d:"Jeux Néméens — un des 4 grands jeux panhelléniques. Héraclès et le Lion de Némée.",u:"https://fr.m.wikipedia.org/wiki/Jeux_néméens?useskin=vector"},
+    {lat:38.4826,lng:22.4999,n:"Jeux Pythiques — Delphes",c:"Phocide",d:"Jeux Pythiques tous les 4 ans en honneur d'Apollon. Course, lutte, arts musicaux et poétiques.",u:"https://fr.m.wikipedia.org/wiki/Jeux_pythiques?useskin=vector"},
+    {lat:37.8988,lng:23.6500,n:"Stade Panathénaïque — Athènes",c:"Athènes",d:"Stade en marbre blanc (330 av. J.-C., restauré 1896). Premiers JO modernes. Capacité 50 000.",u:"https://fr.m.wikipedia.org/wiki/Stade_panathénaïque?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:36.3748,lng:28.0756,n:"Golf de Rhodes",c:"Rhodes, Dodécanèse",d:"Golf Afandou (1973) — 18 trous face à la mer Égée. Végétation méditerranéenne. Vue sur les îles.",u:"https://fr.m.wikipedia.org/wiki/Rhodes?useskin=vector"},
+    {lat:38.0636,lng:23.7836,n:"Golf de Glyfada",c:"Glyfada, Athènes",d:"Club de golf le plus proche d'Athènes. Bord de mer. Architecture classique sur la Riviera athénienne.",u:"https://fr.m.wikipedia.org/wiki/Glyfada?useskin=vector"},
+    {lat:36.8625,lng:27.1769,n:"Golf de Kos",c:"Kos, Dodécanèse",d:"Île d'Hippocrate, père de la médecine. Golf au milieu des ruines antiques et des plages.",u:"https://fr.m.wikipedia.org/wiki/Kos?useskin=vector"}
+  ]},
+  volcano:{icon:iconVolcano,color:'#c8102e',label:'🌋 Volcans & Géologie',pts:[
+    {lat:36.4040,lng:25.3964,n:"Caldeira de Santorin",c:"Santorin, Cyclades",d:"Caldeira de l'éruption de 1640 av. J.-C. (4 fois Krakatoa). Peut-être l'Atlantide de Platon.",u:"https://fr.m.wikipedia.org/wiki/Santorin?useskin=vector"},
+    {lat:36.4072,lng:25.3983,n:"Nea Kameni — Volcan Actif",c:"Santorin, Cyclades",d:"Île volcanique née en 197 av. J.-C. Encore fumante. Bains de boue chaude dans la caldeira.",u:"https://fr.m.wikipedia.org/wiki/Santorin?useskin=vector"},
+    {lat:38.6375,lng:25.1761,n:"Île de Lemnos",c:"Lemnos, Égée Nord",d:"Île volcanique légendaire — Héphaïstos forgeron des dieux y tomba après son expulsion de l'Olympe.",u:"https://fr.m.wikipedia.org/wiki/Lemnos?useskin=vector"}
+  ]},
+  crete:{icon:iconCrete,color:'#c8780a',label:'🏺 Crète Minoenne',pts:[
+    {lat:35.2983,lng:25.1622,n:"Cnossos",c:"Héraklion, Crète",d:"Palais minoen — première civilisation avancée d'Europe (2000–1400 av. J.-C.). Minotaure et Labyrinthe.",u:"https://fr.m.wikipedia.org/wiki/Cnossos?useskin=vector"},
+    {lat:35.0561,lng:24.8186,n:"Phaïstos",c:"Messara, Crète",d:"Deuxième palais minoen. Disque de Phaïstos mystérieux insoluble. Vue sur le mont Ida (Zeus).",u:"https://fr.m.wikipedia.org/wiki/Phaïstos?useskin=vector"},
+    {lat:35.3378,lng:25.1328,n:"Musée d'Héraklion",c:"Héraklion, Crète",d:"Fresques de Cnossos, Déesse aux serpents, bijoux minoens. La civilisation minoenne révélée.",u:"https://fr.m.wikipedia.org/wiki/Musée_archéologique_d%27Héraklion?useskin=vector"},
+    {lat:35.1958,lng:25.0228,n:"Gorges de Samaria",c:"La Canée, Crète",d:"16 km de gorges — parmi les plus longues d'Europe. Mouflon crétois, cyprès. Mer Libyenne.",u:"https://fr.m.wikipedia.org/wiki/Gorges_de_Samaria?useskin=vector"},
+    {lat:35.5092,lng:24.0175,n:"Monastère d'Arkadi",c:"Réthymnon, Crète",d:"Monastère fortifié du XVIe s. Résistance héroïque de 1866. Symbole de la liberté crétoise.",u:"https://fr.m.wikipedia.org/wiki/Monastère_d%27Arkadi?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#0D5EAF\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'temple',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d890"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d890"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d890"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>', label:'Temples Antiques', count:6},
+      {cat:'ile',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a6eb5"/><rect x="14" y="8" width="6" height="16" rx="0.5" fill="#f8f8f8"/><path d="M14 8 Q17 4 20 8" fill="#1a6eb5"/></svg>', label:'Îles &amp; Cyclades', count:8},
+      {cat:'musee',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#3a1060"/></svg>', label:'Musées &amp; Collections', count:4},
+      {cat:'byzantin',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 20 Q18 10 26 20" fill="#6030a0"/><rect x="10" y="20" width="16" height="12" rx="0.5" fill="#8040b0"/><line x1="18" y1="2" x2="18" y2="12" stroke="#c9a84c" stroke-width="1.5"/><line x1="14" y1="6" x2="22" y2="6" stroke="#c9a84c" stroke-width="1.5"/></svg>', label:'Monuments Byzantins', count:5},
+      {cat:'unesco',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:6},
+      {cat:'nature',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'mytho',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12 32,12 23.5,18.5 27,29 18,22.5 9,29 12.5,18.5 4,12 14.5,12" fill="#c8a020" stroke="#8a6010" stroke-width="0.7"/><circle cx="18" cy="16" r="5" fill="#e8d040" opacity="0.7"/></svg>', label:'Mythologie &amp; Légendes', count:4},
+      {cat:'plage',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a6eb5"/><circle cx="22" cy="8" r="6" fill="#ffce00" opacity="0.9"/><path d="M8 18 L12 18 L12 10 L8 12 Z" fill="#e8c060" opacity="0.7"/></svg>', label:'Plages &amp; Mer Égée', count:5},
+      {cat:'gastro',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Grecque', count:4},
+      {cat:'philo',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="14" r="10" fill="none" stroke="#0D5EAF" stroke-width="1.5"/><circle cx="18" cy="14" r="3" fill="#c9a84c"/><line x1="8" y1="24" x2="28" y2="30" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>', label:'Philosophie &amp; Sciences', count:3},
+      {cat:'theatre',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 32 Q4 20 18 16 Q32 20 32 32 Z" fill="#c8a020"/><path d="M6 32 Q6 22 18 18 Q30 22 30 32" fill="#d4b030" opacity="0.5"/></svg>', label:'Théâtres Antiques', count:4},
+      {cat:'archeo',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="28" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="18" fill="#e8c840"/><rect x="16" y="10" width="4" height="18" fill="#e8c840"/><rect x="24" y="10" width="4" height="18" fill="#e8c840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a07808"/></svg>', label:'Sites Archéologiques', count:4},
+      {cat:'sport',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="10" r="5" fill="#c9a84c"/><path d="M14 15 L10 28 L14 26 L18 30 L22 26 L26 28 L22 15" fill="#c8a020"/><line x1="10" y1="22" x2="26" y2="22" stroke="#8a6010" stroke-width="0.8"/></svg>', label:'Jeux &amp; Sports Antiques', count:4},
+      {cat:'golf',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#0D5EAF"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3},
+      {cat:'volcano',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#e8e0d0"/><path d="M14 4 Q16 2 18 0 Q20 2 22 4" fill="#c8102e" opacity="0.8"/></svg>', label:'Volcans &amp; Géologie', count:3},
+      {cat:'crete',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="20" width="24" height="14" rx="0.5" fill="#c8780a"/><rect x="8" y="14" width="8" height="8" fill="#d4a020"/><rect x="20" y="14" width="8" height="8" fill="#d4a020"/><path d="M6 20 L18 10 L30 20" fill="#b06010"/></svg>', label:'Crète Minoenne', count:5}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#0D5EAF #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#0D5EAF;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#8040b0;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#0D5EAF;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f4a460','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#f0f4ff';el.style.borderLeft='3px solid #0D5EAF';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#0D5EAF':'transparent')+';'
+        +'background:'+(isActive?'#f0f4ff':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="if(!this.style.borderLeft.includes(\'0D5EAF\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

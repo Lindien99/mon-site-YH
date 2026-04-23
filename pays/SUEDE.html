@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suède — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Suède.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --bleu:#006AA7;      /* bleu suédois */
+      --jaune:#FECC02;     /* jaune suédois */
+      --bleu-dark:#004a78;
+      --ice:#b8d8f0;
+      --parchment:#f5ead8;
+      --forest:#1a4a20;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#03070d;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    /* ── HERO ── */
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,106,167,.16) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(254,204,2,.07) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--bleu) 0%,var(--bleu) 38%,var(--jaune) 38%,var(--jaune) 62%,var(--bleu) 62%,var(--bleu) 100%);opacity:.4;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(0,106,167,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--jaune);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--jaune);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--jaune),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;
+      color:var(--jaune);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;
+      color:rgba(245,234,216,.45);margin-top:6px;}
+
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;
+      animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    /* ── SECTIONS ── */
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--jaune);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    /* ── MAP ── */
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(0,106,167,.3);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(0,106,167,.12);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(3,7,13,.88);border:1px solid rgba(254,204,2,.5);border-radius:3px;
+      color:#FECC02;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    /* ── CARDS ── */
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(0,106,167,.15);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--bleu),var(--jaune));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(254,204,2,.03);border-color:rgba(254,204,2,.25);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(254,204,2,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--jaune);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--jaune);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    /* ── TIMELINE ── */
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--jaune) 10%,var(--jaune) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--jaune);box-shadow:0 0 12px rgba(254,204,2,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    /* ── FOOTER ── */
+    footer{border-top:1px solid rgba(0,106,167,.2);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--jaune);opacity:.6;}
+
+    /* ── ANIMS ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    /* ── Modale Wikipedia ── */
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(254,204,2,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#03070d;border-bottom:1px solid rgba(0,106,167,.35);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--jaune);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    /* ← RETOUR — bien visible, fond jaune suédois */
+    #wiki-modal-close{background:var(--jaune);border:1px solid #c8a000;border-radius:3px;
+      color:#03070d;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:color .2s,border-color .2s,background .2s;}
+    #wiki-modal-close:hover{background:#fff;border-color:#fff;color:#03070d;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(0,106,167,.95);border-top:1px solid rgba(254,204,2,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--jaune);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<!-- ── Modale Wikipedia ── -->
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle = '';
+function openWiki(url,title){
+  _wikiCurrentTitle = title||'Suède';
+  var u = url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var googleUrl='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Suède');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=googleUrl;
+  document.getElementById('wiki-banner-google').href=googleUrl;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var pageTitle=doc.title||'';
+      if(pageTitle.indexOf('Recherche')!==-1||pageTitle.indexOf('non trouvée')!==-1||
+         pageTitle.indexOf('Search results')!==-1||pageTitle.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-year">SVERIGE</div>
+  <div class="hero-eyebrow">Suède · Guide du Voyageur</div>
+  <h1 class="hero-title">Châteaux, Fjords<br>&amp; <em>Merveilles de Suède</em></h1>
+  <p class="hero-subtitle">Palais royaux, villes vikings, musées de classe mondiale, aurores boréales, design IKEA &amp; archipels de la Baltique</p>
+
+  <!-- LION ROYAL DE SUÈDE — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 18px rgba(0,106,167,.32))">
+      <!-- Étude anatomique du Lion Royal de Suède — tracé à la plume, carnets de Léonard -->
+
+      <!-- Corps du lion -->
+      <path d="M48 108 Q40 92 42 76 Q44 60 56 52 Q68 44 82 44 Q98 44 108 56 Q120 70 116 90 Q112 108 96 116 Q80 124 62 118 Q54 114 48 108 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M56 58 Q68 48 82 48 Q96 48 104 58 Q94 52 82 51 Q70 51 56 58 Z"
+            fill="#f0d040" opacity="0.32"/>
+
+      <!-- Crinière royale — ondulations -->
+      <path d="M46 70 Q34 56 36 42 Q42 34 52 34 Q56 38 56 46"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M50 54 Q38 48 34 36 Q38 28 48 26 Q54 30 52 38"
+            fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M58 40 Q50 30 52 18 Q58 12 66 14 Q68 20 64 26"
+            fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M72 36 Q70 24 74 14 Q80 8 86 12 Q86 20 82 26"
+            fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M86 38 Q90 26 98 20 Q106 16 110 24 Q108 30 102 32"
+            fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M98 48 Q108 38 116 36 Q122 38 122 46 Q118 52 112 52"
+            fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête -->
+      <ellipse cx="82" cy="42" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M64 36 Q72 26 82 24 Q92 26 100 36 Q92 30 82 29 Q72 30 64 36 Z"
+            fill="#f0d040" opacity="0.28"/>
+
+      <!-- Œil -->
+      <circle cx="89" cy="38" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="89" cy="38" r="3" fill="#2a1000"/>
+      <circle cx="90.5" cy="36.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau & nez -->
+      <path d="M72 46 Q76 50 82 50 Q88 50 92 46" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="82" cy="52" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <ellipse cx="79" cy="51" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+      <ellipse cx="85" cy="51" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+
+      <!-- Moustaches -->
+      <line x1="76" y1="53" x2="54" y2="50" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="76" y1="55" x2="54" y2="56" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="88" y1="53" x2="110" y2="50" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="88" y1="55" x2="110" y2="56" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+
+      <!-- PATTE AVANT levée — hache Viking -->
+      <path d="M102 78 Q112 70 118 58 Q122 50 120 44"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Hache viking dans la patte -->
+      <line x1="114" y1="28" x2="120" y2="68" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M110 34 Q106 26 114 24 Q122 26 118 34 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+
+      <!-- Patte arrière -->
+      <path d="M58 110 Q50 118 48 128 Q52 128 56 124 Q58 130 62 130 Q66 126 64 120 Z"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Queue enroulée avec flamme -->
+      <path d="M98 116 Q110 120 120 112 Q128 104 124 96 Q120 92 116 96 Q120 96 118 102 Q114 110 106 112 Z"
+            fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M116 96 Q120 88 124 84 Q122 90 118 94 Z" fill="#d4a020"/>
+
+      <!-- Hachures anatomiques corps -->
+      <path d="M60 78 Q70 72 80 74 Q86 75 92 74 Q100 72 106 78" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M58 88 Q68 82 80 84 Q86 85 92 84 Q100 82 108 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M60 98 Q70 93 80 94 Q86 95 92 94 Q100 93 106 98" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Couronne royale suédoise — 3 fleurons -->
+      <path d="M62 28 L102 28 L100 34 L64 34 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <rect x="62" y="28" width="40" height="6" rx="0" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Fleurons -->
+      <path d="M68 28 Q68 22 72 20 Q74 24 74 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M79 28 Q79 20 82 17 Q86 20 86 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M90 28 Q90 22 94 20 Q96 24 96 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Gemmes de la couronne -->
+      <circle cx="82" cy="19" r="2.8" fill="#FECC02" opacity="0.9"/>
+      <circle cx="70" cy="22" r="2" fill="#006AA7" opacity="0.85"/>
+      <circle cx="94" cy="22" r="2" fill="#006AA7" opacity="0.85"/>
+
+      <!-- Écu — croix suédoise bleu & or -->
+      <path d="M72 88 Q72 80 82 78 Q92 80 92 88 Q92 98 82 104 Q72 98 72 88 Z"
+            fill="#006AA7" stroke="#004a78" stroke-width="0.8"/>
+      <!-- Croix dorée sur l'écu -->
+      <rect x="72" y="87" width="20" height="3" fill="#FECC02" opacity="0.9"/>
+      <rect x="80" y="80" width="3" height="18" fill="#FECC02" opacity="0.9"/>
+
+      <!-- Trois couronnes suédoises — Tre Kronor — sur le poitrail -->
+      <path d="M68 70 Q68 67 70 66 Q72 67 72 70" fill="#FECC02" opacity="0.8" stroke="#c8960a" stroke-width="0.3"/>
+      <rect x="67" y="70" width="6" height="2" rx="0" fill="#FECC02" opacity="0.8"/>
+      <path d="M79 68 Q79 65 82 64 Q85 65 85 68" fill="#FECC02" opacity="0.8" stroke="#c8960a" stroke-width="0.3"/>
+      <rect x="78" y="68" width="8" height="2" rx="0" fill="#FECC02" opacity="0.8"/>
+      <path d="M90 70 Q90 67 92 66 Q94 67 94 70" fill="#FECC02" opacity="0.8" stroke="#c8960a" stroke-width="0.3"/>
+      <rect x="89" y="70" width="6" height="2" rx="0" fill="#FECC02" opacity="0.8"/>
+
+      <!-- Annotation Léonard -->
+      <text x="14" y="70" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5"
+            fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="14" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5"
+            fill="#c8960a" opacity="0.5" font-style="italic">regalis</text>
+      <line x1="28" y1="72" x2="46" y2="70" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Étoiles nordiques -->
+      <circle cx="132" cy="28" r="1.2" fill="#FECC02" opacity="0.5"/>
+      <circle cx="142" cy="48" r="0.8" fill="#FECC02" opacity="0.4"/>
+      <circle cx="24" cy="118" r="1" fill="#FECC02" opacity="0.45"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — palais royaux, châteaux médiévaux, villes vikings, cathédrales gothiques, musées mondiaux, archipels baltiques, aurores boréales, élans &amp; faune, design nordique, gastronomie scandinave, sports d'hiver, saunas, culture Sami, sites UNESCO, bateaux vikings, golf nordique &amp; parcs naturels.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">221 800</div><div class="stat-label">Lacs</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Suède</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MONUMENTS GRID
+══════════════════════════════════════════════════════ -->
+<div class="section-header reveal">
+  <div class="section-tag">Histoire — des Vikings à ABBA</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_royal_de_Stockholm','Palais Royal de Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Stockholm</div><h3 class="card-name">Palais Royal de Stockholm</h3><p class="card-context">Résidence officielle du roi Carl XVI Gustaf, 608 salles dans un édifice baroque (1754). Relève de la garde quotidienne. Plus grand palais royal encore en usage en Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vasa_(navire)','Musée Vasa — Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Stockholm</div><h3 class="card-name">Musée Vasa — Le Navire du XVIIe s.</h3><p class="card-context">Le navire de guerre Vasa (1628), coulé lors de son voyage inaugural et renfloué en 1961, est conservé à 98 % dans son état d'origine. Le musée le plus visité de Scandinavie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gamla_stan','Gamla Stan — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Stockholm</div><h3 class="card-name">Gamla Stan — Vieille Ville de Stockholm</h3><p class="card-context">Une des vieilles villes médiévales les mieux préservées du monde, fondée au XIIIe s. Ruelles pavées, maisons aux façades ocre et rouge, Grande Place (Stortorget) et Cathédrale Storkyrkan.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Drottningholm','Château de Drottningholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Lovön, Stockholm</div><h3 class="card-name">Château de Drottningholm</h3><p class="card-context">Résidence privée de la famille royale suédoise. Classé UNESCO 1991 — le « Versailles du Nord ». Jardins baroques à la française, théâtre du XVIIIe s. parfaitement conservé, pavillon chinois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Uppsala','Cathédrale d\'Uppsala')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Uppsala</div><h3 class="card-name">Cathédrale d'Uppsala</h3><p class="card-context">La plus grande cathédrale scandinave (118 m), gothique, consacrée en 1435. Tombe de Gustave Vasa et du naturaliste Carl von Linné. Siège de l'archevêque primat de Suède.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Birka','Birka — Cité Viking UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Île de Björkö, Mälaren</div><h3 class="card-name">Birka — Première Ville de Suède</h3><p class="card-context">Cité commerçante viking du VIIIe au Xe siècle. Classée UNESCO 1993. Fouilles révélant des tombes guerrières dont la célèbre tombe Bj 581 — une femme Viking identifiée comme commandante militaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Gripsholm','Château de Gripsholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Mariefred, Södermanland</div><h3 class="card-name">Château de Gripsholm</h3><p class="card-context">Château Renaissance du XVIe s. de Gustave Vasa, sur le lac Mälaren. Plus grande collection de portraits royaux de Suède — 4 000 toiles. Tours rondes de brique rouge caractéristiques.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_nordique','Musée Nordique — Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Djurgården, Stockholm</div><h3 class="card-name">Musée Nordique — Nordiska Museet</h3><p class="card-context">Le plus grand musée d'histoire culturelle de Suède (1907). Collections sur la vie quotidienne suédoise depuis 1520 — costumes traditionnels, mobilier, arts populaires, Laponie sami.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ruines_de_Visby','Visby — Cité Hanséatique UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Gotland, Mer Baltique</div><h3 class="card-name">Visby — Cité Hanséatique de Gotland</h3><p class="card-context">UNESCO 1995 — ville médiévale hanséatique ceinte de 3,6 km de remparts du XIIIe s. 200 édifices médiévaux dont 11 ruines d'églises romanes. La ville de roses et ruines de Suède.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abba_Museum','Musée ABBA — Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Djurgården, Stockholm</div><h3 class="card-name">Musée ABBA</h3><p class="card-context">Expérience interactive dédiée au groupe ABBA — le plus grand succès de l'industrie musicale suédoise (1972–1982). Costumes scéniques, enregistrements d'époque, hologrammes. Chantez avec ABBA !</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Kalmar','Château de Kalmar')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Kalmar, Småland</div><h3 class="card-name">Château de Kalmar</h3><p class="card-context">L'un des châteaux Renaissance les mieux préservés de Scandinavie (XIIe s., remanié XVIe s.). Lieu de la signature de l'Union de Kalmar (1397) unissant Danemark, Norvège et Suède.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hôtel_de_glace_de_Jukkasjärvi','Hôtel de Glace de Jukkasjärvi')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Jukkasjärvi, Laponie</div><h3 class="card-name">ICEHOTEL — Hôtel de Glace</h3><p class="card-context">Premier hôtel de glace du monde (1990), reconstruit chaque hiver sur la rivière Torne. Sculptures de glace, chambres artistiques, bar de glace. Aurores boréales, traîneaux à chiens, rennes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Skansen','Skansen — Musée en Plein Air')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Djurgården, Stockholm</div><h3 class="card-name">Skansen — Premier Musée en Plein Air du Monde</h3><p class="card-context">Fondé en 1891, le premier musée en plein air du monde. 150 bâtiments historiques transférés de toutes les régions suédoises. Zoo nordique avec élans, bisons, lynx, ours.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Vadstena','Château de Vadstena')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Vadstena, Östergötland</div><h3 class="card-name">Château de Vadstena &amp; Abbaye Sainte-Brigitte</h3><p class="card-context">Château Renaissance de Gustave Vasa (1545) au bord du lac Vättern. L'abbaye de Sainte-Brigitte de Suède (1346) — pèlerinage majeur du Nord. Ville médiévale exceptionnelle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Sarek','Parc National de Sarek')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Laponie suédoise</div><h3 class="card-name">Parc National de Sarek</h3><p class="card-context">L'une des dernières grandes étendues sauvages d'Europe — 2 000 km², 200 sommets, 100 glaciers. Aucune route ni infrastructure. Wolverines, loups arctiques, aigles royaux. UNESCO Laponia.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hôtel_de_ville_de_Stockholm','Hôtel de Ville de Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Stockholm</div><h3 class="card-name">Hôtel de Ville de Stockholm</h3><p class="card-context">Chef-d'œuvre du romantisme national suédois (1923) de Ragnar Östberg. Tour de 106 m avec les Trois Couronnes dorées. Salle Bleue — lieu du Banquet Nobel chaque 10 décembre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Engelsberg','Forge d\'Engelsberg — UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Engelsberg, Västmanland</div><h3 class="card-name">Forge d'Engelsberg — UNESCO</h3><p class="card-context">UNESCO 1993 — l'ensemble le mieux préservé d'une forge à fer suédoise du XVIIe s. Témoignage exceptionnel de la révolution industrielle nordique. Domaine comprenant manoir, usine et village ouvrier.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ales_stenar','Ales Stenar — Stonehenge du Nord')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Kåseberga, Scanie</div><h3 class="card-name">Ales Stenar — Le Stonehenge Suédois</h3><p class="card-context">Alignement de 59 mégalithes en forme de navire viking (67 m × 19 m), de l'Age du Fer. Sur une falaise dominant la mer Baltique. Orientation solsticiale. Mystères non résolus.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Nobel','Institut Nobel — Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Stockholm</div><h3 class="card-name">Musée Nobel &amp; Maison d'Alfred Nobel</h3><p class="card-context">Stockholm, capitale mondiale des Prix Nobel depuis 1901. Musée Nobel sur Gamla Stan. Villa de Björkborn — maison d'Alfred Nobel à Karlskoga, inventeur de la dynamite (1867) et fondateur du Prix.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Läckö','Château de Läckö')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Lac Vänern, Västergötland</div><h3 class="card-name">Château de Läckö</h3><p class="card-context">Château baroque blanc (XVIIe s.) perché sur un rocher au bord du lac Vänern — le plus grand lac d'Europe occidentale. Résidence des évêques puis des comtes. Opéra en plein air chaque été.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Göta_älv','Canal de Göta — Épine dorsale de la Suède')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Göteborg — Stockholm</div><h3 class="card-name">Canal de Göta — 190 Écluses</h3><p class="card-context">Le « Divorce Blue » (1832) — 190 km de canal reliant l'Atlantique à la Baltique à travers la Suède. 58 écluses creusées à la main. Croisières emblématiques sur les bateaux à vapeur blancs.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Örebro','Château d\'Örebro')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Örebro</div><h3 class="card-name">Château d'Örebro</h3><p class="card-context">Château médiéval (XIIIe s.) sur une île dans la rivière Svartån. Parlement suédois de 1810 choisit Jean-Baptiste Bernadotte — maréchal de Napoléon — comme roi de Suède. Aujourd'hui résidence du Gouverneur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maison_de_Carl_Larsson','Maison de Carl Larsson')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Sundborn, Dalécarlie</div><h3 class="card-name">Maison de Carl Larsson — Lilla Hyttnäs</h3><p class="card-context">La maison du peintre Carl Larsson (1853–1919) est l'une des maisons d'artiste les plus visitées de Suède. Elle a défini l'esthétique intérieure suédoise — bois peint, couleurs claires, nature omniprésente.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Zorn','Musée Zorn — Mora')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Mora, Dalécarlie</div><h3 class="card-name">Musée Zorn &amp; Zorngården</h3><p class="card-context">Domaine du peintre Anders Zorn (1860–1920) à Mora. Maison, atelier et musée préservés. Zorn, maître de la lumière nordique, ami de Rodin. La Dalécarlie, cœur folklorique de la Suède.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Laponia','Laponia — Grand Territoire UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Laponie suédoise</div><h3 class="card-name">Laponia — Territoire UNESCO Sami</h3><p class="card-context">UNESCO 1996 — l'un des plus grands espaces naturels préservés d'Europe (940 000 ha). Quatre parcs nationaux. Territoire des Sami depuis 10 000 ans. Migration de rennes, loups, ours et wolverines.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Gotland','Île de Gotland')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Gotland, Baltique</div><h3 class="card-name">Île de Gotland — Perle Baltique</h3><p class="card-context">Plus grande île de Suède — 3 000 km², 100 églises médiévales, falaises de calcaire (raukar), fleurs sauvages. Visby la hanséatique. Festival médiéval annuel (août) — 40 000 spectateurs en costume.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Skokloster','Château de Skokloster')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Skokloster, Uppsala</div><h3 class="card-name">Château de Skokloster</h3><p class="card-context">Le plus grand château baroque privé de Suède (1676), inachevé et préservé tel quel depuis 350 ans. Intérieurs d'époque jamais modernisés. 50 000 objets de l'époque de puissance suédoise (stormaktstiden).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ystad','Ystad — Commissaire Wallander')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Ystad, Scanie</div><h3 class="card-name">Ystad — Ville de Wallander</h3><p class="card-context">Ville médiévale de Scanie aux 300 maisons à colombages. Décor des romans policiers de Henning Mankell — le Commissaire Kurt Wallander. Ales Stenar à proximité. Ferries vers Bornholm et Pologne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Store_Mosse','Parc de Store Mosse — La Grande Tourbière')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Småland</div><h3 class="card-name">Store Mosse — La Grande Tourbière</h3><p class="card-context">Le plus grand parc de tourbière de Suède méridionale. Grues cendrées en migration, pygargues à queue blanche, rares orchidées. Paysage nordique mystérieux entre bouleaux et sphaignes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Falun','Mine de Cuivre de Falun — UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Falun, Dalécarlie</div><h3 class="card-name">Mine de Cuivre de Falun — UNESCO</h3><p class="card-context">UNESCO 2001 — mine de cuivre exploitée depuis le XIIIe s. qui fit de la Suède une puissance mondiale. Le pigment rouge « rouge de Falun » utilisé sur toutes les maisons rurales suédoises provient de ses scories.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Archipel_de_Stockholm','Archipel de Stockholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Stockholm — Baltique</div><h3 class="card-name">Archipel de Stockholm — 30 000 Îles</h3><p class="card-context">30 000 îles, îlots et rochers s'étirant sur 80 km depuis Stockholm vers la Baltique. Maisons de bois rouge sang de bœuf, voiliers blancs, bains de soleil sur granit lisse. L'été suédois dans toute sa splendeur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sigtuna','Sigtuna — Première Ville de Suède')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Sigtuna, Uppsala</div><h3 class="card-name">Sigtuna — La Plus Ancienne Ville de Suède</h3><p class="card-context">Fondée vers l'an 980 par le roi Erik le Victorieux — première ville chrétienne de Suède. Ruines d'églises romanes, runes vikings, maisons en bois XVIIIe s. Atmosphère de conte nordique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Garphyttan','Parc National de Garphyttan')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Närke</div><h3 class="card-name">Paysages Culturels de Södersköping</h3><p class="card-context">Campagne suédoise préservée — prairies fleuries, villages en bois rouge, lacs scintillants. L'essence de la Suède rurale chantée par Astrid Lindgren dans ses livres pour Fifi Brindacier.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Trollhättan','Chutes de Trollhättan')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Trollhättan, Västergötland</div><h3 class="card-name">Chutes de Trollhättan</h3><p class="card-context">Les plus puissantes chutes d'eau de Suède, domestiquées pour l'industrie depuis 1800. Canal aux écluses spectaculaires. Saab Automobile y fut fondée (1937). Festival de films «Trollywood».</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Vadstena','Maison d\'Astrid Lindgren — Vimmerby')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Vimmerby, Småland</div><h3 class="card-name">Astrid Lindgrens Värld — Vimmerby</h3><p class="card-context">Parc à thème dédié à Astrid Lindgren (1907–2002) — créatrice de Fifi Brindacier, Emil, Karlsson-sur-le-toit. Ville natale de la grande auteure suédoise pour enfants. Musée biographique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TIMELINE
+══════════════════════════════════════════════════════ -->
+<div class="section-header reveal">
+  <div class="section-tag">De l'Age Viking à la modernité</div>
+  <h2 class="section-title">Histoire de la Suède</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">793 — 1066</div>
+      <div class="timeline-event"><strong>Ère Viking.</strong> Les Vikings suédois (Varègues) explorent vers l'Est — Russie, Byzance, Bagdad. Fondation de Birka (v. 750), première ville suédoise. Ruines de Gamla Uppsala, site sacrificiel majeur. Runestones parsemant toute la Scandinavie.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">980 — 1397</div>
+      <div class="timeline-event"><strong>Christianisation &amp; Premiers Rois.</strong> Erik le Victorieux fonde Sigtuna (~980). La Suède s'unifie sous des rois chrétiens. Cathédrale d'Uppsala consacrée (1435). L'Union de Kalmar (1397) unit les trois royaumes scandinaves sous une reine danoise — Marguerite Ire.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1523</div>
+      <div class="timeline-event"><strong>Gustave Vasa — Père de la Nation.</strong> Gustave Vasa (1523–1560) libère la Suède de l'Union de Kalmar, fonde la dynastie Vasa et instaure la Réforme luthérienne. Il bâtit une administration nationale et une marine de guerre. La Suède devient un État moderne.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1611 — 1721</div>
+      <div class="timeline-event"><strong>Stormaktstiden — L'Empire du Nord.</strong> La Suède devient la plus grande puissance du Nord — Suède, Finlande, pays baltes, nord de l'Allemagne. Reine Christine abdique (1654). Charles XII — le Roi-Guerrier — bat la Russie à Narva (1700) mais perd à Poltava (1709). Fin de l'Empire.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1810</div>
+      <div class="timeline-event"><strong>Bernadotte — Un Maréchal de Napoléon devient Roi.</strong> Le parlement suédois élit Jean-Baptiste Bernadotte, maréchal de Napoléon, comme prince héritier. Il devient Charles XIV Jean (1818). La dynastie Bernadotte règne encore aujourd'hui sur la Suède.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1814 — 1905</div>
+      <div class="timeline-event"><strong>Union avec la Norvège &amp; Neutralité.</strong> La Suède obtient la Norvège au Congrès de Vienne (1814). Séparation pacifique en 1905. La Suède choisit la neutralité dès les guerres napoléoniennes — une politique maintenue jusqu'en 2023. Alfred Nobel invente la dynamite (1867) et fonde son Prix en 1895.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1900 — 1970</div>
+      <div class="timeline-event"><strong>Le Modèle Suédois.</strong> La Social-démocratie construit l'État-Providence (Folkhemmet) à partir des années 1930. Neutralité pendant les deux guerres mondiales. Essor industriel — Volvo (1927), IKEA (1943), Ericsson. Dag Hammarskjöld, Secrétaire Général de l'ONU (1953–1961).</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1972 — aujourd'hui</div>
+      <div class="timeline-event"><strong>ABBA, IKEA &amp; Greta Thunberg.</strong> ABBA remporte l'Eurovision (1974) — symbole du soft power suédois. La Suède pionnière de l'écologie mondiale (Conférence de Stockholm, 1972). Greta Thunberg lance le mouvement climatique (2018). Adhésion à l'OTAN en mars 2024.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇸🇪</div>
+  <p class="footer-text">Guide du Voyageur · Suède · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════
+     LEAFLET MAP
+══════════════════════════════════════════════════════ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── MAP INIT — règles Leaflet fixes (template Italie) ──
+var map = L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([62.5,17.0],5);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+// ══════════════════════════════════════════════════════
+// ICÔNES SVG — 17 catégories suédoises
+// ══════════════════════════════════════════════════════
+
+// PALAIS ROYAL — couronne suédoise
+var iconPalais = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,106,167,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#004a78"/><rect x="6" y="19" width="24" height="12" fill="#006AA7" stroke="#004a78" stroke-width="0.6"/><rect x="6" y="19" width="24" height="4" fill="#3a90c8" opacity="0.5"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#2a7ab8" stroke="#004a78" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#2a7ab8" stroke="#004a78" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#2a7ab8" stroke="#004a78" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#2a7ab8" stroke="#004a78" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#2a7ab8" stroke="#004a78" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#FECC02" stroke="#c8a000" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#006AA7" stroke="#004a78" stroke-width="0.6"/><path d="M12 9 Q12 6 14 5 Q15 7 15 9" fill="#FECC02"/><path d="M17 8 Q17 5 18 3.5 Q20 5 20 8" fill="#FECC02"/><path d="M22 9 Q22 6 24 5 Q25 7 25 9" fill="#FECC02"/><rect x="10" y="26" width="5" height="5" rx="0.6" fill="#003560"/></svg>');
+
+// CHÂTEAU MÉDIÉVAL — forteresse scandinave
+var iconChateau = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(0,106,167,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#004a78"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#006AA7" stroke="#004a78" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#0080c0" stroke="#004a78" stroke-width="0.5"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#0080c0" stroke="#004a78" stroke-width="0.5"/><rect x="6" y="8" width="2" height="4" fill="#0080c0"/><rect x="9" y="8" width="2" height="4" fill="#0080c0"/><rect x="24" y="8" width="2" height="4" fill="#0080c0"/><rect x="27" y="8" width="2" height="4" fill="#0080c0"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#003560"/><rect x="7" y="14" width="3" height="4" rx="0.3" fill="#003560"/><rect x="26" y="14" width="3" height="4" rx="0.3" fill="#003560"/></svg>');
+
+// CATHÉDRALE — gothique scandinave
+var iconCathedrale = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/><line x1="18" y1="1" x2="18" y2="4" stroke="#FECC02" stroke-width="1.2"/><line x1="16" y1="2.5" x2="20" y2="2.5" stroke="#FECC02" stroke-width="1.2"/></svg>');
+
+// BATEAU VIKING — drakkar
+var iconViking = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,20,.85))"><!-- Coque --><path d="M2 24 Q6 30 18 32 Q30 30 34 24 Q26 26 18 27 Q10 26 2 24 Z" fill="#8a4a10" stroke="#5a2808" stroke-width="0.7"/><!-- Proue et poupe courbées --><path d="M2 24 Q0 18 4 16 Q6 20 8 24" fill="#a06018" stroke="#5a2808" stroke-width="0.6"/><path d="M34 24 Q36 18 32 16 Q30 20 28 24" fill="#a06018" stroke="#5a2808" stroke-width="0.6"/><!-- Tête de dragon proue --><path d="M2 18 Q0 14 2 12 Q4 14 6 16" fill="#c8960a" stroke="#7a5008" stroke-width="0.5"/><!-- Mât --><line x1="18" y1="8" x2="18" y2="26" stroke="#5a2808" stroke-width="1.4" stroke-linecap="round"/><!-- Voile rayée --><path d="M10 8 Q18 6 26 8 L24 20 Q18 22 12 20 Z" fill="#c8102e" stroke="#8a0010" stroke-width="0.5"/><line x1="12" y1="8" x2="12" y2="20" stroke="#8a0010" stroke-width="0.6" opacity="0.7"/><line x1="18" y1="7" x2="18" y2="21" stroke="#8a0010" stroke-width="0.6" opacity="0.7"/><line x1="24" y1="8" x2="24" y2="20" stroke="#8a0010" stroke-width="0.6" opacity="0.7"/><!-- Rames --><line x1="8" y1="22" x2="4" y2="28" stroke="#8a4a10" stroke-width="0.9"/><line x1="12" y1="23" x2="10" y2="30" stroke="#8a4a10" stroke-width="0.9"/><line x1="24" y1="23" x2="26" y2="30" stroke="#8a4a10" stroke-width="0.9"/><line x1="28" y1="22" x2="32" y2="28" stroke="#8a4a10" stroke-width="0.9"/><!-- Boucliers sur la coque --><circle cx="8" cy="24" r="2" fill="#c8960a" stroke="#7a5008" stroke-width="0.5"/><circle cx="28" cy="24" r="2" fill="#c8960a" stroke="#7a5008" stroke-width="0.5"/></svg>');
+
+// MUSÉE / CULTURE — temple nordique
+var iconMusee = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,120,60,.8))"><rect x="4" y="30" width="28" height="3" fill="#1a6a38"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="4" y="10" width="28" height="3" fill="#1a6a38"/><path d="M18 3 L4 10 L32 10 Z" fill="#145030"/><circle cx="9" cy="23" r="2" fill="#FECC02" opacity="0.7"/><circle cx="18" cy="21" r="2" fill="#006AA7" opacity="0.7"/><circle cx="27" cy="23" r="2" fill="#c8102e" opacity="0.7"/></svg>');
+
+// UNESCO — étoile or
+var iconUnesco = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#FECC02" opacity="0.5"/></svg>');
+
+// ÎLE & ARCHIPEL — phare suédois
+var iconIle = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,150,.85))"><path d="M2 30 Q6 26 10 28 Q14 30 18 28 Q22 26 26 28 Q30 30 34 28 L34 34 L2 34 Z" fill="#1464a8" opacity="0.8"/><path d="M10 30 Q14 24 18 22 Q22 24 26 30 Z" fill="#5a5040"/><rect x="16" y="10" width="4" height="14" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="8" width="8" height="4" rx="0.5" fill="#c8102e"/><path d="M14 8 L18 4 L22 8 Z" fill="#8a0010"/><line x1="18" y1="6" x2="10" y2="2" stroke="#FECC02" stroke-width="0.8" opacity="0.7"/><line x1="18" y1="6" x2="26" y2="2" stroke="#FECC02" stroke-width="0.8" opacity="0.7"/><rect x="13" y="11" width="10" height="1" rx="0" fill="#c8a860"/></svg>');
+
+// AURORA / LAPONIE — aurores boréales
+var iconAurora = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 8px rgba(45,224,150,.9))"><path d="M18 32 Q10 28 8 20 Q10 14 14 10 Q12 16 14 22 Q16 28 18 32 Z" fill="#2de090" opacity="0.75"/><path d="M18 32 Q26 28 28 20 Q26 14 22 10 Q24 16 22 22 Q20 28 18 32 Z" fill="#00c8f0" opacity="0.75"/><path d="M8 26 Q12 20 18 18 Q24 20 28 26" fill="none" stroke="#2de090" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/><path d="M6 20 Q12 14 18 12 Q24 14 30 20" fill="none" stroke="#9060f0" stroke-width="1" stroke-linecap="round" opacity="0.6"/><circle cx="18" cy="6" r="2" fill="#f0f5ff" opacity="0.9"/><circle cx="10" cy="10" r="1.2" fill="#FECC02" opacity="0.7"/><circle cx="26" cy="10" r="1.2" fill="#FECC02" opacity="0.7"/></svg>');
+
+// ÉLAN — faune suédoise emblématique
+var iconElan = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,60,20,.85))"><!-- Corps massif de l\'élan --><ellipse cx="20" cy="22" rx="11" ry="7" fill="#5a3a10" stroke="#3a1a08" stroke-width="0.7"/><!-- Cou --><path d="M11 20 Q9 14 11 10 Q13 8 15 10 Q15 14 13 18 Z" fill="#5a3a10" stroke="#3a1a08" stroke-width="0.6"/><!-- Tête allongée caractéristique de l\'élan --><path d="M9 10 Q7 7 9 5 Q11 4 13 6 Q14 8 13 10 Z" fill="#6a4a18"/><!-- Museau proéminent --><path d="M7 7 Q5 8 5 10 Q7 11 9 10" fill="#5a3a10" stroke="#3a1a08" stroke-width="0.5"/><!-- Oeil --><circle cx="11" cy="7" r="1.4" fill="#1a0800"/><circle cx="11.5" cy="6.5" r="0.5" fill="white" opacity="0.7"/><!-- Bois aplatis caractéristiques de l\'élan --><!-- Bois gauche en palette --><path d="M12 8 Q8 4 4 6 Q6 8 10 8 Q6 6 8 4 Q12 6 12 8 Z" fill="#3a1a08" stroke="#2a1008" stroke-width="0.6"/><line x1="6" y1="6" x2="4" y2="8" stroke="#3a1a08" stroke-width="0.8" stroke-linecap="round"/><line x1="8" y1="5" x2="6" y2="3" stroke="#3a1a08" stroke-width="0.8" stroke-linecap="round"/><!-- Bois droit en palette --><path d="M13 7 Q18 3 22 5 Q20 8 16 8 Q20 6 18 4 Q14 6 13 7 Z" fill="#3a1a08" stroke="#2a1008" stroke-width="0.6"/><line x1="20" y1="5" x2="22" y2="7" stroke="#3a1a08" stroke-width="0.8" stroke-linecap="round"/><line x1="18" y1="4" x2="20" y2="2" stroke="#3a1a08" stroke-width="0.8" stroke-linecap="round"/><!-- Bosse caractéristique de l\'élan --><path d="M14 14 Q18 10 22 12" fill="none" stroke="#3a1a08" stroke-width="1.2" stroke-linecap="round"/><!-- Barbiche --><path d="M8 10 Q7 13 8 14" fill="none" stroke="#3a1a08" stroke-width="0.8" stroke-linecap="round"/><!-- Pattes --><line x1="14" y1="29" x2="12" y2="35" stroke="#3a1a08" stroke-width="1.4" stroke-linecap="round"/><line x1="18" y1="29" x2="17" y2="35" stroke="#3a1a08" stroke-width="1.4" stroke-linecap="round"/><line x1="22" y1="29" x2="21" y2="35" stroke="#3a1a08" stroke-width="1.4" stroke-linecap="round"/><line x1="26" y1="28" x2="26" y2="34" stroke="#3a1a08" stroke-width="1.4" stroke-linecap="round"/></svg>');
+
+// DESIGN / IKEA — chaise Wegner style
+var iconDesign = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,106,167,.8))"><!-- Vase organique style design suédois --><path d="M13 32 Q9 28 9 22 Q9 14 13 10 Q15 8 18 8 Q22 10 26 16 Q28 22 26 28 Q24 34 18 34 Q15 34 13 32 Z" fill="#006AA7" stroke="#004a78" stroke-width="0.7"/><!-- Forme intérieure --><path d="M15 30 Q11 26 11 22 Q11 16 15 12 Q17 10 18 10 Q21 12 24 18 Q25 23 23 28 Q21 32 18 32 Q16 32 15 30 Z" fill="#3a90c8" opacity="0.55"/><!-- Motif Marimekko suédois --><path d="M11 20 Q15 16 18 20 Q22 24 26 20" fill="none" stroke="#FECC02" stroke-width="1.2" opacity="0.9"/><!-- Étoile --><circle cx="20" cy="26" r="2.2" fill="#FECC02" opacity="0.85"/><!-- Reflet --><path d="M13 14 Q15 10 17 10" fill="none" stroke="#90c8f0" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/></svg>');
+
+// GASTRONOMIE — saumon gravlax & cannelle
+var iconFood = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,80,20,.85))"><!-- Saumon --><path d="M4 18 Q12 12 22 14 Q28 16 32 18 Q28 20 22 22 Q12 24 4 18 Z" fill="#e07840" stroke="#b05010" stroke-width="0.7"/><!-- Queue --><path d="M4 18 Q2 14 0 12 Q2 16 4 18 Q2 20 0 24 Q2 22 4 18 Z" fill="#c06020"/><!-- Rayures --><path d="M14 14 Q16 18 14 22" fill="none" stroke="#b05010" stroke-width="0.7"/><path d="M20 13 Q22 18 20 23" fill="none" stroke="#b05010" stroke-width="0.7"/><!-- Oeil --><circle cx="28" cy="17" r="2" fill="#1a0800" stroke="#b05010" stroke-width="0.5"/><circle cx="28.8" cy="16.2" r="0.7" fill="white" opacity="0.8"/><!-- Aneth -- herbe scandinave --><path d="M8 24 Q6 28 4 26 Q6 24 8 22" fill="none" stroke="#2a7a20" stroke-width="1.2" stroke-linecap="round"/><!-- Petit pain à la cannelle (kanelbulle) --><path d="M22 28 Q22 24 26 24 Q30 24 30 28 Q30 32 26 32 Q22 32 22 28 Z" fill="#c8960a" stroke="#7a5008" stroke-width="0.6"/><path d="M23 28 Q25 26 27 28 Q29 30 27 30 Q25 28 23 28 Z" fill="#7a3808" opacity="0.7"/></svg>');
+
+// FORÊT & NATURE — pin nordique
+var iconNature = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,80,30,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5028" stroke="#0e3020" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a5a28"/><circle cx="27" cy="14" r="4" fill="#1a4a20"/></svg>');
+
+// SKI / SPORT HIVER — ski alpin suédois
+var iconSki = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,106,167,.85))"><path d="M2 30 Q6 22 12 18 L18 8 L24 18 Q30 22 34 30 Z" fill="#b8d4f0" stroke="#7a9ab0" stroke-width="0.6"/><path d="M14 14 L18 8 L22 14 Q20 12 18 11 Q16 12 14 14 Z" fill="#f5ead8"/><circle cx="16" cy="16" r="2.5" fill="#006AA7"/><!-- Corps skieur --><line x1="16" y1="18" x2="14" y2="24" stroke="#006AA7" stroke-width="1.5" stroke-linecap="round"/><!-- Bâton --><line x1="16" y1="20" x2="12" y2="22" stroke="#006AA7" stroke-width="1.2" stroke-linecap="round"/><line x1="12" y1="22" x2="10" y2="26" stroke="#8a6010" stroke-width="0.8" stroke-linecap="round"/><!-- Ski --><line x1="10" y1="24" x2="20" y2="26" stroke="#FECC02" stroke-width="1.8" stroke-linecap="round"/></svg>');
+
+// SAMI — tente lavvu suédoise
+var iconSami = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(140,30,20,.85))"><path d="M18 4 L4 32 L32 32 Z" fill="#b83020" stroke="#7a1008" stroke-width="0.7"/><path d="M18 6 L6 30 L30 30 Z" fill="#c84030" opacity="0.55"/><line x1="18" y1="4" x2="18" y2="32" stroke="#FECC02" stroke-width="0.9" opacity="0.7"/><line x1="12" y1="20" x2="24" y2="20" stroke="#FECC02" stroke-width="0.8" opacity="0.6"/><!-- Soleil sami à 8 branches --><circle cx="18" cy="14" r="3" fill="#FECC02" opacity="0.92"/><line x1="18" y1="10" x2="18" y2="8" stroke="#FECC02" stroke-width="0.9"/><line x1="21" y1="11" x2="23" y2="9" stroke="#FECC02" stroke-width="0.9"/><line x1="22" y1="14" x2="24" y2="14" stroke="#FECC02" stroke-width="0.9"/><line x1="15" y1="11" x2="13" y2="9" stroke="#FECC02" stroke-width="0.9"/><!-- Entrée --><path d="M15 32 L18 24 L21 32" fill="#7a1008"/><!-- Sol neige --><path d="M4 32 Q18 30 32 32" fill="none" stroke="#b8d4f0" stroke-width="1.5" stroke-linecap="round"/></svg>');
+
+// GOLF — vert nordique
+var iconGolf = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#006AA7" stroke="#004a78" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/><circle cx="19.5" cy="27.2" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="21.2" cy="27.5" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/></svg>');
+
+// SAUNA — cabane bois suédoise
+var iconSauna = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,60,20,.85))"><rect x="6" y="20" width="24" height="12" rx="0.5" fill="#8a2020" stroke="#5a1008" stroke-width="0.7"/><path d="M4 20 L18 8 L32 20 Z" fill="#5a1008" stroke="#3a0808" stroke-width="0.5"/><line x1="6" y1="24" x2="30" y2="24" stroke="#5a1008" stroke-width="0.7"/><line x1="6" y1="28" x2="30" y2="28" stroke="#5a1008" stroke-width="0.7"/><rect x="14" y="24" width="8" height="8" rx="0.5" fill="#3a0808"/><rect x="8" y="21" width="4" height="4" rx="0.3" fill="#b8d4f0" opacity="0.6"/><rect x="22" y="10" width="4" height="10" rx="0.3" fill="#3a0808"/><path d="M22 10 Q20 6 22 3" fill="none" stroke="#d0c0a8" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 9 Q26 5 24 2" fill="none" stroke="#d0c0a8" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/><circle cx="21" cy="28" r="0.8" fill="#FECC02"/></svg>');
+
+// MONUMENT / MÉMORIAL — colonne
+var iconMonument = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(160,120,20,.8))"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#6a4a08"/><rect x="8" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="16" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="24" y="8" width="4" height="21" rx="0.6" fill="#c9a84c" stroke="#7a5008" stroke-width="0.4"/><rect x="6" y="6" width="24" height="3" rx="0.5" fill="#a07010"/><path d="M18 1 L6 6 L30 6 Z" fill="#7a4a08"/></svg>');
+
+// ══════════════════════════════════════════════════════
+// DATA — 17 catégories suédoises
+// ══════════════════════════════════════════════════════
+var DATA = {
+  palais:{icon:iconPalais,color:'#006AA7',label:'👑 Palais Royaux',pts:[
+    {lat:59.3268,lng:18.0713,n:"Palais Royal de Stockholm",c:"Stockholm",d:"608 salles. Résidence officielle du roi Carl XVI Gustaf. Relève de la garde quotidienne. Le plus grand palais royal encore en usage en Europe.",u:"https://fr.m.wikipedia.org/wiki/Palais_royal_de_Stockholm?useskin=vector"},
+    {lat:59.3219,lng:17.8860,n:"Château de Drottningholm",c:"Lovön, Stockholm",d:"Résidence privée royale. UNESCO 1991. Jardin baroque, théâtre XVIIIe s. parfaitement conservé. Le Versailles du Nord.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Drottningholm?useskin=vector"},
+    {lat:59.3870,lng:18.0143,n:"Palais de Haga",c:"Stockholm",d:"Résidence du Prince héritier Victoria et de la famille royale. Jardins anglais romantiques. Pavillon de Cuivre de Gustave III.",u:"https://fr.m.wikipedia.org/wiki/Haga_(Stockholm)?useskin=vector"},
+    {lat:59.2697,lng:17.9780,n:"Château de Gripsholm",c:"Mariefred, Mälaren",d:"Renaissance, XVI e s. de Gustave Vasa. 4 000 portraits royaux. Tours de brique rouge sur le lac Mälaren.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Gripsholm?useskin=vector"},
+    {lat:58.4410,lng:15.5270,n:"Château de Vadstena",c:"Vadstena, Östergötland",d:"Château Renaissance de Gustave Vasa (1545). Abbaye Sainte-Brigitte adjacente. Ville médiévale au bord du lac Vättern.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Vadstena?useskin=vector"},
+    {lat:58.7000,lng:13.0200,n:"Château de Läckö",c:"Lac Vänern, Västergötland",d:"Château baroque blanc (XVIIe s.) sur un rocher. Lac Vänern — plus grand lac d'Europe occ. Opéra en plein air en été.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Läckö?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#0080c0',label:'🏰 Châteaux Médiévaux',pts:[
+    {lat:56.6617,lng:16.3557,n:"Château de Kalmar",c:"Kalmar, Småland",d:"Un des châteaux Renaissance les mieux préservés de Scandinavie (XIIe s.). Lieu de l'Union de Kalmar (1397).",u:"https://fr.m.wikipedia.org/wiki/Château_de_Kalmar?useskin=vector"},
+    {lat:59.2833,lng:15.2167,n:"Château d'Örebro",c:"Örebro",d:"Château médiéval (XIIIe s.) sur une île. En 1810 Bernadotte — maréchal de Napoléon — y fut choisi comme roi de Suède.",u:"https://fr.m.wikipedia.org/wiki/Château_d%27Örebro?useskin=vector"},
+    {lat:59.7268,lng:17.8327,n:"Château de Skokloster",c:"Skokloster, Uppsala",d:"Plus grand château baroque privé de Suède (1676), inachevé et intact depuis 350 ans. 50 000 objets d'époque.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Skokloster?useskin=vector"},
+    {lat:57.6661,lng:11.8638,n:"Château de Bohus",c:"Kungälv, Bohuslän",d:"Forteresse médiévale en ruines (1308) au confluent de la Göta et de la Nordre älv. Âprement disputée entre Suède, Norvège et Danemark.",u:"https://fr.m.wikipedia.org/wiki/Bohus?useskin=vector"},
+    {lat:58.2950,lng:15.1280,n:"Château de Stegeborg",c:"Stegeborg, Östergötland",d:"Ruines romantiques d'un château médiéval (XIVe s.) sur une île du lac Slätbaken. Vue exceptionnelle depuis les tours.",u:"https://fr.m.wikipedia.org/wiki/Stegeborg?useskin=vector"}
+  ]},
+  cathedrale:{icon:iconCathedrale,color:'#6040a0',label:'⛪ Cathédrales & Abbayes',pts:[
+    {lat:59.8586,lng:17.6389,n:"Cathédrale d'Uppsala",c:"Uppsala",d:"Plus grande cathédrale scandinave (118 m). Gothique, 1435. Tombe de Gustave Vasa et de Carl von Linné. Primat de Suède.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_d%27Uppsala?useskin=vector"},
+    {lat:59.3323,lng:18.0697,n:"Storkyrkan — Stockholm",c:"Gamla Stan, Stockholm",d:"La cathédrale de Stockholm (XIIIe s.). Statue de Saint-Georges terrassant le dragon (1489). Couronnements royaux et funérailles d'État.",u:"https://fr.m.wikipedia.org/wiki/Storkyrkan?useskin=vector"},
+    {lat:55.6050,lng:13.0038,n:"Cathédrale de Lund",c:"Lund, Scanie",d:"Cathédrale romane (1145) — la plus ancienne de Scandinavie. Horloge astronomique médiévale (XIVe s.). Crypte de granit remarquable.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Lund?useskin=vector"},
+    {lat:57.7072,lng:11.9673,n:"Cathédrale de Göteborg",c:"Göteborg",d:"Cathédrale néo-classique (1815). Siège de l'évêque de Göteborg. Place de la cathédrale — cœur de la deuxième ville suédoise.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Göteborg?useskin=vector"},
+    {lat:58.4111,lng:15.6214,n:"Cathédrale de Linköping",c:"Linköping, Östergötland",d:"Cathédrale gothique (XIIe–XIVe s.). Flèche de 107 m. Tombe de Sainte Brigitte de Suède. Fresques médiévales préservées.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Linköping?useskin=vector"}
+  ]},
+  viking:{icon:iconViking,color:'#8a4a10',label:'⚔️ Sites Vikings & Runes',pts:[
+    {lat:59.3358,lng:17.5528,n:"Birka — Première Ville Viking",c:"Île Björkö, Mälaren",d:"Cité viking du VIIIe–Xe s. UNESCO 1993. Fouilles spectaculaires. Tombe Bj 581 — commandante militaire viking.",u:"https://fr.m.wikipedia.org/wiki/Birka?useskin=vector"},
+    {lat:59.9046,lng:17.5950,n:"Gamla Uppsala — Site Sacré",c:"Uppsala",d:"Trois grands tumulus royaux vikings (Ve–VIe s.). Haut lieu des sacrifices à Odin, Thor et Freyr. Centre du paganisme nordique.",u:"https://fr.m.wikipedia.org/wiki/Gamla_Uppsala?useskin=vector"},
+    {lat:58.7783,lng:14.5547,n:"Pierres Runiques de Karleby",c:"Västergötland",d:"Concentrations de pierres runiques vikings. Témoignages des expéditions vers Byzance et l'Orient.",u:"https://fr.m.wikipedia.org/wiki/Pierre_runique?useskin=vector"},
+    {lat:58.3594,lng:11.2167,n:"Ales Stenar — Stonehenge Suédois",c:"Kåseberga, Scanie",d:"59 mégalithes en forme de navire viking (67 m × 19 m). Âge du Fer. Falaise sur la mer Baltique. Orientation solsticiale mystérieuse.",u:"https://fr.m.wikipedia.org/wiki/Ales_stenar?useskin=vector"},
+    {lat:56.7167,lng:16.5500,n:"Île de Öland — Moulins à Vent",c:"Öland",d:"UNESCO 2000 — paysage culturel unique. 400 moulins à vent, vestiges de l'âge du fer (Eketorp). Île la plus ensoleillée de Suède.",u:"https://fr.m.wikipedia.org/wiki/Öland?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#1a6a38',label:'🏛️ Musées & Culture',pts:[
+    {lat:59.3279,lng:18.0931,n:"Musée Vasa",c:"Djurgården, Stockholm",d:"Navire de guerre (1628) coulé à son voyage inaugural, renfloué 1961. 98% intact. Musée le plus visité de Scandinavie.",u:"https://fr.m.wikipedia.org/wiki/Vasa_(navire)?useskin=vector"},
+    {lat:59.3274,lng:18.1003,n:"Musée Nordique — Nordiska Museet",c:"Djurgården, Stockholm",d:"Plus grand musée d'histoire culturelle de Suède (1907). Vie quotidienne depuis 1520. Costumes, arts populaires.",u:"https://fr.m.wikipedia.org/wiki/Musée_nordique?useskin=vector"},
+    {lat:59.3266,lng:18.1020,n:"Skansen — 1er Musée en Plein Air",c:"Djurgården, Stockholm",d:"Premier musée en plein air du monde (1891). 150 bâtiments historiques. Zoo nordique — élans, bisons, lynx, ours.",u:"https://fr.m.wikipedia.org/wiki/Skansen?useskin=vector"},
+    {lat:59.3248,lng:18.0827,n:"Musée ABBA",c:"Stockholm",d:"ABBA — le groupe suédois le plus vendu de l'histoire. Costumes, enregistrements, hologrammes. Chantez avec ABBA !",u:"https://fr.m.wikipedia.org/wiki/Abba_Museum?useskin=vector"},
+    {lat:59.3327,lng:18.0547,n:"Musée Nobel",c:"Gamla Stan, Stockholm",d:"Prix Nobel depuis 1901. Banquet Nobel à l'Hôtel de Ville chaque 10 décembre. Alfred Nobel et la dynamite (1867).",u:"https://fr.m.wikipedia.org/wiki/Musée_Nobel?useskin=vector"},
+    {lat:57.6904,lng:11.9699,n:"Musée Världskultur",c:"Göteborg",d:"Musée des Cultures du Monde. Collections d'Afrique, Asie, Amériques. Architecture contemporaine de Cécile Brisac.",u:"https://fr.m.wikipedia.org/wiki/Musée_des_cultures_du_monde?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:57.6369,lng:18.2950,n:"Visby — Cité Hanséatique",c:"Gotland",d:"UNESCO 1995. 3,6 km de remparts médiévaux. 200 édifices, 11 ruines d'églises romanes. La ville de roses et ruines.",u:"https://fr.m.wikipedia.org/wiki/Visby?useskin=vector"},
+    {lat:59.3219,lng:17.8860,n:"Drottningholm — Versailles du Nord",c:"Stockholm",d:"UNESCO 1991. Château royal, jardins baroques, théâtre XVIIIe s. intact, pavillon chinois.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Drottningholm?useskin=vector"},
+    {lat:59.3358,lng:17.5528,n:"Birka & Hovgården",c:"Île Björkö",d:"UNESCO 1993. Cité viking et domaine royal. Fouilles archéologiques majeures.",u:"https://fr.m.wikipedia.org/wiki/Birka?useskin=vector"},
+    {lat:59.8891,lng:16.3060,n:"Forge d'Engelsberg",c:"Västmanland",d:"UNESCO 1993. Forge à fer du XVIIe s. la mieux préservée. Manoir, usine, village ouvrier intact.",u:"https://fr.m.wikipedia.org/wiki/Engelsberg?useskin=vector"},
+    {lat:61.0333,lng:15.6333,n:"Mine de Cuivre de Falun",c:"Falun, Dalécarlie",d:"UNESCO 2001. Mine depuis XIIIe s. Le rouge de Falun sur toutes les maisons suédoises. Grande histoire industrielle.",u:"https://fr.m.wikipedia.org/wiki/Mine_de_cuivre_de_Falun?useskin=vector"},
+    {lat:58.5000,lng:11.0000,n:"Paysage de Tanum — Pétroglyphes",c:"Tanum, Bohuslän",d:"UNESCO 1994. La plus grande concentration de pétroglyphes de l'Âge du Bronze en Scandinavie — 2 500 gravures.",u:"https://fr.m.wikipedia.org/wiki/Pétroglyphes_de_Tanum?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#0e4a80',label:'🏝️ Archipels & Îles',pts:[
+    {lat:59.4200,lng:18.9000,n:"Archipel de Stockholm",c:"Stockholm — Baltique",d:"30 000 îles et rochers. Maisons rouge sang de bœuf, granit lisse, voiliers. L'été suédois absolu.",u:"https://fr.m.wikipedia.org/wiki/Archipel_de_Stockholm?useskin=vector"},
+    {lat:57.5000,lng:18.5000,n:"Île de Gotland",c:"Mer Baltique",d:"Plus grande île de Suède. 100 églises médiévales, falaises de raukar. Visby hanséatique. Festival médiéval annuel.",u:"https://fr.m.wikipedia.org/wiki/Gotland?useskin=vector"},
+    {lat:56.7167,lng:16.5500,n:"Île de Öland",c:"Mer Baltique, Kalmar",d:"UNESCO 2000. 400 moulins à vent, florès unique, vestiges Âge du Fer. Île la plus ensoleillée de Suède.",u:"https://fr.m.wikipedia.org/wiki/Öland?useskin=vector"},
+    {lat:58.2833,lng:11.4333,n:"Archipel de Bohuslän",c:"Côte ouest, Göteborg",d:"Îlots de granit rose, homards, moules, villages de pêcheurs. Kayak de mer. Côte ouest emblématique.",u:"https://fr.m.wikipedia.org/wiki/Bohuslän?useskin=vector"}
+  ]},
+  aurora:{icon:iconAurora,color:'#2de090',label:'🌌 Aurores Boréales & Laponie',pts:[
+    {lat:67.8533,lng:20.2255,n:"ICEHOTEL — Jukkasjärvi",c:"Laponie suédoise",d:"Premier hôtel de glace du monde (1990). Reconstructi chaque hiver. Aurores boréales, rennes, traîneaux à chiens.",u:"https://fr.m.wikipedia.org/wiki/Hôtel_de_glace_de_Jukkasjärvi?useskin=vector"},
+    {lat:68.3500,lng:18.8333,n:"Abisko — Parc National",c:"Laponie, Norrbotten",d:"Ciel parmi les plus clairs de Scandinavie pour les aurores boréales. Station arctique. Sentier Kungsleden.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_d%27Abisko?useskin=vector"},
+    {lat:67.1500,lng:20.6500,n:"Gällivare — Aurores & Mines",c:"Norrbotten, Laponie",d:"Zone d'aurores intense en hiver. Mine de fer de Malmberget. Soleil de minuit en été. Traîneaux à chiens.",u:"https://fr.m.wikipedia.org/wiki/Gällivare?useskin=vector"},
+    {lat:65.5833,lng:22.1500,n:"Luleå — Archipel Arctique",c:"Norrbotten",d:"UNESCO — Ville épiscopale de Gammelstad. Baie de Botnie gelée en hiver. Motoneiges, pêche sous la glace.",u:"https://fr.m.wikipedia.org/wiki/Luleå?useskin=vector"}
+  ]},
+  elan:{icon:iconElan,color:'#5a3a10',label:'🫎 Élan & Faune Nordique',pts:[
+    {lat:57.7872,lng:14.1856,n:"Safari Élan de Småland",c:"Småland",d:"La Suède compte 400 000 élans. Safaris en forêt de Småland — observer l'élan, symbole national suédois.",u:"https://fr.m.wikipedia.org/wiki/Élan?useskin=vector"},
+    {lat:68.3670,lng:18.8300,n:"Parque National d'Abisko — Loups",c:"Laponie",d:"Loups arctiques, gloutons, lemmings, renards arctiques. L'un des derniers espaces sauvages d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_d%27Abisko?useskin=vector"},
+    {lat:67.1500,lng:18.0000,n:"Parc National de Sarek — Wilderness",c:"Laponie",d:"940 000 ha, 200 sommets, 100 glaciers. Aucune route. Ours, loups, pygargues. UNESCO Laponia.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Sarek?useskin=vector"},
+    {lat:59.0000,lng:17.5000,n:"Réserve de Södermanland",c:"Södermanland",d:"Lynx, castors, hérons cendrés, aigles de mer. Forêts de chênes et lacs glaciaires de Suède centrale.",u:"https://fr.m.wikipedia.org/wiki/Södermanland?useskin=vector"}
+  ]},
+  design:{icon:iconDesign,color:'#006AA7',label:'🎨 Design & Modernité Suédoise',pts:[
+    {lat:59.3148,lng:18.0717,n:"Quartier des Musées de Djurgården",c:"Stockholm",d:"L'île aux musées de Stockholm. Vasa, Skansen, Nordiska Museet, ABBA Museum, Junibacken. Culture suédoise en un lieu.",u:"https://fr.m.wikipedia.org/wiki/Djurgården?useskin=vector"},
+    {lat:60.4858,lng:15.4358,n:"Maison de Carl Larsson",c:"Sundborn, Dalécarlie",d:"Maison du peintre Carl Larsson (1853–1919). Elle a défini l'esthétique intérieure suédoise — bois, couleurs claires, nature.",u:"https://fr.m.wikipedia.org/wiki/Maison_de_Carl_Larsson?useskin=vector"},
+    {lat:59.3346,lng:18.0635,n:"Hôtel de Ville de Stockholm",c:"Stockholm",d:"Romantisme national suédois (1923) de Ragnar Östberg. Banquet Nobel dans la Salle Bleue chaque 10 décembre.",u:"https://fr.m.wikipedia.org/wiki/Hôtel_de_ville_de_Stockholm?useskin=vector"},
+    {lat:60.4858,lng:15.4358,n:"Musée Zorn — Mora",c:"Mora, Dalécarlie",d:"Domaine du peintre Anders Zorn (1860–1920). La Dalécarlie, berceau du folklore suédois — chevaux de Dalarna.",u:"https://fr.m.wikipedia.org/wiki/Musée_Zorn?useskin=vector"},
+    {lat:57.7089,lng:11.9746,n:"Göteborg — Design et Architecture",c:"Göteborg",d:"Deuxième ville de Suède. Opéra sur le port, boulevards Haussmanniens, cuisine nordique primée.",u:"https://fr.m.wikipedia.org/wiki/Göteborg?useskin=vector"}
+  ]},
+  gastronomie:{icon:iconFood,color:'#e07840',label:'🍣 Gastronomie Suédoise',pts:[
+    {lat:59.3326,lng:18.0649,n:"Östermalm Saluhall",c:"Stockholm",d:"La grande halle du marché d'Östermalm (1888). Saumon, gravlax, fromages suédois, lingon. Architecture de brique rouge.",u:"https://fr.m.wikipedia.org/wiki/Östermalms_saluhall?useskin=vector"},
+    {lat:57.7089,lng:11.9746,n:"Feskekörka — Marché aux Poissons",c:"Göteborg",d:"Le marché aux poissons de Göteborg (1874) en forme d'église gothique. Crevettes, homards, hareng surströmming.",u:"https://fr.m.wikipedia.org/wiki/Feskekörka?useskin=vector"},
+    {lat:55.6059,lng:13.0017,n:"Gastronomie de Scanie",c:"Malmö, Scanie",d:"La région gastronomique n°1 de Suède. Légumes de Scanie, canard, anguille. Restaurants étoilés Michelin. Pont de l'Öresund.",u:"https://fr.m.wikipedia.org/wiki/Scanie?useskin=vector"},
+    {lat:56.6744,lng:16.3594,n:"Surströmming — Harengs Fermentés",c:"Norrland",d:"Le surströmming — hareng fermenté suédois, l'un des aliments les plus odorants au monde. Tradition du nord de la Suède.",u:"https://fr.m.wikipedia.org/wiki/Surströmming?useskin=vector"}
+  ]},
+  ski:{icon:iconSki,color:'#4090d8',label:"⛷️ Sports d'Hiver",pts:[
+    {lat:63.3975,lng:13.0820,n:"Åre — Capital Suédois du Ski",c:"Jämtland",d:"La plus grande station de ski de Suède. Championnats du Monde 1954, 2007 et 2019. 90 pistes, 42 remontées.",u:"https://fr.m.wikipedia.org/wiki/Åre?useskin=vector"},
+    {lat:61.2333,lng:13.5167,n:"Sälen — Ski et Vasaloppet",c:"Dalarna",d:"Station familiale et départ du Vasaloppet — la plus longue course de ski de fond du monde (90 km). 15 000 participants.",u:"https://fr.m.wikipedia.org/wiki/Sälen?useskin=vector"},
+    {lat:67.8533,lng:20.2255,n:"Riksgränsen — Ski sous le Soleil de Minuit",c:"Laponie, Norrbotten",d:"Ski sous le soleil de minuit en mai. La station la plus nordique de Suède, à la frontière norvégienne.",u:"https://fr.m.wikipedia.org/wiki/Riksgränsen?useskin=vector"},
+    {lat:65.0833,lng:17.1167,n:"Hemavan — Kungsleden",c:"Lappland",d:"Départ du sentier Kungsleden (450 km) — la route royale de randonnée arctique. Ski de randonnée nordique.",u:"https://fr.m.wikipedia.org/wiki/Kungsleden?useskin=vector"}
+  ]},
+  sami:{icon:iconSami,color:'#b83020',label:'🏕️ Culture Sami',pts:[
+    {lat:67.1500,lng:20.6500,n:"Gällivare — Territoire Sami",c:"Norrbotten, Laponie",d:"Territoire du peuple Sami suédois. Élevage de rennes, yoïk, artisanat duodji. Culture vivante depuis 10 000 ans.",u:"https://fr.m.wikipedia.org/wiki/Gällivare?useskin=vector"},
+    {lat:67.8533,lng:20.2255,n:"Jukkasjärvi — Village Sami",c:"Laponie, Norrbotten",d:"Village sami au bord de la rivière Torne. ICEHOTEL, église en bois du XVIIe s., artisanat sami traditionnel.",u:"https://fr.m.wikipedia.org/wiki/Jukkasjärvi?useskin=vector"},
+    {lat:67.1500,lng:18.0000,n:"Laponia UNESCO — Terres Sami",c:"Laponie",d:"UNESCO 1996. 940 000 ha de terre sami. Migration des troupeaux de rennes. Loups, ours, nature primaire.",u:"https://fr.m.wikipedia.org/wiki/Laponia?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5028',label:'🌲 Forêts & Parcs Naturels',pts:[
+    {lat:67.1500,lng:18.0000,n:"Parc National de Sarek",c:"Laponie",d:"L'une des dernières grandes étendues sauvages d'Europe. 2 000 km², 100 glaciers. Aucune route. Wilderness absolu.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Sarek?useskin=vector"},
+    {lat:68.3500,lng:18.8333,n:"Parc National d'Abisko",c:"Laponie, Norrbotten",d:"Ciel arctique pur — aurores boréales et soleil de minuit. Station de recherche arctique. Sentier Kungsleden.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_d%27Abisko?useskin=vector"},
+    {lat:63.1833,lng:12.9500,n:"Parc National de Fulufjället",c:"Dalécarlie/Jämtland",d:"La plus haute chute d'eau de Suède — Njupeskär (93 m). Forêts de pins ancestraux, lemmings, renards arctiques.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Fulufjället?useskin=vector"},
+    {lat:57.3000,lng:14.8000,n:"Parc National de Tiveden",c:"Närke/Västergötland",d:"Forêt boréale ancienne, blocs erratiques, lacs. Randonnée et spiritualité nordique. Réserve de lynx.",u:"https://fr.m.wikipedia.org/wiki/Tiveden?useskin=vector"},
+    {lat:57.0000,lng:13.5000,n:"Parc de Store Mosse",c:"Småland",d:"Plus grande tourbière de Suède méridionale. Grues cendrées en migration, pygargues. Paysage arctique mystérieux.",u:"https://fr.m.wikipedia.org/wiki/Store_Mosse?useskin=vector"}
+  ]},
+  sauna:{icon:iconSauna,color:'#8a2020',label:'🧖 Saunas & Bains',pts:[
+    {lat:59.3400,lng:18.0300,n:"Centralbadet — Stockholm",c:"Stockholm",d:"Établissement thermal Art Nouveau (1904). Piscine couverte magnifique, sauna, spa. L'un des plus beaux bains d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Centralbadet?useskin=vector"},
+    {lat:57.7089,lng:11.9746,n:"Saunas Flottants de Göteborg",c:"Göteborg",d:"Saunas sur bateaux ancrés dans le port. Plongeon dans le fjord après la chaleur. Tradition suédoise revisitée.",u:"https://fr.m.wikipedia.org/wiki/Göteborg?useskin=vector"},
+    {lat:67.8533,lng:20.2255,n:"Sauna Arctique de Laponie",c:"Laponie",d:"Sauna traditionnel suédois au bord de la rivière gelée. Plongeon dans un trou dans la glace. Expérience nordique ultime.",u:"https://fr.m.wikipedia.org/wiki/Sauna?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf Nordique',pts:[
+    {lat:59.3268,lng:18.0640,n:"Kungliga Djurgårdens Golf",c:"Djurgården, Stockholm",d:"Le golf royal de Stockholm, sur l'île de Djurgården. Fondé 1905. Parcours entre forêt et palais.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Suède?useskin=vector"},
+    {lat:67.8533,lng:20.2255,n:"Golf sous le Soleil de Minuit",c:"Björkliden, Laponie",d:"Le golf le plus nordique du monde — Björkliden Arctic Golf. 18 trous sous le soleil de minuit. Fjäll et glaciers.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Suède?useskin=vector"},
+    {lat:55.6059,lng:13.0017,n:"Golf de Scanie — Bokskogar",c:"Malmö, Scanie",d:"La région de golf n°1 de Suède. Hêtraies de Scanie, vues sur l'Øresund. Parcours de classe mondiale.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Suède?useskin=vector"},
+    {lat:57.7089,lng:11.9746,n:"Gothenburg Golf Club",c:"Göteborg",d:"Fondé 1902 — le plus ancien golf club de Suède encore actif. Parcours forestier classique.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Suède?useskin=vector"}
+  ]},
+  monument:{icon:iconMonument,color:'#c9a84c',label:'🏺 Monuments & Mémoriaux',pts:[
+    {lat:59.9046,lng:17.5950,n:"Gamla Uppsala — Tumulus Royaux",c:"Uppsala",d:"Trois grands tumulus royaux vikings (Ve–VIe s.). Haut lieu de culte à Odin, Thor et Freyr pendant 500 ans.",u:"https://fr.m.wikipedia.org/wiki/Gamla_Uppsala?useskin=vector"},
+    {lat:59.3279,lng:18.0559,n:"Riddarhuset — Maison de la Noblesse",c:"Gamla Stan, Stockholm",d:"Palais baroque (1674) de la noblesse suédoise. 2 324 blasons. Un des meilleurs exemples de baroque néerlandais.",u:"https://fr.m.wikipedia.org/wiki/Riddarhuset?useskin=vector"},
+    {lat:59.3120,lng:18.0710,n:"Södermalm — Stockholm Bohème",c:"Stockholm",d:"Le quartier bohème et branché de Stockholm. Rue Götgatan, cafés design, galeries d'art, vue panoramique.",u:"https://fr.m.wikipedia.org/wiki/Södermalm?useskin=vector"},
+    {lat:61.0333,lng:15.6333,n:"Mine de Cuivre de Falun",c:"Falun, Dalécarlie",d:"UNESCO 2001. Mine depuis XIIIe s. Le rouge de Falun — tous les chalets suédois en sont peints. Visite spectaculaire.",u:"https://fr.m.wikipedia.org/wiki/Mine_de_cuivre_de_Falun?useskin=vector"}
+  ]}
+};
+
+// ── GROUPES LEAFLET ──
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+p.u+'\',\''+p.n+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#FECC02\'" onmouseout="this.style.background=\'#c9a84c\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+// ── PANNEAU FILTRES — position:topright ──
+var fc=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'palais',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#006AA7"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#FECC02"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#006AA7"/><path d="M13 9 Q13 6 15 5 Q15 7 15 9" fill="#FECC02"/><path d="M17 8 Q17 5 18 4 Q20 5 20 8" fill="#FECC02"/><path d="M22 9 Q22 6 24 5 Q25 7 25 9" fill="#FECC02"/></svg>', label:'Palais Royaux', count:6},
+      {cat:'chateau',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#006AA7"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#0080c0"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#0080c0"/><rect x="6" y="8" width="2" height="4" fill="#0080c0"/><rect x="9" y="8" width="2" height="4" fill="#0080c0"/><rect x="24" y="8" width="2" height="4" fill="#0080c0"/><rect x="27" y="8" width="2" height="4" fill="#0080c0"/></svg>', label:'Châteaux Médiévaux', count:5},
+      {cat:'cathedrale',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>', label:'Cathédrales & Abbayes', count:5},
+      {cat:'viking',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q6 30 18 32 Q30 30 34 24 Q26 26 18 27 Q10 26 2 24 Z" fill="#8a4a10"/><line x1="18" y1="8" x2="18" y2="26" stroke="#5a2808" stroke-width="1.4"/><path d="M10 8 Q18 6 26 8 L24 20 Q18 22 12 20 Z" fill="#c8102e"/></svg>', label:'Sites Vikings & Runes', count:5},
+      {cat:'musee',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="30" width="28" height="3" fill="#1a6a38"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#28903c"/><path d="M18 3 L4 10 L32 10 Z" fill="#145030"/></svg>', label:'Musées & Culture', count:6},
+      {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:6},
+      {cat:'ile',         svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q10 26 18 28 Q26 26 34 30 L34 34 L2 34 Z" fill="#1464a8"/><path d="M10 30 Q14 24 18 22 Q22 24 26 30 Z" fill="#5a5040"/><rect x="16" y="10" width="4" height="14" fill="#f5ead8"/><rect x="14" y="8" width="8" height="4" fill="#c8102e"/></svg>', label:'Archipels & Îles', count:4},
+      {cat:'aurora',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 32 Q10 28 8 20 Q10 14 14 10 Q12 16 14 22 Q16 28 18 32 Z" fill="#2de090" opacity="0.85"/><path d="M18 32 Q26 28 28 20 Q26 14 22 10 Q24 16 22 22 Q20 28 18 32 Z" fill="#00c8f0" opacity="0.85"/><circle cx="18" cy="6" r="2.5" fill="#f0f5ff"/></svg>', label:'Aurores & Laponie', count:4},
+      {cat:'elan',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="20" cy="22" rx="11" ry="7" fill="#5a3a10"/><path d="M11 20 Q9 14 11 10 Q13 8 15 10" fill="#5a3a10"/><path d="M12 8 Q8 4 4 6 Q6 8 10 8 Q6 6 8 4 Q12 6 12 8 Z" fill="#3a1a08"/><path d="M13 7 Q18 3 22 5 Q20 8 16 8 Q20 6 18 4 Q14 6 13 7 Z" fill="#3a1a08"/></svg>', label:'Élan & Faune Nordique', count:4},
+      {cat:'design',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M13 32 Q9 28 9 22 Q9 14 13 10 Q15 8 18 8 Q22 10 26 16 Q28 22 26 28 Q24 34 18 34 Q15 34 13 32 Z" fill="#006AA7"/><path d="M11 20 Q15 16 18 20 Q22 24 26 20" fill="none" stroke="#FECC02" stroke-width="1.4"/></svg>', label:'Design & Modernité', count:5},
+      {cat:'gastronomie', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 18 Q12 12 22 14 Q28 16 32 18 Q28 20 22 22 Q12 24 4 18 Z" fill="#e07840"/><circle cx="28" cy="17" r="2.2" fill="#1a0800"/><path d="M8 24 Q6 28 4 26" fill="none" stroke="#2a7a20" stroke-width="1.2" stroke-linecap="round"/></svg>', label:'Gastronomie Suédoise', count:4},
+      {cat:'ski',         svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 22 12 18 L18 8 L24 18 Q30 22 34 30 Z" fill="#b8d4f0"/><path d="M14 14 L18 8 L22 14 Q20 12 18 11 Q16 12 14 14 Z" fill="#f5ead8"/><circle cx="16" cy="16" r="2.5" fill="#006AA7"/><line x1="10" y1="24" x2="20" y2="26" stroke="#FECC02" stroke-width="1.8" stroke-linecap="round"/></svg>', label:"Sports d'Hiver", count:4},
+      {cat:'sami',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L4 32 L32 32 Z" fill="#b83020"/><circle cx="18" cy="14" r="3" fill="#FECC02" opacity="0.9"/><line x1="18" y1="4" x2="18" y2="32" stroke="#FECC02" stroke-width="0.9" opacity="0.7"/></svg>', label:'Culture Sami', count:3},
+      {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5028"/><circle cx="9" cy="12" r="5" fill="#1a5a28"/><circle cx="27" cy="14" r="4" fill="#1a4a20"/></svg>', label:'Forêts & Parcs', count:5},
+      {cat:'sauna',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="20" width="24" height="12" rx="0.5" fill="#8a2020"/><path d="M4 20 L18 8 L32 20 Z" fill="#5a1008"/><path d="M22 10 Q20 6 22 3" fill="none" stroke="#d0c0a8" stroke-width="1.5" stroke-linecap="round"/><path d="M26 10 Q28 7 26 4" fill="none" stroke="#d0c0a8" stroke-width="1.5" stroke-linecap="round"/></svg>', label:'Saunas & Bains', count:3},
+      {cat:'golf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#006AA7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf Nordique', count:4},
+      {cat:'monument',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#6a4a08"/><rect x="8" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><rect x="16" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><rect x="24" y="8" width="4" height="21" rx="0.6" fill="#c9a84c"/><path d="M18 1 L6 6 L30 6 Z" fill="#7a4a08"/></svg>', label:'Monuments & Mémoriaux', count:4}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#006AA7 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#eef6ff\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#006AA7;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#8a2020;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#006AA7;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new fc();
+fc.addTo(map);
+
+// ── PANNEAU STYLE DE CARTE — position:topright (sous filtres) ──
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',  emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',   emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',      emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',        emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f4a460','Portugal':'#b8d4f0','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#d8c8f0',
+  'Denmark':'#f0a8a8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var europeanCountries=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var euroFeatures=data.features.filter(function(f){return f.geometry&&europeanCountries.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:euroFeatures},{
+        style:function(feature){var col=getCountryColor(feature.properties.ADMIN||feature.properties.name||'');return{fillColor:col,fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          var name=feature.properties.ADMIN||feature.properties.name||'';
+          layer.bindTooltip(name,{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var labelTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=labelTile;
+      if(document.getElementById('tb-political')&&document.getElementById('tb-political').style.borderLeft.indexOf('255, 206, 0')!==-1){politicalLayer.addTo(map);labelTile.addTo(map);}
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff8e8';el.style.borderLeft='3px solid rgb(254,204,2)';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+var mc=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'rgb(254,204,2)':'transparent')+';'
+        +'background:'+(isActive?'#fff8e8':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="if(!this.style.borderLeft.includes(\'204,2\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body');var arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new mc();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body');var arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+// SCROLL REVEAL
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

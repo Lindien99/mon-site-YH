@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luxembourg — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels du Luxembourg.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#EF3340;      /* rouge luxembourgeois */
+      --blanc:#f8f8f8;
+      --bleu:#009FCA;       /* bleu luxembourgeois */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --ardenne:#1a2a1a;
+      --moselle:#1a3a5a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#020408;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(239,51,64,.11) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(0,159,202,.07) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 33%,var(--blanc) 33%,var(--blanc) 66%,var(--bleu) 66%,var(--bleu) 100%);opacity:.5;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,14rem);font-weight:300;
+      color:rgba(239,51,64,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(239,51,64,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(239,51,64,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,4,8,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(239,51,64,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--bleu),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(239,51,64,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(239,51,64,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(239,51,64,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#020408;border-bottom:1px solid rgba(239,51,64,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #9a1020;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#c82030;border-color:#c82030;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(239,51,64,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Luxembourg';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Luxembourg');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">LËTZEBUERG</div>
+  <div class="hero-eyebrow">Luxembourg · Guide du Voyageur</div>
+  <h1 class="hero-title">Châteaux, Vignes<br>&amp; <em>Gibraltar du Nord</em></h1>
+  <p class="hero-subtitle">Capitale UNESCO, châteaux de l'Ardenne, vignobles de la Moselle &amp; coeur financier de l'Europe</p>
+
+  <!-- LION ROUGE LUXEMBOURGEOIS — style Léonard de Vinci -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(239,51,64,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Corps du lion luxembourgeois — couronné, queue en fleur de lys -->
+      <path d="M38 108 Q32 92 36 76 Q42 60 58 54 Q72 48 86 52 Q102 58 110 72 Q118 88 114 104 Q108 120 90 126 Q70 130 54 122 Q42 116 38 108 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M46 62 Q60 52 76 52 Q92 54 102 64 Q92 58 76 57 Q60 58 46 62 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures -->
+      <path d="M48 82 Q60 76 74 78 Q82 79 90 78 Q100 76 108 82" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M46 94 Q58 88 74 90 Q82 91 90 90 Q102 88 110 94" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M48 106 Q60 101 74 102 Q82 103 90 102 Q100 101 108 106" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Crinière -->
+      <path d="M38 74 Q26 60 28 46 Q34 38 44 38" fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M42 58 Q30 52 26 40 Q30 32 40 30 Q46 34 44 42" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M50 44 Q42 34 44 22 Q50 16 58 18 Q60 24 56 30" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M64 40 Q62 28 66 18 Q72 12 78 16 Q78 24 74 30" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M78 42 Q82 30 90 24 Q98 20 102 28 Q100 34 94 36" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M90 52 Q100 42 108 40 Q114 42 114 50 Q110 56 104 56" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête -->
+      <ellipse cx="74" cy="46" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+
+      <!-- Oeil -->
+      <circle cx="81" cy="42" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="81" cy="42" r="3" fill="#2a1000"/>
+      <circle cx="82.5" cy="40.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau -->
+      <path d="M64 52 Q68 56 74 56 Q80 56 84 52" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="74" cy="58" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Couronne Grand-Ducale -->
+      <path d="M56 32 L92 32 L90 36 L58 36 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M59 32 Q59 26 62 24 Q64 28 64 32" fill="#c9a84c"/>
+      <path d="M70 32 Q70 23 74 20 Q78 23 78 32" fill="#c9a84c"/>
+      <path d="M83 32 Q83 26 86 24 Q88 28 88 32" fill="#c9a84c"/>
+      <circle cx="74" cy="21" r="2.5" fill="#EF3340" opacity="0.9"/>
+      <circle cx="62" cy="25" r="1.8" fill="#009FCA" opacity="0.85"/>
+      <circle cx="86" cy="25" r="1.8" fill="#009FCA" opacity="0.85"/>
+
+      <!-- Ecu — Croix de Luxembourg sur fond rouge -->
+      <path d="M62 88 Q62 80 74 78 Q86 80 86 88 Q86 98 74 104 Q62 98 62 88 Z"
+            fill="#EF3340" stroke="#9a1020" stroke-width="0.8"/>
+      <!-- Croix blanche -->
+      <rect x="62" y="87" width="24" height="4" fill="#f8f8f8" opacity="0.95"/>
+      <rect x="71.5" y="79" width="5" height="22" fill="#f8f8f8" opacity="0.95"/>
+
+      <!-- Queue en fleur de lys (héraldique) -->
+      <path d="M90 120 Q102 124 112 116 Q120 108 116 100 Q112 96 108 100 Q112 100 110 106 Q106 114 98 116 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <!-- Fleur de lys au bout -->
+      <path d="M112 100 Q116 92 118 88" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M114 96 Q120 90 122 88 Q118 92 116 96 Z" fill="#c9a84c"/>
+      <path d="M110 98 Q106 92 104 88 Q108 92 110 98 Z" fill="#c9a84c"/>
+      <circle cx="113" cy="88" r="2.5" fill="#c9a84c"/>
+
+      <!-- Patte avec griffes -->
+      <path d="M50 118 Q42 126 44 132 Q48 132 52 128 Q50 124 48 120 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="10" y="86" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">luxemburgensis</text>
+      <line x1="10" y1="80" x2="36" y2="78" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="130" cy="30" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="140" cy="52" r="0.9" fill="#EF3340" opacity="0.4"/>
+      <circle cx="18" cy="124" r="1.1" fill="#009FCA" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Ville de Luxembourg UNESCO, châteaux des Ardennes, vignobles de la Moselle, forêts de l'Ösling, institutions européennes, culture luxembourgeoise, gastronomie et vins, Echternach &amp; danse procession, mines de fer de la Minette, Vianden, Clervaux et l'art de vivre du Grand-Duché.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">2 586</div><div class="stat-label">km²</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez le Luxembourg</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Romains au Grand-Duché</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Luxembourg_(ville)','Luxembourg — Capitale UNESCO')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Luxembourg — Le Gibraltar du Nord</h3><p class="card-context">UNESCO 1994 — la Ville de Luxembourg avec ses fortifications et son quartier historique. Le Bock — rocher sur lequel fut construite la forteresse de 963. Casemates du Bock — 23 km de tunnels souterrains. Place d'Armes, cathédrale Notre-Dame. La plus belle petite capitale d'Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Vianden','Château de Vianden')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Vianden, Ösling</div><h3 class="card-name">Château de Vianden</h3><p class="card-context">Le plus beau château du Luxembourg — forteresse médiévale du XIe s. sur un éperon rocheux dominant la rivière Our. Victor Hugo y séjourna en exil (1871). Musée Victor Hugo dans la maison où il vécut. Vue sur l'Ardenne luxembourgeoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Casemates_du_Bock','Casemates du Bock')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Casemates du Bock</h3><p class="card-context">UNESCO 1994 — 23 km de galeries souterraines creusées dans le rocher depuis le XVIIe s. Permettaient d'abriter 35 000 soldats et leurs chevaux. Démantèlement partiel imposé par le Traité de Londres (1867). Les entrailles de la forteresse imprenable.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Moselle_luxembourgeoise','Vignobles de la Moselle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Moselle, Sud-Est</div><h3 class="card-name">Route des Vins de la Moselle</h3><p class="card-context">Les vignobles luxembourgeois sur les rives de la Moselle — Riesling, Rivaner, Auxerrois, Pinot Gris. Caves coopératives de Wellenstein et Remerschen. Crémant de Luxembourg. La route des vins de 42 km entre Schengen et Wasserbillig — paysage idyllique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Echternach','Echternach — La Plus Ancienne Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Echternach, Mullerthal</div><h3 class="card-name">Echternach &amp; La Danse Processionnelle</h3><p class="card-context">La plus ancienne ville du Luxembourg. Abbaye bénédictine fondée par Saint Willibrord (698). Processionnante dansante d'Echternach — UNESCO 2010 (patrimoine immatériel). Chaque mardi de Pentecôte depuis le VIIe s. Le Mullerthal — "Petite Suisse Luxembourgeoise".</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mullerthal','Mullerthal — Petite Suisse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Mullerthal, Est</div><h3 class="card-name">Mullerthal — La Petite Suisse Luxembourgeoise</h3><p class="card-context">Paysage de rochers de grès sculptés par l'érosion — gorges, grottes, cascades. Sentiers de randonnée Mullerthal Trail (112 km). Formations rocheuses comme la Gorge du Loup. Forêts de chênes centenaires. Le plus beau coin de nature du Luxembourg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Clervaux','Clervaux — Château et Abbaye')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Clervaux, Ardennes</div><h3 class="card-name">Clervaux — Château et The Family of Man</h3><p class="card-context">Château médiéval de Clervaux abritant "The Family of Man" d'Edward Steichen (UNESCO 2003) — 503 photographies de 273 photographes du monde entier. L'exposition photographique la plus importante du XXe s. Abbaye Saint-Maurice bénédictine voisine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Bourscheid','Château de Bourscheid')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Bourscheid, Sûre</div><h3 class="card-name">Château de Bourscheid</h3><p class="card-context">Le plus grand château médiéval du Luxembourg — ruines imposantes sur un éperon rocheux dominant la vallée de la Sûre. Tour du Palais du XIVe s. encore debout à 25 m. Vue sur 10 km de la vallée sinueuse. Promenades en canot sur la Sûre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_grand-ducal','Palais Grand-Ducal')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Palais Grand-Ducal</h3><p class="card-context">Résidence officielle du Grand-Duc Henri depuis 1890 au coeur de la vieille ville. Façade Renaissance flamande (XVIe s.). Relève de la Garde Grand-Ducale. Ouvert au public en juillet-août. Symbole de la monarchie constitutionnelle luxembourgeoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_Notre-Dame_de_Luxembourg','Cathédrale Notre-Dame')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Cathédrale Notre-Dame de Luxembourg</h3><p class="card-context">L'unique cathédrale du Luxembourg (XVIIe s. jésuite). Crypte des Nassaus. Couronnements des Grand-Ducs. Orgue de 5 000 tuyaux. Pietà miraculeuse — patronne du Luxembourg ("Consolatrice des Affligés"). Pèlerinage annuel en mai.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Kirchberg_(Luxembourg)','Kirchberg — Quartier Européen')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Luxembourg-Ville — Kirchberg</div><h3 class="card-name">Kirchberg — Quartier des Institutions Européennes</h3><p class="card-context">Luxembourg accueille la Cour de Justice de l'UE, la Cour des Comptes, la Banque Européenne d'Investissement (BEI) et les Archives Nationales de l'UE. Le Kirchberg — quartier ultra-moderne de verre et d'acier. 3e ville siège de l'UE après Bruxelles et Strasbourg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Schengen','Schengen — Village Fondateur')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Schengen, Moselle</div><h3 class="card-name">Schengen — L'Europe Sans Frontières</h3><p class="card-context">Le 14 juin 1985, les accords de Schengen sont signés à bord du bateau Marie-Astrid sur la Moselle — supprimant les frontières entre pays européens. Village de 500 habitants à la frontière de trois pays. Musée Schengen. Le point de départ de l'Europe unie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_d%27art_moderne_Grand-Duc_Jean','MUDAM — Musée d\'Art Moderne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Luxembourg-Ville — Kirchberg</div><h3 class="card-name">MUDAM — Le Louvre du Luxembourg</h3><p class="card-context">Le Musée d'Art Moderne Grand-Duc Jean de Ieoh Ming Pei (architecte du Louvre) inauguré en 2006. Architecture intégrant les fortifications de Vauban. Collections d'art contemporain international. Fondation Musée d'Art Moderne. L'acte culturel le plus fort du Luxembourg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vallée_de_la_Sûre','Vallée de la Sûre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Ösling, Nord</div><h3 class="card-name">Vallée de la Sûre — L'Ardenne Luxembourgeoise</h3><p class="card-context">La Sûre serpente à travers l'Ösling ardennais — le toit vert du Luxembourg. Vallée profonde aux forêts de chênes et de hêtres. Kayak, vélo, randonnée. Château de Bourscheid dominant le méandre. Le paysage le plus sauvage du Grand-Duché.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cimetière_américain_de_Luxembourg','Cimetière Américain de Hamm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Hamm, Luxembourg-Ville</div><h3 class="card-name">Cimetière Américain de Hamm</h3><p class="card-context">5 076 soldats américains tués lors de la Bataille des Ardennes (1944) reposent ici. Le général George S. Patton — dont la 3e armée libéra le Luxembourg — y est enterré à sa demande parmi ses soldats. Visite recueillie et inoubliable. Mémorial de la liberté.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_d%27Ansembourg','Château d\'Ansembourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Ansembourg, Eisch</div><h3 class="card-name">Vallée des Sept Châteaux</h3><p class="card-context">La Vallée de l'Eisch entre Mersch et Hollenfels — sept châteaux médiévaux dans un rayon de 10 km. Ansembourg, Hollenfels, Septfontaines, Koerich, Schoenfels, Mersch. Paysage de collines boisées. La plus belle promenade à vélo du Luxembourg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mondorf-les-Bains','Mondorf-les-Bains')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Mondorf-les-Bains, Sud</div><h3 class="card-name">Mondorf-les-Bains — Thermes Royaux</h3><p class="card-context">La seule station thermale du Luxembourg. Sources sulfureuses exploitées depuis 1841. Domaine Thermal de Mondorf — casino, hôtel de luxe, centre de bien-être. Parc de 36 ha. Le "Baden-Baden du Luxembourg". Lieu de villégiature de l'aristocratie européenne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Esch-sur-Alzette','Esch-sur-Alzette — Capitale Culturelle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Esch-sur-Alzette, Sud</div><h3 class="card-name">Esch-sur-Alzette — Capitale Culturelle 2022</h3><p class="card-context">Deuxième ville du Luxembourg et Capitale Européenne de la Culture 2022. Ancienne ville minière de fer reconvertie — Esch2022. Bâtiment de la Rockhal — premier club de musique du Luxembourg. Friche industrielle Belval transformée en campus universitaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Diekirch','Diekirch — Musée de la Bataille des Ardennes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Diekirch, Sûre</div><h3 class="card-name">Diekirch — Bataille des Ardennes</h3><p class="card-context">Musée National d'Histoire Militaire de Diekirch — la plus grande collection sur la Bataille des Ardennes (1944–1945). Chars, armes, uniformes, dioramas grandeur nature. La ville fut libérée par Patton le 18 janvier 1945. Promenades sur la Sûre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Remich','Remich — Perle de la Moselle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Remich, Moselle</div><h3 class="card-name">Remich — Perle de la Moselle</h3><p class="card-context">La capitale viticole du Luxembourg sur la Moselle. Caves Saint-Martin — galeries de champagnisation visitables. Promenade de bord de Moselle. Marché aux vins. Dégustations de Crémant de Luxembourg, Riesling, Pinot Gris. Terrasse face à l'Allemagne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_naturel_de_la_Haute-Sûre','Parc Naturel de la Haute-Sûre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Wiltz, Ardennes</div><h3 class="card-name">Parc Naturel de la Haute-Sûre</h3><p class="card-context">Le plus grand espace naturel du Luxembourg — lac de la Haute-Sûre (Stausee), forêts ardennaises, landes. Lac réservoir de 350 ha — baignade, voile, kayak. Nid de cigognes blanches à Haller. Festival d'Wiltz dans les ruines du château-amphithéâtre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Larochette','Château de Larochette')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Larochette, Mullerthal</div><h3 class="card-name">Larochette — Château sur le Roc</h3><p class="card-context">Ruines romantiques d'un château médiéval (XIe s.) perché sur un rocher de grès dominant la localité. Deux tours et deux maisons seigneuriales encore visibles. Village de Larochette aux maisons colorées en contrebas. Porte du Mullerthal Trail.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_national_d%27histoire_et_d%27art','Musée National d\'Histoire et d\'Art')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">MNHA — Musée National d'Histoire</h3><p class="card-context">Le musée le plus important du Luxembourg — du paléolithique à nos jours. Collections romaines et mérovingiennes exceptionnelles. Fibule du Dieu Mars en or (IIe s.). Extension ultramoderne de 2002. L'histoire du Luxembourg en un seul lieu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wiltz','Wiltz — Festival d\'Été')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Wiltz, Ardennes</div><h3 class="card-name">Wiltz — Festival dans le Château</h3><p class="card-context">Festival de théâtre et de musique de Wiltz — chaque été dans les ruines du château-amphithéâtre. La scène la plus romantique du Luxembourg. Wiltz — ville du nord ardennais aux ruelles pittoresques. Grève générale de 1942 contre les nazis — héroïsme luxembourgeois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_luxembourgeoise','Gastronomie Luxembourgeoise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Luxembourg entier</div><h3 class="card-name">Gastronomie — Judd mat Gaardebounen</h3><p class="card-context">Le plat national — Judd mat Gaardebounen (collar de porc fumé aux fèves). Bouneschlupp (soupe aux haricots), Gromperekichelcher (galettes de pommes de terre), Quetschentaart (tarte aux quetsches). 17 restaurants étoilés Michelin pour 660 000 habitants — record mondial.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Moselle_luxembourgeoise','Caves Bernard-Massard')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Grevenmacher, Moselle</div><h3 class="card-name">Grevenmacher — Caves et Papillons</h3><p class="card-context">Les Caves Bernard-Massard — visite des caves de champagnisation sur la Moselle. Jardin des Papillons de Grevenmacher — 800 papillons tropicaux. Promenade mosellane. Vendanges en automne. Grevenmacher — perle viticole de la Moselle luxembourgeoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Marché_de_Noël_de_Luxembourg','Marché de Noël de Luxembourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Marché de Noël de Luxembourg</h3><p class="card-context">Parmi les plus beaux marchés de Noël d'Europe — place d'Armes, place de la Constitution, Glacis. Vin chaud luxembourgeois (Glühwein), Bretzel, jouets artisanaux. Patinoire sous le viaduc. La ville se transforme en conte de fées de novembre à janvier.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pont_Adolphe','Pont Adolphe de Luxembourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Pont Adolphe — La Beauté Industrielle</h3><p class="card-context">Le pont Adolphe (1903) — "le beau pont" — arche en pierre de 84 m de portée, l'une des plus grandes du monde à sa construction. Enjambe le Pétrusse à 46 m de hauteur. Vue magnifique sur la vieille ville UNESCO. Symbole architectural de Luxembourg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Minette_(Luxembourg)','Minette — Pays du Fer')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Esch, Sud</div><h3 class="card-name">Minette — Le Pays du Fer Rouge</h3><p class="card-context">L'ancienne région minière du Sud — le fer de la Minette fit la fortune du Luxembourg au XIXe-XXe s. Musée "Terres Rouges" à Fond-de-Gras. Train historique à vapeur. Hauts-fourneaux d'Esch-Belval transformés en campus. Le patrimoine industriel le plus imposant du pays.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Robert_Schuman','Maison Robert Schuman — Père de l\'Europe')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Scy-Chazelles / Luxembourg</div><h3 class="card-name">Robert Schuman — Père de l'Europe</h3><p class="card-context">Robert Schuman (1886–1963) — né au Luxembourg, ministre français, l'un des pères fondateurs de l'Union Européenne. La Déclaration Schuman du 9 mai 1950 crée la CECA. Le 9 mai est désormais la Journée de l'Europe. Le Luxembourgeois qui a construit l'Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Beaufort_(Luxembourg)','Château de Beaufort')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Beaufort, Mullerthal</div><h3 class="card-name">Château de Beaufort — Cassis de Beaufort</h3><p class="card-context">Ruines médiévales romantiques (XIe s.) et nouveau château Renaissance (XVIIe s.). Caves à vins. Production artisanale du célèbre Cassis de Beaufort — liqueur de cassis emblématique du Luxembourg. Village de Beaufort aux sentiers de forêt.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Place_Guillaume_II','Place Guillaume II — Luxembourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Place Guillaume II &amp; Place d'Armes</h3><p class="card-context">Place Guillaume II — le coeur de Luxembourg-Ville. Hôtel de Ville, statue équestre de Guillaume II, marché couvert. Place d'Armes voisine — terrasses, restaurants, kiosque à musique Belle Époque. Le salon de la capitale. Fête nationale du 23 juin.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/RTL_Group','Kirchberg — Place Financière')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Luxembourg-Ville — Kirchberg</div><h3 class="card-name">Luxembourg — Place Financière Mondiale</h3><p class="card-context">Le Luxembourg — 2e place de fonds d'investissement mondiale après les États-Unis. 143 banques de 30 pays. RTL Group, ArcelorMittal, SES (satellites), PayPal Europe, Amazon Europe. 660 000 habitants mais PIB par habitant n°1 mondial. Le secret du succès.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ville_de_Luxembourg','Grund &amp; Pfaffenthal')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Luxembourg-Ville</div><h3 class="card-name">Grund &amp; Pfaffenthal — Les Quartiers de la Vallée</h3><p class="card-context">Le Grund — quartier médiéval dans la vallée de la Pétrusse, accessible par ascenseur panoramique depuis la vieille ville. Maisons colorées, Abbaye de Neumünster reconvertie en centre culturel. Le Pfaffenthal — quartier ouvrier préservé. Atmosphère unique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pétange','Goeser Hiehl — Art Rupestre Préhistorique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Grevenmacher — Differdange</div><h3 class="card-name">Art Préhistorique &amp; Époque Romaine</h3><p class="card-context">Le Luxembourg possède des sites romains remarquables — villa romaine de Mamer, thermes de Diekirch. Pierres runiques de Vichten (IIIe s.) — mosaïque aux 9 Muses. Art rupestre gallo-romain. Les origines profondes du Grand-Duché bien avant les châteaux médiévaux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De Sigefroi à l'Union Européenne</div>
+  <h2 class="section-title">Histoire du Luxembourg</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">963 — 1354</div>
+      <div class="timeline-event"><strong>Fondation par Sigefroi.</strong> Le comte Sigefroi acquiert le rocher du Bock (963) — fondation du Luxembourg. Le château de Lucilinburhuc ("petit château") grandit en forteresse. Les Comtes de Luxembourg accumulent un territoire immense. Jean l'Aveugle, roi de Bohême et comte de Luxembourg (mort à Crécy, 1346), incarne la chevalerie médiévale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1354 — 1506</div>
+      <div class="timeline-event"><strong>Duché et Maisons Impériales.</strong> Le Luxembourg élevé au rang de Duché (1354). Quatre empereurs du Saint-Empire issus de la Maison de Luxembourg — Charles IV, Venceslas, Sigismond, Robert. La ville est la troisième forteresse la plus puissante du monde (après Gibraltar et Port Mahon). Les Habsbourg héritent du Duché.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1506 — 1815</div>
+      <div class="timeline-event"><strong>Dominations étrangères.</strong> Le Luxembourg passe successivement sous domination espagnole (1506), française (Louis XIV prend la ville en 1684), autrichienne (1715) et française révolutionnaire (1795). La forteresse est renforcée à chaque époque — Vauban la réaménage pour Louis XIV. Le Luxembourg — forteresse convoitée par toutes les puissances.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1815 — 1867</div>
+      <div class="timeline-event"><strong>Grand-Duché et Neutralité.</strong> Congrès de Vienne (1815) — le Luxembourg élevé en Grand-Duché, accordé à la Maison d'Orange-Nassau. Union avec les Pays-Bas. La garnison prussienne occupe la forteresse. Traité de Londres (1867) — neutralité perpétuelle du Luxembourg, démantèlement de la forteresse. Indépendance effective.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1914 — 1944</div>
+      <div class="timeline-event"><strong>Deux Guerres et Résistance.</strong> L'Allemagne viole la neutralité en 1914 et 1940. L'annexion nazie impose la langue et les lois allemandes. La grève générale de 1942 — protestation héroïque contre la conscription dans la Wehrmacht. La Grande-Duchesse Charlotte dirige le gouvernement en exil à Londres. Libération par Patton en septembre 1944.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1945 — 1957</div>
+      <div class="timeline-event"><strong>Fondateurs de l'Europe.</strong> Robert Schuman (luxembourgeois d'origine) signe la Déclaration Schuman (9 mai 1950) — fondation de la CECA et début de la construction européenne. Le Luxembourg est l'un des six pays fondateurs de la CEE (Traité de Rome, 1957). Luxembourg-Ville devient siège de nombreuses institutions européennes.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1985 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Schengen et Prospérité.</strong> Accords de Schengen signés sur la Moselle luxembourgeoise (1985). Le Luxembourg — 1er PIB par habitant mondial. 2e place de fonds d'investissement au monde. Capitale Culturelle Européenne 3 fois (1995, 2007 Esch2022). Multilinguisme officiel — luxembourgeois, français, allemand. Le miracle économique du plus petit grand pays.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇱🇺</div>
+  <p class="footer-text">Guide du Voyageur · Luxembourg · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([49.8,6.1],10);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(239,51,64,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#EF3340" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#c82030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#c82030"/><rect x="6" y="8" width="2" height="4" fill="#c82030"/><rect x="9" y="8" width="2" height="4" fill="#c82030"/><rect x="24" y="8" width="2" height="4" fill="#c82030"/><rect x="27" y="8" width="2" height="4" fill="#c82030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#700008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#EF3340"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><path d="M10 16 Q14 20 18 20 Q22 20 26 16 Q22 19 18 19 Q14 19 10 16 Z" fill="#e05080" opacity="0.4"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="12" y="32" width="12" height="3" rx="1" fill="#5a0820"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconEurope=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,60,150,.85))"><circle cx="18" cy="18" r="14" fill="#003399" stroke="#002266" stroke-width="0.7"/><circle cx="18" cy="18" r="10" fill="#0044cc" opacity="0.4"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="24" cy="10" r="1.5" fill="#FAE042"/><circle cx="28" cy="16" r="1.5" fill="#FAE042"/><circle cx="26" cy="23" r="1.5" fill="#FAE042"/><circle cx="20" cy="28" r="1.5" fill="#FAE042"/><circle cx="13" cy="28" r="1.5" fill="#FAE042"/><circle cx="8" cy="23" r="1.5" fill="#FAE042"/><circle cx="8" cy="16" r="1.5" fill="#FAE042"/><circle cx="12" cy="10" r="1.5" fill="#FAE042"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconMemorial=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,60,80,.9))"><rect x="14" y="8" width="8" height="26" rx="0.5" fill="#5a5a6a" stroke="#3a3a4a" stroke-width="0.5"/><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><path d="M12 8 L24 8 L22 5 L14 5 Z" fill="#4a4a5a"/><circle cx="18" cy="4" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.8"/><circle cx="18" cy="4" r="1" fill="#c9a84c" opacity="0.6"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconCulture=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,40,160,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0" stroke="#4a2080" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#8050c0" opacity="0.6"/><circle cx="14" cy="14" r="3" fill="#EF3340" opacity="0.8"/><path d="M18 8 Q24 12 26 16 Q24 20 18 20 Q12 20 10 16 Q12 12 18 8" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>');
+
+var iconIndustrie=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(140,60,10,.8))"><rect x="4" y="20" width="28" height="14" rx="0.5" fill="#8a4010" stroke="#5a2808" stroke-width="0.6"/><path d="M4 20 L4 14 L10 18 L10 14 L16 18 L16 14 L22 18 L22 14 L28 18 L28 14 L32 14 L32 20 Z" fill="#c8600a" stroke="#8a4010" stroke-width="0.5"/><line x1="8" y1="4" x2="8" y2="14" stroke="#5a2808" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="14" stroke="#5a2808" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="4" x2="20" y2="14" stroke="#5a2808" stroke-width="2" stroke-linecap="round"/><path d="M6 4 Q8 2 10 4" fill="none" stroke="#e8a030" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#EF3340" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,80,180,.85))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a60b8"/><path d="M4 26 Q8 22 12 24 Q16 26 18 24 Q22 22 26 24 Q30 26 32 24" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><path d="M6 22 Q8 18 12 14 L18 8 L22 14 Q26 18 30 22" fill="#b8d0e8" opacity="0.4"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#EF3340',label:'🏛️ Villes & Capitale',pts:[
+    {lat:49.6117,lng:6.1319,n:"Luxembourg-Ville — Le Gibraltar du Nord",c:"Luxembourg-Ville",d:"UNESCO 1994. Bock, casemates, vieille ville. La plus belle petite capitale d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Luxembourg_(ville)?useskin=vector"},
+    {lat:49.5183,lng:6.0183,n:"Esch-sur-Alzette — Capitale Culturelle",c:"Esch-sur-Alzette, Sud",d:"2e ville du Luxembourg. Capitale Européenne de la Culture 2022. Ancienne ville minière reconvertie.",u:"https://fr.m.wikipedia.org/wiki/Esch-sur-Alzette?useskin=vector"},
+    {lat:49.8731,lng:6.3839,n:"Echternach — La Plus Ancienne Ville",c:"Echternach, Mullerthal",d:"La plus ancienne ville du Luxembourg. Abbaye bénédictine (698). Danse processionnelle UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Echternach?useskin=vector"},
+    {lat:49.9333,lng:5.9167,n:"Wiltz — Festival dans le Château",c:"Wiltz, Ardennes",d:"Festival de théâtre annuel dans les ruines du château-amphithéâtre. Art de vivre ardennais.",u:"https://fr.m.wikipedia.org/wiki/Wiltz?useskin=vector"},
+    {lat:49.7500,lng:6.4500,n:"Remich — Perle de la Moselle",c:"Remich, Moselle",d:"Capitale viticole sur la Moselle. Caves Saint-Martin. Crémant de Luxembourg. Terrasse.",u:"https://fr.m.wikipedia.org/wiki/Remich?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:49.9358,lng:6.2022,n:"Château de Vianden",c:"Vianden, Ösling",d:"Le plus beau château du Luxembourg. XIe s. Victor Hugo y vécut en exil. Vue sur l'Our.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Vianden?useskin=vector"},
+    {lat:49.8219,lng:6.0219,n:"Château de Bourscheid",c:"Bourscheid, Sûre",d:"Plus grand château médiéval du Luxembourg. Tour de 25 m. Vue sur 10 km de la Sûre.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Bourscheid?useskin=vector"},
+    {lat:49.7783,lng:6.2186,n:"Château de Larochette",c:"Larochette, Mullerthal",d:"Ruines romantiques (XIe s.) sur rocher de grès. Village coloré en contrebas. Mullerthal Trail.",u:"https://fr.m.wikipedia.org/wiki/Larochette?useskin=vector"},
+    {lat:49.7583,lng:5.9917,n:"Château d\'Ansembourg",c:"Ansembourg, Vallée des 7 Châteaux",d:"Vallée de l'Eisch — 7 châteaux dans 10 km. Promenade à vélo idéale.",u:"https://fr.m.wikipedia.org/wiki/Ansembourg?useskin=vector"},
+    {lat:49.8378,lng:6.3189,n:"Château de Beaufort",c:"Beaufort, Mullerthal",d:"Ruines médiévales et château Renaissance. Cassis de Beaufort — liqueur emblématique.",u:"https://fr.m.wikipedia.org/wiki/Beaufort_(Luxembourg)?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Ardennes & Nature',pts:[
+    {lat:49.8000,lng:6.3500,n:"Mullerthal — Petite Suisse",c:"Mullerthal, Est",d:"Rochers de grès sculptés, gorges, cascades. Mullerthal Trail (112 km). Forêts centenaires.",u:"https://fr.m.wikipedia.org/wiki/Mullerthal?useskin=vector"},
+    {lat:49.8978,lng:5.8744,n:"Parc Naturel Haute-Sûre",c:"Wiltz, Ardennes",d:"Lac de la Haute-Sûre (350 ha). Baignade, voile, kayak. Forêts ardennaises. Cigognes.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_de_la_Haute-Sûre?useskin=vector"},
+    {lat:49.9500,lng:6.1167,n:"Vallée de la Sûre — Ösling",c:"Ösling, Nord",d:"L'Ardenne luxembourgeoise. Méandres de la Sûre. Forêts, kayak, château de Bourscheid.",u:"https://fr.m.wikipedia.org/wiki/Sûre?useskin=vector"},
+    {lat:49.6000,lng:6.3500,n:"Vallée de la Moselle",c:"Moselle, Sud-Est",d:"Route des vins de 42 km. Vignobles, caves, crémant. Paysage idyllique entre France et Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Moselle_luxembourgeoise?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#7a1840',label:'🍷 Vins & Moselle',pts:[
+    {lat:49.6500,lng:6.3667,n:"Remich — Caves Saint-Martin",c:"Remich, Moselle",d:"Caves de champagnisation. Crémant de Luxembourg, Riesling, Pinot Gris. Vue sur la Moselle.",u:"https://fr.m.wikipedia.org/wiki/Remich?useskin=vector"},
+    {lat:49.6833,lng:6.4333,n:"Grevenmacher — Caves Bernard-Massard",c:"Grevenmacher, Moselle",d:"Caves historiques. Jardin des Papillons (800 papillons tropicaux). Village viticole charmant.",u:"https://fr.m.wikipedia.org/wiki/Grevenmacher?useskin=vector"},
+    {lat:49.5169,lng:6.3581,n:"Schengen — Village de l\'Europe",c:"Schengen, Moselle",d:"Accords Schengen (1985) signés sur la Moselle. Village à 3 frontières. Musée Schengen.",u:"https://fr.m.wikipedia.org/wiki/Schengen?useskin=vector"},
+    {lat:49.6250,lng:6.3833,n:"Wellenstein — Caves Coopératives",c:"Wellenstein, Moselle",d:"Caves coopératives — 200 viticulteurs. Auxerrois, Rivaner. Dégustations dans les caves.",u:"https://fr.m.wikipedia.org/wiki/Wellenstein?useskin=vector"}
+  ]},
+  europe:{icon:iconEurope,color:'#003399',label:'🇪🇺 Institutions Européennes',pts:[
+    {lat:49.6311,lng:6.1539,n:"Cour de Justice de l\'UE",c:"Kirchberg, Luxembourg-Ville",d:"La plus haute juridiction de l'Union Européenne. Bâtiment tour d'or de 225 m. Kirchberg.",u:"https://fr.m.wikipedia.org/wiki/Cour_de_justice_de_l%27Union_européenne?useskin=vector"},
+    {lat:49.6369,lng:6.1431,n:"Banque Européenne d\'Investissement",c:"Kirchberg, Luxembourg-Ville",d:"La plus grande banque de financement du monde. Prêts à 500 milliards en 2022.",u:"https://fr.m.wikipedia.org/wiki/Banque_européenne_d%27investissement?useskin=vector"},
+    {lat:49.5169,lng:6.3581,n:"Schengen — Traité Fondateur",c:"Schengen, Moselle",d:"Le traité de 1985 qui a supprimé les frontières entre pays européens. 1 million de personnes/jour.",u:"https://fr.m.wikipedia.org/wiki/Accords_de_Schengen?useskin=vector"},
+    {lat:49.6117,lng:6.1319,n:"Robert Schuman — Père de l\'Europe",c:"Luxembourg-Ville",d:"Robert Schuman (1886–1963) — né au Luxembourg. Déclaration Schuman (9 mai 1950). UE.",u:"https://fr.m.wikipedia.org/wiki/Robert_Schuman?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Collections',pts:[
+    {lat:49.6186,lng:6.1431,n:"MUDAM — Musée d\'Art Moderne",c:"Kirchberg, Luxembourg-Ville",d:"I.M. Pei (architecte du Louvre), 2006. Art contemporain. Intégré aux fortifications de Vauban.",u:"https://fr.m.wikipedia.org/wiki/Musée_d%27art_moderne_Grand-Duc_Jean?useskin=vector"},
+    {lat:49.6111,lng:6.1331,n:"MNHA — Musée National d\'Histoire",c:"Luxembourg-Ville",d:"Du paléolithique à nos jours. Fibule d'or du Dieu Mars (IIe s.). Collections romaines.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_d%27histoire_et_d%27art?useskin=vector"},
+    {lat:49.9500,lng:6.0333,n:"Château de Clervaux — Family of Man",c:"Clervaux, Ardennes",d:"UNESCO 2003. 503 photos de 273 photographes. L'exposition du XXe s. Steichen.",u:"https://fr.m.wikipedia.org/wiki/Clervaux?useskin=vector"},
+    {lat:49.8700,lng:6.1600,n:"Musée de Diekirch — Bataille Ardennes",c:"Diekirch, Sûre",d:"Plus grande collection sur la Bataille des Ardennes. Chars, dioramas. Libération par Patton.",u:"https://fr.m.wikipedia.org/wiki/Diekirch?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍽️ Gastronomie Luxembourgeoise',pts:[
+    {lat:49.6117,lng:6.1319,n:"Judd mat Gaardebounen — Luxembourg",c:"Luxembourg-Ville",d:"Plat national — collar de porc fumé aux fèves. 17 étoiles Michelin/660 000 hab. Record mondial.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_luxembourgeoise?useskin=vector"},
+    {lat:49.5183,lng:6.0183,n:"Gromperekichelcher d\'Esch",c:"Esch-sur-Alzette",d:"Galettes de pommes de terre frites — spécialité emblématique. Marchés et fêtes.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_luxembourgeoise?useskin=vector"},
+    {lat:49.6117,lng:6.1319,n:"Marché de Noël de Luxembourg",c:"Luxembourg-Ville",d:"Parmi les plus beaux d'Europe. Vin chaud, Bretzel. Place d'Armes. Patinoire. Conte de fées.",u:"https://fr.m.wikipedia.org/wiki/Marché_de_Noël_de_Luxembourg?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:49.6117,lng:6.1319,n:"Vieille Ville de Luxembourg",c:"Luxembourg-Ville",d:"UNESCO 1994. Bock, casemates, vieille ville fortifiée. Gibraltar du Nord.",u:"https://fr.m.wikipedia.org/wiki/Luxembourg_(ville)?useskin=vector"},
+    {lat:49.6117,lng:6.1319,n:"Casemates du Bock",c:"Luxembourg-Ville",d:"UNESCO 1994. 23 km de galeries souterraines. 17e-18e s. 35 000 soldats abrités.",u:"https://fr.m.wikipedia.org/wiki/Casemates_du_Bock?useskin=vector"},
+    {lat:49.9500,lng:6.0333,n:"Family of Man — Clervaux",c:"Clervaux, Ardennes",d:"UNESCO 2003. 503 photographies de Steichen. L'exposition la plus importante du XXe s.",u:"https://fr.m.wikipedia.org/wiki/Clervaux?useskin=vector"},
+    {lat:49.8733,lng:6.3839,n:"Danse de la Procession d\'Echternach",c:"Echternach",d:"UNESCO 2010 (patrimoine immatériel). Depuis le VIIe s. Chaque mardi de Pentecôte.",u:"https://fr.m.wikipedia.org/wiki/Procession_dansante_d%27Echternach?useskin=vector"}
+  ]},
+  memorial:{icon:iconMemorial,color:'#5a5a6a',label:'🕯️ Mémoriaux & Histoire',pts:[
+    {lat:49.6236,lng:6.1847,n:"Cimetière Américain de Hamm",c:"Hamm, Luxembourg-Ville",d:"5 076 soldats américains dont Patton. Libération des Ardennes (1944). Mémorial de la liberté.",u:"https://fr.m.wikipedia.org/wiki/Cimetière_américain_de_Luxembourg?useskin=vector"},
+    {lat:49.8700,lng:6.1600,n:"Musée Militaire de Diekirch",c:"Diekirch",d:"Bataille des Ardennes. Chars, armes, uniformes. Libération par Patton (18 jan. 1945).",u:"https://fr.m.wikipedia.org/wiki/Diekirch?useskin=vector"},
+    {lat:49.9333,lng:5.9167,n:"Wiltz — Grève Générale 1942",c:"Wiltz, Ardennes",d:"Résistance héroïque contre la conscription nazie. La grève générale — fierté nationale.",u:"https://fr.m.wikipedia.org/wiki/Wiltz?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💆 Thermes & Bien-Être',pts:[
+    {lat:49.5083,lng:6.2667,n:"Mondorf-les-Bains",c:"Mondorf, Sud",d:"Seule station thermale du Luxembourg. Sources sulfureuses (1841). Casino, hôtel de luxe.",u:"https://fr.m.wikipedia.org/wiki/Mondorf-les-Bains?useskin=vector"},
+    {lat:49.6117,lng:6.1319,n:"Centres de Bien-Être de Luxembourg",c:"Luxembourg-Ville",d:"Nombreux spas dans les hôtels 5 étoiles de la capitale. Industrie du bien-être prospère.",u:"https://fr.m.wikipedia.org/wiki/Luxembourg_(ville)?useskin=vector"}
+  ]},
+  culture:{icon:iconCulture,color:'#7040b0',label:'🎭 Arts & Culture',pts:[
+    {lat:49.6186,lng:6.1431,n:"MUDAM — Art Contemporain",c:"Kirchberg",d:"I.M. Pei (2006). Collections mondiales. Architecture intégrant les fortifications de Vauban.",u:"https://fr.m.wikipedia.org/wiki/Musée_d%27art_moderne_Grand-Duc_Jean?useskin=vector"},
+    {lat:49.9500,lng:6.0333,n:"Family of Man — Clervaux",c:"Clervaux",d:"UNESCO 2003. L'exposition photo la plus importante du XXe s. Château médiéval.",u:"https://fr.m.wikipedia.org/wiki/Clervaux?useskin=vector"},
+    {lat:49.9333,lng:5.9167,n:"Festival de Wiltz",c:"Wiltz",d:"Festival de théâtre et de musique dans les ruines du château-amphithéâtre. Magie unique.",u:"https://fr.m.wikipedia.org/wiki/Wiltz?useskin=vector"},
+    {lat:49.5183,lng:6.0183,n:"Rockhal — Esch-sur-Alzette",c:"Esch-sur-Alzette",d:"Premier club de musique du Luxembourg. Esch2022. Reconversion industrielle remarquable.",u:"https://fr.m.wikipedia.org/wiki/Esch-sur-Alzette?useskin=vector"}
+  ]},
+  industrie:{icon:iconIndustrie,color:'#8a4010',label:'⚙️ Patrimoine Industriel',pts:[
+    {lat:49.5183,lng:5.9500,n:"Belval — Hauts-Fourneaux",c:"Belval, Esch",d:"Anciens hauts-fourneaux transformés en campus universitaire. Esch2022. Symbole reconversion.",u:"https://fr.m.wikipedia.org/wiki/Belval?useskin=vector"},
+    {lat:49.5600,lng:5.9800,n:"Fond-de-Gras — Musée Terres Rouges",c:"Fond-de-Gras, Minette",d:"Train à vapeur historique. Musée des mines de fer. Le fer rouge qui fit la fortune du Luxembourg.",u:"https://fr.m.wikipedia.org/wiki/Fond-de-Gras?useskin=vector"},
+    {lat:49.5183,lng:6.0183,n:"Esch — Capitale de la Minette",c:"Esch-sur-Alzette",d:"L'ancienne capitale du fer. Mines rouges, hauts-fourneaux, histoire ouvrière. Patrimoine UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Esch-sur-Alzette?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a60b8',label:'💧 Lacs & Rivières',pts:[
+    {lat:49.8978,lng:5.8744,n:"Lac de la Haute-Sûre",c:"Ösling, Nord",d:"350 ha. Baignade, voile, kayak. Principale réserve d'eau douce du Luxembourg.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_la_Haute-Sûre?useskin=vector"},
+    {lat:49.9358,lng:6.2022,n:"Rivière Our — Vianden",c:"Vianden, Ösling",d:"La rivière frontière avec l'Allemagne. Kayak sous le château. Barrage hydro-électrique.",u:"https://fr.m.wikipedia.org/wiki/Our?useskin=vector"},
+    {lat:49.6500,lng:6.3667,n:"Moselle Luxembourgeoise",c:"Remich, Moselle",d:"42 km de vignobles et de quais. La Moselle frontière naturelle avec l'Allemagne.",u:"https://fr.m.wikipedia.org/wiki/Moselle_luxembourgeoise?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:49.6117,lng:6.1319,n:"Golf Grand-Ducal de Luxembourg",c:"Luxembourg-Ville",d:"Golf Club Grand-Ducal (1935). Parcours de 18 trous près de la capitale. Paysage de la vallée.",u:"https://fr.m.wikipedia.org/wiki/Golf_au_Luxembourg?useskin=vector"},
+    {lat:49.5083,lng:6.2667,n:"Golf de Mondorf",c:"Mondorf-les-Bains",d:"Golf attenant aux thermes royaux. Station balnéaire complète. Paysage du Sud luxembourgeois.",u:"https://fr.m.wikipedia.org/wiki/Mondorf-les-Bains?useskin=vector"},
+    {lat:49.8333,lng:6.0833,n:"Golf des Ardennes",c:"Ösling, Nord",d:"Golf dans les collines ardennaises. Paysage boisé. Tranquillité du nord luxembourgeois.",u:"https://fr.m.wikipedia.org/wiki/Golf_au_Luxembourg?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#EF3340\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#EF3340"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#c82030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#c82030"/><rect x="6" y="8" width="2" height="4" fill="#c82030"/></svg>', label:'Villes &amp; Capitale', count:5},
+      {cat:'chateau',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Forteresses', count:5},
+      {cat:'nature',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Ardennes &amp; Nature', count:4},
+      {cat:'vin',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins &amp; Moselle', count:4},
+      {cat:'europe',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="#003399"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="28" cy="18" r="1.5" fill="#FAE042"/><circle cx="18" cy="28" r="1.5" fill="#FAE042"/><circle cx="8" cy="18" r="1.5" fill="#FAE042"/><circle cx="24" cy="11" r="1.5" fill="#FAE042"/><circle cx="11" cy="24" r="1.5" fill="#FAE042"/></svg>', label:'Institutions Européennes', count:4},
+      {cat:'musee',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Collections', count:4},
+      {cat:'gastro',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie', count:3},
+      {cat:'unesco',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:4},
+      {cat:'memorial',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="8" width="8" height="26" rx="0.5" fill="#5a5a6a"/><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><circle cx="18" cy="4" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.8"/></svg>', label:'Mémoriaux &amp; Histoire', count:3},
+      {cat:'spa',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Thermes &amp; Bien-Être', count:2},
+      {cat:'culture',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0"/><circle cx="14" cy="14" r="3" fill="#EF3340" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>', label:'Arts &amp; Culture', count:4},
+      {cat:'industrie', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="20" width="28" height="14" rx="0.5" fill="#8a4010"/><path d="M4 20 L4 14 L10 18 L10 14 L16 18 L16 14 L22 18 L22 14 L28 18 L28 14 L32 14 L32 20 Z" fill="#c8600a"/><line x1="8" y1="4" x2="8" y2="14" stroke="#5a2808" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="14" stroke="#5a2808" stroke-width="2" stroke-linecap="round"/></svg>', label:'Patrimoine Industriel', count:3},
+      {cat:'lac',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a60b8"/><path d="M6 20 Q8 16 12 12 L18 6 L22 12 Q26 16 30 20" fill="#b8d0e8" opacity="0.4"/></svg>', label:'Lacs &amp; Rivières', count:3},
+      {cat:'golf',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#EF3340"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#EF3340 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#EF3340;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#009FCA;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#EF3340;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #EF3340';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#EF3340':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'EF3340\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

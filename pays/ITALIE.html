@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Italie — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de l'Italie.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{--gold:#c9a84c;--gold-light:#e8c97a;--crimson:#8b1a1a;--parchment:#f5ead8;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#0e0a04;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,100,60,.18) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(201,168,76,.08) 0%,transparent 60%);}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:rgba(201,168,76,.06);letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(201,168,76,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(0,100,60,.12);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);border:1px solid rgba(201,168,76,.12);padding:36px 32px;transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--crimson),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(201,168,76,.04);border-color:rgba(201,168,76,.3);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;color:rgba(201,168,76,.08);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+    footer{border-top:1px solid rgba(201,168,76,.1);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold);opacity:.6;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){.hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}#leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}}
+    /* ── Modale Wikipedia ── */
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;border:1px solid rgba(201,168,76,.35);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#1a1208;border-bottom:1px solid rgba(201,168,76,.2);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:#8b1a1a;border:1px solid #5a0a0a;border-radius:3px;color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#6a1010;border-color:#6a1010;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    /* Bandeau d'alerte si Wikipedia ne trouve pas la page */
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;background:rgba(139,26,26,.95);border-top:1px solid rgba(201,168,76,.3);font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+    .country-tooltip{background:rgba(14,10,4,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+  </style>
+</head>
+<body>
+
+<!-- ── Modale Wikipedia ── -->
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <!-- Bandeau affiché si Wikipedia ne trouve pas la page -->
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+// Stocke le titre courant pour pouvoir construire l'URL Google à tout moment
+var _wikiCurrentTitle = '';
+
+function openWiki(url, title){
+  _wikiCurrentTitle = title || 'Italie';
+
+  // Convertit vers la version mobile française de Wikipedia
+  var u = url.replace('it.wikipedia.org','fr.m.wikipedia.org')
+              .replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1 && u.indexOf('fr.m.wikipedia.org')!==-1)
+    u += (u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+
+  // Construit l'URL Google pour ce titre (recherche enrichie "site:fr.wikipedia.org" en priorité)
+  var googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(_wikiCurrentTitle + ' Italie');
+
+  // Met à jour les boutons de la barre
+  document.getElementById('wiki-modal-frame').src = u;
+  document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href = googleUrl;
+  document.getElementById('wiki-banner-google').href = googleUrl;
+
+  // Cache le bandeau d'erreur au démarrage
+  document.getElementById('wiki-error-banner').classList.remove('show');
+
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Détecte si Wikipedia affiche une page "introuvable" après chargement de l'iframe
+  var frame = document.getElementById('wiki-modal-frame');
+  frame.onload = function(){
+    try {
+      // On tente de lire le titre de la page chargée dans l'iframe
+      var doc = frame.contentDocument || frame.contentWindow.document;
+      var pageTitle = doc.title || '';
+      // Wikipedia affiche "Recherche — Wikipédia" ou "Page non trouvée" quand l'article n'existe pas
+      if(pageTitle.indexOf('Recherche') !== -1 || pageTitle.indexOf('non trouvée') !== -1
+         || pageTitle.indexOf('Search results') !== -1 || pageTitle.indexOf('not found') !== -1){
+        document.getElementById('wiki-error-banner').classList.add('show');
+      }
+    } catch(e){
+      // L'accès cross-origin peut être bloqué — dans ce cas on laisse l'utilisateur juger
+    }
+  };
+}
+
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src = '';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeWiki(); });
+</script>
+
+<section class="hero">
+  <div class="hero-year">ITALIA</div>
+  <div class="hero-eyebrow">Italie · Guide du Voyageur</div>
+  <h1 class="hero-title">Patrimoine, Nature<br>&amp; <em>Merveilles d'Italie</em></h1>
+  <p class="hero-subtitle">Monuments, châteaux, cathédrales, musées, parcs naturels et bien plus</p>
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — monuments historiques, châteaux médiévaux, cathédrales, musées, sites UNESCO, palais royaux, villes médiévales, architecture romaine, monastères, villes touristiques, côtes, parcs naturels, archéologie, gastronomie, restaurants étoilés, faune sauvage et volcans.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">33</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">58</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">150+</div><div class="stat-label">Sites au total</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez l'Italie</h2>
+</div>
+
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Risorgimento & Histoire de l'Unité Italienne</div>
+  <h2 class="section-title">Les 33 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vittoriano','Vittoriano — Autel de la Patrie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Rome</div><h3 class="card-name">Vittoriano — Autel de la Patrie</h3><p class="card-context">Monument colossal à Victor-Emmanuel II, inauguré en 1911. Flamme du Soldat Inconnu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Panthéon_du_Risorgimento','Panthéon du Risorgimento')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Turin</div><h3 class="card-name">Panthéon du Risorgimento</h3><p class="card-context">Musée national du Risorgimento — première capitale d'Italie unifiée en 1861.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Giuseppe_Garibaldi_(Rome)','Statue de Garibaldi au Janicule')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Rome</div><h3 class="card-name">Statue de Garibaldi au Janicule</h3><p class="card-context">Bronze équestre du héros des Deux-Mondes sur la colline du Janicule, inauguré en 1895.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Crypte_royale_de_la_basilique_de_Superga','Basilique de la Superga — Crypte Royale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Turin</div><h3 class="card-name">Basilique de la Superga — Crypte Royale</h3><p class="card-context">Nécropole des rois de la Maison de Savoie, fondateurs de l'Italie unifiée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Cavour','Monument à Cavour')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Turin</div><h3 class="card-name">Monument à Camillo Cavour</h3><p class="card-context">Statue du grand architecte de l'unification italienne, Place Carlo Emanuele II.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porte_Pie','Brèche de la Porta Pia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Rome</div><h3 class="card-name">Brèche de la Porta Pia</h3><p class="card-context">Lieu de la prise de Rome le 20 septembre 1870, achèvement de l'unification italienne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ossario_di_Solferino','Ossario di Solferino')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Solferino, Mantoue</div><h3 class="card-name">Ossario di Solferino</h3><p class="card-context">Lieu de la bataille de 1859, origines de la Croix-Rouge. Ossuaire des 7 000 morts.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Garibaldi_(Gênes)','Monument à Garibaldi à Gênes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Gênes</div><h3 class="card-name">Monument à Garibaldi à Gênes</h3><p class="card-context">Statue du héros natif de Nice, érigée sur la Piazza de Ferrari.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mausolée_de_Victor-Emmanuel_II','Panthéon de Rome — Tombeau de Victor-Emmanuel II')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Rome</div><h3 class="card-name">Panthéon — Tombeau de Victor-Emmanuel II</h3><p class="card-context">Le premier roi d'Italie unie repose dans le Panthéon antique de Rome.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_aux_mille','Monument aux Mille')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Quarto, Gênes</div><h3 class="card-name">Monument aux Mille</h3><p class="card-context">Départ des Mille de Garibaldi en 1860 pour la conquête du Royaume des Deux-Siciles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ossario_di_Custoza','Ossario di Custoza')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Custoza, Vérone</div><h3 class="card-name">Ossario di Custoza</h3><p class="card-context">Mémorial des batailles de 1848 et 1866, guerres d'indépendance contre l'Autriche.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sacrario_militare_di_Redipuglia','Sacrario di Redipuglia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Redipuglia, Gorizia</div><h3 class="card-name">Sacrario Militare di Redipuglia</h3><p class="card-context">Le plus grand mémorial de guerre d'Italie — 100 187 soldats de la Grande Guerre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Résistance_italienne','Monument à la Résistance Partisane')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Milan</div><h3 class="card-name">Monument à la Résistance Partisane</h3><p class="card-context">Mémorial des partisans qui libérèrent Milan en avril 1945, Piazza del Duomo.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Colonne_de_Napoléon','Colonne de la Place Vendôme')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Milan</div><h3 class="card-name">Arc de Triomphe du Simplon</h3><p class="card-context">Arco della Pace — érigé pour célébrer les victoires napoléoniennes en Italie du Nord.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fosse_Ardeatine','Monument des Fosses Ardéatines')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Rome</div><h3 class="card-name">Monument des Fosses Ardéatines</h3><p class="card-context">Mémorial des 335 civils fusillés par les nazis le 24 mars 1944, lieu de mémoire national.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Mazzini','Monument à Giuseppe Mazzini')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Rome</div><h3 class="card-name">Monument à Giuseppe Mazzini</h3><p class="card-context">Statue du père spirituel de l'unification italienne, Villa Borghese.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sacré-Cœur_de_Montmartre','Sacrario di Bligny')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Bligny, Marne (France)</div><h3 class="card-name">Sacrario Italiano di Bligny</h3><p class="card-context">Cimetière militaire en France des soldats italiens de 1918, mémoire alliée de la Grande Guerre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bataille_de_la_Piave','Monument à la Victoire de la Piave')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Venise</div><h3 class="card-name">Monument à la Victoire de la Piave</h3><p class="card-context">Commémore la victoire italienne sur l'Autriche en juin 1918 sur le fleuve Piave.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_la_Shoah_de_Milan','Mémorial de la Shoah de Milan')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Milan</div><h3 class="card-name">Mémorial de la Shoah — Gare Centrale</h3><p class="card-context">Binario 21 — voie secrète de la Gare Centrale d'où partirent les déportés juifs.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nécropole_de_Venosa','Tombe de Robert Guiscard — Venosa')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Venosa, Basilicate</div><h3 class="card-name">Tombe de Robert Guiscard</h3><p class="card-context">Mausolée du conquérant normand de l'Italie méridionale au XIe siècle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maison_de_Dante','Maison de Dante')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Florence</div><h3 class="card-name">Casa di Dante — Florence</h3><p class="card-context">Maison natale présumée du Dante Alighieri, auteur de la Divine Comédie (1265).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Léonard_de_Vinci','Monument à Léonard de Vinci')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Milan</div><h3 class="card-name">Monument à Léonard de Vinci</h3><p class="card-context">Statue bronze de Léonard entouré de ses disciples, Piazza della Scala.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tombeau_de_Virgile','Tombeau de Virgile')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Naples</div><h3 class="card-name">Tombeau de Virgile</h3><p class="card-context">Mausolée du poète de l'Énéide sur la colline de Piedigrotta, Vè s. av. J.-C.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fontaine_de_Trevi','Fontaine de Trevi')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Rome</div><h3 class="card-name">Fontaine de Trevi</h3><p class="card-context">Chef-d'œuvre baroque de Nicola Salvi (1762), symbole de Rome éternel.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Piazza_del_Campo','Piazza del Campo — Torre del Mangia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Sienne</div><h3 class="card-name">Piazza del Campo & Torre del Mangia</h3><p class="card-context">La plus belle place médiévale d'Italie, scène du Palio di Siena depuis le XIIIe s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_des_Doges','Palais des Doges')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Venise</div><h3 class="card-name">Palais des Doges</h3><p class="card-context">Siège du gouvernement de la Sérénissime République de Venise, style gothique vénitien.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Castel_del_Monte','Castel del Monte')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Andria, Pouilles</div><h3 class="card-name">Castel del Monte</h3><p class="card-context">Château octogonal mystérieux de Frédéric II (1240). UNESCO. Symbole de la Pouille.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Arc_de_Constantin','Arc de Constantin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Rome</div><h3 class="card-name">Arc de Constantin</h3><p class="card-context">Le plus grand arc de triomphe romain, érigé en 315 ap. J.-C. après la bataille du Pont Milvius.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tombeau_de_Théodoric','Tombeau de Théodoric')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Ravenne</div><h3 class="card-name">Tombeau de Théodoric</h3><p class="card-context">Mausolée ostrogoth du roi Théodoric le Grand (520 ap. J.-C.), monolithe de 300 tonnes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_Portella_della_Ginestra','Stèle de Portella della Ginestra')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Piana degli Albanesi, Sicile</div><h3 class="card-name">Stèle de Portella della Ginestra</h3><p class="card-context">Lieu du massacre de paysans en 1947 — symbole de la lutte contre la mafia et la misère.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monument_à_Anita_Garibaldi','Monument à Anita Garibaldi')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Rome</div><h3 class="card-name">Monument à Anita Garibaldi</h3><p class="card-context">Statue équestre de la guerrière brésilienne, compagne et héroïne du Risorgimento.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ossario_di_Superga','Mémorial de la Grande Torino')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Turin</div><h3 class="card-name">Mémorial de la Grande Torino</h3><p class="card-context">Monument aux joueurs de la Juventus Turin disparus dans la catastrophe aérienne de Superga en 1949.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_la_Résistance_de_Marzabotto','Mémorial de Marzabotto')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Marzabotto, Bologne</div><h3 class="card-name">Mémorial de Marzabotto</h3><p class="card-context">Lieu du massacre de 770 civils par les SS en 1944 — le plus grave crime de guerre nazi en Italie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De la Fondation de Rome à l'Italie Républicaine</div>
+  <h2 class="section-title">Chronologie de l'Histoire Italienne</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">753 av. J.-C.</div>
+      <div class="timeline-event"><strong>Fondation de Rome par Romulus.</strong> La tradition fixe la naissance de la Ville éternelle. Rome dominera la Méditerranée pendant plus de mille ans.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">27 av. J.-C.</div>
+      <div class="timeline-event"><strong>Auguste, premier Empereur romain.</strong> Fin de la République, naissance de l'Empire. Pax romana, essor des arts, du commerce et de l'architecture monumentale.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">79 ap. J.-C.</div>
+      <div class="timeline-event"><strong>Éruption du Vésuve — destruction de Pompéi et Herculanum.</strong> La catastrophe conserve sous les cendres un instantané unique de la vie romaine.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">476</div>
+      <div class="timeline-event"><strong>Chute de l'Empire romain d'Occident.</strong> Romulus Augustule déposé par Odoacre. Début du Moyen Âge, fragmentation de la péninsule en royaumes barbares.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">XIIe–XIVe s.</div>
+      <div class="timeline-event"><strong>Essor des Communes et des Cités-États.</strong> Florence, Venise, Gênes, Milan, Sienne : des républiques marchandes qui dominent l'économie méditerranéenne.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1300–1600</div>
+      <div class="timeline-event"><strong>La Renaissance italienne.</strong> Dante, Pétrarque, Boccace, Léonard, Michel-Ange, Raphaël — l'Italie rayonne sur l'Europe entière et réinvente l'art, la pensée et la science.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1796–1815</div>
+      <div class="timeline-event"><strong>Napoléon en Italie.</strong> Campagnes italiennes, République cisalpine, Royaume d'Italie napoléonien. Les idéaux révolutionnaires font germer le sentiment national.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1848–1861</div>
+      <div class="timeline-event"><strong>Le Risorgimento — Unification de l'Italie.</strong> Cavour, Mazzini, Garibaldi et l'Expédition des Mille conduisent à la proclamation du Royaume d'Italie le 17 mars 1861.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1915–1918</div>
+      <div class="timeline-event"><strong>Première Guerre mondiale — Front du Trentin et de l'Isonzo.</strong> 600 000 morts italiens. L'Italie obtient Trente, Trieste et l'Istrie mais parle de "victoire mutilée".</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1922–1943</div>
+      <div class="timeline-event"><strong>Régime fasciste de Mussolini.</strong> La Marche sur Rome (1922) porte le Duce au pouvoir. Empire colonial en Afrique. Alliance avec Hitler et entrée en guerre en 1940.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1943–1945</div>
+      <div class="timeline-event"><strong>Libération et Résistance partisane.</strong> Débarquement allié en Sicile, armistice, occupation allemande du Nord. Les partisans libèrent Milan et exécutent Mussolini le 28 avril 1945.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1946</div>
+      <div class="timeline-event"><strong>Naissance de la République Italienne.</strong> Référendum du 2 juin 1946 : les Italiens choisissent la République contre la monarchie à 54 %. Constitution promulguée en 1948.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1957–1970</div>
+      <div class="timeline-event"><strong>Miracle économique et traité de Rome.</strong> L'Italie co-fonde la CEE en 1957. Le "boom économico" transforme le pays en puissance industrielle européenne de premier rang.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇮🇹</div>
+  <p class="footer-text">Guide du Voyageur · Italie · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('leaflet-map', {
+  scrollWheelZoom: true,
+  tap: false,
+  zoomControl: false
+}).setView([42.5, 12.5], 5);
+
+// Boutons zoom repositionnés en bas à droite avec taille agrandie pour mobile/souris
+L.control.zoom({position:'bottomright'}).addTo(map);
+
+// Force le recalcul de la taille après rendu complet (corrige bug Android)
+setTimeout(function(){ map.invalidateSize(true); }, 300);
+window.addEventListener('resize', function(){ map.invalidateSize(); });
+var currentTile=L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}).addTo(map);
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+// ICONS — 17 catégories
+var iconM    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(139,26,26,.8))"><polygon points="18,2 22,8 28,8 28,10 24,10 24,27 28,27 28,29 8,29 8,27 12,27 12,10 8,10 8,8 14,8" fill="#c9a84c" stroke="#7a3a0a" stroke-width="1"/><rect x="7" y="29" width="22" height="4" rx="1" fill="#8b1a1a"/></svg>');
+var iconC    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,80,160,.8))"><rect x="5" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="8" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="11" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="23" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="26" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="29" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="5" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="23" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="6" y="16" width="24" height="17" rx="1" fill="#2a5cbf"/><rect x="14" y="25" width="8" height="8" fill="#0e1e4a"/><rect x="7" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/><rect x="25" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/></svg>');
+var iconK    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(120,40,180,.8))"><rect x="15" y="2" width="6" height="22" rx="1" fill="#8b2fc9"/><rect x="7" y="9" width="22" height="6" rx="1" fill="#8b2fc9"/><rect x="11" y="24" width="14" height="4" rx="1" fill="#6a1fa0"/><rect x="8" y="28" width="20" height="5" rx="1" fill="#5a1a8a"/></svg>');
+var iconG    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,130,80,.8))"><ellipse cx="18" cy="21" rx="13" ry="11" fill="#1e8250" stroke="#145c38" stroke-width="1"/><circle cx="9" cy="18" r="2.2" fill="#e8c97a"/><circle cx="18" cy="10" r="2.2" fill="#8b2fc9"/><circle cx="27" cy="18" r="2.2" fill="#8b1a1a"/></svg>');
+var iconU    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,100,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#e06414" stroke="#a04000" stroke-width="1"/></svg>');
+var iconP    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,30,100,.8))"><rect x="6" y="10" width="24" height="20" rx="2" fill="#b01e64"/><rect x="6" y="10" width="24" height="6" fill="#d4236e"/><rect x="14" y="20" width="8" height="10" rx="1" fill="#7a0a42"/><circle cx="18" cy="7" r="5" fill="#d4236e" stroke="#7a0a42" stroke-width="1.5"/><circle cx="18" cy="7" r="2" fill="#f5d0e0"/></svg>');
+var iconV    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,60,20,.8))"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="8" y="12" width="6" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="24" y="16" width="6" height="6" fill="#9a6030"/><rect x="9" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="25" y="19" width="3" height="3" rx="1" fill="#3a1a05"/></svg>');
+var iconA    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,120,140,.8))"><rect x="12" y="4" width="12" height="4" rx="1" fill="#148c8c"/><rect x="8" y="8" width="20" height="4" rx="1" fill="#1aadad"/><rect x="6" y="12" width="24" height="18" rx="2" fill="#1aadad"/><rect x="10" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><rect x="21" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><rect x="14" y="22" width="8" height="8" rx="1" fill="#0a5a5a"/></svg>');
+var iconAb   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,10,.8))"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#e8c97a"/></svg>');
+var iconT    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,60,30,.8))"><circle cx="18" cy="16" r="12" fill="#dc3c1e"/><circle cx="18" cy="16" r="8" fill="#f07050"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="white" font-weight="bold">★</text></svg>');
+var iconPl   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,200,.8))"><ellipse cx="18" cy="26" rx="15" ry="7" fill="#1464c8"/><ellipse cx="18" cy="22" rx="13" ry="5" fill="#3a8ce0"/><path d="M4 22 Q9 17 14 20 Q18 15 22 20 Q27 16 32 22" fill="none" stroke="#90c8f0" stroke-width="1.5"/><ellipse cx="18" cy="14" rx="6" ry="3" fill="#f0e890"/></svg>');
+var iconNa   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,130,50,.8))"><ellipse cx="18" cy="24" rx="14" ry="9" fill="#1e8232"/><ellipse cx="10" cy="18" rx="7" ry="10" fill="#28a03c"/><ellipse cx="26" cy="20" rx="7" ry="8" fill="#28a03c"/><ellipse cx="18" cy="12" rx="6" ry="8" fill="#34c050"/><circle cx="10" cy="8" r="4" fill="#34c050"/><circle cx="26" cy="12" r="3" fill="#28a03c"/></svg>');
+var iconArch = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,120,20,.8))"><rect x="6" y="26" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="16" fill="#c9a84c"/><rect x="16" y="10" width="4" height="16" fill="#c9a84c"/><rect x="24" y="10" width="4" height="16" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>');
+var iconGa   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(160,80,10,.8))"><rect x="8" y="20" width="20" height="12" rx="3" fill="#a05010"/><ellipse cx="18" cy="20" rx="10" ry="5" fill="#c87820"/><path d="M12 20 Q14 14 18 12 Q22 14 24 20" fill="#e09030"/><circle cx="14" cy="16" r="2" fill="#c03010"/><circle cx="22" cy="15" r="2" fill="#c03010"/><rect x="16" y="12" width="4" height="3" rx="1" fill="#7a3808"/></svg>');
+var iconRest = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,20,60,.8))"><circle cx="18" cy="17" r="13" fill="#c01840"/><circle cx="18" cy="17" r="10" fill="#e02050"/><text x="18" y="14" text-anchor="middle" font-size="7" fill="#ffd700" font-weight="bold">★★★</text><text x="18" y="22" text-anchor="middle" font-size="6.5" fill="white" font-weight="bold" font-family="Georgia,serif">M</text><rect x="13" y="26" width="10" height="2" rx="1" fill="#ffd700"/></svg>');
+var iconWild = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,100,20,.8))"><ellipse cx="18" cy="22" rx="11" ry="8" fill="#2a7a1a"/><ellipse cx="18" cy="18" rx="7" ry="6" fill="#3a9a28"/><circle cx="13" cy="14" r="3.5" fill="#3a9a28"/><circle cx="23" cy="14" r="3.5" fill="#3a9a28"/><circle cx="13" cy="14" r="1.5" fill="#1a5010"/><circle cx="23" cy="14" r="1.5" fill="#1a5010"/><ellipse cx="18" cy="20" rx="4" ry="2.5" fill="#fde68a" opacity=".7"/></svg>');
+var iconVolc = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,50,10,.8))"><polygon points="18,4 30,30 6,30" fill="#8b2000"/><polygon points="18,4 24,18 12,18" fill="#c83010"/><ellipse cx="18" cy="4" rx="4" ry="2" fill="#ff6020"/><path d="M16 4 Q14 1 12 3 M18 2 Q18 0 20 1 M20 4 Q22 1 24 3" stroke="#ff9040" stroke-width="1.5" fill="none"/><rect x="6" y="30" width="24" height="3" rx="1" fill="#5a1000"/></svg>');
+
+// DATA — 17 catégories
+var DATA = {
+  monument:{icon:iconM,color:'#c9a84c',label:'⚔️ Monument historique',pts:[
+    {lat:41.8942,lng:12.4828,n:"Vittoriano — Autel de la Patrie",c:"Rome",d:"Monument colossal à Victor-Emmanuel II (1911). Flamme du Soldat Inconnu. Vue panoramique sur Rome.",u:"https://fr.m.wikipedia.org/wiki/Vittoriano?useskin=vector"},
+    {lat:45.0703,lng:7.6869,n:"Musée National du Risorgimento",c:"Turin",d:"Première capitale de l'Italie unifiée en 1861. Le plus grand musée du Risorgimento au monde.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_national_du_Risorgimento_italien?useskin=vector"},
+    {lat:41.8912,lng:12.4654,n:"Statue de Garibaldi au Janicule",c:"Rome",d:"Bronze équestre du héros des Deux-Mondes sur la colline du Janicule, 1895.",u:"https://fr.m.wikipedia.org/wiki/Monument_%C3%A0_Giuseppe_Garibaldi_(Rome)?useskin=vector"},
+    {lat:45.0763,lng:7.7411,n:"Basilique de la Superga",c:"Turin",d:"Nécropole des rois de la Maison de Savoie. Lieu de la catastrophe aérienne du Grande Torino (1949).",u:"https://fr.m.wikipedia.org/wiki/Basilique_de_Superga?useskin=vector"},
+    {lat:41.9028,lng:12.4964,n:"Brèche de la Porta Pia",c:"Rome",d:"Lieu de la prise de Rome le 20 septembre 1870 — achèvement de l'unification italienne.",u:"https://fr.m.wikipedia.org/wiki/Porte_Pie?useskin=vector"},
+    {lat:45.3710,lng:10.5662,n:"Ossario di Solferino",c:"Solferino, Mantoue",d:"Bataille de 1859. Origines de la Croix-Rouge (Henri Dunant). Ossuaire des 7 000 morts.",u:"https://fr.m.wikipedia.org/wiki/Bataille_de_Solferino?useskin=vector"},
+    {lat:45.7083,lng:13.2271,n:"Sacrario Militare di Redipuglia",c:"Redipuglia, Gorizia",d:"Le plus grand mémorial de guerre d'Italie — 100 187 soldats de la Première Guerre mondiale.",u:"https://fr.m.wikipedia.org/wiki/Sacrario_militare_di_Redipuglia?useskin=vector"},
+    {lat:45.4654,lng:9.1866,n:"Mémorial de la Shoah — Binario 21",c:"Milan",d:"Voie secrète de la Gare Centrale d'où partirent les déportés juifs vers les camps nazis.",u:"https://fr.m.wikipedia.org/wiki/M%C3%A9morial_de_la_Shoah_de_Milan?useskin=vector"},
+    {lat:44.3590,lng:11.0367,n:"Mémorial de Marzabotto",c:"Marzabotto, Bologne",d:"Massacre de 770 civils par les SS en 1944 — le plus grave crime de guerre nazi en Italie.",u:"https://fr.m.wikipedia.org/wiki/Massacre_de_Marzabotto?useskin=vector"},
+    {lat:45.5080,lng:10.5210,n:"Monument des Fosses Ardéatines",c:"Rome",d:"335 civils fusillés par les nazis le 24 mars 1944. Lieu de mémoire national.",u:"https://fr.m.wikipedia.org/wiki/Fosses_Ard%C3%A9atines?useskin=vector"}
+  ]},
+  castle:{icon:iconC,color:'#2a5cbf',label:'🏰 Château & Forteresse',pts:[
+    {lat:41.8892,lng:12.4663,n:"Castel Sant'Angelo",c:"Rome",d:"Mausolée d'Hadrien transformé en forteresse papale. Passage secret vers le Vatican.",u:"https://fr.m.wikipedia.org/wiki/Castel_Sant%27Angelo?useskin=vector"},
+    {lat:45.4341,lng:10.9941,n:"Château de Sirmione",c:"Lac de Garde, Brescia",d:"Scaligero du XIIIe s. sur un promontoire dans le lac de Garde. L'un des plus beaux châteaux d'Italie.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Sirmione?useskin=vector"},
+    {lat:41.1304,lng:16.2920,n:"Castel del Monte",c:"Andria, Pouilles",d:"Château octogonal mystérieux de Frédéric II (1240). UNESCO. Symbole des Pouilles.",u:"https://fr.m.wikipedia.org/wiki/Castel_del_Monte?useskin=vector"},
+    {lat:45.1355,lng:7.3714,n:"Château de Fénis",c:"Vallée d'Aoste",d:"Forteresse médiévale du XIVe s. aux tours multiples, fresques gothiques remarquables.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_F%C3%A9nis?useskin=vector"},
+    {lat:40.6402,lng:14.6027,n:"Château Aragonais d'Ischia",c:"Ischia, Naples",d:"Forteresse sur un rocher volcanique reliée à l'île par un pont de 220 m.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_aragonais_d%27Ischia?useskin=vector"},
+    {lat:40.3509,lng:18.1740,n:"Castello di Otrante",c:"Otrante, Lecce",d:"Forteresse aragonaise (XVe s.) face à la mer Adriatique. Siège ottoman de 1480.",u:"https://fr.m.wikipedia.org/wiki/Otrante?useskin=vector"},
+    {lat:45.5376,lng:12.2957,n:"Château de Miramare",c:"Trieste",d:"Palais romantique du XIXe s. de Maximilien d'Autriche au bord de la mer Adriatique.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Miramare?useskin=vector"},
+    {lat:43.7228,lng:10.3966,n:"Torre del Lago Puccini",c:"Lucques, Toscane",d:"Villa du compositeur Giacomo Puccini, où il composa Tosca, La Bohème et Madama Butterfly.",u:"https://fr.m.wikipedia.org/wiki/Torre_del_Lago_Puccini?useskin=vector"},
+    {lat:44.1396,lng:10.2644,n:"Castello della Verrucola",c:"Fivizzano, Massa-Carrara",d:"Forteresse lunigianaise médiévale dominant les Apennins toscans.",u:"https://it.wikipedia.org/wiki/Castello_della_Verrucola"},
+    {lat:37.5016,lng:14.0661,n:"Château de Lombardia",c:"Enna, Sicile",d:"Plus grande forteresse de Sicile (XIVe s.), couronnant le plateau d'Enna à 931 m.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Lombardia?useskin=vector"}
+  ]},
+  cathedral:{icon:iconK,color:'#8b2fc9',label:'⛪ Cathédrale & Basilique',pts:[
+    {lat:41.9022,lng:12.4539,n:"Basilique Saint-Pierre",c:"Vatican, Rome",d:"Plus grande église chrétienne du monde. Michel-Ange, Bernin, Raphaël. Coupole de 136 m.",u:"https://fr.m.wikipedia.org/wiki/Basilique_Saint-Pierre_de_Rome?useskin=vector"},
+    {lat:43.7733,lng:11.2560,n:"Dôme de Florence — Santa Maria del Fiore",c:"Florence",d:"Coupole de Brunelleschi (1436) — chef-d'œuvre absolu de la Renaissance. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Santa_Maria_del_Fiore?useskin=vector"},
+    {lat:45.4654,lng:9.1908,n:"Duomo de Milan",c:"Milan",d:"Cathédrale gothique en marbre blanc, 3 400 statues. Chantier de 1386 à 1965. La plus grande d'Italie.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Milan?useskin=vector"},
+    {lat:45.4337,lng:12.3359,n:"Basilique Saint-Marc",c:"Venise",d:"Chef-d'œuvre romano-byzantin, mosaïques dorées du XIe s. Trésor de Byzance. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Basilique_Saint-Marc?useskin=vector"},
+    {lat:43.3184,lng:11.3303,n:"Cathédrale de Sienne",c:"Sienne",d:"Chef-d'œuvre gothique en marbre blanc et noir, façade polychrome du XIIIe s.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Sienne?useskin=vector"},
+    {lat:40.8522,lng:14.2681,n:"Cathédrale de Naples",c:"Naples",d:"Duomo abritant l'ampoule du sang de saint Janvier, liquéfaction miraculeuse trois fois l'an.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Naples?useskin=vector"},
+    {lat:37.6522,lng:15.1466,n:"Cathédrale de Catane",c:"Catane, Sicile",d:"Baroque sicilien, tombeau du compositeur Bellini. Bâtie sur les ruines romaines.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Catane?useskin=vector"},
+    {lat:41.8986,lng:12.4768,n:"Basilique Saint-Jean-de-Latran",c:"Rome",d:"La 'Mère de toutes les Églises'. Cathédrale officielle des papes, fondée par Constantin.",u:"https://fr.m.wikipedia.org/wiki/Basilique_Saint-Jean-de-Latran?useskin=vector"},
+    {lat:43.7215,lng:10.3967,n:"Cathédrale de Pise",c:"Pise",d:"Ensemble de la Piazza dei Miracoli — cathédrale romane, baptistère, Tour penchée. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_de_Pise?useskin=vector"},
+    {lat:40.3593,lng:18.1733,n:"Basilique de Santa Croce di Lecce",c:"Lecce, Pouilles",d:"Chef-d'œuvre du baroque lecchese (XVIIe s.), façade fleurie sculptée de créatures fantastiques.",u:"https://fr.m.wikipedia.org/wiki/Basilique_de_Santa-Croce-di-Lecce?useskin=vector"}
+  ]},
+  museum:{icon:iconG,color:'#1e8250',label:'🎨 Musée & Galerie',pts:[
+    {lat:43.7677,lng:11.2555,n:"Galerie des Offices",c:"Florence",d:"Le plus grand musée de la Renaissance mondiale — Botticelli, Léonard, Michel-Ange, Raphaël, Titien.",u:"https://fr.m.wikipedia.org/wiki/Galerie_des_Offices?useskin=vector"},
+    {lat:41.9069,lng:12.4822,n:"Musées du Vatican",c:"Cité du Vatican",d:"110 galeries, Chapelle Sixtine, Chambre de Raphaël. 7 millions de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9es_du_Vatican?useskin=vector"},
+    {lat:45.4654,lng:9.1902,n:"Pinacothèque de Brera",c:"Milan",d:"Plus grande collection de peinture du Nord de l'Italie — Raphael, Mantegna, Caravage.",u:"https://fr.m.wikipedia.org/wiki/Pinacoth%C3%A8que_de_Brera?useskin=vector"},
+    {lat:40.8553,lng:14.2490,n:"Musée Archéologique de Naples",c:"Naples",d:"La plus grande collection gréco-romaine du monde — trésors de Pompéi et Herculanum.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_arch%C3%A9ologique_national_de_Naples?useskin=vector"},
+    {lat:45.4382,lng:12.3359,n:"Galerie de l'Académie de Venise",c:"Venise",d:"Chef-d'œuvres de la peinture vénitienne — Bellini, Giorgione, Titien, Tintoret, Véronèse.",u:"https://fr.m.wikipedia.org/wiki/Gallerie_dell%27Accademia?useskin=vector"},
+    {lat:43.7727,lng:11.2580,n:"Musée du Bargello",c:"Florence",d:"Sculptures de Donatello, Verrocchio, Michel-Ange dans l'ancien palais du Podestà.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_national_du_Bargello?useskin=vector"},
+    {lat:40.8364,lng:14.2488,n:"Musée de Capodimonte",c:"Naples",d:"Collection royale des Bourbon — Titien, Caravage, Bellini, El Greco. Parc royal de 134 ha.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_de_Capodimonte?useskin=vector"},
+    {lat:45.4654,lng:9.1939,n:"Musée du Novecento",c:"Milan",d:"Collection d'art moderne italien du XXe s., del Futurismo à l'Arte Povera, avec vue sur le Duomo.",u:"https://fr.m.wikipedia.org/wiki/Museo_del_Novecento_(Milan)?useskin=vector"},
+    {lat:43.7692,lng:11.2612,n:"Musée des Sciences de Léonard",c:"Florence",d:"Institut et Musée d'Histoire des Sciences — les instruments scientifiques de Galilée.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_Galil%C3%A9o?useskin=vector"},
+    {lat:41.9000,lng:12.4833,n:"Musée Borghèse",c:"Rome",d:"Villa Borghèse — Bernin, Caravage, Titien dans un cadre de jardin exceptionnel.",u:"https://fr.m.wikipedia.org/wiki/Galerie_Borgh%C3%A8se?useskin=vector"}
+  ]},
+  unesco:{icon:iconU,color:'#e06414',label:'⭐ Site UNESCO',pts:[
+    {lat:41.8902,lng:12.4922,n:"Centre historique de Rome",c:"Rome",d:"Colisée, Forum Romain, Panthéon, Piazza Navona — 2 800 ans d'histoire. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Centre_historique_de_Rome?useskin=vector"},
+    {lat:43.7735,lng:11.2557,n:"Centre historique de Florence",c:"Florence",d:"Berceau de la Renaissance. Dôme de Brunelleschi, Offices, Ponte Vecchio. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Centre_historique_de_Florence?useskin=vector"},
+    {lat:45.4338,lng:12.3380,n:"Venise et sa lagune",c:"Venise",d:"Ville unique au monde sur pilotis, 118 îles, 400 ponts. UNESCO 1987.",u:"https://fr.m.wikipedia.org/wiki/Venise?useskin=vector"},
+    {lat:40.7500,lng:14.4869,n:"Pompéi et Herculanum",c:"Naples, Campanie",d:"Cités romaines conservées par l'éruption du Vésuve en 79 ap. J.-C. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pomp%C3%A9i?useskin=vector"},
+    {lat:44.4949,lng:11.3426,n:"Bologne — Portiques",c:"Bologne, Émilie-Romagne",d:"53 km de portiques médiévaux et baroques, les plus longs au monde. UNESCO 2021.",u:"https://fr.m.wikipedia.org/wiki/Portiques_de_Bologne?useskin=vector"},
+    {lat:37.5022,lng:14.9290,n:"Villa Romaine du Casale",c:"Piazza Armerina, Sicile",d:"Mosaïques romaines du IVe s. — 3 500 m² de mosaïques dont les célèbres 'bikini girls'. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Villa_romaine_du_Casale?useskin=vector"},
+    {lat:40.6400,lng:17.9400,n:"Trulli d'Alberobello",c:"Alberobello, Pouilles",d:"Maisons coniques à toit de pierres calcaires du XIVe s. Unique au monde. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Trulli_d%27Alberobello?useskin=vector"},
+    {lat:44.4196,lng:8.9353,n:"Gênes — Le Caruggi",c:"Gênes, Ligurie",d:"Caruggi — ruelles médiévales et palais des Strade Nuove. UNESCO 2006.",u:"https://fr.m.wikipedia.org/wiki/G%C3%AAnes?useskin=vector"},
+    {lat:43.9255,lng:12.4544,n:"République de Saint-Marin",c:"Saint-Marin",d:"Plus ancien État souverain du monde (301 ap. J.-C.). Monte Titano et ses trois tours. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Saint-Marin?useskin=vector"},
+    {lat:44.8500,lng:10.9167,n:"Crémone — Lutherie",c:"Crémone, Lombardie",d:"Capitale mondiale du violon — Stradivarius, Amati, Guarneri. UNESCO patrimoine immatériel.",u:"https://fr.m.wikipedia.org/wiki/Cr%C3%A9mone?useskin=vector"}
+  ]},
+  palace:{icon:iconP,color:'#b01e64',label:'👑 Palais Royal',pts:[
+    {lat:40.8267,lng:14.1327,n:"Palais Royal de Caserte",c:"Caserte, Campanie",d:"Versailles napolitain des Bourbon — 1 200 pièces, 120 ha de jardins. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Palais_royal_de_Caserte?useskin=vector"},
+    {lat:45.0755,lng:7.6868,n:"Palais Royal de Turin",c:"Turin, Piémont",d:"Résidence des rois de Savoie depuis le XVIIe s. Armurerie royale, jardins royaux.",u:"https://fr.m.wikipedia.org/wiki/Palais_royal_de_Turin?useskin=vector"},
+    {lat:38.1157,lng:13.3613,n:"Palais des Normands",c:"Palerme, Sicile",d:"Palais arabo-normand du XIIe s. avec la Chapelle Palatine aux mosaïques byzantines. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Palais_des_Normands?useskin=vector"},
+    {lat:43.7731,lng:11.2543,n:"Palais Pitti",c:"Florence",d:"Résidence des Médicis et des Grands-Ducs de Toscane. Jardins de Boboli. 8 musées.",u:"https://fr.m.wikipedia.org/wiki/Palais_Pitti?useskin=vector"},
+    {lat:45.4066,lng:11.8760,n:"Palais Te",c:"Mantoue, Lombardie",d:"Villa suburbaine de Frédéric II Gonzague, fresques de Giulio Romano (1535).",u:"https://fr.m.wikipedia.org/wiki/Palais_Te?useskin=vector"},
+    {lat:45.5080,lng:8.6940,n:"Palais Royal de Monza",c:"Monza, Lombardie",d:"Villa Royale de Monza entourée du plus grand parc d'Europe clôturé (685 ha).",u:"https://fr.m.wikipedia.org/wiki/Villa_royale_de_Monza?useskin=vector"},
+    {lat:41.9022,lng:12.4784,n:"Quirinal — Palais Présidentiel",c:"Rome",d:"Résidence des présidents de la République italienne depuis 1947, ancienne résidence papale.",u:"https://fr.m.wikipedia.org/wiki/Palais_du_Quirinal?useskin=vector"},
+    {lat:44.6480,lng:10.9262,n:"Palais Ducal de Modène",c:"Modène, Émilie",d:"Résidence des Este, académie militaire depuis 1862. Bibliothèque Estense.",u:"https://fr.m.wikipedia.org/wiki/Palais_ducal_de_Mod%C3%A8ne?useskin=vector"}
+  ]},
+  medieval:{icon:iconV,color:'#7a4a1a',label:'🏘️ Ville Médiévale',pts:[
+    {lat:43.3186,lng:11.3307,n:"Sienne",c:"Toscane",d:"Cité médiévale inégalée — Piazza del Campo, Torre del Mangia, Palio. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Sienne?useskin=vector"},
+    {lat:43.7630,lng:11.2159,n:"San Gimignano",c:"Toscane",d:"La 'Manhattan médiévale' — 14 tours de grès dressées dans la campagne toscane. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/San_Gimignano?useskin=vector"},
+    {lat:43.4700,lng:12.5400,n:"Gubbio",c:"Ombrie",d:"Ville médiévale sur les pentes du Mont Ingino, palais des Consuls, course des Ceri.",u:"https://fr.m.wikipedia.org/wiki/Gubbio?useskin=vector"},
+    {lat:43.1106,lng:12.3880,n:"Assise",c:"Ombrie",d:"Ville de François d'Assise — Basilique franciscaine et fresques de Giotto. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Assise?useskin=vector"},
+    {lat:43.6167,lng:13.5183,n:"Urbino",c:"Marches",d:"Bijou de la Renaissance — palais ducal, lieu de naissance de Raphaël. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Urbino?useskin=vector"},
+    {lat:40.6440,lng:15.7990,n:"Matera",c:"Basilicate",d:"Sassi millénaires creusés dans le tuf calcaire. Capitale Européenne de la Culture 2019. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Matera?useskin=vector"},
+    {lat:45.5330,lng:12.5700,n:"Torcello",c:"Lagune de Venise",d:"Île-mère de Venise, cathédrale byzantine du VIIe s., mosaïques du Jugement Dernier.",u:"https://fr.m.wikipedia.org/wiki/Torcello?useskin=vector"},
+    {lat:44.4200,lng:8.7400,n:"Finalborgo",c:"Finale Ligure, Ligurie",d:"Bourg médiéval fortifié des Del Carretto, ruelles pavées, palais baroques.",u:"https://it.wikipedia.org/wiki/Finalborgo"},
+    {lat:43.9490,lng:12.4470,n:"San Leo",c:"Émilie-Romagne",d:"Forteresse imprenable sur un piton rocheux, prison du comte Cagliostro.",u:"https://fr.m.wikipedia.org/wiki/San_Leo?useskin=vector"},
+    {lat:38.2740,lng:15.6430,n:"Tropea",c:"Calabre",d:"Village perché sur une falaise de tuf rose surplombant la mer Tyrrhénienne.",u:"https://fr.m.wikipedia.org/wiki/Tropea?useskin=vector"}
+  ]},
+  roman:{icon:iconArch,color:'#b47814',label:'🏛️ Architecture Romaine',pts:[
+    {lat:41.8902,lng:12.4922,n:"Colisée",c:"Rome",d:"Amphithéâtre Flavien (80 ap. J.-C.). 50 000 spectateurs, 2 000 ans d'histoire. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Colis%C3%A9e?useskin=vector"},
+    {lat:41.8986,lng:12.4768,n:"Panthéon de Rome",c:"Rome",d:"Temple romain le mieux conservé au monde (125 ap. J.-C.). Coupole en béton de 43 m.",u:"https://fr.m.wikipedia.org/wiki/Panth%C3%A9on_(Rome)?useskin=vector"},
+    {lat:40.7500,lng:14.4869,n:"Pompéi",c:"Naples, Campanie",d:"Cité romaine préservée sous les cendres du Vésuve depuis 79 ap. J.-C. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pomp%C3%A9i?useskin=vector"},
+    {lat:40.7547,lng:14.3487,n:"Herculanum",c:"Naples, Campanie",d:"Ville romaine mieux préservée que Pompéi — boiseries, mosaïques et fresques intactes.",u:"https://fr.m.wikipedia.org/wiki/Herculanum?useskin=vector"},
+    {lat:37.7460,lng:12.4270,n:"Temples de Sélinonte",c:"Sélinonte, Sicile",d:"Le plus grand complexe de temples grecs de la Méditerranée occidentale (VIe s. av. J.-C.).",u:"https://fr.m.wikipedia.org/wiki/S%C3%A9linonte?useskin=vector"},
+    {lat:44.3592,lng:11.7139,n:"Ville Romaine de Veleia",c:"Piacenza, Émilie",d:"Ville romaine de montagne avec forum, temples et thermes du Ier s. ap. J.-C.",u:"https://fr.m.wikipedia.org/wiki/Veleia?useskin=vector"},
+    {lat:45.5443,lng:11.5354,n:"Arènes de Vérone",c:"Vérone",d:"Amphithéâtre romain du Ier s., l'un des mieux conservés. Opéra en plein air l'été.",u:"https://fr.m.wikipedia.org/wiki/Ar%C3%A8nes_de_V%C3%A9rone?useskin=vector"},
+    {lat:44.4175,lng:8.9320,n:"Via Julia Augusta",c:"Ligurie",d:"Route romaine reliant Rome à la Gaule, avec ponts et arcs de triomphe romains conservés.",u:"https://fr.m.wikipedia.org/wiki/Via_Julia_Augusta?useskin=vector"},
+    {lat:37.6522,lng:15.1466,n:"Théâtre Grec de Taormina",c:"Taormine, Sicile",d:"Théâtre grec-romain du IIIe s. av. J.-C. avec vue sublime sur l'Etna et la mer.",u:"https://fr.m.wikipedia.org/wiki/Taormina?useskin=vector"},
+    {lat:44.1388,lng:12.2436,n:"Rimini — Arco di Augusto",c:"Rimini, Émilie-Romagne",d:"Le plus ancien arc de triomphe romain survivant (27 av. J.-C.), érigé pour Auguste.",u:"https://fr.m.wikipedia.org/wiki/Arc_d%27Auguste_(Rimini)?useskin=vector"}
+  ]},
+  abbey:{icon:iconAb,color:'#6b4020',label:'✝️ Abbaye & Monastère',pts:[
+    {lat:41.6834,lng:13.5135,n:"Abbaye du Mont-Cassin",c:"Cassino, Frosinone",d:"Berceau du monachisme occidental. Fondée par saint Benoît en 529. Détruite en 1944 puis reconstruite.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_du_Mont-Cassin?useskin=vector"},
+    {lat:45.5700,lng:7.2360,n:"Abbaye d'Aosta — Sant'Orso",c:"Aoste, Vallée d'Aoste",d:"Collégiale romane du XIe s. avec cloître à chapiteaux sculptés.",u:"https://fr.m.wikipedia.org/wiki/Coll%C3%A9giale_Sant%27Orso_d%27Aoste?useskin=vector"},
+    {lat:44.0619,lng:9.7028,n:"Abbaye de Bobbio",c:"Bobbio, Piacenza",d:"Fondée par saint Colomban au VIIe s. Scriptorium célèbre. Crypte du VIe s.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Bobbio?useskin=vector"},
+    {lat:41.7583,lng:13.9183,n:"Abbaye de Casamari",c:"Veroli, Frosinone",d:"Chef-d'œuvre cistercien du XIIIe s. Distillerie de liqueurs depuis le Moyen Âge.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Casamari?useskin=vector"},
+    {lat:44.1660,lng:11.1450,n:"Abbaye de Vallombrosa",c:"Reggello, Florence",d:"Fondée en 1038 dans une forêt de sapins par saint Jean Gualbert.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Vallombrosa?useskin=vector"},
+    {lat:43.2950,lng:12.4370,n:"Eremo delle Carceri",c:"Assise, Ombrie",d:"Ermitage de saint François d'Assise dans une forêt de chênes verts, grotte de prière.",u:"https://fr.m.wikipedia.org/wiki/Eremo_delle_Carceri?useskin=vector"},
+    {lat:45.4990,lng:10.5850,n:"Monastère de Rodengo-Saiano",c:"Brescia, Lombardie",d:"Monastère clunisien du XIe s. avec fresques romanes et cloître Renaissance.",u:"https://it.wikipedia.org/wiki/Abbazia_di_San_Nicola_(Rodengo_Saiano)"},
+    {lat:37.9790,lng:13.3960,n:"Abbaye de Monreale",c:"Monreale, Sicile",d:"Cathédrale normande du XIIe s. avec les plus belles mosaïques byzantines d'Occident. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Monreale?useskin=vector"}
+  ]},
+  tourist:{icon:iconT,color:'#dc3c1e',label:'🌟 Ville Touristique',pts:[
+    {lat:41.9028,lng:12.4964,n:"Rome",c:"Latium",d:"La Ville éternelle. Colisée, Vatican, Forum, Fontaine de Trevi. 10 millions de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Rome?useskin=vector"},
+    {lat:43.7696,lng:11.2558,n:"Florence",c:"Toscane",d:"Berceau de la Renaissance. Dôme de Brunelleschi, Offices, Ponte Vecchio.",u:"https://fr.m.wikipedia.org/wiki/Florence?useskin=vector"},
+    {lat:45.4371,lng:12.3326,n:"Venise",c:"Vénétie",d:"La Sérénissime. Canal Grande, Place Saint-Marc, gondoles. 14 millions de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Venise?useskin=vector"},
+    {lat:45.4654,lng:9.1866,n:"Milan",c:"Lombardie",d:"Capitale de la mode et du design. Duomo, Last Supper de Léonard, Brera.",u:"https://fr.m.wikipedia.org/wiki/Milan?useskin=vector"},
+    {lat:40.8522,lng:14.2681,n:"Naples",c:"Campanie",d:"Pizza, pizzaiuolo UNESCO, musée archéologique, Castel Nuovo, Vesuve.",u:"https://fr.m.wikipedia.org/wiki/Naples?useskin=vector"},
+    {lat:45.5444,lng:11.5352,n:"Vérone",c:"Vénétie",d:"Roméo et Juliette, arènes romaines, Piazza delle Erbe. Ville la plus romantique d'Italie.",u:"https://fr.m.wikipedia.org/wiki/V%C3%A9rone?useskin=vector"},
+    {lat:43.3186,lng:11.3307,n:"Sienne",c:"Toscane",d:"Palio historique, Piazza del Campo, cathédrale gothique. Toscane médiévale.",u:"https://fr.m.wikipedia.org/wiki/Sienne?useskin=vector"},
+    {lat:38.1157,lng:13.3613,n:"Palerme",c:"Sicile",d:"Capitale sicilienne — marchés de Ballarò, Palais des Normands, street food.",u:"https://fr.m.wikipedia.org/wiki/Palerme?useskin=vector"},
+    {lat:40.6402,lng:14.6027,n:"Amalfi",c:"Campanie",d:"Côte Amalfitaine, route des Corniches, villages en falaise, limoncello. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Amalfi?useskin=vector"},
+    {lat:45.0703,lng:7.6869,n:"Turin",c:"Piémont",d:"Première capitale d'Italie, capitale du Risorgimento, chocolat, Lingotto, Mole Antonelliana.",u:"https://fr.m.wikipedia.org/wiki/Turin?useskin=vector"}
+  ]},
+  coast:{icon:iconPl,color:'#1464c8',label:'🏖️ Côte & Plage',pts:[
+    {lat:44.1000,lng:9.7200,n:"Cinque Terre",c:"Ligurie",d:"Cinq villages colorés accrochés aux falaises de la Riviera. UNESCO. Randonnée Sentiero Azzurro.",u:"https://fr.m.wikipedia.org/wiki/Cinque_Terre?useskin=vector"},
+    {lat:40.6000,lng:14.4000,n:"Côte Amalfitaine",c:"Campanie",d:"La plus belle côte d'Europe — Positano, Ravello, Amalfi, falaises et criques. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/C%C3%B4te_amalfitaine?useskin=vector"},
+    {lat:41.1200,lng:9.5100,n:"Costa Smeralda",c:"Sardaigne",d:"Eaux de cristal turquoise, plages de sable blanc, Porto Cervo — le Saint-Tropez de l'Italie.",u:"https://fr.m.wikipedia.org/wiki/Costa_Smeralda?useskin=vector"},
+    {lat:38.1500,lng:15.6200,n:"Côte Violette de Tropea",c:"Calabre",d:"Falaises de tuf rouge surplombant des eaux azur. Le site le plus photographié de Calabre.",u:"https://fr.m.wikipedia.org/wiki/Tropea?useskin=vector"},
+    {lat:40.4800,lng:17.2200,n:"Côte d'Otrante",c:"Salento, Pouilles",d:"Eaux les plus transparentes d'Italie, Castro, Grotta della Poesia, Porto Badisco.",u:"https://fr.m.wikipedia.org/wiki/Péninsule_du_Salento?useskin=vector"},
+    {lat:41.5500,lng:12.8800,n:"Riviera Pontine — Îles Pontines",c:"Latium",d:"Ponza, Palmarola, Ventotene — îles volcaniques aux criques secrètes.",u:"https://fr.m.wikipedia.org/wiki/%C3%8Eles_Pontines?useskin=vector"},
+    {lat:38.5000,lng:14.9500,n:"Îles Éoliennes",c:"Sicile",d:"7 îles volcaniques — Stromboli, Vulcano, Lipari. Paysages lunaires. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/%C3%8Eles_%C3%89oliennes?useskin=vector"},
+    {lat:39.7500,lng:9.6900,n:"Côte Est de Sardaigne",c:"Sardaigne",d:"Plage de Cala Gonone, Su Gorropu (plus grand canyon d'Europe), calanques de Baunei.",u:"https://fr.m.wikipedia.org/wiki/Sardaigne?useskin=vector"},
+    {lat:43.8900,lng:7.7700,n:"Riviera Ligure di Ponente",c:"Ligurie",d:"San Remo, Bordighera, Diano Marina — Côte d'Azur italienne sous le soleil ligurien.",u:"https://fr.m.wikipedia.org/wiki/Riviera_(Ligurie)?useskin=vector"}
+  ]},
+  nature:{icon:iconNa,color:'#1e8232',label:'🌿 Parc Naturel',pts:[
+    {lat:44.2000,lng:7.1000,n:"Parc National du Mercantour",c:"Ligurie-Alpes",d:"Grand parc alpin franco-italien, loups, chamois, merveilles du Néolithique (Vallée des Merveilles).",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Mercantour?useskin=vector"},
+    {lat:45.5600,lng:7.1200,n:"Parc National du Grand Paradis",c:"Val d'Aoste-Piémont",d:"Premier parc national d'Italie (1922). Bouquetin des Alpes sauvé de l'extinction.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Grand_Paradis?useskin=vector"},
+    {lat:40.7500,lng:14.4800,n:"Parc National du Vésuve",c:"Naples, Campanie",d:"Volcan actif de 1 281 m dominant la Baie de Naples. Sentiers panoramiques et cratère.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_V%C3%A9suve?useskin=vector"},
+    {lat:39.5500,lng:16.5000,n:"Parc National du Pollino",c:"Calabre-Basilicate",d:"Plus grand parc national d'Italie (192 000 ha). Pino Loricato, loups et loutres.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Pollino?useskin=vector"},
+    {lat:43.5000,lng:12.0000,n:"Parc National des Forêts Casentinesi",c:"Toscane-Émilie",d:"Forêts millénaires parmi les plus denses d'Europe, loups, aigles royaux.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_for%C3%AAts_casentiniennes?useskin=vector"},
+    {lat:41.8600,lng:13.8000,n:"Parc National des Abruzzes",c:"Abruzzes",d:"Fondé en 1923. Ours marsicain, loup des Apennins, chamois. Biodiversité exceptionnelle.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Abruzzes,_de_la_Liri_et_du_Molise?useskin=vector"},
+    {lat:39.0000,lng:9.0500,n:"Parc de Giara di Gesturi",c:"Sardaigne",d:"Plateau basaltique habité par les derniers poneys sauvages d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Giara_di_Gesturi?useskin=vector"},
+    {lat:45.3900,lng:12.2800,n:"Lagune de Venise — Parc Naturel",c:"Venise",d:"15 000 ha de zones humides, flacons, oiseaux migrateurs, pêche traditionnelle.",u:"https://fr.m.wikipedia.org/wiki/Lagune_de_Venise?useskin=vector"}
+  ]},
+  archaeology:{icon:iconArch,color:'#b47814',label:'🏺 Archéologie & Grottes',pts:[
+    {lat:37.6500,lng:14.0600,n:"Villa Romaine du Casale",c:"Piazza Armerina, Sicile",d:"3 500 m² de mosaïques romaines du IVe s. Les 'bikini girls' les plus célèbres du monde antique.",u:"https://fr.m.wikipedia.org/wiki/Villa_romaine_du_Casale?useskin=vector"},
+    {lat:38.1400,lng:15.7100,n:"Nécropole de Pantalica",c:"Syracuses, Sicile",d:"Plus de 5 000 tombes rupestres de l'âge du Bronze. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pantalica?useskin=vector"},
+    {lat:40.0400,lng:18.5300,n:"Grotte dei Cervi — Porto Badisco",c:"Otrante, Pouilles",d:"La Sixtine de l'art préhistorique — 3 000 figures peintes avec du guano il y a 10 000 ans.",u:"https://fr.m.wikipedia.org/wiki/Grotte_dei_Cervi?useskin=vector"},
+    {lat:40.6500,lng:17.7100,n:"Tarente — Musée Archéologique",c:"Tarente, Pouilles",d:"Plus grande collection de bijoux en or grec du monde. Métaponte, Héraclée.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_arch%C3%A9ologique_national_de_Tarente?useskin=vector"},
+    {lat:44.8387,lng:11.6215,n:"Ferrare — Nécropole de Spina",c:"Ferrare, Émilie",d:"Nécropole étrusque du delta du Pô — 4 000 tombes, trésor de céramique grecque.",u:"https://fr.m.wikipedia.org/wiki/Spina_(ville)?useskin=vector"},
+    {lat:42.6500,lng:11.9200,n:"Cerveteri — Nécropole Étrusque",c:"Rome, Latium",d:"Nécropole étrusque de Banditaccia — 'ville des morts' de 400 ha. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cerveteri?useskin=vector"},
+    {lat:37.8700,lng:12.4300,n:"Temple de Ségeste",c:"Calatafimi, Sicile",d:"Temple dorique inachevé du Ve s. av. J.-C. en rase campagne. Vue extraordinaire.",u:"https://fr.m.wikipedia.org/wiki/S%C3%A9geste?useskin=vector"},
+    {lat:40.9500,lng:14.0400,n:"Site Archéologique de Cumes",c:"Naples, Campanie",d:"Première colonie grecque d'Italie (VIIIe s. av. J.-C.). Antre de la Sibylle de Cumes.",u:"https://fr.m.wikipedia.org/wiki/Cumes?useskin=vector"}
+  ]},
+  gastronomy:{icon:iconGa,color:'#a05010',label:'🍝 Gastronomie & Marchés',pts:[
+    {lat:45.4654,lng:9.1870,n:"Mercato Centrale di Milano",c:"Milan",d:"La Centrale — marché gastronomique sur 6 000 m² avec producteurs artisanaux lombards.",u:"https://fr.m.wikipedia.org/wiki/Milan?useskin=vector"},
+    {lat:43.7716,lng:11.2526,n:"Mercato Centrale di Firenze",c:"Florence",d:"Marché couvert de San Lorenzo — pâtes fraîches, bistecca fiorentina, chianti.",u:"https://fr.m.wikipedia.org/wiki/Florence?useskin=vector"},
+    {lat:38.1187,lng:13.3614,n:"Ballarò & Vucciria — Palerme",c:"Palerme, Sicile",d:"Marchés de rue arabes — street food sicilien (arancini, panelle, pani ca meusa).",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_la_Vucciria?useskin=vector"},
+    {lat:44.5000,lng:10.3300,n:"Route du Parmigiano Reggiano",c:"Parme, Émilie",d:"Capitale mondiale du jambon de Parme et du Parmesan. Caves d'affinage ouvertes.",u:"https://fr.m.wikipedia.org/wiki/Parmigiano_Reggiano?useskin=vector"},
+    {lat:43.5500,lng:11.1900,n:"Route du Vin Chianti",c:"Toscane",d:"Vignobles de Sangiovese entre Florence et Sienne. Bodegas historiques depuis le XVIIe s.",u:"https://fr.m.wikipedia.org/wiki/Chianti_(vin)?useskin=vector"},
+    {lat:45.8900,lng:10.9700,n:"Route des Vins de Franciacorta",c:"Brescia, Lombardie",d:"Champagne italien — bulles AOC depuis 1995. 100+ producteurs autour du Lac d'Iseo.",u:"https://fr.m.wikipedia.org/wiki/Franciacorta?useskin=vector"},
+    {lat:40.8358,lng:14.2488,n:"Spaccanapoli — Pizza Napoletana",c:"Naples",d:"Rue droite au cœur de Naples. La vraie pizza napolitaine UNESCO — Margherita depuis 1889.",u:"https://fr.m.wikipedia.org/wiki/Pizza_napolitaine?useskin=vector"},
+    {lat:44.4940,lng:11.3420,n:"Mortadella & Tortellini — Bologne",c:"Bologne",d:"Bologna la Grassa — mortadelle, tortellini, tagliatelle al ragù dans la ville la plus gourmande.",u:"https://fr.m.wikipedia.org/wiki/Mortadella?useskin=vector"}
+  ]},
+  restaurant:{icon:iconRest,color:'#c01840',label:'🍽️ Restaurant Gastronomique',pts:[
+    {lat:45.6660,lng:9.6620,n:"Osteria Francescana ★★★",c:"Modène, Émilie",d:"Massimo Bottura. Classée N°1 mondiale 2016 et 2018. Cuisine italienne radicalement réinventée.",u:"https://fr.m.wikipedia.org/wiki/Osteria_Francescana?useskin=vector"},
+    {lat:43.7696,lng:11.2558,n:"Enoteca Pinchiorri ★★★",c:"Florence",d:"Annie Féolde. 3 étoiles depuis 1993. Une des plus belles caves à vins au monde. Cuisine florentine de prestige.",u:"https://fr.m.wikipedia.org/wiki/Enoteca_Pinchiorri?useskin=vector"},
+    {lat:45.6560,lng:12.2440,n:"Le Calandre ★★★",c:"Rubano, Padoue",d:"Famille Alajmo. Raffaele Alajmo — plus jeune chef 3 étoiles de l'histoire (2002).",u:"https://fr.m.wikipedia.org/wiki/Le_Calandre?useskin=vector"},
+    {lat:45.7600,lng:8.8310,n:"Dal Pescatore ★★★",c:"Canneto sull'Oglio, Mantoue",d:"Nadia Santini. Cuisine du terroir lombard raffinée depuis 1926. Vignes et potager.",u:"https://it.wikipedia.org/wiki/Dal_Pescatore"},
+    {lat:43.8290,lng:12.9790,n:"La Madonnina del Pescatore ★★",c:"Senigallia, Marches",d:"Moreno Cedroni. Mer Adriatique réinventée, laboratoire culinaire unique.",u:"https://it.wikipedia.org/wiki/La_Madonnina_del_Pescatore"},
+    {lat:45.4654,lng:9.1870,n:"Il Luogo di Aimo e Nadia ★★",c:"Milan",d:"Cuisine de la grande bourgeoisie lombarde, truffes, vins naturels, service impeccable.",u:"https://fr.m.wikipedia.org/wiki/Milan?useskin=vector"},
+    {lat:40.8450,lng:14.2560,n:"Don Alfonso 1890 ★★★",c:"Sant'Agata, Naples",d:"Alfonso Iaccarino. Cuisine napolitaine de haute gastronomie dans les Monts Lattari.",u:"https://fr.m.wikipedia.org/wiki/Don_Alfonso_1890?useskin=vector"},
+    {lat:41.9028,lng:12.4964,n:"La Pergola ★★★",c:"Rome",d:"Heinz Beck. Seul 3 étoiles de Rome, terrasse avec vue unique sur les coupoles.",u:"https://fr.m.wikipedia.org/wiki/La_Pergola_(Rome)?useskin=vector"},
+    {lat:43.7696,lng:11.2658,n:"Borgo San Jacopo ★",c:"Florence",d:"Nicholas Balestra. Sur les rives de l'Arno, vue sur Ponte Vecchio. Cuisine toscane contemporaine.",u:"https://fr.m.wikipedia.org/wiki/Florence?useskin=vector"},
+    {lat:37.6522,lng:15.1466,n:"Sapio ★",c:"Catane, Sicile",d:"Alfio Visalli. Meilleur restaurant de Sicile — ingrédients du terroir volcanique de l'Etna.",u:"https://fr.m.wikipedia.org/wiki/Catane?useskin=vector"}
+  ]},
+  wildlife:{icon:iconWild,color:'#2a7a1a',label:'🦁 Faune Sauvage',pts:[
+    {lat:45.5600,lng:7.1200,n:"Bouquetin des Alpes",c:"Gran Paradiso, Val d'Aoste",d:"Sauvé de l'extinction par les chasseurs de Savoie. 35 000 individus dans les Alpes aujourd'hui.",u:"https://fr.m.wikipedia.org/wiki/Bouquetin_des_Alpes?useskin=vector"},
+    {lat:41.8600,lng:13.8000,n:"Ours Marsicain",c:"Parc des Abruzzes",d:"Sous-espèce endémique d'Apennin. Environ 50 individus, le plus petit ours brun d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Ours_marsicain?useskin=vector"},
+    {lat:43.5000,lng:12.0000,n:"Loup des Apennins",c:"Toscane-Apennins",d:"Canis lupus italicus — sous-espèce italienne, population en forte croissance, ~3 300 individus.",u:"https://fr.m.wikipedia.org/wiki/Loup_des_Apennins?useskin=vector"},
+    {lat:40.9000,lng:9.5000,n:"Cerf de Sardaigne",c:"Sardaigne",d:"Cervus elaphus corsicanus — sous-espèce endémique de Sardaigne et Corse, environ 14 000 individus.",u:"https://fr.m.wikipedia.org/wiki/Cerf_de_Corse?useskin=vector"},
+    {lat:38.6000,lng:15.1000,n:"Dauphin commun en Mer Tyrrhénienne",c:"Calabre, Sicile",d:"Populations importantes de dauphins communs et grands dauphins en Méditerranée centrale.",u:"https://fr.m.wikipedia.org/wiki/Dauphin_commun?useskin=vector"},
+    {lat:36.8000,lng:11.9000,n:"Loggerhead Turtle — Lampedusa",c:"Lampedusa, Sicile",d:"Caretta caretta — la tortue caouanne niche sur les plages de Lampedusa et de Calabre.",u:"https://fr.m.wikipedia.org/wiki/Caretta_caretta?useskin=vector"},
+    {lat:38.5000,lng:14.9500,n:"Grand Dauphin — Îles Éoliennes",c:"Lipari, Sicile",d:"Colonies stables de grands dauphins dans les eaux volcaniques des Éoliennes.",u:"https://fr.m.wikipedia.org/wiki/Grand_dauphin?useskin=vector"},
+    {lat:39.0000,lng:9.0500,n:"Poneys Sauvages de la Giara",c:"Sardaigne",d:"Giara di Gesturi — les derniers poneys sauvages d'Europe sur plateau basaltique.",u:"https://fr.m.wikipedia.org/wiki/Giara_di_Gesturi?useskin=vector"},
+    {lat:38.7000,lng:15.9000,n:"Requin marteau en Méditerranée",c:"Détroit de Messine",d:"Le détroit de Messine est l'un des rares endroits où observer le requin marteau en Méditerranée.",u:"https://fr.m.wikipedia.org/wiki/Requin_marteau_halicorne?useskin=vector"},
+    {lat:45.0000,lng:12.5000,n:"Flamants Roses de la Lagune",c:"Venise",d:"Colonies de flamants roses dans les vasières de la lagune de Venise et du Delta du Pô.",u:"https://fr.m.wikipedia.org/wiki/Flamant_rose?useskin=vector"}
+  ]},
+  volcano:{icon:iconVolc,color:'#c83010',label:'🌋 Volcans & Géologie',pts:[
+    {lat:40.8210,lng:14.4260,n:"Vésuve",c:"Naples, Campanie",d:"Le seul volcan actif du continent européen. 3 millions de personnes dans la zone à risque.",u:"https://fr.m.wikipedia.org/wiki/V%C3%A9suve?useskin=vector"},
+    {lat:37.7490,lng:15.0004,n:"Etna",c:"Catane, Sicile",d:"Plus haut volcan actif d'Europe (3 357 m). 200 éruptions documentées. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Etna?useskin=vector"},
+    {lat:38.7890,lng:15.2130,n:"Stromboli",c:"Îles Éoliennes, Sicile",d:"Le 'Phare de la Méditerranée' — en éruption continue depuis 2 000 ans, spectacle nocturne unique.",u:"https://fr.m.wikipedia.org/wiki/Stromboli?useskin=vector"},
+    {lat:37.8300,lng:14.9900,n:"Vulcano",c:"Îles Éoliennes, Sicile",d:"Fumerolles soufrées, boue volcanique thérapeutique, plage de sable noir. D'où vient le mot 'volcan'.",u:"https://fr.m.wikipedia.org/wiki/Vulcano?useskin=vector"},
+    {lat:40.6402,lng:14.0850,n:"Champs Phlégréens",c:"Naples, Campanie",d:"Caldeira géante de 13 km. Bradyséisme, fumerolles, Solfatara. Super-volcan en surveillance.",u:"https://fr.m.wikipedia.org/wiki/Champs_Phl%C3%A9gr%C3%A9ens?useskin=vector"},
+    {lat:41.8300,lng:14.0730,n:"Monte Vulture",c:"Melfi, Basilicate",d:"Volcan éteint depuis 130 000 ans. Deux lacs de cratère — Monticchio. Aglianico del Vulture.",u:"https://fr.m.wikipedia.org/wiki/Mont_Vulture?useskin=vector"},
+    {lat:37.9000,lng:15.3300,n:"Pantelleria",c:"Sicile",d:"Île volcanique entre Sicile et Tunisie. Dammusi, Zibibbo, Lago di Venere. Vent de Scirocco.",u:"https://fr.m.wikipedia.org/wiki/Pantelleria?useskin=vector"},
+    {lat:41.7500,lng:12.2900,n:"Lago di Bracciano",c:"Latium",d:"Lac de cratère volcanique de 57 km². Eau potable de Rome depuis l'Antiquité.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Bracciano?useskin=vector"}
+  ]}
+};
+
+// LAYER GROUPS
+var groups = {};
+var activeGroups = {};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat] = L.layerGroup();
+  activeGroups[cat] = true;
+  var col = DATA[cat].color, lbl = DATA[cat].label;
+  DATA[cat].pts.forEach(function(p){
+    var safeU = p.u.replace(/'/g,"\\'");
+    var safeN = p.n.replace(/'/g,"\\'");
+    var popup = '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#8b1a1a\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>';
+    L.marker([p.lat,p.lng],{icon:DATA[cat].icon}).bindPopup(popup,{maxWidth:280}).addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+// TOGGLE function
+function toggle(cat){
+  var el = document.getElementById('fb-'+cat);
+  if(!el) return;
+  if(activeGroups[cat]){
+    map.removeLayer(groups[cat]);
+    activeGroups[cat] = false;
+    el.style.opacity = '0.55';
+    el.style.textDecoration = 'none';
+    el.style.color = '#888';
+  } else {
+    groups[cat].addTo(map);
+    activeGroups[cat] = true;
+    el.style.opacity = '1';
+    el.style.textDecoration = 'none';
+    el.style.color = '#222';
+  }
+}
+
+// FILTER CONTROL — ListeBox scrollable
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+  var d = L.DomUtil.create('div');
+  d.style.cssText = 'background:white;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.22);font-family:Georgia,serif;width:230px;overflow:hidden;';
+
+  // Données des lignes de la listebox — icônes SVG identiques aux marqueurs carte
+  var ROWS = [
+    {cat:'monument',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 22,8 28,8 28,10 24,10 24,27 28,27 28,29 8,29 8,27 12,27 12,10 8,10 8,8 14,8" fill="#c9a84c" stroke="#7a3a0a" stroke-width="1"/><rect x="7" y="29" width="22" height="4" rx="1" fill="#8b1a1a"/></svg>',               label:'Monuments',             count:10},
+    {cat:'castle',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="5" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="8" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="11" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="23" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="26" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="29" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="5" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="23" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="6" y="16" width="24" height="17" rx="1" fill="#2a5cbf"/><rect x="14" y="25" width="8" height="8" fill="#0e1e4a"/><rect x="7" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/><rect x="25" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/></svg>',   label:'Châteaux',               count:10},
+    {cat:'cathedral',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="15" y="2" width="6" height="22" rx="1" fill="#8b2fc9"/><rect x="7" y="9" width="22" height="6" rx="1" fill="#8b2fc9"/><rect x="11" y="24" width="14" height="4" rx="1" fill="#6a1fa0"/><rect x="8" y="28" width="20" height="5" rx="1" fill="#5a1a8a"/></svg>',  label:'Cathédrales',            count:10},
+    {cat:'museum',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="21" rx="13" ry="11" fill="#1e8250" stroke="#145c38" stroke-width="1"/><circle cx="9" cy="18" r="2.2" fill="#e8c97a"/><circle cx="18" cy="10" r="2.2" fill="#8b2fc9"/><circle cx="27" cy="18" r="2.2" fill="#8b1a1a"/></svg>',      label:'Musées & Galeries',      count:10},
+    {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#e06414" stroke="#a04000" stroke-width="1"/></svg>',         label:'Sites UNESCO',           count:10},
+    {cat:'palace',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="10" width="24" height="20" rx="2" fill="#b01e64"/><rect x="6" y="10" width="24" height="6" fill="#d4236e"/><rect x="14" y="20" width="8" height="10" rx="1" fill="#7a0a42"/><circle cx="18" cy="7" r="5" fill="#d4236e" stroke="#7a0a42" stroke-width="1.5"/><circle cx="18" cy="7" r="2" fill="#f5d0e0"/></svg>',          label:'Palais Royaux',          count:8},
+    {cat:'medieval',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="8" y="12" width="6" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="24" y="16" width="6" height="6" fill="#9a6030"/><rect x="9" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="25" y="19" width="3" height="3" rx="1" fill="#3a1a05"/></svg>',      label:'Villes Médiévales',      count:10},
+    {cat:'roman',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#148c8c"/><rect x="8" y="8" width="4" height="18" fill="#1aadad"/><rect x="16" y="8" width="4" height="18" fill="#1aadad"/><rect x="24" y="8" width="4" height="18" fill="#1aadad"/><rect x="6" y="6" width="24" height="3" rx="1" fill="#0a5a5a"/><path d="M18 2 L6 6 L30 6 Z" fill="#085050"/></svg>',        label:'Architecture Romaine',   count:10},
+    {cat:'abbey',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#e8c97a"/></svg>',         label:'Abbayes & Monastères',   count:8},
+    {cat:'tourist',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="16" r="12" fill="#dc3c1e"/><circle cx="18" cy="16" r="8" fill="#f07050"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="white" font-weight="bold">★</text></svg>',        label:'Villes Touristiques',    count:10},
+    {cat:'coast',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="26" rx="15" ry="7" fill="#1464c8"/><ellipse cx="18" cy="22" rx="13" ry="5" fill="#3a8ce0"/><path d="M4 22 Q9 17 14 20 Q18 15 22 20 Q27 16 32 22" fill="none" stroke="#90c8f0" stroke-width="1.5"/><ellipse cx="18" cy="14" rx="6" ry="3" fill="#f0e890"/></svg>',         label:'Côtes & Plages',         count:9},
+    {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="24" rx="14" ry="9" fill="#1e8232"/><ellipse cx="10" cy="18" rx="7" ry="10" fill="#28a03c"/><ellipse cx="26" cy="20" rx="7" ry="8" fill="#28a03c"/><ellipse cx="18" cy="12" rx="6" ry="8" fill="#34c050"/><circle cx="10" cy="8" r="4" fill="#34c050"/><circle cx="26" cy="12" r="3" fill="#28a03c"/></svg>',        label:'Parcs Naturels',         count:8},
+    {cat:'archaeology', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="16" fill="#c9a84c"/><rect x="16" y="10" width="4" height="16" fill="#c9a84c"/><rect x="24" y="10" width="4" height="16" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>', label:'Archéologie & Grottes',  count:8},
+    {cat:'gastronomy',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="20" width="20" height="12" rx="3" fill="#a05010"/><ellipse cx="18" cy="20" rx="10" ry="5" fill="#c87820"/><path d="M12 20 Q14 14 18 12 Q22 14 24 20" fill="#e09030"/><circle cx="14" cy="16" r="2" fill="#c03010"/><circle cx="22" cy="15" r="2" fill="#c03010"/><rect x="16" y="12" width="4" height="3" rx="1" fill="#7a3808"/></svg>',  label:'Gastronomie & Marchés',  count:8},
+    {cat:'restaurant',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="17" r="13" fill="#c01840"/><circle cx="18" cy="17" r="10" fill="#e02050"/><text x="18" y="14" text-anchor="middle" font-size="7" fill="#ffd700" font-weight="bold">★★★</text><text x="18" y="22" text-anchor="middle" font-size="6.5" fill="white" font-weight="bold" font-family="Georgia,serif">M</text><rect x="13" y="26" width="10" height="2" rx="1" fill="#ffd700"/></svg>',  label:'Restaurants Michelin',   count:10},
+    {cat:'wildlife',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="22" rx="11" ry="8" fill="#2a7a1a"/><ellipse cx="18" cy="18" rx="7" ry="6" fill="#3a9a28"/><circle cx="13" cy="14" r="3.5" fill="#3a9a28"/><circle cx="23" cy="14" r="3.5" fill="#3a9a28"/><circle cx="13" cy="14" r="1.5" fill="#1a5010"/><circle cx="23" cy="14" r="1.5" fill="#1a5010"/><ellipse cx="18" cy="20" rx="4" ry="2.5" fill="#fde68a" opacity=".7"/></svg>',    label:'Faune Sauvage',          count:10},
+    {cat:'volcano',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,4 30,30 6,30" fill="#8b2000"/><polygon points="18,4 24,18 12,18" fill="#c83010"/><ellipse cx="18" cy="4" rx="4" ry="2" fill="#ff6020"/><path d="M16 4 Q14 1 12 3 M18 2 Q18 0 20 1 M20 4 Q22 1 24 3" stroke="#ff9040" stroke-width="1.5" fill="none"/><rect x="6" y="30" width="24" height="3" rx="1" fill="#5a1000"/></svg>',     label:'Volcans & Géologie',     count:8}
+  ];
+
+  var html =
+    '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+      +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+      +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+    +'</div>'
+    +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+      +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;'
+        +'scrollbar-width:thin;scrollbar-color:#c9a84c #f5ead8;">';
+
+  ROWS.forEach(function(r){
+    html += '<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+      +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+      +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+      +'transition:background .15s;"'
+      +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="this.style.background=\'transparent\'">'
+      +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+      +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+      +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+      +'</div>';
+  });
+
+  html +=
+      '</div>'
+      +'<div style="display:flex;gap:0;">'
+        +'<button onclick="toggleAll(true)"  style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#c9a84c;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+        +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#8b1a1a;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+      +'</div>'
+    +'</div>';
+
+  d.innerHTML = html;
+
+  var st = document.createElement('style');
+  st.textContent =
+    '#listebox::-webkit-scrollbar{width:5px;}'
+    +'#listebox::-webkit-scrollbar-track{background:#f5ead8;}'
+    +'#listebox::-webkit-scrollbar-thumb{background:#c9a84c;border-radius:3px;}';
+  d.appendChild(st);
+
+  d.querySelector('#fc-header').addEventListener('click', function(){ togglePanel(); });
+
+  L.DomEvent.disableClickPropagation(d);
+  L.DomEvent.disableScrollPropagation(d);
+  return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+// MAP STYLE CONTROL — 5 tuiles
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#f8a8a8',
+  'Czechia':'#f8a8a8','Slovakia':'#dda0dd','Hungary':'#f8c0a0','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+var _politicalPending=false;
+function buildPoliticalLayer(callback){
+  if(politicalLayer){if(callback)callback();return;}
+  if(_politicalPending) return;
+  _politicalPending=true;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+      _politicalPending=false;
+      if(callback)callback();
+    }).catch(function(e){console.warn('GeoJSON:',e);_politicalPending=false;});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+    buildPoliticalLayer(function(){
+      politicalLayer.addTo(map);
+      if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);
+    });
+  } else {
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+  }
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #8b1a1a';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#8b1a1a':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'8b1a1a\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+// Toggle all
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el = document.getElementById('fb-'+cat);
+    if(show){
+      if(!activeGroups[cat]){ groups[cat].addTo(map); activeGroups[cat]=true; }
+      if(el){ el.style.opacity='1'; el.style.textDecoration='none'; el.style.color='#222'; }
+    } else {
+      if(activeGroups[cat]){ map.removeLayer(groups[cat]); activeGroups[cat]=false; }
+      if(el){ el.style.opacity='0.55'; el.style.textDecoration='none'; el.style.color='#888'; }
+    }
+  });
+}
+
+// Panel collapse
+var panelOpen = window.innerWidth > 600;
+function applyPanelState(){
+  var body  = document.getElementById('filter-body');
+  var arrow = document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){
+    body.style.maxHeight = '400px';
+    body.style.opacity   = '1';
+    arrow.style.transform = 'rotate(0deg)';
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+}
+function togglePanel(){ panelOpen = !panelOpen; applyPanelState(); }
+setTimeout(function(){ if(window.innerWidth<=600){ panelOpen=false; } applyPanelState(); }, 100);
+map.on('click', function(){ if(window.innerWidth<=600 && panelOpen){ panelOpen=false; applyPanelState(); } });
+
+// SCROLL REVEAL
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

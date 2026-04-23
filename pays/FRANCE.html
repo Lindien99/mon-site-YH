@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>France — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la France.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{--gold:#c9a84c;--gold-light:#e8c97a;--crimson:#8b1a1a;--parchment:#f5ead8;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#04060e;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,40,120,.18) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(201,168,76,.08) 0%,transparent 60%);}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:rgba(201,168,76,.06);letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(201,168,76,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(0,40,120,.12);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);border:1px solid rgba(201,168,76,.12);padding:36px 32px;transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--crimson),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(201,168,76,.04);border-color:rgba(201,168,76,.3);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;color:rgba(201,168,76,.08);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+    footer{border-top:1px solid rgba(201,168,76,.1);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold);opacity:.6;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){.hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}#leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}}
+    /* ── Modale Wikipedia ── */
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;border:1px solid rgba(201,168,76,.35);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#080d1a;border-bottom:1px solid rgba(201,168,76,.2);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:#8b1a1a;border:1px solid #5a0a0a;border-radius:3px;color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#6a1010;border-color:#6a1010;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;background:rgba(139,26,26,.95);border-top:1px solid rgba(201,168,76,.3);font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+    .country-tooltip{background:rgba(4,6,14,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+  </style>
+</head>
+<body>
+
+<!-- ── Modale Wikipedia ── -->
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle = '';
+function openWiki(url, title){
+  _wikiCurrentTitle = title || 'France';
+  var u = url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1 && u.indexOf('fr.m.wikipedia.org')!==-1)
+    u += (u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(_wikiCurrentTitle + ' France');
+  document.getElementById('wiki-modal-frame').src = u;
+  document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href = googleUrl;
+  document.getElementById('wiki-banner-google').href = googleUrl;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var frame = document.getElementById('wiki-modal-frame');
+  frame.onload = function(){
+    try {
+      var doc = frame.contentDocument || frame.contentWindow.document;
+      var pageTitle = doc.title || '';
+      if(pageTitle.indexOf('Recherche')!==-1||pageTitle.indexOf('non trouvée')!==-1||pageTitle.indexOf('Search results')!==-1||pageTitle.indexOf('not found')!==-1){
+        document.getElementById('wiki-error-banner').classList.add('show');
+      }
+    } catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src = '';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeWiki(); });
+</script>
+
+<section class="hero">
+  <div class="hero-year">FRANCE</div>
+  <div class="hero-eyebrow">France · Guide du Voyageur</div>
+  <h1 class="hero-title">Patrimoine, Nature<br>&amp; <em>Merveilles de France</em></h1>
+  <p class="hero-subtitle">Monuments, châteaux, cathédrales, musées, parcs naturels et bien plus</p>
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — monuments historiques, châteaux médiévaux, cathédrales gothiques, musées, sites UNESCO, palais royaux, villes médiévales, architecture romaine, abbayes, villes touristiques, côtes, parcs naturels, archéologie, gastronomie, restaurants étoilés, faune sauvage et vignobles.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">33</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">53</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">150+</div><div class="stat-label">Sites au total</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la France</h2>
+</div>
+
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Révolution & Histoire de la Nation Française</div>
+  <h2 class="section-title">Les 33 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tour_Eiffel','Tour Eiffel')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Paris</div><h3 class="card-name">Tour Eiffel</h3><p class="card-context">Symbole de la France, construite par Gustave Eiffel pour l'Exposition universelle de 1889. 324 m, 7 millions de visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Arc_de_triomphe_de_l%27%C3%89toile','Arc de Triomphe')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Paris</div><h3 class="card-name">Arc de Triomphe</h3><p class="card-context">Commandé par Napoléon en 1806 pour célébrer ses victoires. Tombeau du Soldat Inconnu depuis 1921. Au cœur des Champs-Élysées.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Panthéon_de_Paris','Panthéon de Paris')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Paris</div><h3 class="card-name">Panthéon</h3><p class="card-context">Nécropole des grands hommes de la nation. Victor Hugo, Voltaire, Rousseau, Marie Curie y reposent. Chef-d'œuvre néoclassique de Soufflot.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Vincennes','Donjon de Vincennes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Vincennes, Île-de-France</div><h3 class="card-name">Donjon de Vincennes</h3><p class="card-context">Le plus haut donjon médiéval d'Europe (52 m), forteresse royale capétienne du XIVe siècle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Place_de_la_Bastille','Place de la Bastille')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Paris</div><h3 class="card-name">Place de la Bastille</h3><p class="card-context">Lieu symbolique de la Révolution française, prise de la Bastille le 14 juillet 1789. Colonne de Juillet en son centre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_Verdun','Mémorial de Verdun')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Verdun, Meuse</div><h3 class="card-name">Mémorial de Verdun</h3><p class="card-context">Mémoire de la bataille la plus meurtrière de la Grande Guerre — 300 000 morts en 1916. Musée et Ossuaire de Douaumont.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_Caen','Mémorial de Caen')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Caen, Normandie</div><h3 class="card-name">Mémorial de Caen — D-Day</h3><p class="card-context">Musée pour la paix, dédié au Débarquement allié du 6 juin 1944 en Normandie. Cimetière américain d'Omaha Beach.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_de_la_Shoah','Mémorial de la Shoah')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Paris</div><h3 class="card-name">Mémorial de la Shoah</h3><p class="card-context">Mémorial national dédié aux 77 000 Juifs de France déportés vers les camps nazis. Mur des Noms, archives, crypte.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Colonne_Vendôme','Colonne Vendôme')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Paris</div><h3 class="card-name">Colonne Vendôme</h3><p class="card-context">Colonne de bronze érigée par Napoléon (1810), recouverte de canons fondus pris à Austerlitz. Statue de Napoléon au sommet.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Invalides','Hôtel des Invalides — Tombeau de Napoléon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Paris</div><h3 class="card-name">Les Invalides — Tombeau de Napoléon</h3><p class="card-context">Sarcophage de porphyre rouge de Napoléon Ier sous le dôme d'or. Fondé par Louis XIV en 1670 pour les soldats blessés.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Statue_de_la_Liberté_(Paris)','Statue de la Liberté de Paris')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Paris</div><h3 class="card-name">Statue de la Liberté — Île aux Cygnes</h3><p class="card-context">Réplique de la statue offerte aux États-Unis, inaugurée en 1889. Symbole de la liberté franco-américaine sur la Seine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Pierrefonds','Château de Pierrefonds')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Pierrefonds, Oise</div><h3 class="card-name">Château de Pierrefonds</h3><p class="card-context">Forteresse médiévale restaurée par Viollet-le-Duc pour Napoléon III au XIXe siècle. Symbole de la restauration romantique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Forteresse_de_Salses','Forteresse de Salses')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Salses-le-Château, Pyrénées-Or.</div><h3 class="card-name">Forteresse de Salses</h3><p class="card-context">Forteresse de transition entre Moyen Âge et Renaissance construite par Ferdinand II d'Aragon (1497), clé de la frontière catalane.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mémorial_national_de_la_Résistance','Monument à Jean Moulin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Paris</div><h3 class="card-name">Tombeau de Jean Moulin — Panthéon</h3><p class="card-context">Jean Moulin, chef de la Résistance intérieure, transféré au Panthéon en 1964 lors du discours d'André Malraux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Haut-Kœnigsbourg','Château du Haut-Kœnigsbourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Alsace, Bas-Rhin</div><h3 class="card-name">Château du Haut-Kœnigsbourg</h3><p class="card-context">Château médiéval des Staufen restauré par Guillaume II en 1908, dominant la plaine d'Alsace à 757 m.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cité_de_Carcassonne','Cité de Carcassonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Carcassonne, Aude</div><h3 class="card-name">Cité de Carcassonne</h3><p class="card-context">Plus grande cité médiévale fortifiée d'Europe, restaurée par Viollet-le-Duc. 3 km de remparts, 52 tours. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mont-Saint-Michel','Mont-Saint-Michel')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Normandie, Manche</div><h3 class="card-name">Mont-Saint-Michel</h3><p class="card-context">Abbaye bénédictine sur un îlot rocheux, lieu de pèlerinage depuis le VIIIe siècle. UNESCO. 3 millions de visiteurs/an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Chambord','Château de Chambord')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Loir-et-Cher</div><h3 class="card-name">Château de Chambord</h3><p class="card-context">Chef-d'œuvre de la Renaissance française commandé par François Ier. Escalier à double révolution attribué à Léonard de Vinci. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sainte-Chapelle','Sainte-Chapelle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Paris</div><h3 class="card-name">Sainte-Chapelle</h3><p class="card-context">Joyau gothique rayonnant de Louis IX (1248), 1 113 m² de vitraux médiévaux représentant 1 113 scènes bibliques.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pont_du_Gard','Pont du Gard')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Nîmes, Gard</div><h3 class="card-name">Pont du Gard</h3><p class="card-context">Aqueduc romain du Ier siècle ap. J.-C., 49 m de hauteur sur trois niveaux d'arches. Le plus haut pont romain conservé. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_Notre-Dame_de_Paris','Cathédrale Notre-Dame de Paris')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Paris</div><h3 class="card-name">Notre-Dame de Paris</h3><p class="card-context">Chef-d'œuvre du gothique français (1163–1345). Incendie du 15 avril 2019, restauration achevée en 2024. Victor Hugo l'a rendue immortelle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Versailles','Château de Versailles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Versailles, Yvelines</div><h3 class="card-name">Château de Versailles</h3><p class="card-context">Résidence de Louis XIV, symbole de la monarchie absolue. Galerie des Glaces, jardins à la française sur 800 ha. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Chenonceau','Château de Chenonceau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Indre-et-Loire</div><h3 class="card-name">Château de Chenonceau</h3><p class="card-context">Le "château des dames" enjambant le Cher. Catherine de Médicis, Diane de Poitiers. 2e site touristique de France.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_des_Papes','Palais des Papes d\'Avignon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Avignon, Vaucluse</div><h3 class="card-name">Palais des Papes d'Avignon</h3><p class="card-context">Siège de la papauté pendant le Grand Schisme (1309–1377). Plus grand palais gothique du monde. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Basilique_du_Sacré-Cœur_de_Montmartre','Basilique du Sacré-Cœur')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Paris, Montmartre</div><h3 class="card-name">Basilique du Sacré-Cœur</h3><p class="card-context">Basilique romano-byzantine blanche dominant Paris depuis la butte Montmartre (130 m). Construite en 1914, lieu de prière perpétuelle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_du_Louvre','Musée du Louvre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Paris</div><h3 class="card-name">Palais du Louvre</h3><p class="card-context">Ancien palais royal, plus grand musée du monde. La Joconde, la Vénus de Milo, la Victoire de Samothrace. 10 millions de visiteurs/an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Chartres','Cathédrale de Chartres')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Chartres, Eure-et-Loir</div><h3 class="card-name">Cathédrale de Chartres</h3><p class="card-context">Joyau du gothique français (XIIe–XIIIe s.), conservant la Voile de la Vierge. Vitraux exceptionnels. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Chantilly','Château de Chantilly')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Chantilly, Oise</div><h3 class="card-name">Château de Chantilly</h3><p class="card-context">Musée Condé, la plus riche collection de peintures après le Louvre. Grandes Écuries royales, forêt de 6 300 ha.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Fontainebleau','Château de Fontainebleau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Fontainebleau, Seine-et-Marne</div><h3 class="card-name">Château de Fontainebleau</h3><p class="card-context">Résidence royale de François Ier à Napoléon III. Galerie François Ier, forêt royale de 25 000 ha. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Carcassonne','Basilique Saint-Nazaire de Carcassonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Carcassonne, Aude</div><h3 class="card-name">Basilique Saint-Nazaire</h3><p class="card-context">Joyau roman et gothique au cœur de la Cité. Vitraux des XIIIe–XIVe siècles parmi les plus beaux du Midi.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Vaux-le-Vicomte','Château de Vaux-le-Vicomte')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Maincy, Seine-et-Marne</div><h3 class="card-name">Château de Vaux-le-Vicomte</h3><p class="card-context">Chef-d'œuvre de Le Vau, Le Brun et Le Nôtre (1661) qui inspira Versailles. Faste qui jaloux le roi et perdit Fouquet.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tour_de_France_(édifice)','Tour de César — Provins')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Provins, Seine-et-Marne</div><h3 class="card-name">Tour de César — Provins</h3><p class="card-context">Donjon octogonal du XIIe siècle de la grande cité médiévale des foires de Champagne. UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Brissac','Château de Brissac')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Brissac, Maine-et-Loire</div><h3 class="card-name">Château de Brissac</h3><p class="card-context">Plus haut château de France (48 m, 7 étages). Sièges des ducs de Brissac depuis 1502. Vignobles d'Anjou.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">De Vercingétorix à la Ve République</div>
+  <h2 class="section-title">Histoire de France en Dates</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">52 av. J.-C.</div>
+      <div class="timeline-event"><strong>Bataille d'Alésia — Vercingétorix et César.</strong> La Gaule tombe sous domination romaine après la reddition du chef arverne. Naissance de la Gallo-Romanie.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">481–511</div>
+      <div class="timeline-event"><strong>Clovis, fondateur du royaume franc.</strong> Premier roi des Francs à se convertir au christianisme après la bataille de Tolbiac. Baptême à Reims, unification des tribus.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">800</div>
+      <div class="timeline-event"><strong>Charlemagne couronné Empereur d'Occident.</strong> Sacre à Rome par le pape Léon III. Fondation de l'empire carolingien, renaissance culturelle, Capitulaire de Villis.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1066</div>
+      <div class="timeline-event"><strong>Guillaume le Conquérant à Hastings.</strong> Le duc de Normandie s'empare de l'Angleterre. Influence franco-normande sur l'Europe médiévale, Tapisserie de Bayeux.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1337–1453</div>
+      <div class="timeline-event"><strong>Guerre de Cent Ans contre l'Angleterre.</strong> Jeanne d'Arc délivre Orléans en 1429, Charles VII sacré à Reims. La France se forge une identité nationale dans l'épreuve.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1515–1547</div>
+      <div class="timeline-event"><strong>François Ier et la Renaissance française.</strong> Marignan 1515, Léonard de Vinci à Amboise, château de Chambord. La France s'ouvre à l'Italie et aux arts.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1643–1715</div>
+      <div class="timeline-event"><strong>Louis XIV — Le Roi-Soleil.</strong> Versailles, le classicisme français, Colbert, Molière, Racine, Lully. La France, première puissance européenne.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1789</div>
+      <div class="timeline-event"><strong>Révolution française.</strong> Prise de la Bastille le 14 juillet, Déclaration des droits de l'homme. Fin de l'Ancien Régime, naissance de la République.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1799–1815</div>
+      <div class="timeline-event"><strong>L'Empire napoléonien.</strong> Napoléon Bonaparte, consul puis Empereur. Austerlitz 1805, Code civil, réforme de l'État. Waterloo 1815 et exil à Sainte-Hélène.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1870–1871</div>
+      <div class="timeline-event"><strong>Défaite de Sedan et Commune de Paris.</strong> La Prusse envahit la France. Perte de l'Alsace-Moselle. La Commune, insurrection ouvrière de 72 jours, réprimée dans le sang.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1914–1918</div>
+      <div class="timeline-event"><strong>Grande Guerre — Verdun, Marne, Chemin des Dames.</strong> 1,4 million de soldats français morts. Victoire finale le 11 novembre 1918. Traité de Versailles, retour de l'Alsace-Lorraine.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1940–1944</div>
+      <div class="timeline-event"><strong>Occupation et Résistance.</strong> Appel du 18 juin 1940 du Général de Gaulle. France Libre à Londres, Résistance intérieure (Jean Moulin). Libération de Paris le 25 août 1944.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1958</div>
+      <div class="timeline-event"><strong>Naissance de la Ve République.</strong> De Gaulle rédige la Constitution de la Ve République. La France moderne : institutions stables, grandeur nationale, indépendance nucléaire.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇫🇷</div>
+  <p class="footer-text">Guide du Voyageur · France · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('leaflet-map', {
+  scrollWheelZoom: true,
+  tap: false,
+  zoomControl: false
+}).setView([46.5, 2.5], 5);
+
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){ map.invalidateSize(true); }, 300);
+window.addEventListener('resize', function(){ map.invalidateSize(); });
+var currentTile=L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}).addTo(map);
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+// ICONS — 17 catégories
+var iconM    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(139,26,26,.8))"><polygon points="18,2 22,8 28,8 28,10 24,10 24,27 28,27 28,29 8,29 8,27 12,27 12,10 8,10 8,8 14,8" fill="#c9a84c" stroke="#7a3a0a" stroke-width="1"/><rect x="7" y="29" width="22" height="4" rx="1" fill="#8b1a1a"/></svg>');
+var iconC    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,80,160,.8))"><rect x="5" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="8" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="11" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="23" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="26" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="29" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="5" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="23" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="6" y="16" width="24" height="17" rx="1" fill="#2a5cbf"/><rect x="14" y="25" width="8" height="8" fill="#0e1e4a"/><rect x="7" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/><rect x="25" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/></svg>');
+var iconK    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(120,40,180,.8))"><rect x="15" y="2" width="6" height="22" rx="1" fill="#8b2fc9"/><rect x="7" y="9" width="22" height="6" rx="1" fill="#8b2fc9"/><rect x="11" y="24" width="14" height="4" rx="1" fill="#6a1fa0"/><rect x="8" y="28" width="20" height="5" rx="1" fill="#5a1a8a"/></svg>');
+var iconG    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,130,80,.8))"><ellipse cx="18" cy="21" rx="13" ry="11" fill="#1e8250" stroke="#145c38" stroke-width="1"/><circle cx="9" cy="18" r="2.2" fill="#e8c97a"/><circle cx="18" cy="10" r="2.2" fill="#8b2fc9"/><circle cx="27" cy="18" r="2.2" fill="#8b1a1a"/></svg>');
+var iconU    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,100,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#e06414" stroke="#a04000" stroke-width="1"/></svg>');
+var iconP    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,50,10,.9))"><!-- Socle / base --><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#5a3e0a" opacity="0.9"/><!-- Corps principal du palais --><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5510" stroke-width="0.6"/><!-- Reflet doré sur la façade --><rect x="6" y="19" width="24" height="4" fill="#e8c878" opacity="0.55"/><!-- Colonnes - piliers Renaissance (5 colonnes) --><rect x="7"  y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><!-- Chapiteaux des colonnes --><rect x="6.5"  y="17.2" width="3.2" height="1.2" rx="0.3" fill="#f0d070"/><rect x="11"   y="17.2" width="3.2" height="1.2" rx="0.3" fill="#f0d070"/><rect x="15.6" y="17.2" width="3.2" height="1.2" rx="0.3" fill="#f0d070"/><rect x="20.2" y="17.2" width="3.2" height="1.2" rx="0.3" fill="#f0d070"/><rect x="24.8" y="17.2" width="3.2" height="1.2" rx="0.3" fill="#f0d070"/><!-- Entablement / frise --><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5510" stroke-width="0.5"/><!-- Fronton triangulaire central --><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5510" stroke-width="0.6"/><!-- Remplissage fronton (tympan) --><polygon points="18,10 11,15.5 25,15.5" fill="#e8c060" opacity="0.6"/><!-- Oculus dans le fronton - œil de Léonard --><circle cx="18" cy="13.2" r="2.2" fill="none" stroke="#7a5510" stroke-width="0.7"/><circle cx="18" cy="13.2" r="1.2" fill="#f0d878" opacity="0.85"/><!-- Dôme central Renaissance --><ellipse cx="18" cy="9" rx="4.5" ry="1.2" fill="#b88020" stroke="#7a5510" stroke-width="0.5"/><path d="M13.5 9 Q13.5 3.5 18 2.5 Q22.5 3.5 22.5 9" fill="#d4a030" stroke="#7a5510" stroke-width="0.6"/><ellipse cx="18" cy="9" rx="4.5" ry="1.2" fill="#c89828" opacity="0.5"/><!-- Lanternon au sommet du dôme --><rect x="16.8" y="2" width="2.4" height="2" rx="0.5" fill="#e8c060" stroke="#7a5510" stroke-width="0.5"/><circle cx="18" cy="1.4" r="0.9" fill="#f5d040" stroke="#8a6010" stroke-width="0.4"/><!-- Porte centrale --><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/><!-- Arc en plein cintre sur la porte --><path d="M15.5 24 Q18 21.5 20.5 24" fill="#3a2006" stroke="#7a5510" stroke-width="0.4"/><!-- Fenêtres latérales avec arc --><rect x="8.5"  y="22" width="3" height="4" rx="0.5" fill="#3a2006"/><path d="M8.5 22 Q10 20.5 11.5 22" fill="#2a1804" stroke="#7a5510" stroke-width="0.3"/><rect x="23"   y="22" width="3" height="4" rx="0.5" fill="#3a2006"/><path d="M23 22 Q24.5 20.5 26 22" fill="#2a1804" stroke="#7a5510" stroke-width="0.3"/></svg>');
+var iconV    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,60,20,.8))"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="8" y="12" width="6" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="24" y="16" width="6" height="6" fill="#9a6030"/><rect x="9" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="25" y="19" width="3" height="3" rx="1" fill="#3a1a05"/></svg>');
+var iconA    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,120,140,.8))"><rect x="12" y="4" width="12" height="4" rx="1" fill="#148c8c"/><rect x="8" y="8" width="20" height="4" rx="1" fill="#1aadad"/><rect x="6" y="12" width="24" height="18" rx="2" fill="#1aadad"/><rect x="10" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><rect x="21" y="16" width="5" height="8" rx="1" fill="#0a5a5a"/><rect x="14" y="22" width="8" height="8" rx="1" fill="#0a5a5a"/></svg>');
+var iconAb   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,10,.8))"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#e8c97a"/></svg>');
+var iconT    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,60,30,.8))"><circle cx="18" cy="16" r="12" fill="#dc3c1e"/><circle cx="18" cy="16" r="8" fill="#f07050"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="white" font-weight="bold">★</text></svg>');
+var iconPl   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,200,.8))"><ellipse cx="18" cy="26" rx="15" ry="7" fill="#1464c8"/><ellipse cx="18" cy="22" rx="13" ry="5" fill="#3a8ce0"/><path d="M4 22 Q9 17 14 20 Q18 15 22 20 Q27 16 32 22" fill="none" stroke="#90c8f0" stroke-width="1.5"/><ellipse cx="18" cy="14" rx="6" ry="3" fill="#f0e890"/></svg>');
+var iconNa   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,130,50,.8))"><ellipse cx="18" cy="24" rx="14" ry="9" fill="#1e8232"/><ellipse cx="10" cy="18" rx="7" ry="10" fill="#28a03c"/><ellipse cx="26" cy="20" rx="7" ry="8" fill="#28a03c"/><ellipse cx="18" cy="12" rx="6" ry="8" fill="#34c050"/><circle cx="10" cy="8" r="4" fill="#34c050"/><circle cx="26" cy="12" r="3" fill="#28a03c"/></svg>');
+var iconArch = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,120,20,.8))"><rect x="6" y="26" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="16" fill="#c9a84c"/><rect x="16" y="10" width="4" height="16" fill="#c9a84c"/><rect x="24" y="10" width="4" height="16" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>');
+var iconGa   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(160,80,10,.8))"><rect x="8" y="20" width="20" height="12" rx="3" fill="#a05010"/><ellipse cx="18" cy="20" rx="10" ry="5" fill="#c87820"/><path d="M12 20 Q14 14 18 12 Q22 14 24 20" fill="#e09030"/><circle cx="14" cy="16" r="2" fill="#c03010"/><circle cx="22" cy="15" r="2" fill="#c03010"/><rect x="16" y="12" width="4" height="3" rx="1" fill="#7a3808"/></svg>');
+var iconRest = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,20,60,.8))"><circle cx="18" cy="17" r="13" fill="#c01840"/><circle cx="18" cy="17" r="10" fill="#e02050"/><text x="18" y="14" text-anchor="middle" font-size="7" fill="#ffd700" font-weight="bold">★★★</text><text x="18" y="22" text-anchor="middle" font-size="6.5" fill="white" font-weight="bold" font-family="Georgia,serif">M</text><rect x="13" y="26" width="10" height="2" rx="1" fill="#ffd700"/></svg>');
+var iconWild = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><!-- Queue — plumes étalées en éventail, tracé à la plume sépia --><path d="M22 22 Q30 10 34 6 Q32 12 30 14 Q34 8 35 5 Q31 13 29 16 Q33 11 33 8 Q28 16 26 19" fill="none" stroke="#8a5a08" stroke-width="0.9" stroke-linecap="round"/><!-- Remplissage plumes de queue --><path d="M22 21 Q29 11 33 6 Q28 15 24 20 Z" fill="#c8880a" opacity="0.55"/><path d="M23 22 Q31 13 34 9 Q29 17 25 21 Z" fill="#e8a820" opacity="0.4"/><!-- Corps du coq — forme pleine, style étude anatomique --><path d="M10 28 Q8 22 10 17 Q12 12 17 11 Q22 10 24 14 Q26 18 24 23 Q22 27 18 29 Q14 30 10 28 Z" fill="#c8880a" stroke="#7a4e08" stroke-width="0.7"/><!-- Reflet doré sur le poitrail --><path d="M13 16 Q15 12 19 12 Q22 12 23 15 Q20 13 16 14 Q14 15 13 16 Z" fill="#f0c040" opacity="0.45"/><!-- Aile — détail des plumes, hachures léonardesques --><path d="M11 18 Q14 15 19 16 Q22 17 23 20 Q19 18 15 18 Q12 19 11 18 Z" fill="#a06808" opacity="0.7"/><path d="M12 20 Q15 17 20 18" fill="none" stroke="#7a4e08" stroke-width="0.5"/><path d="M11 22 Q15 19 21 20" fill="none" stroke="#7a4e08" stroke-width="0.45"/><path d="M12 24 Q15 22 20 23" fill="none" stroke="#7a4e08" stroke-width="0.4"/><!-- Cou et tête --><path d="M17 11 Q17 7 19 5 Q21 3 22 5 Q21 7 20 9 Q19 10 17 11 Z" fill="#c8880a" stroke="#7a4e08" stroke-width="0.6"/><!-- Crête — dentelée, caractéristique du coq gaulois --><path d="M17 6 Q16 3 17 2 Q18 1 19 3 Q19 1.5 20 1 Q21 2 20 4 Q21 2.5 22 2 Q22.5 3.5 21 5" fill="#c03010" stroke="#8a1a08" stroke-width="0.5"/><!-- Barbillons --><path d="M19 9 Q17 11 16 13" fill="none" stroke="#c03010" stroke-width="1.2" stroke-linecap="round"/><path d="M20 9 Q19 11 18 13" fill="none" stroke="#a02008" stroke-width="0.9" stroke-linecap="round"/><!-- Œil — cercle précis au compas --><circle cx="20" cy="6" r="1.3" fill="#1a0a00" stroke="#c8880a" stroke-width="0.4"/><circle cx="20.4" cy="5.6" r="0.4" fill="white" opacity="0.7"/><!-- Bec --><path d="M22 5 L25 6 L22 7 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.4"/><!-- Pattes — tracé anatomique précis --><line x1="14" y1="29" x2="12" y2="34" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/><line x1="18" y1="29" x2="17" y2="34" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/><!-- Ergots et doigts --><line x1="12" y1="34" x2="9"  y2="34" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/><line x1="12" y1="34" x2="13" y2="36" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/><line x1="17" y1="34" x2="14" y2="34" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/><line x1="17" y1="34" x2="18" y2="36" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/><!-- Ergot arrière --><line x1="12" y1="31" x2="10" y2="33" stroke="#8a6010" stroke-width="0.7" stroke-linecap="round"/></svg>');
+// Icône Golf — style Léonard de Vinci (sépia, or, tracé Renaissance)
+var iconGolf = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,40,10,.85))"><!-- Green ondulé (colline douce façon étude de paysage léonardesque) --><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#3a7a28" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#4a9a34" opacity="0.7"/><!-- Ombre portée du trou --><ellipse cx="12" cy="29.5" rx="3" ry="1" fill="#1a4a10" opacity="0.55"/><!-- Trou (cercle parfait, compas de Léonard) --><circle cx="12" cy="29" r="1.8" fill="#1a3008"/><!-- Mât — trait fin à la plume --><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><!-- Drapeau Renaissance — penon triangulaire avec nervure --><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c8960a" stroke="#7a5508" stroke-width="0.7"/><path d="M16 5 L28 9.5" stroke="#e8b820" stroke-width="0.5" opacity="0.7"/><path d="M16 7.5 L24 10 L16 12" fill="#e8b030" opacity="0.45"/><!-- Petite balle de golf — sphère ombrée (étude géométrique) --><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/><ellipse cx="19.2" cy="26.8" rx="1.1" ry="0.6" fill="white" opacity="0.6" transform="rotate(-20 19.2 26.8)"/><!-- Alvéoles de la balle (dimples) — motif géométrique précis --><circle cx="19.5" cy="27.2" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="21.2" cy="27.5" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="20.2" cy="29" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="18.8" cy="28.8" r="0.45" fill="none" stroke="#c0a860" stroke-width="0.4"/><!-- Sillon du sol / herbe fine (hachures léonardesques) --><line x1="4"  y1="31.5" x2="7"  y2="30.5" stroke="#2a6018" stroke-width="0.6" opacity="0.7"/><line x1="8"  y1="31"   x2="10" y2="30.2" stroke="#2a6018" stroke-width="0.6" opacity="0.7"/><line x1="25" y1="30.5" x2="28" y2="29.5" stroke="#2a6018" stroke-width="0.6" opacity="0.7"/><line x1="29" y1="31"   x2="32" y2="30"   stroke="#2a6018" stroke-width="0.6" opacity="0.7"/></svg>');
+// Icône Vignoble (remplace Volcan pour la France)
+var iconVign = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,0,60,.8))"><ellipse cx="18" cy="12" rx="8" ry="7" fill="#7a003c"/><circle cx="13" cy="10" r="2.5" fill="#9a0050"/><circle cx="23" cy="10" r="2.5" fill="#9a0050"/><circle cx="18" cy="8" r="2.5" fill="#9a0050"/><circle cx="13" cy="15" r="2.5" fill="#9a0050"/><circle cx="23" cy="15" r="2.5" fill="#9a0050"/><rect x="17" y="19" width="2" height="10" fill="#5a3010"/><path d="M14 24 Q16 21 18 19 Q20 21 22 24" fill="none" stroke="#5a3010" stroke-width="1.5"/><rect x="10" y="29" width="16" height="3" rx="1" fill="#3a1808"/></svg>');
+
+// DATA — 17 catégories
+var DATA = {
+  monument:{icon:iconM,color:'#c9a84c',label:'⚔️ Monument historique',pts:[
+    {lat:48.8584,lng:2.2945,n:"Tour Eiffel",c:"Paris",d:"Symbole de la France, construite par Eiffel en 1889. 324 m, 7 millions de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Tour_Eiffel?useskin=vector"},
+    {lat:48.8738,lng:2.2950,n:"Arc de Triomphe",c:"Paris",d:"Commandé par Napoléon en 1806. Tombeau du Soldat Inconnu depuis 1921.",u:"https://fr.m.wikipedia.org/wiki/Arc_de_triomphe_de_l%27%C3%89toile?useskin=vector"},
+    {lat:48.8462,lng:2.3509,n:"Panthéon",c:"Paris",d:"Nécropole des grands hommes. Victor Hugo, Marie Curie, Voltaire, Rousseau.",u:"https://fr.m.wikipedia.org/wiki/Panth%C3%A9on_de_Paris?useskin=vector"},
+    {lat:48.8350,lng:2.4346,n:"Donjon de Vincennes",c:"Vincennes",d:"Plus haut donjon médiéval d'Europe (52 m). Forteresse royale capétienne du XIVe s.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Vincennes?useskin=vector"},
+    {lat:48.8533,lng:2.3692,n:"Place de la Bastille",c:"Paris",d:"Lieu symbolique de la Révolution du 14 juillet 1789. Colonne de Juillet.",u:"https://fr.m.wikipedia.org/wiki/Place_de_la_Bastille?useskin=vector"},
+    {lat:49.2027,lng:5.3819,n:"Ossuaire de Douaumont — Verdun",c:"Verdun, Meuse",d:"300 000 morts en 1916. Le plus grand ossuaire de France, mémorial de la Grande Guerre.",u:"https://fr.m.wikipedia.org/wiki/Ossuaire_de_Douaumont?useskin=vector"},
+    {lat:49.1864,lng:-0.3833,n:"Mémorial de Caen — D-Day",c:"Caen, Normandie",d:"Musée pour la paix dédié au Débarquement du 6 juin 1944 et à la Libération.",u:"https://fr.m.wikipedia.org/wiki/M%C3%A9morial_de_Caen?useskin=vector"},
+    {lat:48.8553,lng:2.3517,n:"Les Invalides — Tombeau de Napoléon",c:"Paris",d:"Sarcophage de porphyre rouge de Napoléon Ier. Fondé par Louis XIV en 1670.",u:"https://fr.m.wikipedia.org/wiki/Invalides?useskin=vector"},
+    {lat:48.8656,lng:2.3289,n:"Colonne Vendôme",c:"Paris",d:"Bronze fondu des canons d'Austerlitz. Napoléon au sommet. Place Vendôme.",u:"https://fr.m.wikipedia.org/wiki/Colonne_Vend%C3%B4me?useskin=vector"},
+    {lat:48.8930,lng:2.3415,n:"Basilique du Sacré-Cœur",c:"Paris, Montmartre",d:"Basilique romano-byzantine dominant Paris (130 m). Prière perpétuelle depuis 1914.",u:"https://fr.m.wikipedia.org/wiki/Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre?useskin=vector"}
+  ]},
+  castle:{icon:iconC,color:'#2a5cbf',label:'🏰 Château & Forteresse',pts:[
+    {lat:47.6161,lng:1.5170,n:"Château de Chambord",c:"Loir-et-Cher",d:"Chef-d'œuvre de la Renaissance, François Ier. Escalier double hélice attribué à Léonard. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Chambord?useskin=vector"},
+    {lat:47.3241,lng:0.6893,n:"Château de Chenonceau",c:"Indre-et-Loire",d:"Le château des dames enjambant le Cher. Catherine de Médicis, Diane de Poitiers.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Chenonceau?useskin=vector"},
+    {lat:48.8049,lng:2.1204,n:"Château de Versailles",c:"Versailles, Yvelines",d:"Résidence de Louis XIV. Galerie des Glaces, jardins à la française. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Versailles?useskin=vector"},
+    {lat:48.4044,lng:-1.5114,n:"Mont-Saint-Michel",c:"Normandie, Manche",d:"Abbaye bénédictine sur îlot rocheux. Lieu de pèlerinage depuis le VIIIe s. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Mont-Saint-Michel?useskin=vector"},
+    {lat:48.5347,lng:7.7594,n:"Château du Haut-Kœnigsbourg",c:"Alsace, Bas-Rhin",d:"Château médiéval restauré par Guillaume II en 1908. Domine la plaine d'Alsace à 757 m.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_du_Haut-K%C5%93nigsbourg?useskin=vector"},
+    {lat:43.2070,lng:2.3516,n:"Cité de Carcassonne",c:"Aude",d:"Plus grande cité médiévale fortifiée d'Europe. 3 km de remparts, 52 tours. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cit%C3%A9_de_Carcassonne?useskin=vector"},
+    {lat:49.3122,lng:2.9949,n:"Château de Pierrefonds",c:"Oise",d:"Forteresse médiévale restaurée par Viollet-le-Duc pour Napoléon III.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Pierrefonds?useskin=vector"},
+    {lat:48.5540,lng:7.7547,n:"Château de Fleckenstein",c:"Alsace du Nord",d:"Impressionnant château-rocher médiéval du XIIe s. creusé dans le grès des Vosges.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Fleckenstein?useskin=vector"},
+    {lat:44.5560,lng:6.4950,n:"Château de Sisteron",c:"Alpes-de-Haute-Provence",d:"Citadelle médiévale au défilé de la Durance, clé de la Provence depuis l'Antiquité.",u:"https://fr.m.wikipedia.org/wiki/Citadelle_de_Sisteron?useskin=vector"},
+    {lat:47.4667,lng:0.6833,n:"Château d'Amboise",c:"Indre-et-Loire",d:"Résidence royale des rois de France. Chapelle Saint-Hubert, tombeau de Léonard de Vinci.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_d%27Amboise?useskin=vector"}
+  ]},
+  cathedral:{icon:iconK,color:'#8b2fc9',label:'⛪ Cathédrale & Basilique',pts:[
+    {lat:48.8530,lng:2.3499,n:"Notre-Dame de Paris",c:"Paris",d:"Chef-d'œuvre du gothique français (1163). Restaurée après l'incendie de 2019, réouverte 2024.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Paris?useskin=vector"},
+    {lat:48.4475,lng:1.4877,n:"Cathédrale de Chartres",c:"Chartres, Eure-et-Loir",d:"Joyau du gothique français, vitraux des XIIe–XIIIe s. Voile de la Vierge. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Chartres?useskin=vector"},
+    {lat:49.2533,lng:4.0333,n:"Cathédrale de Reims",c:"Reims, Marne",d:"Lieu du sacre des rois de France (25 souverains). Vitraux de Chagall. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Reims?useskin=vector"},
+    {lat:49.9395,lng:2.3012,n:"Cathédrale d'Amiens",c:"Amiens, Somme",d:"Plus grande cathédrale gothique de France (145 m de nef). UNESCO. Ange pleureur.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_d%27Amiens?useskin=vector"},
+    {lat:45.7636,lng:4.8356,n:"Cathédrale Saint-Jean de Lyon",c:"Lyon",d:"Cathédrale primatiale romano-gothique. Horloge astronomique du XIVe s. Quartier Saint-Jean.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Saint-Jean-Baptiste_de_Lyon?useskin=vector"},
+    {lat:43.2965,lng:5.3698,n:"Abbaye de Saint-Victor",c:"Marseille",d:"Une des plus anciennes abbayes de France (Ve s.), crypte paléochrétienne, catacombes.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Saint-Victor_de_Marseille?useskin=vector"},
+    {lat:47.9029,lng:1.9092,n:"Cathédrale Sainte-Croix d'Orléans",c:"Orléans, Loiret",d:"Cathédrale gothique dédiée à Jeanne d'Arc. Vitraux relatant la vie de la Pucelle.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Sainte-Croix_d%27Orl%C3%A9ans?useskin=vector"},
+    {lat:48.8586,lng:2.3511,n:"Sainte-Chapelle",c:"Paris",d:"Joyau gothique rayonnant de Louis IX (1248). 1 113 m² de vitraux médiévaux.",u:"https://fr.m.wikipedia.org/wiki/Sainte-Chapelle?useskin=vector"},
+    {lat:44.8012,lng:-0.5998,n:"Cathédrale Saint-André de Bordeaux",c:"Bordeaux",d:"Cathédrale gothique classée UNESCO avec la ville. Tour Pey-Berland du XVe siècle.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Saint-Andr%C3%A9_de_Bordeaux?useskin=vector"},
+    {lat:48.5734,lng:7.7521,n:"Cathédrale de Strasbourg",c:"Strasbourg, Bas-Rhin",d:"Chef-d'œuvre gothique, plus haute cathédrale du monde de 1647 à 1874. Horloge astronomique.",u:"https://fr.m.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Strasbourg?useskin=vector"}
+  ]},
+  museum:{icon:iconG,color:'#1e8250',label:'🎨 Musée & Galerie',pts:[
+    {lat:48.8606,lng:2.3376,n:"Musée du Louvre",c:"Paris",d:"Plus grand musée du monde. La Joconde, Vénus de Milo, Victoire de Samothrace. 10 M visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_du_Louvre?useskin=vector"},
+    {lat:48.8600,lng:2.3266,n:"Musée d'Orsay",c:"Paris",d:"Ancienne gare Orsay, collection impressionniste mondiale — Monet, Renoir, Van Gogh, Gauguin.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_d%27Orsay?useskin=vector"},
+    {lat:48.8611,lng:2.3525,n:"Centre Georges-Pompidou",c:"Paris",d:"Musée national d'Art moderne. Kandinsky, Picasso, Matisse. Architecture High-Tech de Piano & Rogers.",u:"https://fr.m.wikipedia.org/wiki/Centre_national_d%27art_et_de_culture_Georges-Pompidou?useskin=vector"},
+    {lat:43.2965,lng:5.3763,n:"Musée de la Mode — MuCEM",c:"Marseille",d:"Musée des Civilisations de l'Europe et de la Méditerranée. Architecture de Rudy Ricciotti.",u:"https://fr.m.wikipedia.org/wiki/MuCEM?useskin=vector"},
+    {lat:45.7640,lng:4.8357,n:"Musée des Beaux-Arts de Lyon",c:"Lyon",d:"Deuxième musée de France après le Louvre. 70 000 œuvres, del'Antiquité à l'art moderne.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_des_beaux-arts_de_Lyon?useskin=vector"},
+    {lat:47.2197,lng:-1.5541,n:"Musée Jules-Verne",c:"Nantes",d:"Dédié au maître de la science-fiction, né à Nantes en 1828. Machines de l'Île, Éléphant.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_Jules-Verne?useskin=vector"},
+    {lat:43.6965,lng:7.2660,n:"Fondation Maeght",c:"Saint-Paul-de-Vence, Alpes-Mar.",d:"Un des plus grands musées d'art moderne privés d'Europe. Miró, Giacometti, Chagall.",u:"https://fr.m.wikipedia.org/wiki/Fondation_Maeght?useskin=vector"},
+    {lat:44.4325,lng:2.5778,n:"Musée Soulages",c:"Rodez, Aveyron",d:"Musée dédié à Pierre Soulages, maître du noir. Architecture de RCR Arquitectes (2014).",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_Soulages?useskin=vector"},
+    {lat:48.8745,lng:2.3324,n:"Musée de Cluny — Moyen Âge",c:"Paris",d:"Collection médiévale unique. La Dame à la licorne (6 tapisseries du XVe s.). Thermes romains.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_de_Cluny?useskin=vector"},
+    {lat:43.9493,lng:4.8063,n:"Musée de l'Arles Antique",c:"Arles, Bouches-du-Rhône",d:"Musée archéologique — bijou de l'architecture contemporaine. Collection gallo-romaine.",u:"https://fr.m.wikipedia.org/wiki/Mus%C3%A9e_d%27Arles_antique?useskin=vector"}
+  ]},
+  unesco:{icon:iconU,color:'#e06414',label:'⭐ Site UNESCO',pts:[
+    {lat:47.7500,lng:0.7500,n:"Châteaux de la Loire",c:"Val de Loire",d:"Le Val de Loire — 280 km de châteaux royaux sur la Loire. Chambord, Chenonceau, Azay. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Val_de_Loire?useskin=vector"},
+    {lat:48.4044,lng:-1.5114,n:"Mont-Saint-Michel et sa baie",c:"Normandie",d:"Abbaye bénédictine sur îlot. 3 millions de visiteurs. UNESCO 1979.",u:"https://fr.m.wikipedia.org/wiki/Mont-Saint-Michel?useskin=vector"},
+    {lat:43.2970,lng:5.3816,n:"Marseille — Site préhistorique Cosquer",c:"Marseille, Bouches-du-Rhône",d:"Grotte ornée sous-marine. Peintures paléolithiques de 27 000 ans découvertes par Cosquer.",u:"https://fr.m.wikipedia.org/wiki/Grotte_Cosquer?useskin=vector"},
+    {lat:44.8012,lng:-0.5998,n:"Bordeaux et ses Quais",c:"Bordeaux, Gironde",d:"Port de la Lune — 350 ha de centre historique, 18e s. Architecture classique. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Bordeaux?useskin=vector"},
+    {lat:43.9493,lng:4.8063,n:"Arles — Monuments romains",c:"Arles, Bouches-du-Rhône",d:"Amphithéâtre, Théâtre antique, Cryptoportiques. UNESCO. Van Gogh y peignit 300 œuvres.",u:"https://fr.m.wikipedia.org/wiki/Arles?useskin=vector"},
+    {lat:44.2333,lng:2.9167,n:"Causse & Cévennes — Paysage pastoral",c:"Lozère, Aveyron, Gard",d:"Paysage agropastoral méditerranéen du Causse Méjean. Viaducs de Millau. UNESCO 2011.",u:"https://fr.m.wikipedia.org/wiki/Causse_et_C%C3%A9vennes?useskin=vector"},
+    {lat:47.3214,lng:5.0406,n:"Bourgogne — Climat & Terroirs",c:"Côte d'Or, Bourgogne",d:"Vignoble de la Côte de Nuits et Côte de Beaune. Romanée-Conti, Chambolle-Musigny. UNESCO 2015.",u:"https://fr.m.wikipedia.org/wiki/Climat_de_Bourgogne?useskin=vector"},
+    {lat:48.5734,lng:7.7521,n:"Strasbourg — Grande Île",c:"Strasbourg, Bas-Rhin",d:"Premier centre-ville à être classé UNESCO en France entier (1988). Cathédrale, Petite France.",u:"https://fr.m.wikipedia.org/wiki/Grande_%C3%8Ele_de_Strasbourg?useskin=vector"},
+    {lat:43.8330,lng:4.3600,n:"Pont du Gard",c:"Gard",d:"Aqueduc romain du Ier s., 49 m de hauteur. Plus haut pont romain conservé. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pont_du_Gard?useskin=vector"},
+    {lat:49.3680,lng:0.6987,n:"Chemin de Compostelle",c:"Normandie → Pyrénées",d:"Les chemins français de Saint-Jacques-de-Compostelle. 1 500 km de pèlerinage. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Chemins_de_Saint-Jacques-de-Compostelle_en_France?useskin=vector"}
+  ]},
+  palace:{icon:iconP,color:'#b01e64',label:'👑 Palais Royal',pts:[
+    {lat:48.8049,lng:2.1204,n:"Château de Versailles",c:"Versailles, Yvelines",d:"1 200 pièces, 700 ha de jardins à la française. Galerie des Glaces. Résidence de Louis XIV.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Versailles?useskin=vector"},
+    {lat:48.8638,lng:2.3326,n:"Palais de l'Élysée",c:"Paris",d:"Résidence officielle du Président de la République depuis 1873. Construit en 1722.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_l%27%C3%89lys%C3%A9e?useskin=vector"},
+    {lat:48.8637,lng:2.3370,n:"Palais Royal — Paris",c:"Paris",d:"Construit par Richelieu (1632), jardins à arcades de Colette et Cocteau. Galeries d'art.",u:"https://fr.m.wikipedia.org/wiki/Palais-Royal?useskin=vector"},
+    {lat:48.7993,lng:2.4733,n:"Château de Vincennes",c:"Vincennes, Val-de-Marne",d:"Château royal capétien. Louis IX, Charles V. Donjon le plus haut de France médiévale.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Vincennes?useskin=vector"},
+    {lat:48.4027,lng:2.7006,n:"Château de Fontainebleau",c:"Fontainebleau, Seine-et-Marne",d:"Résidence de François Ier à Napoléon III. Galerie François Ier. Forêt royale. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Fontainebleau?useskin=vector"},
+    {lat:49.1447,lng:1.7070,n:"Château de Bizy",c:"Vernon, Normandie",d:"Château néoclassique des Louis XV et XVI. Appartint à Napoléon Ier.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Bizy?useskin=vector"},
+    {lat:48.6498,lng:2.5224,n:"Château de Vaux-le-Vicomte",c:"Maincy, Seine-et-Marne",d:"Le Vau, Le Brun, Le Nôtre (1661). Modèle de Versailles. Chute de Fouquet.",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Vaux-le-Vicomte?useskin=vector"},
+    {lat:47.4480,lng:0.5520,n:"Château de Langeais",c:"Indre-et-Loire",d:"Château médiéval du XVe s., mariage d'Anne de Bretagne et Charles VIII (1491).",u:"https://fr.m.wikipedia.org/wiki/Ch%C3%A2teau_de_Langeais?useskin=vector"}
+  ]},
+  medieval:{icon:iconV,color:'#7a4a1a',label:'🏘️ Ville Médiévale',pts:[
+    {lat:44.2071,lng:2.9001,n:"Millau — Viaduc et Vieille Ville",c:"Aveyron",d:"Cité médiévale au confluent du Tarn et de la Dourbie. Viaduc de Millau (343 m).",u:"https://fr.m.wikipedia.org/wiki/Millau?useskin=vector"},
+    {lat:44.9534,lng:5.9290,n:"Vercors — Vassieux",c:"Drôme, Isère",d:"Plateau-forteresse naturel. Résistance du Vercors en 1944, massacre par les SS.",u:"https://fr.m.wikipedia.org/wiki/Vassieux-en-Vercors?useskin=vector"},
+    {lat:43.9400,lng:2.1500,n:"Saint-Guilhem-le-Désert",c:"Hérault",d:"Village médiéval classé des Plus Beaux Villages de France. Abbaye de Gellone. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Saint-Guilhem-le-D%C3%A9sert?useskin=vector"},
+    {lat:44.6667,lng:4.6500,n:"Viviers",c:"Ardèche",d:"Plus petite ville épiscopale de France. Cité médiévale méconnaissable au bord du Rhône.",u:"https://fr.m.wikipedia.org/wiki/Viviers_(Ard%C3%A8che)?useskin=vector"},
+    {lat:44.3600,lng:2.5700,n:"Conques",c:"Aveyron",d:"Village médiéval sur le chemin de Compostelle. Abbatiale romane, trésor de Sainte-Foy.",u:"https://fr.m.wikipedia.org/wiki/Conques?useskin=vector"},
+    {lat:43.0568,lng:2.8007,n:"Minerve",c:"Hérault",d:"Village cathare sur un éperon calcaire. Siège de 1210, 140 parfaits brûlés.",u:"https://fr.m.wikipedia.org/wiki/Minerve_(H%C3%A9rault)?useskin=vector"},
+    {lat:48.9800,lng:1.6900,n:"Gisors",c:"Normandie, Eure",d:"Forteresse royale des ducs de Normandie. Donjon du Prisonnière, Templiers.",u:"https://fr.m.wikipedia.org/wiki/Gisors?useskin=vector"},
+    {lat:46.1540,lng:3.3370,n:"Vichy",c:"Allier",d:"Ville thermale et capitale de l'État français (1940–1944). Art nouveau, sources Célestins.",u:"https://fr.m.wikipedia.org/wiki/Vichy?useskin=vector"},
+    {lat:43.2085,lng:2.3589,n:"Lastours — Châteaux Cathares",c:"Aude",d:"Quatre châteaux cathares en ruines sur crêtes rocheuses dominant la Montagne Noire.",u:"https://fr.m.wikipedia.org/wiki/Lastours?useskin=vector"},
+    {lat:48.5984,lng:7.7502,n:"Strasbourg — Petite France",c:"Strasbourg, Bas-Rhin",d:"Quartier médiéval de tanneurs et de pêcheurs. Maisons à colombages XVIe s. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Petite-France_(Strasbourg)?useskin=vector"}
+  ]},
+  roman:{icon:iconA,color:'#148c8c',label:'🏛️ Architecture Romaine & Antique',pts:[
+    {lat:43.8330,lng:4.3600,n:"Pont du Gard",c:"Gard",d:"Aqueduc romain du Ier s. ap. J.-C. 49 m de hauteur. Plus haut pont romain conservé. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Pont_du_Gard?useskin=vector"},
+    {lat:43.9493,lng:4.8063,n:"Amphithéâtre d'Arles",c:"Arles, Bouches-du-Rhône",d:"Arènes romaines du Ier s. ap. J.-C., 21 000 spectateurs. Mieux conservées que le Colisée.",u:"https://fr.m.wikipedia.org/wiki/Amphith%C3%A9%C3%A2tre_d%27Arles?useskin=vector"},
+    {lat:43.8359,lng:4.3614,n:"Maison Carrée de Nîmes",c:"Nîmes, Gard",d:"Temple romain du Ier s. av. J.-C. Le mieux conservé au monde, inspiré du Parthénon.",u:"https://fr.m.wikipedia.org/wiki/Maison_Carr%C3%A9e?useskin=vector"},
+    {lat:43.8350,lng:4.3590,n:"Arènes de Nîmes",c:"Nîmes, Gard",d:"Amphithéâtre romain du Ier s. — 25 000 places. Courses de taureau, concerts en plein air.",u:"https://fr.m.wikipedia.org/wiki/Ar%C3%A8nes_de_N%C3%AEmes?useskin=vector"},
+    {lat:43.7017,lng:4.6267,n:"Théâtre Antique d'Orange",c:"Orange, Vaucluse",d:"Mur de scène le mieux conservé du monde. UNESCO. Chorégies d'Orange chaque été.",u:"https://fr.m.wikipedia.org/wiki/Th%C3%A9%C3%A2tre_antique_d%27Orange?useskin=vector"},
+    {lat:43.6877,lng:4.6357,n:"Arc de Triomphe d'Orange",c:"Orange, Vaucluse",d:"Arc romain à trois baies dédié aux légions de César (27 av. J.-C.). UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Arc_d%27Orange?useskin=vector"},
+    {lat:43.6252,lng:5.0983,n:"Site archéologique de Glanum",c:"Saint-Rémy-de-Provence",d:"Cité gréco-romaine du IIe s. av. J.-C. Les Antiques (mausolée et arc). Fouilles de Mme d'Esmard.",u:"https://fr.m.wikipedia.org/wiki/Glanum?useskin=vector"},
+    {lat:45.7610,lng:4.8183,n:"Lugdunum — Théâtres romains de Lyon",c:"Lyon",d:"Théâtre romain de Fourvière (Ier s. av. J.-C.) et Odéon. Nuits de Fourvière. Musée gallo-romain.",u:"https://fr.m.wikipedia.org/wiki/Th%C3%A9%C3%A2tres_romains_de_Lugdunum?useskin=vector"},
+    {lat:48.3730,lng:-4.4964,n:"Ville romaine de Carhaix",c:"Finistère, Bretagne",d:"Vorgium, chef-lieu des Osismes. Aqueducs gallo-romains les plus longs de Gaule.",u:"https://fr.m.wikipedia.org/wiki/Carhaix-Plouguer?useskin=vector"},
+    {lat:48.8453,lng:2.3469,n:"Arènes de Lutèce",c:"Paris",d:"Amphithéâtre gallo-romain du Ier s. sous Paris. Redécouvert lors des travaux haussmanniens.",u:"https://fr.m.wikipedia.org/wiki/Ar%C3%A8nes_de_Lut%C3%A8ce?useskin=vector"}
+  ]},
+  abbey:{icon:iconAb,color:'#7a5020',label:'🕌 Abbayes & Monastères',pts:[
+    {lat:48.4044,lng:-1.5114,n:"Abbaye du Mont-Saint-Michel",c:"Normandie, Manche",d:"Abbaye bénédictine fondée en 966. Architecture romane et gothique. 1 million de pèlerins/an.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_du_Mont-Saint-Michel?useskin=vector"},
+    {lat:47.1714,lng:4.7147,n:"Abbaye de Fontenay",c:"Côte-d'Or, Bourgogne",d:"Plus ancienne abbaye cistercienne de France, fondée par Bernard de Clairvaux en 1118. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Fontenay?useskin=vector"},
+    {lat:44.3600,lng:2.5700,n:"Abbaye de Conques",c:"Aveyron",d:"Chef-d'œuvre de l'art roman (XIe s.). Trésor de Sainte-Foy. Chemin de Compostelle.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Conques?useskin=vector"},
+    {lat:47.8060,lng:7.3480,n:"Abbaye de Murbach",c:"Alsace, Haut-Rhin",d:"Abbaye bénédictine carolingienne du VIIIe s. dans un val vosgien retiré.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Murbach?useskin=vector"},
+    {lat:48.5253,lng:1.0461,n:"Abbaye de Solesmes",c:"Sarthe",d:"Abbaye bénédictine, centre mondial du chant grégorien depuis le XIXe s.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Saint-Pierre_de_Solesmes?useskin=vector"},
+    {lat:43.6695,lng:4.5983,n:"Abbaye de Montmajour",c:"Arles, Bouches-du-Rhône",d:"Abbaye bénédictine du Xe s. sur un piton rocheux dans la Camargue.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Montmajour?useskin=vector"},
+    {lat:43.2947,lng:5.3851,n:"Abbaye de Saint-Victor — Marseille",c:"Marseille",d:"Une des plus anciennes abbayes de France (Ve s.). Crypte paléochrétienne.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Saint-Victor_de_Marseille?useskin=vector"},
+    {lat:47.6820,lng:2.7700,n:"Abbaye de Noirlac",c:"Cher",d:"Abbaye cistercienne du XIIe s., la mieux conservée de France. Cloître, salle des moines.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Noirlac?useskin=vector"}
+  ]},
+  tourist:{icon:iconT,color:'#dc3c1e',label:'🌟 Villes Touristiques',pts:[
+    {lat:48.8566,lng:2.3522,n:"Paris",c:"Île-de-France",d:"Capitale mondiale du tourisme — 40 millions de visiteurs/an. Louvre, Eiffel, Montmartre.",u:"https://fr.m.wikipedia.org/wiki/Paris?useskin=vector"},
+    {lat:43.2965,lng:5.3698,n:"Marseille",c:"Bouches-du-Rhône",d:"2e ville de France, capitale méditerranéenne. Vieux-Port, Calanques, MuCEM.",u:"https://fr.m.wikipedia.org/wiki/Marseille?useskin=vector"},
+    {lat:43.7102,lng:7.2620,n:"Nice",c:"Alpes-Maritimes",d:"Perle de la Côte d'Azur, Promenade des Anglais. Vieille ville baroque. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Nice?useskin=vector"},
+    {lat:44.8378,lng:-0.5792,n:"Bordeaux",c:"Gironde",d:"Capitale mondiale du vin, art de vivre. Quartier Saint-Pierre, Cité du Vin. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Bordeaux?useskin=vector"},
+    {lat:47.2184,lng:-1.5536,n:"Nantes",c:"Loire-Atlantique",d:"Cité des Ducs de Bretagne. Éléphant du Voyage à Nantes, Île de Nantes.",u:"https://fr.m.wikipedia.org/wiki/Nantes?useskin=vector"},
+    {lat:45.7640,lng:4.8357,n:"Lyon",c:"Métropole de Lyon",d:"Capitale mondiale de la gastronomie. Traboules, Vieux-Lyon, bouchons. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Lyon?useskin=vector"},
+    {lat:43.6047,lng:1.4442,n:"Toulouse",c:"Haute-Garonne",d:"La Ville Rose. Airbus, Canal du Midi. Basilique Saint-Sernin, les Violettes.",u:"https://fr.m.wikipedia.org/wiki/Toulouse?useskin=vector"},
+    {lat:48.5734,lng:7.7521,n:"Strasbourg",c:"Bas-Rhin",d:"Capitale européenne. Cathédrale gothique, Petite France, marché de Noël. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Strasbourg?useskin=vector"},
+    {lat:43.9493,lng:4.8063,n:"Arles",c:"Bouches-du-Rhône",d:"Cité romaine et arlésienne. Festival de photographie. Van Gogh. Costumes gardians.",u:"https://fr.m.wikipedia.org/wiki/Arles?useskin=vector"},
+    {lat:49.2583,lng:4.0317,n:"Reims",c:"Marne, Champagne",d:"Cité du Sacre, Champagne, Caves de la Montagne de Reims. Cathédrale des rois.",u:"https://fr.m.wikipedia.org/wiki/Reims?useskin=vector"}
+  ]},
+  coast:{icon:iconPl,color:'#1464c8',label:'🏖️ Côtes & Plages',pts:[
+    {lat:48.3835,lng:-4.4949,n:"Pointe du Raz",c:"Finistère, Bretagne",d:"Cap emblématique de Bretagne, falaises de 72 m, courant redoutable. 'Enfer de Plogoff'.",u:"https://fr.m.wikipedia.org/wiki/Pointe_du_Raz?useskin=vector"},
+    {lat:43.1960,lng:5.7100,n:"Calanques de Marseille",c:"Bouches-du-Rhône",d:"Parc national marin. Fjords calcaires entre Marseille et Cassis. Faune marine exceptionnelle.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Calanques?useskin=vector"},
+    {lat:43.5298,lng:3.3519,n:"Sète — Île singulière",c:"Hérault",d:"Ville lacustre entre mer et étang de Thau. Joutes nautiques, port de pêche. Brassens.",u:"https://fr.m.wikipedia.org/wiki/S%C3%A8te?useskin=vector"},
+    {lat:49.3370,lng:-0.3540,n:"Plages du Débarquement",c:"Calvados, Normandie",d:"Utah, Omaha, Gold, Juno, Sword. Cimetière américain de Colleville-sur-Mer.",u:"https://fr.m.wikipedia.org/wiki/Plages_du_d%C3%A9barquement_en_Normandie?useskin=vector"},
+    {lat:43.4760,lng:-1.5580,n:"Biarritz",c:"Pyrénées-Atlantiques",d:"Station balnéaire basque légendaire — surf, Rocher de la Vierge, Palais Impérial.",u:"https://fr.m.wikipedia.org/wiki/Biarritz?useskin=vector"},
+    {lat:48.6361,lng:-2.0261,n:"Côte de Granit Rose",c:"Côtes-d'Armor, Bretagne",d:"Paysage unique de granite rose vieux de 300 millions d'années. Perros-Guirec, Ploumanac'h.",u:"https://fr.m.wikipedia.org/wiki/C%C3%B4te_de_Granit_rose?useskin=vector"},
+    {lat:46.3522,lng:-1.8667,n:"Île de Ré",c:"Charente-Maritime",d:"Île de lumière et de sel — marais salants, phare des Baleines, villages blancs à volets verts.",u:"https://fr.m.wikipedia.org/wiki/%C3%8Ele_de_R%C3%A9?useskin=vector"},
+    {lat:41.6533,lng:9.4500,n:"Corse — Bonifacio",c:"Corse-du-Sud",d:"Ville perchée sur falaises blanches calcaires. Bouches de Bonifacio, flaune endémique.",u:"https://fr.m.wikipedia.org/wiki/Bonifacio?useskin=vector"},
+    {lat:43.6977,lng:7.0700,n:"Côte d'Azur — Antibes",c:"Alpes-Maritimes",d:"Cap d'Antibes, Picasso à Antibes, Fort Carré. Fondation Hartung-Bergman.",u:"https://fr.m.wikipedia.org/wiki/Antibes?useskin=vector"}
+  ]},
+  nature:{icon:iconNa,color:'#1e8232',label:'🌿 Parcs Naturels',pts:[
+    {lat:45.8330,lng:6.8640,n:"Parc National du Mont-Blanc",c:"Haute-Savoie",d:"Le toit de l'Europe (4 808 m). Glaciers, alpinisme légendaire. Chamonix, refuge du Goûter.",u:"https://fr.m.wikipedia.org/wiki/Massif_du_Mont-Blanc?useskin=vector"},
+    {lat:44.0800,lng:6.6000,n:"Parc National du Mercantour",c:"Alpes-Maritimes",d:"Parc frontalier franco-italien. Loups, chamois, marmotte. Vallée des Merveilles — gravures rupestres.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Mercantour?useskin=vector"},
+    {lat:43.2500,lng:6.0000,n:"Parc National des Calanques",c:"Bouches-du-Rhône",d:"Premier parc national péri-urbain au monde. Faune marine, calanques, faucon pèlerin.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Calanques?useskin=vector"},
+    {lat:48.4500,lng:7.1000,n:"Parc Naturel des Vosges du Nord",c:"Bas-Rhin",d:"Massif gréseux, châteaux, forêts de hêtres. Réserve de biosphère UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_r%C3%A9gional_des_Vosges_du_Nord?useskin=vector"},
+    {lat:42.5800,lng:8.9000,n:"Parc Naturel de Corse",c:"Corse",d:"150 km de GR 20, le trek le plus difficile d'Europe. Monte Cinto (2 710 m), Lac de Nino.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_r%C3%A9gional_de_Corse?useskin=vector"},
+    {lat:43.5350,lng:4.0000,n:"Parc National de Camargue",c:"Bouches-du-Rhône, Gard",d:"Delta du Rhône. Flamants roses, taureaux sauvages, chevaux Camarguais, gardians.",u:"https://fr.m.wikipedia.org/wiki/Camargue?useskin=vector"},
+    {lat:44.8500,lng:6.5000,n:"Parc National des Écrins",c:"Isère, Hautes-Alpes",d:"Plus grand parc national des Alpes françaises. 26 sommets de plus de 3 500 m.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_%C3%89crins?useskin=vector"},
+    {lat:44.5500,lng:3.4000,n:"Parc National des Cévennes",c:"Lozère, Gard, Hérault",d:"Seul parc national habité. Robert Louis Stevenson. Causses, gorges du Tarn. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_C%C3%A9vennes?useskin=vector"}
+  ]},
+  archaeology:{icon:iconArch,color:'#b47814',label:'🏺 Archéologie & Grottes',pts:[
+    {lat:44.9940,lng:1.0658,n:"Grotte de Lascaux",c:"Dordogne, Périgord",d:"Grotte ornée paléolithique de 17 000 ans. 'La chapelle Sixtine de la Préhistoire'. Lascaux IV.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Lascaux?useskin=vector"},
+    {lat:43.3400,lng:5.5000,n:"Grotte Cosquer",c:"Marseille, Bouches-du-Rhône",d:"Grotte ornée sous-marine, 27 000 ans. Entrée à 37 m de fond. Réplique au MuCEM.",u:"https://fr.m.wikipedia.org/wiki/Grotte_Cosquer?useskin=vector"},
+    {lat:43.4910,lng:4.3060,n:"Site de Vix",c:"Côte-d'Or",d:"Tombe d'une princesse celte du VIe s. av. J.-C. Krater de Vix — plus grande pièce de bronze antique.",u:"https://fr.m.wikipedia.org/wiki/Mont_Lassois?useskin=vector"},
+    {lat:47.9719,lng:4.0908,n:"Menhirs de Carnac",c:"Morbihan, Bretagne",d:"Plus grand alignement mégalithique du monde — 3 000 menhirs du Néolithique sur 4 km.",u:"https://fr.m.wikipedia.org/wiki/Alignements_de_Carnac?useskin=vector"},
+    {lat:47.1200,lng:-1.6800,n:"Cairn de Gavrinis",c:"Morbihan, Bretagne",d:"Tumulus néolithique du IVe millénaire. Dalles gravées parmi les plus belles de l'art mégalithique.",u:"https://fr.m.wikipedia.org/wiki/Cairn_de_Gavrinis?useskin=vector"},
+    {lat:43.6252,lng:5.0983,n:"Glanum",c:"Saint-Rémy-de-Provence",d:"Site archéologique gréco-romain du IIe s. av. J.-C. Les Antiques (arc et mausolée romains).",u:"https://fr.m.wikipedia.org/wiki/Glanum?useskin=vector"},
+    {lat:44.9200,lng:2.6100,n:"Puy de Dôme — Sanctuaire de Mercure",c:"Puy-de-Dôme, Auvergne",d:"Temple gallo-romain de Mercure au sommet du Puy de Dôme (1 465 m). UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Puy_de_D%C3%B4me?useskin=vector"},
+    {lat:44.9400,lng:-0.6300,n:"Périgueux — Cité de Vésone",c:"Dordogne, Périgord",d:"Musée gallo-romain de Vésone. Tour de Vésone, arènes, domus romaine. Architecture de Jean Nouvel.",u:"https://fr.m.wikipedia.org/wiki/Vesunna?useskin=vector"}
+  ]},
+  gastronomy:{icon:iconGa,color:'#c87820',label:'🍷 Gastronomie & Marchés',pts:[
+    {lat:45.7640,lng:4.8357,n:"Bouchons Lyonnais — Halles Paul Bocuse",c:"Lyon",d:"Capitale mondiale de la gastronomie. Paul Bocuse, Mères Lyonnaises. Halles Paul Bocuse.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_lyonnaise?useskin=vector"},
+    {lat:47.3214,lng:5.0406,n:"Route des Grands Crus — Bourgogne",c:"Côte de Nuits, Bourgogne",d:"Gevrey-Chambertin, Vosne-Romanée, Romanée-Conti. Pinot noir et Chardonnay UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Route_des_Grands_Crus?useskin=vector"},
+    {lat:44.8378,lng:-0.5792,n:"Marché des Capucins — Bordeaux",c:"Bordeaux, Gironde",d:"Le 'ventre de Bordeaux'. Huîtres d'Arcachon, lamproie, entrecôte bordelaise.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_des_Capucins_(Bordeaux)?useskin=vector"},
+    {lat:48.8689,lng:2.3388,n:"Rue Montorgueil — Paris",c:"Paris",d:"Marché gourmand historique de Paris. Cafés, boulangeries, pâtissiers depuis le XVIIe s.",u:"https://fr.m.wikipedia.org/wiki/Rue_Montorgueil?useskin=vector"},
+    {lat:43.2965,lng:5.3698,n:"Marché du Prado — Bouillabaisse",c:"Marseille",d:"Soupe de poissons de roche, rouille, croûtons. Grand Marché du Prado, poissons de Méditerranée.",u:"https://fr.m.wikipedia.org/wiki/Bouillabaisse?useskin=vector"},
+    {lat:43.2970,lng:5.3816,n:"Cassoulet de Castelnaudary",c:"Castelnaudary, Aude",d:"Le plat emblématique du Midi — haricots blancs, saucisse de Toulouse, confit de canard.",u:"https://fr.m.wikipedia.org/wiki/Cassoulet?useskin=vector"},
+    {lat:48.8625,lng:2.3484,n:"Marché des Enfants-Rouges — Paris",c:"Paris (Marais)",d:"Plus vieux marché couvert de Paris (1615). Cuisines du monde — japonais, marocain, libanais.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_des_Enfants-Rouges?useskin=vector"},
+    {lat:48.5734,lng:7.7521,n:"Marché de Noël de Strasbourg",c:"Strasbourg, Bas-Rhin",d:"Le plus ancien marché de Noël de France (1570). Bredele, vin chaud, lumières.",u:"https://fr.m.wikipedia.org/wiki/March%C3%A9_de_No%C3%ABl_de_Strasbourg?useskin=vector"}
+  ]},
+  restaurant:{icon:iconRest,color:'#c01840',label:'⭐ Restaurants Michelin',pts:[
+    {lat:45.7640,lng:4.8357,n:"Paul Bocuse — L'Auberge du Pont de Collonges",c:"Collonges-au-Mont-d'Or, Lyon",d:"3 étoiles Michelin pendant 55 ans. Le 'pape de la gastronomie française'. Soupe VGE.",u:"https://fr.m.wikipedia.org/wiki/Paul_Bocuse?useskin=vector"},
+    {lat:48.8600,lng:2.3266,n:"Alain Ducasse — Le Louis XV",c:"Monte-Carlo / Paris",d:"Chef français le plus étoilé au monde. Cuisine méditerranéenne de palace. 21 étoiles au total.",u:"https://fr.m.wikipedia.org/wiki/Alain_Ducasse?useskin=vector"},
+    {lat:47.9817,lng:3.2950,n:"Marc Veyrat — La Maison des Bois",c:"Manigod, Haute-Savoie",d:"Cuisine herbivore et botanique des Alpes. Pionnier de la cuisine moléculaire française.",u:"https://fr.m.wikipedia.org/wiki/Marc_Veyrat?useskin=vector"},
+    {lat:48.8700,lng:2.3440,n:"Le Grand Véfour",c:"Paris, Galeries du Palais-Royal",d:"Restaurant historique fondé en 1784 sous les arcades du Palais-Royal. 2 étoiles Michelin.",u:"https://fr.m.wikipedia.org/wiki/Le_Grand_V%C3%A9four?useskin=vector"},
+    {lat:43.6047,lng:1.4442,n:"Michel Sarran",c:"Toulouse, Haute-Garonne",d:"2 étoiles Michelin à Toulouse. Cuisine du Sud-Ouest revisitée, foie gras, cèpes.",u:"https://fr.m.wikipedia.org/wiki/Michel_Sarran?useskin=vector"},
+    {lat:48.5734,lng:7.7521,n:"Maison Kammerzell",c:"Strasbourg, Bas-Rhin",d:"Restaurant alsacien dans une maison à colombages du XVe s. Choucroute garnie royale.",u:"https://fr.m.wikipedia.org/wiki/Maison_Kammerzell?useskin=vector"},
+    {lat:43.7102,lng:7.2620,n:"Le Chantecler — Hôtel Negresco",c:"Nice, Alpes-Maritimes",d:"2 étoiles Michelin sur la Promenade des Anglais. Cuisine niçoise de haute volée.",u:"https://fr.m.wikipedia.org/wiki/H%C3%B4tel_Negresco?useskin=vector"},
+    {lat:44.8378,lng:-0.5792,n:"Gordon Ramsay — Le Pressoir d'Argent",c:"Bordeaux, Gironde",d:"2 étoiles Michelin à Bordeaux. Homard breton en croûte de sel. Grand Hôtel de Bordeaux.",u:"https://fr.m.wikipedia.org/wiki/Gordon_Ramsay?useskin=vector"},
+    {lat:47.3200,lng:5.0430,n:"Restaurant Loiseau — Bernard Loiseau",c:"Saulieu, Côte-d'Or",d:"3 étoiles Michelin. Cuisine bourguignonne allégée. Grenouilles à la purée d'ail.",u:"https://fr.m.wikipedia.org/wiki/Bernard_Loiseau?useskin=vector"},
+    {lat:48.8534,lng:2.3489,n:"Guy Savoy",c:"Paris (Monnaie de Paris)",d:"3 étoiles Michelin. Artichaut à la truffe noire, soupe de truffes. Palais de la Monnaie.",u:"https://fr.m.wikipedia.org/wiki/Guy_Savoy?useskin=vector"}
+  ]},
+  wildlife:{icon:iconWild,color:'#2a7a1a',label:'🦁 Faune Sauvage',pts:[
+    {lat:43.5350,lng:4.0000,n:"Flamants Roses de Camargue",c:"Camargue, Bouches-du-Rhône",d:"40 000 flamants roses nicheurs. La plus grande colonie d'Europe. Étang de Vaccarès.",u:"https://fr.m.wikipedia.org/wiki/Flamant_rose?useskin=vector"},
+    {lat:44.1200,lng:7.0000,n:"Loup de l'arc alpin",c:"Mercantour, Alpes-Mar.",d:"Retour spontané du loup en 1992 via l'Italie. 100+ meutes en France. Sujet de controverses.",u:"https://fr.m.wikipedia.org/wiki/Loup_gris?useskin=vector"},
+    {lat:45.8330,lng:6.8640,n:"Bouquetin des Alpes",c:"Massif du Mont-Blanc",d:"Sauvé de l'extinction. Population française d'environ 5 000 individus dans les Alpes.",u:"https://fr.m.wikipedia.org/wiki/Bouquetin_des_Alpes?useskin=vector"},
+    {lat:42.5800,lng:9.0000,n:"Gypaète Barbu — Corse",c:"Corse (Haute-Corse)",d:"Vautour le plus rare d'Europe. Programme de réintroduction en Corse et dans les Alpes.",u:"https://fr.m.wikipedia.org/wiki/Gypa%C3%A8te_barbu?useskin=vector"},
+    {lat:43.6977,lng:7.0700,n:"Dauphins de Méditerranée",c:"Côte d'Azur, PELAGOS",d:"Sanctuaire PELAGOS pour les cétacés. Rorquals, dauphins communs, grands dauphins.",u:"https://fr.m.wikipedia.org/wiki/Sanctuaire_Pelagos?useskin=vector"},
+    {lat:47.8000,lng:-4.0000,n:"Grand Dauphin — Iroise",c:"Finistère, Bretagne",d:"Parc naturel marin d'Iroise. Phoques gris, grands dauphins, loutres marines.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_marin_d%27Iroise?useskin=vector"},
+    {lat:48.0000,lng:-1.5000,n:"Vison d'Europe — Bretagne",c:"Pays de la Loire",d:"Un des mammifères les plus menacés d'Europe. Programmes de sauvegarde en Bretagne.",u:"https://fr.m.wikipedia.org/wiki/Vison_d%27Europe?useskin=vector"},
+    {lat:43.0000,lng:6.1500,n:"Tortue d'Hermann — Var",c:"Plaine des Maures, Var",d:"Seule tortue sauvage de France métropolitaine. Réserve de la Plaine des Maures.",u:"https://fr.m.wikipedia.org/wiki/Tortue_d%27Hermann?useskin=vector"},
+    {lat:45.0000,lng:6.7000,n:"Gypaète Barbu — Alpes",c:"Hautes-Alpes, Savoie",d:"Réintroduit dans les Alpes en 1986. Wingspan de 2,70 m, os comme nourriture exclusive.",u:"https://fr.m.wikipedia.org/wiki/Gypa%C3%A8te_barbu?useskin=vector"},
+    {lat:46.5000,lng:1.0000,n:"Grande Outarde — Poitou",c:"Deux-Sèvres, Vienne",d:"Oiseau le plus lourd d'Europe capable de voler. Populations en déclin, plaine céréalière.",u:"https://fr.m.wikipedia.org/wiki/Grande_outarde?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#2a7a18',label:'⛳ Terrains de Golf',pts:[
+    {lat:48.8566,lng:2.0500,n:"Golf National — Albatros",c:"Saint-Quentin-en-Yvelines",d:"Parcours officiel de la Ryder Cup 2018. 18 trous championship, plan d'eau spectaculaire. L'un des meilleurs d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Golf_national?useskin=vector"},
+    {lat:43.5667,lng:7.0500,n:"Royal Mougins Golf Club",c:"Mougins, Alpes-Maritimes",d:"Parcours de prestige au cœur de la Côte d'Azur. Fairways au milieu des oliviers centenaires.",u:"https://fr.m.wikipedia.org/wiki/Mougins?useskin=vector"},
+    {lat:47.2500,lng:-1.5500,n:"Golf de Nantes Erdre",c:"Nantes, Loire-Atlantique",d:"18 trous le long de la rivière Erdre. Paysages verdoyants, l'une des plus belles rivières de France.",u:"https://fr.m.wikipedia.org/wiki/Erdre?useskin=vector"},
+    {lat:49.3800,lng:0.4200,n:"Golf de Deauville Saint-Gatien",c:"Deauville, Calvados",d:"Golf normand face à la Manche. Parcours de 18 trous dans un cadre de prairies et de pommiers.",u:"https://fr.m.wikipedia.org/wiki/Deauville?useskin=vector"},
+    {lat:43.4760,lng:-1.5580,n:"Golf de Chantaco",c:"Saint-Jean-de-Luz, Pays Basque",d:"Fondé en 1928, parcours mythique au cœur du Pays Basque. Clubhouse Art Déco classé.",u:"https://fr.m.wikipedia.org/wiki/Saint-Jean-de-Luz?useskin=vector"},
+    {lat:48.4833,lng:-4.7500,n:"Golf de Brest Iroise",c:"Landerneau, Finistère",d:"Parcours en bord de rade de Brest. Paysage breton sauvage, vues sur la mer d'Iroise.",u:"https://fr.m.wikipedia.org/wiki/Rade_de_Brest?useskin=vector"},
+    {lat:45.0500,lng:5.0667,n:"Golf Club de Grenoble Bresson",c:"Bresson, Isère",d:"18 trous au pied des Alpes. Vue imprenable sur le Vercors et la Chartreuse.",u:"https://fr.m.wikipedia.org/wiki/Grenoble?useskin=vector"},
+    {lat:43.6167,lng:3.8667,n:"Golf de Coulondres",c:"Saint-Gély-du-Fesc, Hérault",d:"Parcours vallonné au cœur des garrigues méditerranéennes, près de Montpellier.",u:"https://fr.m.wikipedia.org/wiki/Montpellier?useskin=vector"},
+    {lat:48.8667,lng:2.6000,n:"Golf de Rosny-sous-Bois",c:"Rosny-sous-Bois, Seine-Saint-Denis",d:"Golf public pionnier en Île-de-France. Parcours accessible à tous, 18 trous.",u:"https://fr.m.wikipedia.org/wiki/Rosny-sous-Bois?useskin=vector"},
+    {lat:47.6000,lng:7.5333,n:"Golf Club d'Alsace — Ammerschwihr",c:"Ammerschwihr, Haut-Rhin",d:"18 trous au cœur du vignoble alsacien. Vue sur les Vosges et les châteaux de la Route des Vins.",u:"https://fr.m.wikipedia.org/wiki/Ammerschwihr?useskin=vector"}
+  ]},
+  vineyard:{icon:iconVign,color:'#7a003c',label:'🍇 Vignobles & Terroirs',pts:[
+    {lat:47.3214,lng:5.0406,n:"Romanée-Conti — Côte de Nuits",c:"Vosne-Romanée, Bourgogne",d:"Parcelle d'1,8 ha, le vin le plus cher du monde. Domaine de la Romanée-Conti. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Romanée-Conti?useskin=vector"},
+    {lat:44.8378,lng:-0.5792,n:"Vignobles du Médoc",c:"Bordeaux, Gironde",d:"Pauillac, Margaux, Saint-Julien, Saint-Estèphe. Châteaux Lafite, Latour, Mouton-Rothschild.",u:"https://fr.m.wikipedia.org/wiki/M%C3%A9doc?useskin=vector"},
+    {lat:49.0530,lng:3.9650,n:"Vignobles de Champagne",c:"Marne, Épernay",d:"Capital mondiale du champagne. Moët & Chandon, Dom Pérignon, Ruinart. UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Champagne_viticole?useskin=vector"},
+    {lat:43.8330,lng:4.3600,n:"Vignobles du Languedoc",c:"Hérault, Gard",d:"Premier vignoble de France en superficie. Picpoul de Pinet, Faugères, Saint-Chinian.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_du_Languedoc?useskin=vector"},
+    {lat:45.5383,lng:4.8667,n:"Côtes du Rhône — Côte-Rôtie",c:"Ampuis, Isère",d:"Terrasses abruptes sur granit. Syrah sur ardoise. Guigal, Jaboulet. Hermitage et Condrieu.",u:"https://fr.m.wikipedia.org/wiki/C%C3%B4te-R%C3%B4tie_(AOC)?useskin=vector"},
+    {lat:47.2978,lng:0.1057,n:"Vignobles d'Anjou — Loire",c:"Maine-et-Loire",d:"Layon, Quarts de Chaume, Savennières. Chenin blanc liquoreux parmi les meilleurs du monde.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_d%27Anjou?useskin=vector"},
+    {lat:43.4760,lng:-1.5580,n:"Jurançon — Vignobles basques",c:"Pyrénées-Atlantiques",d:"Henri IV baptisé avec le Jurançon. Vins moelleux et secs, Manseng, Courbu.",u:"https://fr.m.wikipedia.org/wiki/Juran%C3%A7on_(AOC)?useskin=vector"},
+    {lat:41.6500,lng:9.4000,n:"Vignobles de Corse",c:"Corse",d:"Nielluccio (Sangiovese), Vermentino, Sciacarello. Patrimonio, Ajaccio. Île de Beauté.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_de_Corse?useskin=vector"}
+  ]}
+};
+
+// LAYER GROUPS
+var groups = {};
+var activeGroups = {};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat] = L.layerGroup();
+  activeGroups[cat] = true;
+  var col = DATA[cat].color, lbl = DATA[cat].label;
+  DATA[cat].pts.forEach(function(p){
+    var safeU = p.u.replace(/'/g,"\\'");
+    var safeN = p.n.replace(/'/g,"\\'");
+    var popup = '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#8b1a1a\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>';
+    L.marker([p.lat,p.lng],{icon:DATA[cat].icon}).bindPopup(popup,{maxWidth:280}).addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+// TOGGLE function
+function toggle(cat){
+  var el = document.getElementById('fb-'+cat);
+  if(!el) return;
+  if(activeGroups[cat]){
+    map.removeLayer(groups[cat]);
+    activeGroups[cat] = false;
+    el.style.opacity = '0.55';
+    el.style.textDecoration = 'none';
+    el.style.color = '#888';
+  } else {
+    groups[cat].addTo(map);
+    activeGroups[cat] = true;
+    el.style.opacity = '1';
+    el.style.textDecoration = 'none';
+    el.style.color = '#222';
+  }
+}
+
+// FILTER CONTROL — ListeBox scrollable
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+  var d = L.DomUtil.create('div');
+  d.style.cssText = 'background:white;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.22);font-family:Georgia,serif;width:230px;overflow:hidden;';
+
+  var ROWS = [
+    {cat:'monument',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 22,8 28,8 28,10 24,10 24,27 28,27 28,29 8,29 8,27 12,27 12,10 8,10 8,8 14,8" fill="#c9a84c" stroke="#7a3a0a" stroke-width="1"/><rect x="7" y="29" width="22" height="4" rx="1" fill="#8b1a1a"/></svg>',               label:'Monuments',             count:10},
+    {cat:'castle',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="5" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="8" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="11" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="23" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="26" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="29" y="7" width="2" height="4" fill="#1e4aaa"/><rect x="5" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="23" y="10" width="8" height="23" rx="1" fill="#2a5cbf"/><rect x="6" y="16" width="24" height="17" rx="1" fill="#2a5cbf"/><rect x="14" y="25" width="8" height="8" fill="#0e1e4a"/><rect x="7" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/><rect x="25" y="14" width="4" height="5" rx="1" fill="#0e1e4a"/></svg>',   label:'Châteaux',               count:10},
+    {cat:'cathedral',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="15" y="2" width="6" height="22" rx="1" fill="#8b2fc9"/><rect x="7" y="9" width="22" height="6" rx="1" fill="#8b2fc9"/><rect x="11" y="24" width="14" height="4" rx="1" fill="#6a1fa0"/><rect x="8" y="28" width="20" height="5" rx="1" fill="#5a1a8a"/></svg>',  label:'Cathédrales',            count:10},
+    {cat:'museum',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="21" rx="13" ry="11" fill="#1e8250" stroke="#145c38" stroke-width="1"/><circle cx="9" cy="18" r="2.2" fill="#e8c97a"/><circle cx="18" cy="10" r="2.2" fill="#8b2fc9"/><circle cx="27" cy="18" r="2.2" fill="#8b1a1a"/></svg>',      label:'Musées & Galeries',      count:10},
+    {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#e06414" stroke="#a04000" stroke-width="1"/></svg>',         label:'Sites UNESCO',           count:10},
+    {cat:'palace',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#5a3e0a" opacity="0.9"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5510" stroke-width="0.6"/><rect x="6" y="19" width="24" height="4" fill="#e8c878" opacity="0.55"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5510" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5510" stroke-width="0.6"/><polygon points="18,10 11,15.5 25,15.5" fill="#e8c060" opacity="0.6"/><circle cx="18" cy="13.2" r="2.2" fill="none" stroke="#7a5510" stroke-width="0.7"/><circle cx="18" cy="13.2" r="1.2" fill="#f0d878" opacity="0.85"/><ellipse cx="18" cy="9" rx="4.5" ry="1.2" fill="#b88020" stroke="#7a5510" stroke-width="0.5"/><path d="M13.5 9 Q13.5 3.5 18 2.5 Q22.5 3.5 22.5 9" fill="#d4a030" stroke="#7a5510" stroke-width="0.6"/><rect x="16.8" y="2" width="2.4" height="2" rx="0.5" fill="#e8c060" stroke="#7a5510" stroke-width="0.5"/><circle cx="18" cy="1.4" r="0.9" fill="#f5d040" stroke="#8a6010" stroke-width="0.4"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/><path d="M15.5 24 Q18 21.5 20.5 24" fill="#3a2006" stroke="#7a5510" stroke-width="0.4"/><rect x="8.5" y="22" width="3" height="4" rx="0.5" fill="#3a2006"/><rect x="23" y="22" width="3" height="4" rx="0.5" fill="#3a2006"/></svg>',          label:'Palais Royaux',          count:8},
+    {cat:'medieval',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="20" width="28" height="12" rx="1" fill="#7a4a1a"/><rect x="8" y="12" width="6" height="10" fill="#9a6030"/><rect x="16" y="14" width="8" height="8" fill="#9a6030"/><rect x="24" y="16" width="6" height="6" fill="#9a6030"/><rect x="9" y="15" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="17" y="17" width="3" height="5" rx="1" fill="#3a1a05"/><rect x="25" y="19" width="3" height="3" rx="1" fill="#3a1a05"/></svg>',      label:'Villes Médiévales',      count:10},
+    {cat:'roman',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#148c8c"/><rect x="8" y="8" width="4" height="18" fill="#1aadad"/><rect x="16" y="8" width="4" height="18" fill="#1aadad"/><rect x="24" y="8" width="4" height="18" fill="#1aadad"/><rect x="6" y="6" width="24" height="3" rx="1" fill="#0a5a5a"/><path d="M18 2 L6 6 L30 6 Z" fill="#085050"/></svg>',        label:'Architecture Antique',   count:10},
+    {cat:'abbey',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="2" width="8" height="14" rx="1" fill="#5a3010"/><rect x="8" y="14" width="20" height="18" rx="2" fill="#7a5020"/><rect x="16" y="18" width="4" height="14" fill="#3a1808"/><rect x="12" y="18" width="12" height="4" fill="#3a1808"/><circle cx="18" cy="10" r="2" fill="#e8c97a"/></svg>',         label:'Abbayes & Monastères',   count:8},
+    {cat:'tourist',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="16" r="12" fill="#dc3c1e"/><circle cx="18" cy="16" r="8" fill="#f07050"/><text x="18" y="21" text-anchor="middle" font-size="10" fill="white" font-weight="bold">★</text></svg>',        label:'Villes Touristiques',    count:10},
+    {cat:'coast',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="26" rx="15" ry="7" fill="#1464c8"/><ellipse cx="18" cy="22" rx="13" ry="5" fill="#3a8ce0"/><path d="M4 22 Q9 17 14 20 Q18 15 22 20 Q27 16 32 22" fill="none" stroke="#90c8f0" stroke-width="1.5"/><ellipse cx="18" cy="14" rx="6" ry="3" fill="#f0e890"/></svg>',         label:'Côtes & Plages',         count:9},
+    {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="24" rx="14" ry="9" fill="#1e8232"/><ellipse cx="10" cy="18" rx="7" ry="10" fill="#28a03c"/><ellipse cx="26" cy="20" rx="7" ry="8" fill="#28a03c"/><ellipse cx="18" cy="12" rx="6" ry="8" fill="#34c050"/><circle cx="10" cy="8" r="4" fill="#34c050"/><circle cx="26" cy="12" r="3" fill="#28a03c"/></svg>',        label:'Parcs Naturels',         count:8},
+    {cat:'archaeology', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="26" width="24" height="5" rx="1" fill="#b47814"/><rect x="8" y="10" width="4" height="16" fill="#c9a84c"/><rect x="16" y="10" width="4" height="16" fill="#c9a84c"/><rect x="24" y="10" width="4" height="16" fill="#c9a84c"/><rect x="6" y="8" width="24" height="3" rx="1" fill="#a06010"/><path d="M18 3 L6 8 L30 8 Z" fill="#8b4a08"/></svg>', label:'Archéologie & Grottes',  count:8},
+    {cat:'gastronomy',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="20" width="20" height="12" rx="3" fill="#a05010"/><ellipse cx="18" cy="20" rx="10" ry="5" fill="#c87820"/><path d="M12 20 Q14 14 18 12 Q22 14 24 20" fill="#e09030"/><circle cx="14" cy="16" r="2" fill="#c03010"/><circle cx="22" cy="15" r="2" fill="#c03010"/><rect x="16" y="12" width="4" height="3" rx="1" fill="#7a3808"/></svg>',  label:'Gastronomie & Marchés',  count:8},
+    {cat:'restaurant',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="17" r="13" fill="#c01840"/><circle cx="18" cy="17" r="10" fill="#e02050"/><text x="18" y="14" text-anchor="middle" font-size="7" fill="#ffd700" font-weight="bold">★★★</text><text x="18" y="22" text-anchor="middle" font-size="6.5" fill="white" font-weight="bold" font-family="Georgia,serif">M</text><rect x="13" y="26" width="10" height="2" rx="1" fill="#ffd700"/></svg>',  label:'Restaurants Michelin',   count:10},
+    {cat:'wildlife',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M22 22 Q30 10 34 6 Q28 15 24 20 Z" fill="#c8880a" opacity="0.55"/><path d="M10 28 Q8 22 10 17 Q12 12 17 11 Q22 10 24 14 Q26 18 24 23 Q22 27 18 29 Q14 30 10 28 Z" fill="#c8880a" stroke="#7a4e08" stroke-width="0.7"/><path d="M13 16 Q15 12 19 12 Q22 12 23 15 Q20 13 16 14 Z" fill="#f0c040" opacity="0.45"/><path d="M11 18 Q14 15 19 16 Q22 17 23 20 Q19 18 15 18 Q12 19 11 18 Z" fill="#a06808" opacity="0.7"/><path d="M12 20 Q15 17 20 18" fill="none" stroke="#7a4e08" stroke-width="0.5"/><path d="M11 22 Q15 19 21 20" fill="none" stroke="#7a4e08" stroke-width="0.45"/><path d="M17 11 Q17 7 19 5 Q21 3 22 5 Q21 7 20 9 Q19 10 17 11 Z" fill="#c8880a" stroke="#7a4e08" stroke-width="0.6"/><path d="M17 6 Q16 3 17 2 Q18 1 19 3 Q19 1.5 20 1 Q21 2 20 4 Q21 2.5 22 2 Q22.5 3.5 21 5" fill="#c03010" stroke="#8a1a08" stroke-width="0.5"/><path d="M19 9 Q17 11 16 13" fill="none" stroke="#c03010" stroke-width="1.2" stroke-linecap="round"/><circle cx="20" cy="6" r="1.3" fill="#1a0a00" stroke="#c8880a" stroke-width="0.4"/><circle cx="20.4" cy="5.6" r="0.4" fill="white" opacity="0.7"/><path d="M22 5 L25 6 L22 7 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.4"/><line x1="14" y1="29" x2="12" y2="34" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/><line x1="18" y1="29" x2="17" y2="34" stroke="#8a6010" stroke-width="1.1" stroke-linecap="round"/><line x1="12" y1="34" x2="9" y2="34" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/><line x1="17" y1="34" x2="14" y2="34" stroke="#8a6010" stroke-width="0.9" stroke-linecap="round"/></svg>',    label:'Faune Sauvage',          count:10},
+    {cat:'vineyard',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="12" rx="8" ry="7" fill="#7a003c"/><circle cx="13" cy="10" r="2.5" fill="#9a0050"/><circle cx="23" cy="10" r="2.5" fill="#9a0050"/><circle cx="18" cy="8" r="2.5" fill="#9a0050"/><circle cx="13" cy="15" r="2.5" fill="#9a0050"/><circle cx="23" cy="15" r="2.5" fill="#9a0050"/><rect x="17" y="19" width="2" height="10" fill="#5a3010"/><rect x="10" y="29" width="16" height="3" rx="1" fill="#3a1808"/></svg>',    label:'Vignobles & Terroirs',   count:8},
+    {cat:'golf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#3a7a28" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#4a9a34" opacity="0.7"/><ellipse cx="12" cy="29.5" rx="3" ry="1" fill="#1a4a10" opacity="0.55"/><circle cx="12" cy="29" r="1.8" fill="#1a3008"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c8960a" stroke="#7a5508" stroke-width="0.7"/><path d="M16 7.5 L24 10 L16 12" fill="#e8b030" opacity="0.45"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/><circle cx="19.5" cy="27.2" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="21.2" cy="27.5" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/><circle cx="20.2" cy="29" r="0.55" fill="none" stroke="#c0a860" stroke-width="0.45"/></svg>',    label:'Terrains de Golf',       count:10}
+  ];
+
+  var html =
+    '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+      +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 18 catégories</span>'
+      +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+    +'</div>'
+    +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+      +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;'
+        +'scrollbar-width:thin;scrollbar-color:#c9a84c #f5ead8;">';
+
+  ROWS.forEach(function(r){
+    html += '<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+      +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+      +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+      +'transition:background .15s;"'
+      +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="this.style.background=\'transparent\'">'
+      +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+      +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+      +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+      +'</div>';
+  });
+
+  html +=
+      '</div>'
+      +'<div style="display:flex;gap:0;">'
+        +'<button onclick="toggleAll(true)"  style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#c9a84c;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+        +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#8b1a1a;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+      +'</div>'
+    +'</div>';
+
+  d.innerHTML = html;
+
+  var st = document.createElement('style');
+  st.textContent =
+    '#listebox::-webkit-scrollbar{width:5px;}'
+    +'#listebox::-webkit-scrollbar-track{background:#f5ead8;}'
+    +'#listebox::-webkit-scrollbar-thumb{background:#c9a84c;border-radius:3px;}';
+  d.appendChild(st);
+
+  d.querySelector('#fc-header').addEventListener('click', function(){ togglePanel(); });
+
+  L.DomEvent.disableClickPropagation(d);
+  L.DomEvent.disableScrollPropagation(d);
+  return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+// MAP STYLE CONTROL — 5 tuiles
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#f8a8a8',
+  'Czechia':'#f8a8a8','Slovakia':'#dda0dd','Hungary':'#f8c0a0','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+var _politicalPending=false;
+function buildPoliticalLayer(callback){
+  if(politicalLayer){if(callback)callback();return;}
+  if(_politicalPending) return;
+  _politicalPending=true;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+      _politicalPending=false;
+      if(callback)callback();
+    }).catch(function(e){console.warn('GeoJSON:',e);_politicalPending=false;});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+    buildPoliticalLayer(function(){
+      politicalLayer.addTo(map);
+      if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);
+    });
+  } else {
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+  }
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #8b1a1a';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#8b1a1a':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'8b1a1a\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+// Toggle all
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el = document.getElementById('fb-'+cat);
+    if(show){
+      if(!activeGroups[cat]){ groups[cat].addTo(map); activeGroups[cat]=true; }
+      if(el){ el.style.opacity='1'; el.style.textDecoration='none'; el.style.color='#222'; }
+    } else {
+      if(activeGroups[cat]){ map.removeLayer(groups[cat]); activeGroups[cat]=false; }
+      if(el){ el.style.opacity='0.55'; el.style.textDecoration='none'; el.style.color='#888'; }
+    }
+  });
+}
+
+// Panel collapse
+var panelOpen = window.innerWidth > 600;
+function applyPanelState(){
+  var body  = document.getElementById('filter-body');
+  var arrow = document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){
+    body.style.maxHeight = '400px';
+    body.style.opacity   = '1';
+    arrow.style.transform = 'rotate(0deg)';
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+}
+function togglePanel(){ panelOpen = !panelOpen; applyPanelState(); }
+setTimeout(function(){ if(window.innerWidth<=600){ panelOpen=false; } applyPanelState(); }, 100);
+map.on('click', function(){ if(window.innerWidth<=600 && panelOpen){ panelOpen=false; applyPanelState(); } });
+
+// SCROLL REVEAL
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

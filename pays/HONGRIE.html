@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hongrie — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Hongrie.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#CE2939;      /* rouge hongrois */
+      --blanc:#f8f8f8;
+      --vert:#477050;       /* vert hongrois */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --magyar:#1a0a08;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#020408;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(206,41,57,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 80% 80%,rgba(71,112,80,.08) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 33%,var(--blanc) 33%,var(--blanc) 66%,var(--vert) 66%,var(--vert) 100%);opacity:.5;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,18vw,13rem);font-weight:300;
+      color:rgba(206,41,57,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(206,41,57,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(206,41,57,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,4,8,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(206,41,57,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold),var(--vert));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(206,41,57,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(206,41,57,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(206,41,57,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#020408;border-bottom:1px solid rgba(206,41,57,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #8a0810;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#a81828;border-color:#a81828;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(206,41,57,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Hongrie';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Hongrie');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">MAGYARORSZÁG</div>
+  <div class="hero-eyebrow">Hongrie · Guide du Voyageur</div>
+  <h1 class="hero-title">Budapest Royale,<br>&amp; <em>Âme Magyar</em></h1>
+  <p class="hero-subtitle">Parlement sur le Danube, bains thermaux de Budapest, Tokaj d'or &amp; puszta infinie des cavaliers magyars</p>
+
+  <!-- OISEAU TURUL — symbole mythique hongrois, style Léonard de Vinci -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(206,41,57,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Turul — faucon mythique des Magyars -->
+      <!-- Corps du Turul -->
+      <path d="M60 90 Q56 78 60 66 Q66 54 78 50 Q90 48 100 56 Q110 66 108 80 Q104 94 90 100 Q74 106 64 98 Q60 96 60 90 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M64 64 Q72 56 80 54 Q90 56 98 64 Q90 60 80 59 Q70 60 64 64 Z" fill="#f0d040" opacity="0.25"/>
+
+      <!-- Hachures plumes corps -->
+      <path d="M64 76 Q74 71 80 72 Q88 71 96 76" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M62 86 Q72 81 80 82 Q88 81 98 86" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+
+      <!-- Grande aile gauche du Turul — déployée vers le bas -->
+      <path d="M60 80 Q40 76 20 60 Q8 48 4 36 Q8 32 14 36 Q10 42 18 50 Q34 64 52 72 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M60 90 Q38 90 18 84 Q6 78 4 66 Q8 64 14 68 Q12 76 20 78 Q40 84 58 84 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M60 100 Q40 104 20 106 Q8 104 6 96 Q10 94 16 98 Q20 102 32 102 Q48 100 60 100 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <!-- Nervures aile gauche -->
+      <line x1="60" y1="80" x2="6" y2="38" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="60" y1="90" x2="5" y2="68" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="60" y1="100" x2="6" y2="97" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Grande aile droite du Turul — déployée vers le bas -->
+      <path d="M100 80 Q120 76 140 60 Q152 48 156 36 Q152 32 146 36 Q150 42 142 50 Q126 64 108 72 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M100 90 Q122 90 142 84 Q154 78 156 66 Q152 64 146 68 Q148 76 140 78 Q120 84 102 84 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M100 100 Q120 104 140 106 Q152 104 154 96 Q150 94 144 98 Q140 102 128 102 Q112 100 100 100 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <line x1="100" y1="80" x2="154" y2="38" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="100" y1="90" x2="155" y2="68" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="100" y1="100" x2="154" y2="97" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Tête du Turul — faucon noble -->
+      <ellipse cx="80" cy="46" rx="18" ry="15" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Bec crochu puissant -->
+      <path d="M64 50 Q60 54 58 60 Q62 56 66 52 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+      <path d="M58 60 Q56 64 60 66 Q62 62 58 60 Z" fill="#c9a84c"/>
+
+      <!-- Oeil perçant du faucon -->
+      <circle cx="74" cy="42" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="74" cy="42" r="3" fill="#2a1000"/>
+      <circle cx="75.5" cy="40.5" r="1.2" fill="white" opacity="0.85"/>
+      <!-- Sourcil du faucon -->
+      <path d="M69 38 Q72 36 77 37" fill="none" stroke="#7a5008" stroke-width="1" stroke-linecap="round"/>
+
+      <!-- Houpette du faucon / crête -->
+      <path d="M76 32 Q78 26 80 22 Q82 26 84 30" fill="none" stroke="#d4a020" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M70 30 Q68 24 70 20 Q74 22 74 28" fill="none" stroke="#c8900a" stroke-width="1" stroke-linecap="round"/>
+
+      <!-- Ecu hongrois sur le poitrail — rayures et croix apostolique -->
+      <path d="M68 80 Q68 72 80 70 Q92 72 92 80 Q92 90 80 96 Q68 90 68 80 Z"
+            fill="#CE2939" stroke="#8a0810" stroke-width="0.7"/>
+      <!-- Rayures blanches horizontales (armoiries de Hongrie) -->
+      <rect x="68" y="74" width="24" height="3.5" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="68" y="81" width="24" height="3.5" fill="#f8f8f8" opacity="0.9"/>
+      <rect x="68" y="88" width="24" height="3.5" fill="#f8f8f8" opacity="0.9"/>
+
+      <!-- Serres puissantes du Turul -->
+      <path d="M68 102 Q62 110 64 116 Q68 116 72 112 Q70 108 68 104 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M92 102 Q98 110 96 116 Q92 116 88 112 Q90 108 92 104 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Griffes -->
+      <line x1="66" y1="116" x2="62" y2="120" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="68" y1="116" x2="66" y2="121" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="70" y1="115" x2="70" y2="120" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+
+      <!-- Queue de faucon étalée -->
+      <path d="M68 104 Q64 114 62 122 Q66 120 70 116 Q72 112 72 108 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M76 106 Q74 116 74 124 Q78 122 80 116 Q80 110 78 106 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M84 106 Q86 116 88 124 Q84 122 82 116 Q80 110 82 106 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M92 104 Q96 114 98 122 Q94 120 90 116 Q88 112 88 108 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="68" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Turul</text>
+      <text x="10" y="76" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">hungaricus</text>
+      <line x1="28" y1="70" x2="56" y2="70" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="130" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="140" cy="50" r="0.9" fill="#CE2939" opacity="0.4"/>
+      <circle cx="18" cy="128" r="1.1" fill="#477050" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Budapest et son parlement, bains thermaux Gellért et Széchenyi, Tokaj et ses vins d'or, puszta et chevaux, paprika de Kalocsa, lac Balaton, château d'Eger, Hollókő médiéval, musique de Liszt et Bartók, gastronomie hongroise &amp; palinka.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">1 000</div><div class="stat-label">ans de Royaume</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Hongrie</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Magyars aux temps modernes</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Budapest','Budapest — La Perle du Danube')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Budapest</div><h3 class="card-name">Budapest — La Perle du Danube</h3><p class="card-context">UNESCO 1987 — la capitale la plus belle d'Europe centrale. Deux villes réunies en 1873 — Buda sur les collines et Pest sur la plaine. Parlement néo-gothique, Château de Buda, Pont des Chaînes, Opéra, Rue Andrássy. Le Danube en ceinture — 7 îles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parlement_de_Budapest','Parlement de Budapest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Budapest — Pest</div><h3 class="card-name">Parlement de Budapest</h3><p class="card-context">Le troisième plus grand parlement du monde (268 m de long) et l'un des plus beaux bâtiments néo-gothiques du monde. Construit entre 1885 et 1904 par Imre Steindl. Abritant la Sainte Couronne de Saint-Étienne — la couronne la plus ancienne d'Europe (1000 apr. J.-C.).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Buda','Château de Buda')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Budapest — Buda</div><h3 class="card-name">Château de Buda</h3><p class="card-context">UNESCO 1987 — résidence royale depuis le XIIIe s. sur la colline du Château. Musée National Hongrois, Galerie Nationale. Quartier du Château aux ruelles médiévales, Église Matthias (XIVe s.), Bastion des Pêcheurs — vue panoramique sur le Danube et le Parlement.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bain_Gellért','Bains Gellért de Budapest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Budapest — Gellért</div><h3 class="card-name">Bains Gellért — La Cathédrale Thermale</h3><p class="card-context">La perle de l'Art Nouveau budapestois (1918) — bains thermaux sous une coupole de verre et de mosaïques. Sources naturelles à 44°C. Hall d'entrée monumental. Piscine de vagues. La Hongrie — premier pays thermal du monde avec 1 500 sources naturelles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bains_Széchenyi','Bains Széchenyi')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Budapest — Pest</div><h3 class="card-name">Bains Széchenyi — Le Palais Thermal</h3><p class="card-context">Les plus grands bains thermaux d'Europe — 18 piscines (dont 3 extérieures) dans un palais néo-baroque jaune vif (1913). Sources à 77°C. Joueurs d'échecs dans l'eau — scène emblématique. Ouvert toute l'année. Le symbole du mode de vie hongrois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tokaj','Tokaj — Le Vin des Rois')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Tokaj, Borsod-Abaúj-Zemplén</div><h3 class="card-name">Tokaj — L'Or Liquide</h3><p class="card-context">UNESCO 2002 — le vin de Tokaj — "Vinum Regum, Rex Vinorum" (Vin des Rois, Roi des Vins). Louis XIV l'appelait "le vin des rois". Aszú — le premier vin de dessert classifié au monde (1737). Caves creusées dans le tuf volcanique. Furmint, Hárslevelű.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lac_Balaton','Lac Balaton — La Mer Hongroise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Balaton, Transdanubie</div><h3 class="card-name">Lac Balaton — La Mer Hongroise</h3><p class="card-context">Le plus grand lac d'Europe centrale (596 km²) — surnommé "la mer des Hongrois". Eau chaude peu profonde (max. 3,5 m). Vignobles de Badacsony sur les volcans éteints. Tihany — abbaye bénédictine sur presqu'île. 40 000 touristes/jour en été. Plages de sable fin.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Puszta','Puszta — La Grande Plaine')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Hortobágy, Puszta</div><h3 class="card-name">Puszta — La Steppe Infinie</h3><p class="card-context">UNESCO 1999 — la Grande Plaine hongroise, steppe européenne intacte. Hortobágy — le plus grand parc national de Hongrie. Cavaliers csikós au galop, bergers gulyás avec leurs troupeaux. Grues migratrices (350 000 en automne). Fermes isolées aux puits à balancier.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hollókő','Hollókő — Village Médiéval')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Hollókő, Nógrád</div><h3 class="card-name">Hollókő — Le Village de Conte</h3><p class="card-context">UNESCO 1987 — le village médiéval palóc le mieux préservé de Hongrie. Maisons blanches à toits rouges, château en ruines sur la colline, broderies traditionnelles. Les Palóc — peuple aux traditions séculaires, costumes colorés. Pâques avec reconstitution médiévale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Eger_(Hongrie)','Eger — La Ville du Taureau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Eger, Heves</div><h3 class="card-name">Eger — Sang de Taureau et Baroque</h3><p class="card-context">Ville baroque d'une beauté exceptionnelle — cathédrale néo-classique, château d'Eger (résistance héroïque de 1552 contre les Ottomans). Vin Egri Bikavér ("Sang de Taureau"). Minaret turc le plus septentrional d'Europe. Caves de vin creusées dans le tuf volcanique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Pannonhalma','Abbaye de Pannonhalma')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Pannonhalma, Győr-Moson-Sopron</div><h3 class="card-name">Abbaye de Pannonhalma</h3><p class="card-context">UNESCO 1996 — l'une des plus anciennes abbayes bénédictines d'Europe centrale (996 apr. J.-C.) fondée par le prince Géza. 1 000 ans d'histoire ininterrompue. Bibliothèque de 360 000 volumes. Vignobles de l'abbaye. La "montagne sacrée" de Hongrie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pécs_(Hongrie)','Pécs — La Méditerranée Hongroise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Pécs, Baranya</div><h3 class="card-name">Pécs — La Méditerranée Hongroise</h3><p class="card-context">UNESCO 2000 (nécropole) — la ville hongroise au climat le plus doux. Mosquée Gazi Kasim Pasha (XVIe s.) — la plus grande mosquée ottomane de Hongrie, reconvertie en église. Cathédrale à 4 tours. Nécropole paléo-chrétienne du IVe s. Capitale Européenne de la Culture 2010.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pont_des_Chaînes','Pont des Chaînes de Budapest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Budapest</div><h3 class="card-name">Pont des Chaînes — Széchenyi lánchíd</h3><p class="card-context">Le premier pont permanent sur le Danube à Budapest (1849) — symbole de la modernisation de la Hongrie. Construit par Adam Clark sur commande du comte Széchenyi. Lions gardant les piliers. Rénové en 2023. Vue iconique vers Buda la nuit — image de la ville.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_des_grottes_d%27Aggtelek','Grottes d\'Aggtelek')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Aggtelek, Borsod-Abaúj-Zemplén</div><h3 class="card-name">Grottes d'Aggtelek — UNESCO</h3><p class="card-context">UNESCO 1995 — le plus grand réseau de grottes karstiques d'Europe tempérée (712 grottes). Grotte de Baradla — 25 km de galeries, stalactites géantes, salle de concert souterraine aux 1 000 places. Lac souterrain. Frontière avec la Slovaquie — caves partagées.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sopron','Sopron — La Plus Belle Ville Médiévale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Sopron, Győr-Moson-Sopron</div><h3 class="card-name">Sopron — La Ville Fidèle</h3><p class="card-context">La ville la plus médiévale de Hongrie — 240 monuments historiques dans la vieille ville. Surnommée "Civitas Fidelissima" (la plus fidèle) après avoir voté son maintien en Hongrie en 1921. Tour du Feu. Maisons romanes du XIIe s. À la frontière autrichienne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Debrecen','Debrecen — La Grande Ville Réformée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Debrecen, Hajdú-Bihar</div><h3 class="card-name">Debrecen — La Grande Plaine</h3><p class="card-context">Deuxième ville de Hongrie — capitale protestante de la Grande Plaine. Grande Église Réformée (1814). Carnaval des Fleurs (Virágkarnevál) — le plus beau défilé floral de Hongrie. Kossuth Lajos proclama l'indépendance de Hongrie ici en 1849. La Hongrie de l'Est.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rue_Andrássy','Avenue Andrássy et Millennium')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Budapest — Pest</div><h3 class="card-name">Avenue Andrássy — Les Champs-Élysées de Budapest</h3><p class="card-context">UNESCO 2002 — 2,5 km de palais néo-Renaissance, Opéra d'État (1884), café New York. Premier métro du continent européen (1896 — Millennium Underground). Place des Héros — les 7 chefs magyars en bronze. La plus belle avenue d'Europe centrale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Opéra_de_Budapest','Opéra d\'État de Budapest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Budapest</div><h3 class="card-name">Opéra d'État de Budapest</h3><p class="card-context">L'un des plus beaux opéras du monde (Miklós Ybl, 1884). Gustave Mahler en fut directeur musical. Décor néo-Renaissance somptueux — or, marbre, velours. Parmi les meilleures acoustiques mondiales. Budapest — capitale musicale reconnue. Abonnement annuel accessible.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Kalocsa','Kalocsa — La Capitale du Paprika')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Kalocsa, Bács-Kiskun</div><h3 class="card-name">Kalocsa — La Capitale du Paprika</h3><p class="card-context">La ville du paprika hongrois — épice nationale introduite du Nouveau Monde au XVIe s. Musée du Paprika, champs rouges à l'automne. Broderies kaloccai — motifs floraux rouge et blanc. Cathédrale baroque. La Hongrie produit le meilleur paprika du monde. Piment doux ou fort.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fertő_/_Neusiedlersee','Lac Fertő — Neusiedlersee')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Fertőd, Győr-Moson-Sopron</div><h3 class="card-name">Fertő — Le Lac des Steppes</h3><p class="card-context">UNESCO 2001 — lac peu profond partagé avec l'Autriche (Neusiedlersee). Millions d'oiseaux migrateurs. Château Esterházy de Fertőd — "le Versailles hongrois" où Haydn travailla 30 ans. Vignobles de roseaux sur le lac. Paysage de steppe pannonique unique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Franz_Liszt','Liszt — Génie du Piano')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Doborján / Budapest</div><h3 class="card-name">Franz Liszt — Le Génie Magyar</h3><p class="card-context">Franz Liszt (1811–1886) — né en Hongrie, le pianiste le plus spectaculaire de l'histoire. Rhapsodies Hongroises, Faust Symphony. Premier musicien à donner des concerts solo (récitals). Académie de musique Liszt à Budapest. Bartók, Kodály — la grande tradition musicale hongroise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Veszprém','Veszprém — La Ville des Reines')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Veszprém, Veszprém</div><h3 class="card-name">Veszprém — La Ville des Reines</h3><p class="card-context">La plus ancienne ville de Hongrie — résidence traditionnelle des reines hongroises. Quartier du Château perché sur un rocher au-dessus de la vallée du Séd. Cathédrale. Capitale Européenne de la Culture 2023. Proche du lac Balaton et de l'abbaye de Tihany.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Visegrád','Château de Visegrád')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Visegrád, Pest</div><h3 class="card-name">Visegrád — La Citadelle Royale</h3><p class="card-context">Forteresse royale médiévale dominant le coude du Danube depuis un rocher de 350 m. Résidence d'été des rois de Hongrie au XIVe s. Palais Renaissance de Matthias Corvin. Le "Coude du Danube" — le plus beau paysage fluvial de Hongrie. Visite en bateau depuis Budapest.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_hongroise','Gastronomie Hongroise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Hongrie entière</div><h3 class="card-name">Goulash &amp; Gastronomie Hongroise</h3><p class="card-context">Gulyás (goulash) — ragoût de boeuf au paprika, plat national. Lángos (beignet frit). Halászlé (soupe de poissons épicée). Dobos torte (gâteau au caramel de 1884). Pálinka — eau-de-vie de fruits. Unicum — liqueur aux 40 herbes. Cuisine généreuse au paprika.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tihany','Tihany — Presqu\'île sur le Balaton')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Tihany, Veszprém</div><h3 class="card-name">Tihany — La Presqu'île Mystique</h3><p class="card-context">Presqu'île volcanique sur le lac Balaton — abbaye bénédictine fondée en 1055 (le plus ancien document en langue hongroise). Village de potiers et artisans. Champs de lavande. Echo de Tihany — phénomène acoustique rare. Le micro-climat le plus doux de Hongrie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Esztergom','Esztergom — La Ville Sacrée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Esztergom, Komárom-Esztergom</div><h3 class="card-name">Esztergom — Berceau du Christianisme Magyar</h3><p class="card-context">La plus ancienne capitale de Hongrie — lieu de naissance et de couronnement de Saint-Étienne (975–1038). Basilique d'Esztergom — la plus grande église de Hongrie. Sur le Danube face à la Slovaquie. Pont de l'Amitié. La ville la plus sacrée de Hongrie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bugac','Bugac — Cavaliers de la Puszta')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Bugac, Bács-Kiskun</div><h3 class="card-name">Bugac — Les Cavaliers de la Puszta</h3><p class="card-context">Bugac — coeur de la puszta hongroise. Les csikós — cavaliers magyars en costume traditionnel noir. Chevaux norik, mieux que les cosaques. Spectacle de puszta — galop debout sur deux chevaux, dressage. Bergers juhász avec moutons racka aux cornes torsadées. Puszta vivante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bains_Rudas','Bains Rudas — Les Turcs')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Budapest — Buda</div><h3 class="card-name">Bains Rudas — L'Héritage Ottoman</h3><p class="card-context">Les bains ottomans les mieux préservés d'Europe (1566) — coupoles turques d'origine sur la source thermale. 150 ans d'occupation ottomane ont laissé en Hongrie les meilleurs bains thermaux du monde. Piscine au sommet avec vue sur le Danube. La nuit — bar et dancefloor.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Győr','Győr — La Ville Baroque')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Győr, Győr-Moson-Sopron</div><h3 class="card-name">Győr — La Ville des Quatre Rivières</h3><p class="card-context">Quatrième ville de Hongrie — centre historique baroque exceptionnel au confluent de 4 rivières. Cathédrale avec la Vierge Pleurante (icône qui pleura en 1697). Hôtel de Ville, Château Episcopal. Plus de 200 monuments baroques. Audi Hungaria — 700 000 voitures/an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_d%27Aggtelek','Parc National de Körös-Maros')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Körös-Maros, Békés</div><h3 class="card-name">Grande Plaine — Outarde et Cigogne</h3><p class="card-context">Les parcs nationaux de la Grande Plaine — Hortobágy, Körös-Maros, Kiskunság. La plus grande population d'outardes d'Europe (oiseau le plus lourd pouvant voler). 350 000 grues grises en automne. Cigognes blanches sur chaque toit. Harangues de la steppe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Herend','Porcelaine de Herend')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Herend, Veszprém</div><h3 class="card-name">Herend — La Porcelaine des Rois</h3><p class="card-context">La manufacture de porcelaine Herend (1826) — la plus grande manufacture de porcelaine peinte à la main du monde. Fournisseur de la reine Victoria, François-Joseph, Napoléon III. Décors de papillons, fleurs et oiseaux exotiques. Le luxe hongrois par excellence.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sziget_Festival','Festival Sziget de Budapest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Budapest — Île Óbuda</div><h3 class="card-name">Festival Sziget — L'Île de la Liberté</h3><p class="card-context">L'un des plus grands festivals de musique au monde — 500 000 visiteurs sur une île du Danube à Budapest pendant 7 jours en août. "L'île de la liberté". Coldplay, Ed Sheeran, Dua Lipa. Camping, danse, art. Le festival qui a transformé Budapest en capitale jeune.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nyíregyháza','Nyíregyháza — La Campagne du Nord-Est')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Nyírség, Szabolcs-Szatmár-Bereg</div><h3 class="card-name">Tokaj &amp; Les Collines du Nord-Est</h3><p class="card-context">La région viticole de Tokaj — 27 villages dans les collines de Zemplén. Furmint — le cépage blanc le plus noble. Aszú 6 puttonyos — le sauternes hongrois. Caves historiques du XVIIe s. à Tokaj, Tarcal, Mád. Paysage de vignes, de forêts et de chapelles baroque.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Badacsony','Badacsony — Vignes Volcaniques')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Badacsony, Veszprém</div><h3 class="card-name">Badacsony — Les Vins du Volcan</h3><p class="card-context">Les volcans éteints du lac Balaton couverts de vignes — Badacsony, Szigliget, Csobánc. Vins blancs minéraux de basalte — Olaszrizling, Szürkebarát. Coucher de soleil sur le lac depuis les vignes en terrasses. La Toscane hongroise — paysage volcanique unique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Keszthely','Keszthely — Château Festetics')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Keszthely, Zala</div><h3 class="card-name">Keszthely — Le Versailles du Balaton</h3><p class="card-context">Château Festetics — le plus grand château baroque de Hongrie (1745), avec la bibliothèque Helikon (90 000 volumes). Keszthely — "capitale" de l'extrémité occidentale du lac Balaton. Fêtes Helikon au château. Musée de l'Agriculture de Hongrie. Plage la plus animée du Balaton.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Magyars à la Démocratie</div>
+  <h2 class="section-title">Histoire de la Hongrie</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">895 — 1000</div>
+      <div class="timeline-event"><strong>La Conquête Magyare.</strong> Les 7 tribus magyares conduites par Árpád traversent les Carpates (895) et s'installent dans le bassin des Carpates. Pillages en Europe jusqu'à la défaite de Lechfeld contre Otton Ier (955). Le prince Géza se convertit au christianisme. Son fils Étienne (István) couronné premier roi de Hongrie le 25 décembre 1000 — fondation de l'État.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1241 — 1301</div>
+      <div class="timeline-event"><strong>L'Invasion Mongole et la Reconstruction.</strong> L'invasion mongole de Batu Khan dévaste la Hongrie (1241–1242) — la moitié de la population tuée. Béla IV reconstruit le pays, fortifie Buda. Les Árpáds s'éteignent (1301). Anjou, Luxembourgs, Hunyadi dirigent le royaume. Matthias Corvin (1458–1490) — le roi Renaissance — fait de Buda une capitale culturelle européenne.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1526 — 1699</div>
+      <div class="timeline-event"><strong>Mohács et l'Occupation Ottomane.</strong> Désastre de Mohács (1526) — le roi Louis II noyé dans sa fuite, la Hongrie divisée en trois : Hongrie Royale (Habsbourg), Transylvanie (semi-autonome) et Hongrie ottomane. 150 ans d'occupation turque laissent les bains thermaux de Budapest. Reconquête par les Habsbourg (1699) — Budapest reconstruite en baroque.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1848 — 1867</div>
+      <div class="timeline-event"><strong>Révolution et Compromis.</strong> Révolution de mars 1848 — Sándor Petőfi, Kossuth Lajos. Indépendance proclamée, réprimée par les Autrichiens et les Russes. Compromis austro-hongrois de 1867 (Ausgleich) — création de l'Autriche-Hongrie. Budapest devient une capitale de premier plan — construction du Parlement, de l'Opéra, du métro. La Belle Époque hongroise.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1919 — 1945</div>
+      <div class="timeline-event"><strong>Trianon et Deuxième Guerre.</strong> Traité de Trianon (1920) — la Hongrie perd 71% de son territoire et 63% de sa population. Le traumatisme national le plus profond. Hôrthy Miklós — régent ambigu. Alliance avec Hitler — la Hongrie entre en guerre. Siège de Budapest (1944–1945) — la ville détruite à 40%. 560 000 Juifs hongrois déportés (1944).</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1956</div>
+      <div class="timeline-event"><strong>La Révolution de 1956.</strong> Le 23 octobre 1956 — insurrection populaire contre l'occupation soviétique. Nagy Imre — premier ministre réformateur. 12 jours de liberté. Le 4 novembre — 17 divisions soviétiques écrasent la révolution. 2 500 morts. 200 000 Hongrois fuient à l'Ouest. La révolution la plus tragique et la plus héroïque du XXe siècle.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1989 — aujourd'hui</div>
+      <div class="timeline-event"><strong>La Transition et l'Europe.</strong> La Hongrie ouvre sa frontière avec l'Autriche (mai 1989) — déclenche l'effondrement du Rideau de Fer. Première élection libre en 40 ans (mars 1990). Adhésion à l'OTAN (1999) et à l'UE (2004). Budapest — capitale touristique en plein essor. Festival Sziget. Regrands défis politiques au XXIe siècle. L'âme magyar reste vivante.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇭🇺</div>
+  <p class="footer-text">Guide du Voyageur · Hongrie · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([47.2,19.0],7);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(206,41,57,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#7a0810"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#CE2939" stroke="#7a0810" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#a82030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#a82030"/><rect x="6" y="8" width="2" height="4" fill="#a82030"/><rect x="9" y="8" width="2" height="4" fill="#a82030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#600008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#CE2939"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,130,10,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#c8a010" stroke="#8a6808" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#e8d04080" opacity="0.5"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#b09010"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/><path d="M12 18 Q14 22 18 22 Q22 22 24 18 Q20 20 18 20 Q16 20 12 18 Z" fill="#e8e080" opacity="0.4"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconPuszta=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,120,10,.85))"><path d="M2 26 Q8 22 14 24 Q18 26 22 22 Q28 18 34 20 L34 32 L2 32 Z" fill="#c8a820" opacity="0.7"/><path d="M2 26 Q8 24 14 25 Q18 26 22 24 Q28 22 34 22" fill="none" stroke="#e8c040" stroke-width="0.8"/><path d="M12 24 Q10 18 12 14 L16 10 L18 8 L20 10 L24 14 Q26 18 24 24" fill="#8a5020" opacity="0.7"/><circle cx="18" cy="8" r="2.5" fill="#c9a84c"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,40,20,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#CE2939" stroke="#8a0810" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e86040" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d04020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,80,180,.85))"><path d="M2 24 Q6 18 12 20 Q18 22 24 18 Q30 14 34 18 L34 28 Q28 24 22 26 Q16 28 10 26 Q6 28 2 26 Z" fill="#1a60b8"/><path d="M4 24 Q8 20 12 22 Q16 24 18 22 Q22 20 26 22 Q30 24 32 22" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><circle cx="10" cy="14" r="4" fill="#e8d8a0" opacity="0.5"/><circle cx="24" cy="12" r="3" fill="#e8d8a0" opacity="0.4"/></svg>');
+
+var iconMusique=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(206,41,57,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#CE2939" stroke="#8a0810" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#a82030"/><line x1="20" y1="10" x2="28" y2="6" stroke="#CE2939" stroke-width="1.2" stroke-linecap="round"/><line x1="20" y1="14" x2="28" y2="10" stroke="#CE2939" stroke-width="1" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#a82030"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#a82030"/></svg>');
+
+var iconGrotte=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,100,.8))"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060" stroke="#2a1040" stroke-width="0.7"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/><path d="M14 34 Q14 28 18 26 Q22 28 22 34 Z" fill="#c9a84c" opacity="0.4"/><circle cx="18" cy="16" r="1.8" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconFestival=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(250,224,66,.9))"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#FAE042" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#CE2939" opacity="0.8"/><path d="M8 30 Q12 26 18 28 Q24 26 28 30" fill="none" stroke="#FAE042" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="4" x2="8" y2="8" stroke="#CE2939" stroke-width="1" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="4" x2="28" y2="8" stroke="#CE2939" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#CE2939" stroke="#7a0810" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#CE2939',label:'🏙️ Villes Historiques',pts:[
+    {lat:47.4979,lng:19.0402,n:"Budapest — La Perle du Danube",c:"Budapest",d:"UNESCO 1987. Parlement, Château de Buda, Pont des Chaînes, Opéra. Plus belle capitale d\'Europe centrale.",u:"https://fr.m.wikipedia.org/wiki/Budapest?useskin=vector"},
+    {lat:47.8977,lng:21.6354,n:"Debrecen — La Grande Plaine",c:"Debrecen, Hajdú-Bihar",d:"2e ville. Grande Église Réformée. Carnaval des Fleurs. Kossuth proclama l\'indépendance ici.",u:"https://fr.m.wikipedia.org/wiki/Debrecen?useskin=vector"},
+    {lat:47.9025,lng:19.7497,n:"Eger — Baroque et Sang de Taureau",c:"Eger, Heves",d:"Ville baroque exceptionnelle. Château 1552. Egri Bikavér. Minaret turc le plus septentrional.",u:"https://fr.m.wikipedia.org/wiki/Eger_(Hongrie)?useskin=vector"},
+    {lat:46.0727,lng:18.2324,n:"Pécs — La Méditerranée Hongroise",c:"Pécs, Baranya",d:"UNESCO 2000. Mosquée Gazi Kasim Pasha (XVIe s.). Capitale Européenne de la Culture 2010.",u:"https://fr.m.wikipedia.org/wiki/Pécs_(Hongrie)?useskin=vector"},
+    {lat:47.6875,lng:17.6504,n:"Győr — Les Quatre Rivières",c:"Győr, Győr-Moson-Sopron",d:"Centre baroque exceptionnel. Cathédrale (Vierge Pleurante). 200 monuments baroques.",u:"https://fr.m.wikipedia.org/wiki/Győr?useskin=vector"},
+    {lat:47.6846,lng:16.5844,n:"Sopron — La Ville Fidèle",c:"Sopron, Győr-Moson-Sopron",d:"240 monuments médiévaux. Civitas Fidelissima. Tour du Feu. Frontière autrichienne.",u:"https://fr.m.wikipedia.org/wiki/Sopron?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💧 Bains Thermaux',pts:[
+    {lat:47.4852,lng:19.0509,n:"Bains Gellért",c:"Budapest — Buda",d:"Art Nouveau (1918). Coupole de verre et mosaïques. Sources à 44°C. Piscine de vagues.",u:"https://fr.m.wikipedia.org/wiki/Bains_Gellért?useskin=vector"},
+    {lat:47.5189,lng:19.0822,n:"Bains Széchenyi",c:"Budapest — Pest",d:"18 piscines. Palais néo-baroque jaune (1913). Sources à 77°C. Joueurs d\'échecs dans l\'eau.",u:"https://fr.m.wikipedia.org/wiki/Bains_Széchenyi?useskin=vector"},
+    {lat:47.4986,lng:19.0372,n:"Bains Rudas — Les Turcs",c:"Budapest — Buda",d:"Bains ottomans (1566). Coupoles turques d\'origine. Bar et disco la nuit. Vue sur Danube.",u:"https://fr.m.wikipedia.org/wiki/Bains_Rudas?useskin=vector"},
+    {lat:47.5108,lng:19.0444,n:"Bains Király — L\'Ottoman",c:"Budapest — Buda",d:"Bains ottomans du XVIe s. Coupoles de basalte percées. Lumière tamis. Atmosphère unique.",u:"https://fr.m.wikipedia.org/wiki/Bains_Király?useskin=vector"},
+    {lat:47.0614,lng:18.9356,n:"Hévíz — Lac Thermal",c:"Hévíz, Zala",d:"Le plus grand lac thermal naturel du monde (47 500 m², 33°C). Nénuphars géants. Unique.",u:"https://fr.m.wikipedia.org/wiki/Hévíz?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#c8a010',label:'🍷 Vins & Tokaj',pts:[
+    {lat:48.1174,lng:21.4139,n:"Tokaj — L\'Or Liquide",c:"Tokaj, Zemplén",d:"UNESCO 2002. Vinum Regum, Rex Vinorum. Aszú — premier vin de dessert classifié (1737).",u:"https://fr.m.wikipedia.org/wiki/Tokaj?useskin=vector"},
+    {lat:46.9361,lng:17.0889,n:"Badacsony — Vins du Volcan",c:"Badacsony, Veszprém",d:"Vignes sur volcans éteints du Balaton. Olaszrizling, Szürkebarát. Couchers de soleil.",u:"https://fr.m.wikipedia.org/wiki/Badacsony?useskin=vector"},
+    {lat:47.9025,lng:19.7497,n:"Eger — Sang de Taureau",c:"Eger, Heves",d:"Egri Bikavér — vin rouge légendaire. Caves dans le tuf volcanique. Dégustation en cave.",u:"https://fr.m.wikipedia.org/wiki/Egri_Bikavér?useskin=vector"},
+    {lat:47.6375,lng:18.9167,n:"Etyek — Vignobles de Budapest",c:"Etyek, Fejér",d:"Les vignobles les plus proches de Budapest. Vins blancs secs. Cinéma en plein air sur les vignes.",u:"https://fr.m.wikipedia.org/wiki/Etyek?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:47.4979,lng:19.0402,n:"Budapest — Rives du Danube",c:"Budapest",d:"UNESCO 1987. Parlement, Château de Buda, Avenue Andrássy. Perle du Danube.",u:"https://fr.m.wikipedia.org/wiki/Budapest?useskin=vector"},
+    {lat:48.1174,lng:21.4139,n:"Tokaj — Paysage Viticole",c:"Tokaj, Zemplén",d:"UNESCO 2002. 27 villages viticoles. Premier vin de dessert classifié du monde (1737).",u:"https://fr.m.wikipedia.org/wiki/Tokaj?useskin=vector"},
+    {lat:47.5533,lng:17.7625,n:"Pannonhalma — Abbaye Millénaire",c:"Pannonhalma",d:"UNESCO 1996. Abbaye bénédictine (996 apr.). 1 000 ans d\'histoire ininterrompue.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Pannonhalma?useskin=vector"},
+    {lat:47.7056,lng:17.0597,n:"Fertő — Lac des Steppes",c:"Fertőd, Győr-Moson-Sopron",d:"UNESCO 2001. Lac partagé avec l\'Autriche. Château Esterházy — Haydn 30 ans.",u:"https://fr.m.wikipedia.org/wiki/Fertő?useskin=vector"},
+    {lat:47.8656,lng:20.4736,n:"Hollókő — Village Médiéval",c:"Hollókő, Nógrád",d:"UNESCO 1987. Village palóc médiéval. Broderies, château en ruines. Pâques traditionnelles.",u:"https://fr.m.wikipedia.org/wiki/Hollókő?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Palais',pts:[
+    {lat:47.4966,lng:19.0378,n:"Château de Buda",c:"Budapest — Buda",d:"UNESCO 1987. Résidence royale (XIIIe s.). Musée National. Galerie Nationale. Bastion des Pêcheurs.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Buda?useskin=vector"},
+    {lat:47.7769,lng:18.6903,n:"Visegrád — Citadelle Royale",c:"Visegrád, Pest",d:"Résidence d\'été des rois (XIVe s.). Coude du Danube. Palais Renaissance de Matthias Corvin.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Visegrád?useskin=vector"},
+    {lat:47.6394,lng:16.6028,n:"Château Esterházy — Fertőd",c:"Fertőd, Győr-Moson-Sopron",d:"Versailles hongrois (1766). Haydn y travailla 30 ans. 126 pièces. Jardins à la française.",u:"https://fr.m.wikipedia.org/wiki/Château_Esterházy_(Fertőd)?useskin=vector"},
+    {lat:46.7697,lng:17.2378,n:"Château Festetics — Keszthely",c:"Keszthely, Zala",d:"Plus grand château baroque de Hongrie (1745). Bibliothèque Helikon (90 000 volumes).",u:"https://fr.m.wikipedia.org/wiki/Château_Festetics?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:47.5967,lng:20.9444,n:"Hortobágy — Puszta UNESCO",c:"Hortobágy, Hajdú-Bihar",d:"UNESCO 1999. Plus grand parc national. Grues (350 000 en automne). Outardes. Csikós.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_d%27Hortobágy?useskin=vector"},
+    {lat:48.4667,lng:20.5000,n:"Grottes d\'Aggtelek",c:"Aggtelek, Borsod-Abaúj-Zemplén",d:"UNESCO 1995. 712 grottes. Baradla — 25 km, salle de concert souterraine 1 000 places.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_grottes_d%27Aggtelek?useskin=vector"},
+    {lat:46.8167,lng:19.0167,n:"Bugac — Coeur de la Puszta",c:"Bugac, Bács-Kiskun",d:"Puszta vivante — csikós, moutons racka, puits à balancier. Spectacle équestre traditionnel.",u:"https://fr.m.wikipedia.org/wiki/Bugac?useskin=vector"},
+    {lat:47.0000,lng:17.9000,n:"Parc National de Balaton-felvidék",c:"Balaton-felvidék, Veszprém",d:"Volcans éteints et vignes. Lavande de Tihany. Réserve de biosphère UNESCO. Orchidées.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Balaton-felvidék?useskin=vector"}
+  ]},
+  puszta:{icon:iconPuszta,color:'#c8a820',label:'🐎 Puszta & Cavaliers',pts:[
+    {lat:47.5967,lng:20.9444,n:"Hortobágy — La Steppe Infinie",c:"Hortobágy, Hajdú-Bihar",d:"La Grande Plaine hongroise. Puits à balancier. Pont des 9 arches. Grues migratrices.",u:"https://fr.m.wikipedia.org/wiki/Hortobágy?useskin=vector"},
+    {lat:46.7167,lng:19.2833,n:"Bugac — Csikós de la Puszta",c:"Bugac, Bács-Kiskun",d:"Cavaliers csikós en costume noir. Galop debout sur deux chevaux. Moutons racka cornus.",u:"https://fr.m.wikipedia.org/wiki/Bugac?useskin=vector"},
+    {lat:46.5597,lng:19.6903,n:"Kalocsa — Broderies et Paprika",c:"Kalocsa, Bács-Kiskun",d:"Capitale du paprika hongrois. Broderies kaloccai rouges et blanches. Cathédrale baroque.",u:"https://fr.m.wikipedia.org/wiki/Kalocsa?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#CE2939',label:'🌶️ Gastronomie Hongroise',pts:[
+    {lat:47.4979,lng:19.0402,n:"Gulyás de Budapest",c:"Budapest",d:"Goulash hongrois au paprika. Halászlé, Dobos torte, Lángos. Pálinka et Unicum.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_hongroise?useskin=vector"},
+    {lat:46.1897,lng:19.0897,n:"Paprika de Kalocsa et Szeged",c:"Szeged / Kalocsa",d:"Les deux capitales du paprika. Le piment séché qui définit la cuisine hongroise mondiale.",u:"https://fr.m.wikipedia.org/wiki/Paprika?useskin=vector"},
+    {lat:47.1572,lng:18.4103,n:"Porcelaine Herend",c:"Herend, Veszprém",d:"Manufacture de porcelaine peinte à la main (1826). Reine Victoria, François-Joseph. Luxe absolu.",u:"https://fr.m.wikipedia.org/wiki/Herend?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Collections',pts:[
+    {lat:47.4997,lng:19.0581,n:"Musée des Beaux-Arts de Budapest",c:"Budapest",d:"L\'un des plus grands musées d\'art d\'Europe centrale. El Greco, Raphaël, Greco, Dürer.",u:"https://fr.m.wikipedia.org/wiki/Musée_des_beaux-arts_de_Budapest?useskin=vector"},
+    {lat:47.4997,lng:19.0581,n:"Musée National Hongrois",c:"Budapest",d:"Histoire de Hongrie depuis la préhistoire. Couronne de Saint-Étienne (réplique). Sainte-Couronne.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_hongrois?useskin=vector"},
+    {lat:47.4975,lng:19.0503,n:"Musée Franz Liszt",c:"Budapest",d:"Maison-musée du génie du piano. Piano Bösendorfer original. Manuscripts. Portraits.",u:"https://fr.m.wikipedia.org/wiki/Franz_Liszt?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a60b8',label:'💧 Lacs & Rivières',pts:[
+    {lat:46.8167,lng:17.7500,n:"Lac Balaton — La Mer Hongroise",c:"Balaton, Transdanubie",d:"596 km² — plus grand lac d\'Europe centrale. Eau chaude peu profonde. 40 000 touristes/jour.",u:"https://fr.m.wikipedia.org/wiki/Lac_Balaton?useskin=vector"},
+    {lat:47.6667,lng:18.3000,n:"Île Csepel — Danube",c:"Budapest — Danube",d:"Grande île du Danube dans Budapest. Promenades, vélo, nature. Le Danube en ceinture.",u:"https://fr.m.wikipedia.org/wiki/Île_Csepel?useskin=vector"},
+    {lat:47.0614,lng:18.9356,n:"Hévíz — Lac Thermal",c:"Hévíz, Zala",d:"Plus grand lac thermal naturel du monde (47 500 m², 33°C). Nénuphars roses géants.",u:"https://fr.m.wikipedia.org/wiki/Hévíz?useskin=vector"}
+  ]},
+  musique:{icon:iconMusique,color:'#CE2939',label:'🎼 Musique & Arts',pts:[
+    {lat:47.4979,lng:19.0402,n:"Franz Liszt — Budapest",c:"Budapest",d:"Académie de musique Liszt. Rhapsodies Hongroises. Premier récitaliste de l\'histoire.",u:"https://fr.m.wikipedia.org/wiki/Franz_Liszt?useskin=vector"},
+    {lat:47.5086,lng:19.0556,n:"Opéra d\'État de Budapest",c:"Budapest",d:"Miklós Ybl (1884). Mahler directeur musical. Acoustique mondiale. Art Nouveau et néo-Renaissance.",u:"https://fr.m.wikipedia.org/wiki/Opéra_d%27État_de_Budapest?useskin=vector"},
+    {lat:47.4775,lng:19.0769,n:"Bartók Béla — Budapest",c:"Budapest",d:"Béla Bartók (1881–1945) — révolutionnaire de la musique classique. Ethnomusicologie hongroise.",u:"https://fr.m.wikipedia.org/wiki/Béla_Bartók?useskin=vector"}
+  ]},
+  grotte:{icon:iconGrotte,color:'#3a2060',label:'🦇 Grottes & Karst',pts:[
+    {lat:48.4667,lng:20.5000,n:"Grottes Baradla — Aggtelek",c:"Aggtelek",d:"25 km de galeries. Salle de concert souterraine (1 000 places). Stalactites géantes.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Baradla?useskin=vector"},
+    {lat:47.5111,lng:18.9736,n:"Grottes de Pálvölgy — Budapest",c:"Budapest — Buda",d:"Le plus long réseau de grottes de Budapest. Stalactites en forme de chou-fleur unique.",u:"https://fr.m.wikipedia.org/wiki/Grottes_de_Pálvölgy?useskin=vector"},
+    {lat:47.5094,lng:18.9711,n:"Grottes de Szemlőhegy — Budapest",c:"Budapest — Buda",d:"Grottes thermales avec concrétions d\'aragonite et de calcite. Microclima thérapeutique.",u:"https://fr.m.wikipedia.org/wiki/Grottes_de_Szemlőhegy?useskin=vector"}
+  ]},
+  festival:{icon:iconFestival,color:'#FAE042',label:'🎪 Festivals & Événements',pts:[
+    {lat:47.5483,lng:19.0569,n:"Festival Sziget — Île Óbuda",c:"Budapest — Danube",d:"500 000 visiteurs, 7 jours en août. Île de la liberté sur le Danube. Coldplay, Ed Sheeran.",u:"https://fr.m.wikipedia.org/wiki/Festival_Sziget?useskin=vector"},
+    {lat:47.8977,lng:21.6354,n:"Carnaval des Fleurs — Debrecen",c:"Debrecen",d:"Virágkarnevál — le plus beau défilé floral de Hongrie. Août. Chars de fleurs géants.",u:"https://fr.m.wikipedia.org/wiki/Debrecen?useskin=vector"},
+    {lat:47.8656,lng:20.4736,n:"Pâques de Hollókő",c:"Hollókő, Nógrád",d:"Pâques médiévales avec costumes palóc. UNESCO. Le plus beau folklore vivant de Hongrie.",u:"https://fr.m.wikipedia.org/wiki/Hollókő?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:47.4979,lng:19.0402,n:"Golf de Budapest",c:"Budapest",d:"Budapest Golf Club (1908). Plusieurs parcours autour de la capitale. La plus ancienne tradition.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Hongrie?useskin=vector"},
+    {lat:46.8167,lng:17.7500,n:"Golf du Balaton",c:"Balaton, Veszprém",d:"Golfs autour du lac Balaton. Paysage de vignes et de volcans. Luxe de la rive nord.",u:"https://fr.m.wikipedia.org/wiki/Lac_Balaton?useskin=vector"},
+    {lat:47.7769,lng:18.6903,n:"Golf du Danube — Visegrád",c:"Visegrád, Pest",d:"Golf dans le coude du Danube. Vue sur le château médiéval. Forêts et Danube.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Hongrie?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#CE2939\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#CE2939"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#a82030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#a82030"/><rect x="6" y="8" width="2" height="4" fill="#a82030"/></svg>', label:'Villes Historiques', count:6},
+      {cat:'spa',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Bains Thermaux', count:5},
+      {cat:'vin',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#c8a010"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins &amp; Tokaj', count:4},
+      {cat:'unesco',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'chateau', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Palais', count:4},
+      {cat:'nature',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'puszta',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q8 22 14 24 Q18 26 22 22 Q28 18 34 20 L34 32 L2 32 Z" fill="#c8a820" opacity="0.7"/><path d="M12 24 Q10 18 12 14 L16 10 L18 8 L20 10 L24 14 Q26 18 24 24" fill="#8a5020" opacity="0.7"/></svg>', label:'Puszta &amp; Cavaliers', count:3},
+      {cat:'gastro',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#CE2939"/><circle cx="18" cy="22" r="4" fill="#d04020" opacity="0.5"/></svg>', label:'Gastronomie Hongroise', count:3},
+      {cat:'musee',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Collections', count:3},
+      {cat:'lac',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 22 Q10 18 18 20 Q26 18 34 22 L34 28 L2 28 Z" fill="#1a60b8"/><circle cx="10" cy="14" r="4" fill="#e8d8a0" opacity="0.5"/><circle cx="24" cy="12" r="3" fill="#e8d8a0" opacity="0.4"/></svg>', label:'Lacs &amp; Rivières', count:3},
+      {cat:'musique', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#CE2939"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#a82030"/></svg>', label:'Musique &amp; Arts', count:3},
+      {cat:'grotte',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/></svg>', label:'Grottes &amp; Karst', count:3},
+      {cat:'festival',svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#FAE042" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#CE2939" opacity="0.8"/></svg>', label:'Festivals &amp; Événements', count:3},
+      {cat:'golf',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#CE2939"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#CE2939 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#CE2939;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#477050;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#CE2939;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#f8a8a8',
+  'Czechia':'#f8a8a8','Slovakia':'#dda0dd','Hungary':'#f8c0a0','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #CE2939';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#CE2939':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'CE2939\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

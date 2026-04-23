@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autriche — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de l'Autriche.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rot:#ED2939;        /* rouge autrichien */
+      --weiss:#f5f5f5;      /* blanc autrichien */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --dunkel:#0a0508;
+      --imperial:#4a0a18;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#04020a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(237,41,57,.13) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(200,160,10,.07) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rot) 0%,var(--rot) 33%,var(--weiss) 33%,var(--weiss) 66%,var(--rot) 66%,var(--rot) 100%);opacity:.45;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(237,41,57,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(237,41,57,.25);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(237,41,57,.08);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(4,2,10,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(237,41,57,.12);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rot),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(237,41,57,.03);border-color:rgba(200,160,10,.25);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(237,41,57,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(237,41,57,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#04020a;border-bottom:1px solid rgba(237,41,57,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rot);border:1px solid #a01020;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#c02030;border-color:#c02030;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(237,41,57,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Autriche';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Autriche');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">ÖSTERREICH</div>
+  <div class="hero-eyebrow">Autriche · Guide du Voyageur</div>
+  <h1 class="hero-title">Mozart, Valse<br>&amp; <em>Splendeur Impériale</em></h1>
+  <p class="hero-subtitle">Palais baroque de Vienne, Alpes tyrolicnnes, lacs de Salzkammergut, Sissi &amp; berceau de la musique classique</p>
+
+  <!-- AIGLE IMPERIAL AUTRICHIEN — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(237,41,57,.3))" shape-rendering="geometricPrecision">
+
+      <!-- Corps de l'aigle impérial bicéphale autrichien -->
+      <!-- Corps central -->
+      <path d="M56 90 Q54 76 60 64 Q68 52 80 50 Q92 52 100 64 Q106 76 104 90 Q100 104 80 110 Q60 104 56 90 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M60 66 Q68 56 80 54 Q92 56 100 66 Q92 60 80 58 Q68 60 60 66 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures plumes corps -->
+      <path d="M62 78 Q70 73 80 74 Q90 73 98 78" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M60 88 Q68 83 80 84 Q92 83 100 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M62 98 Q70 94 80 94 Q90 94 98 98" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Aile gauche deployée -->
+      <path d="M56 80 Q44 68 28 58 Q16 50 10 40 Q14 36 20 40 Q16 44 22 50 Q34 58 46 68 Q52 74 56 80 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M56 88 Q40 82 22 76 Q10 70 6 60 Q10 58 16 62 Q14 68 22 72 Q38 78 54 84 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M56 96 Q42 96 26 96 Q14 94 10 86 Q14 84 20 88 Q22 92 32 92 Q46 92 56 94 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <!-- Nervures aile gauche -->
+      <line x1="56" y1="80" x2="12" y2="42" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="56" y1="88" x2="8" y2="62" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="56" y1="96" x2="10" y2="87" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Aile droite deployée -->
+      <path d="M104 80 Q116 68 132 58 Q144 50 150 40 Q146 36 140 40 Q144 44 138 50 Q126 58 114 68 Q108 74 104 80 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M104 88 Q120 82 138 76 Q150 70 154 60 Q150 58 144 62 Q146 68 138 72 Q122 78 106 84 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M104 96 Q118 96 134 96 Q146 94 150 86 Q146 84 140 88 Q138 92 128 92 Q114 92 104 94 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <line x1="104" y1="80" x2="148" y2="42" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="104" y1="88" x2="152" y2="62" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="104" y1="96" x2="150" y2="87" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- DEUX TETES de l'aigle bicéphale — symbole des Habsbourg -->
+      <!-- Tête gauche -->
+      <ellipse cx="62" cy="44" rx="14" ry="12" fill="#c8960a" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Bec gauche -->
+      <path d="M50 46 Q46 48 44 52 Q48 50 52 48 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Oeil gauche -->
+      <circle cx="66" cy="41" r="4" fill="#1a0800" stroke="#c8960a" stroke-width="0.6"/>
+      <circle cx="66" cy="41" r="2.2" fill="#2a1000"/>
+      <circle cx="67" cy="40" r="0.9" fill="white" opacity="0.8"/>
+      <!-- Couronne gauche -->
+      <path d="M50 36 L74 36 L72 40 L52 40 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M53 36 Q53 31 56 29 Q58 33 58 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M61 36 Q61 29 64 27 Q67 29 67 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M70 36 Q70 31 73 29 Q75 33 75 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <circle cx="62" cy="28" r="2.2" fill="#ED2939" opacity="0.9"/>
+
+      <!-- Tête droite -->
+      <ellipse cx="98" cy="44" rx="14" ry="12" fill="#c8960a" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Bec droit -->
+      <path d="M110 46 Q114 48 116 52 Q112 50 108 48 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Oeil droit -->
+      <circle cx="94" cy="41" r="4" fill="#1a0800" stroke="#c8960a" stroke-width="0.6"/>
+      <circle cx="94" cy="41" r="2.2" fill="#2a1000"/>
+      <circle cx="95" cy="40" r="0.9" fill="white" opacity="0.8"/>
+      <!-- Couronne droite -->
+      <path d="M86 36 L110 36 L108 40 L88 40 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M89 36 Q89 31 92 29 Q94 33 94 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M97 36 Q97 29 100 27 Q103 29 103 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M106 36 Q106 31 109 29 Q111 33 111 36" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <circle cx="98" cy="28" r="2.2" fill="#ED2939" opacity="0.9"/>
+
+      <!-- Ecu imperial autrichien sur le poitrail -->
+      <path d="M70 78 Q70 70 80 68 Q90 70 90 78 Q90 88 80 94 Q70 88 70 78 Z"
+            fill="#ED2939" stroke="#a01020" stroke-width="0.8"/>
+      <!-- Bandes blanches horizontales de l'Autriche (drapeau) -->
+      <rect x="70" y="76" width="20" height="4" fill="#f5f5f5" opacity="0.95"/>
+      <rect x="70" y="84" width="20" height="4" fill="#f5f5f5" opacity="0.95"/>
+
+      <!-- Sceptre et globe impérial -->
+      <!-- Sceptre -->
+      <line x1="80" y1="108" x2="80" y2="140" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="80" cy="108" rx="5" ry="3.5" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <circle cx="80" cy="104" r="3.5" fill="#ED2939" opacity="0.9"/>
+      <!-- Globe -->
+      <circle cx="80" cy="140" r="8" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+      <line x1="72" y1="140" x2="88" y2="140" stroke="#8a6010" stroke-width="0.6"/>
+      <line x1="80" y1="132" x2="80" y2="148" stroke="#8a6010" stroke-width="0.6"/>
+      <!-- Croix sur le globe -->
+      <line x1="80" y1="130" x2="80" y2="134" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="78" y1="131.5" x2="82" y2="131.5" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+
+      <!-- Annotation Leonard -->
+      <text x="10" y="110" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Aquila</text>
+      <text x="10" y="118" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">biceps</text>
+      <line x1="24" y1="112" x2="52" y2="100" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles imperiales -->
+      <circle cx="138" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="148" cy="50" r="0.9" fill="#ED2939" opacity="0.4"/>
+      <circle cx="18" cy="130" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — palais impériaux de Vienne, cathédrales baroques, Alpes tyrolicnnes, Mozart &amp; musique classique, lacs de Salzkammergut, mines de sel, Sissi, stations de ski, gastronomie viennoise, Art Nouveau (Klimt), Wiener Philharmoniker, villages alpins &amp; sites UNESCO.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">3 798</div><div class="stat-label">m — Grossglockner</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez l'Autriche</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Romains aux Habsbourg</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_Schönbrunn','Palais de Schönbrunn')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Vienne</div><h3 class="card-name">Palais de Schönbrunn</h3><p class="card-context">UNESCO 1996 — la Versailles autrichienne. 1 441 pièces, jardins à la française de 160 ha, Gloriette sur la colline. Résidence d'été des Habsbourg, lieu de vie de Sissi et de François-Joseph. Mozart y joua à 6 ans pour Marie-Thérèse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_Saint-Étienne_de_Vienne','Cathédrale Saint-Étienne de Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Vienne</div><h3 class="card-name">Cathédrale Saint-Étienne</h3><p class="card-context">Le Stephansdom — symbole absolu de Vienne depuis le XIIe s. Toit en tuiles vernissées multicolores en motif de diamants. Tour sud de 136 m. Catacombes impériales. Mozart s'y maria et ses funérailles y furent célébrées.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_du_Belvédère','Palais du Belvédère')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Vienne</div><h3 class="card-name">Palais du Belvédère</h3><p class="card-context">UNESCO 2001 — ensemble baroque du Prince Eugène de Savoie (1714–1723). Le Baiser de Klimt y est exposé. Jardins en terrasses sur trois niveaux. Traité d'État autrichien signé au Belvédère Supérieur en 1955 — l'Autriche retrouve sa liberté.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Salzbourg','Vieille Ville de Salzbourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Salzbourg</div><h3 class="card-name">Salzbourg — Ville de Mozart</h3><p class="card-context">UNESCO 1996 — vieille ville baroque entre la forteresse de Hohensalzburg et les Alpes. Lieu de naissance de Wolfgang Amadeus Mozart (27 janvier 1756). Festival de Salzbourg — le plus grand festival musical du monde. Son of the Sound of Music.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Forteresse_de_Hohensalzburg','Forteresse de Hohensalzburg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Salzbourg</div><h3 class="card-name">Forteresse de Hohensalzburg</h3><p class="card-context">La plus grande forteresse médiévale bien conservée d'Europe centrale — 900 ans d'histoire. Construite en 1077 sur un rocher de 120 m dominant Salzbourg. Jamais prise par les ennemis. Vue panoramique sur les Alpes bavaroises.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_impérial_de_la_Hofburg','Hofburg de Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Vienne</div><h3 class="card-name">Hofburg — Palais Impérial</h3><p class="card-context">Le palais impérial des Habsbourg pendant 600 ans — 2 600 pièces, 18 ailes, 19 cours. Résidence du président autrichien. Trésors impériaux (couronne des Habsbourg), Bibliothèque Nationale, École d'Équitation Espagnole (Lipizzans).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Hallstatt','Hallstatt — Village des Alpes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Salzkammergut, Haute-Autriche</div><h3 class="card-name">Hallstatt — Le Village de Carte Postale</h3><p class="card-context">UNESCO 1997 — le village le plus photographié du monde. Maisons colorées entre le lac de Hallstatt et les falaises. Mines de sel les plus anciennes du monde (7 000 ans). L'Âge du Fer s'appelle "culture de Hallstatt". Répliqué en Chine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Innsbruck','Innsbruck — Capitale des Alpes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Innsbruck, Tyrol</div><h3 class="card-name">Innsbruck — La Perle des Alpes</h3><p class="card-context">Capitale du Tyrol au coeur des Alpes. Toit d'Or (2 657 tuiles dorées, 1500). Hofburg d'Innsbruck, Bergisel — tremplin de saut à ski spectaculaire de Zaha Hadid. Deux fois ville olympique (1964, 1976). Vue sur la chaîne des Karwendel.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Melk','Abbaye de Melk')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Melk, Basse-Autriche</div><h3 class="card-name">Abbaye de Melk</h3><p class="card-context">UNESCO 2000 — l'abbaye baroque la plus spectaculaire d'Europe, dominant la vallée du Danube depuis un rocher de 60 m. Bibliothèque aux 100 000 volumes et manuscrits médiévaux. Citée dans "Le Nom de la Rose" d'Umberto Eco.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_d%27histoire_de_l%27art_de_Vienne','Musée d\'Histoire de l\'Art de Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Vienne</div><h3 class="card-name">Kunsthistorisches Museum</h3><p class="card-context">L'un des plus grands musées d'art du monde — collections impériales des Habsbourg. Bruegel l'Ancien (la plus grande collection mondiale), Velázquez, Raphaël, Vermeer, Cellini. Bâtiment néo-Renaissance de 1891 face au Naturhistorisches.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grossglockner','Route du Grossglockner')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Carinthie / Salzbourg</div><h3 class="card-name">Grossglockner — Toit de l'Autriche</h3><p class="card-context">Le plus haut sommet d'Autriche (3 798 m) et des Alpes orientales. Route alpine du Grossglockner (48 km, 36 virages) — l'une des plus belles d'Europe. Glacier de Pasterze — le plus long des Alpes orientales.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maison_natale_de_Mozart','Maison Natale de Mozart')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Salzbourg</div><h3 class="card-name">Maison Natale de Mozart</h3><p class="card-context">Au 9 Getreidegasse — la maison jaune où naquit Wolfgang Amadeus Mozart le 27 janvier 1756. Musée avec le violon et le clavecin d'enfant de Mozart. La rue la plus animée de Salzbourg. 600 000 visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Mirabell','Château et Jardins Mirabell')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Salzbourg</div><h3 class="card-name">Château Mirabell et ses Jardins</h3><p class="card-context">UNESCO 1996 — jardins baroques aux sculptures mythologiques où Julie Andrews dansa dans La Mélodie du Bonheur. Salle de marbre du château — Mozart y donna ses premiers concerts. Vue parfaite sur la forteresse de Hohensalzburg.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sécession_viennoise','Sécession Viennoise — Klimt')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Vienne</div><h3 class="card-name">Vienne — Art Nouveau &amp; Klimt</h3><p class="card-context">Vienne, capitale mondiale de l'Art Nouveau au tournant du XXe s. Bâtiment de la Sécession (1898). La Frise de Beethoven de Klimt (34 m). Egon Schiele, Oskar Kokoschka. L'Opéra de Vienne (1869) — le plus grand opéra du monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vallée_de_la_Wachau','Vallée de la Wachau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Basse-Autriche</div><h3 class="card-name">Wachau — Vallée du Danube</h3><p class="card-context">UNESCO 2000 — vallée du Danube entre Melk et Krems, 30 km de vignes en terrasses, villages médiévaux, ruines de châteaux. Abbaye de Göttweig. Riesling et Grüner Veltliner parmi les meilleurs blancs du monde. Richard Coeur de Lion y fut emprisonné.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Graz','Graz — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Graz, Styrie</div><h3 class="card-name">Graz — Vieille Ville UNESCO</h3><p class="card-context">UNESCO 1999 — l'une des villes médiévales les mieux préservées d'Europe centrale. Schlossberg (473 m) avec son horloge et sa cloche. Musée d'Art Moderne Kunsthaus (2003, "friendly alien"). Arnold Schwarzenegger est né près de Graz.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Semmering_(voie_ferrée)','Chemin de Fer du Semmering')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Basse-Autriche / Styrie</div><h3 class="card-name">Chemin de Fer du Semmering</h3><p class="card-context">UNESCO 1998 — première ligne de chemin de fer de montagne au monde (1848–1854). Viaducs, tunnels et ponts à travers les Alpes. Exploit d'ingénierie victorienne. Station balnéaire du Semmering — le Bad Gastein de la noblesse viennoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lac_de_Wolfgang','Salzkammergut — Les Lacs Alpins')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Salzkammergut</div><h3 class="card-name">Salzkammergut — Les Lacs Alpins</h3><p class="card-context">UNESCO 1997 — 76 lacs alpins d'une beauté surnaturelle entre les Alpes. Hallstatt, Wolfgangsee, Attersee, Traunsee. Sissi y passa ses vacances. Klimt peignit l'Attersee. La région du sel depuis 7 000 ans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Opéra_de_Vienne','Opéra de Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Vienne</div><h3 class="card-name">Opéra de Vienne</h3><p class="card-context">La Staatsoper — l'un des trois plus grands opéras du monde. 300 représentations par an, 50 000 spectateurs. Bal de l'Opéra (Opernball) le plus haut moment de la saison sociale viennoise. Mahler, Karajan, Böhm le dirigèrent.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Hellbrunn','Château de Hellbrunn')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Salzbourg</div><h3 class="card-name">Château Hellbrunn &amp; Jeux d'Eau</h3><p class="card-context">Château Renaissance (1619) aux célèbres jeux d'eau — 265 jets cachés dans les statues, tables et bancs du jardin pour surprendre les invités. Les invités de l'archevêque-prince étaient trempés à sa grande joie. Toujours fonctionnels.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Kitzbühel','Kitzbühel — Station Alpine')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Kitzbühel, Tyrol</div><h3 class="card-name">Kitzbühel — La Reine des Alpes</h3><p class="card-context">La station de ski la plus chic d'Autriche. La Streif — descente de ski la plus difficile et la plus spectaculaire au monde (Hahnenkamm). Village médiéval parfaitement préservé. Hahnenkamm Race — le plus grand événement de ski alpin.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wiener_Philharmoniker','Philharmonique de Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Vienne</div><h3 class="card-name">Wiener Philharmoniker</h3><p class="card-context">Le meilleur orchestre du monde selon de nombreux musicologues — fondé en 1842. Concert du Nouvel An retransmis dans 90 pays (50 millions de téléspectateurs). Brahms, Bruckner, Mahler — tous composèrent pour eux. La Salle dorée du Musikverein.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Krems-sur-le-Danube','Krems — Porte de la Wachau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Krems, Basse-Autriche</div><h3 class="card-name">Krems — Porte de la Wachau</h3><p class="card-context">L'une des plus anciennes villes d'Autriche (995). Vieille ville médiévale, musée du Vin, Kunstmeile. Entrée est de la Wachau UNESCO. Vignobles de Grüner Veltliner à perte de vue. Abbaye de Göttweig sur la colline d'en face.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Préhistoire_de_l%27Autriche','Vénus de Willendorf')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Willendorf, Basse-Autriche</div><h3 class="card-name">Vénus de Willendorf</h3><p class="card-context">La statuette préhistorique la plus célèbre du monde (25 000 av. J.-C.) — découverte en 1908 sur les rives du Danube. 11 cm de calcaire oolithique. Aujourd'hui au Naturhistorisches Museum de Vienne. Le plus ancien trésor de l'Autriche.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Ambras','Château d\'Ambras — Innsbruck')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Innsbruck, Tyrol</div><h3 class="card-name">Château d'Ambras</h3><p class="card-context">Renaissance tyrolienne (XVIe s.) — galerie des portraits des Habsbourg, Chambre des Arts et Merveilles de Ferdinand II. Collection unique d'armures médiévales. Vue panoramique sur Innsbruck et la vallée de l'Inn.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Freud','Maison de Freud — Vienne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Vienne</div><h3 class="card-name">Maison de Sigmund Freud</h3><p class="card-context">Le cabinet du père de la psychanalyse au 19 Berggasse — où Freud reçut ses patients de 1891 à 1938. Son divan, ses objets, ses livres. Freud fuit Vienne en 1938 après l'annexion nazie. Vienne — capitale mondiale de la psychanalyse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Arlberg','Arlberg — Berceau du Ski Alpin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Tyrol / Vorarlberg</div><h3 class="card-name">Arlberg — Berceau du Ski Alpin</h3><p class="card-context">Le premier club de ski alpin au monde (1901) fut fondé ici. St. Anton am Arlberg — technique de ski alpin née ici par Hannes Schneider. 305 km de pistes reliées. Le plus grand domaine skiable d'Autriche.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Eisriesenwelt','Eisriesenwelt — Grotte de Glace')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Werfen, Salzbourg</div><h3 class="card-name">Eisriesenwelt — Le Monde des Géants de Glace</h3><p class="card-context">La plus grande grotte de glace naturelle du monde — 42 km de galeries, formations de glace de 30 m. Ouverte en 1879. Accessible par téléphérique et 700 marches. Château de Hohenwerfen voisin (film Bons Baisers d'où où était la scène du départ).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Haute_Tauern','Parc National des Hohe Tauern')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Carinthie / Salzbourg / Tyrol</div><h3 class="card-name">Parc National des Hohe Tauern</h3><p class="card-context">Le plus grand parc national des Alpes — 1 836 km². Grossglockner, 266 glaciers, 304 sommets de plus de 3 000 m. Aigle royal, bouquetin, marmotte. Krimml — les plus hautes chutes d'eau d'Autriche (380 m en 3 cascades).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bad_Ischl','Bad Ischl — Villégiature Impériale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Bad Ischl, Salzkammergut</div><h3 class="card-name">Bad Ischl — La Cour d'Été de Sissi</h3><p class="card-context">La villégiature estivale favorite de François-Joseph et de Sissi pendant 60 ans. Villa Impériale (Kaiservilla). Le Traité de guerre de l'Autriche-Hongrie fut signé ici le 28 juillet 1914. Lehar y composa ses opérettes. Kurpark thermal.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Dürnstein','Dürnstein — Château de Richard Coeur de Lion')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Dürnstein, Wachau</div><h3 class="card-name">Dürnstein — Richard Coeur de Lion</h3><p class="card-context">Village médiéval aux ruines du château où fut emprisonné Richard Coeur de Lion en 1193 après la croisade (rançon de 150 000 marks d'argent). Son troubadour Blondel l'aurait retrouvé en chantant. Clocher baroque bleu emblématique de la Wachau.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bregenzer_Festspiele','Festival de Bregenz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Bregenz, Vorarlberg</div><h3 class="card-name">Festival de Bregenz — Scène sur le Lac</h3><p class="card-context">Le festival d'opéra le plus spectaculaire au monde — scène flottante de 7 000 places sur le lac de Constance. Décors monumentaux changeant tous les 2 ans. Goldeneye de James Bond y fut filmé. Kornmarkttheater et Festspielhaus.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Carinthie','Lac de Wörthersee — Carinthie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Klagenfurt, Carinthie</div><h3 class="card-name">Wörthersee — La Riviera Autrichienne</h3><p class="card-context">Le lac alpin le plus chaud d'Autriche (28°C en été) — la Riviera autrichienne. Villas de Mahler, de Brahms. Klagenfurt aux fontaines baroques. Minimundus — les monuments du monde en miniature. Porte de la Slovénie et de l'Italie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_autrichienne','Wiener Schnitzel &amp; Gastronomie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Vienne &amp; partout</div><h3 class="card-name">Wiener Schnitzel &amp; Cafés Viennois</h3><p class="card-context">Le Wiener Schnitzel (escalope viennoise panée) — plat national. Tafelspitz de François-Joseph. Les Kaffeehäuser viennois UNESCO 2011 — Café Central, Landtmann, Hawelka. Sachertorte (1832), Apfelstrudel. La culture du café comme art de vivre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sissi','Sissi — Impératrice d\'Autriche')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Vienne — Salzkammergut</div><h3 class="card-name">Sissi — L'Impératrice Rebelle</h3><p class="card-context">Elisabeth d'Autriche (1837–1898) — l'impératrice la plus photographiée et la plus aimée de son temps. Rebelle, sportive, voyageuse — elle s'évadait sans cesse du protocole impérial. Assassinée à Genève à 60 ans. Le mythe Sissi est immortel.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Celtes aux Habsbourg</div>
+  <h2 class="section-title">Histoire de l'Autriche</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">15 av. J.-C. — 400</div>
+      <div class="timeline-event"><strong>Noricum Romain.</strong> Les Romains conquièrent le royaume celte de Noricum. Vindobona (Vienne) devient un camp légionnaire sur le Danube — frontière de l'Empire. Carnuntum — grande ville romaine de 50 000 habitants. Marc Aurèle y rédigea ses Pensées et y mourut en 180.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">976 — 1273</div>
+      <div class="timeline-event"><strong>Les Babenberg et le duché d'Autriche.</strong> Léopold Ier de Babenberg reçoit la Marche orientale (Ostarrichi). Vienne devient capitale en 1155. Les Babenberg font de l'Autriche un centre culturel européen. Richard Coeur de Lion emprisonné à Dürnstein (1193). La famille s'éteint en 1246.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1273 — 1740</div>
+      <div class="timeline-event"><strong>Essor des Habsbourg.</strong> Rodolphe Ier de Habsbourg élu Roi des Romains (1273). Par mariages successifs, les Habsbourg accumulent un empire immense — "Bella gerant alii, tu felix Austria nube" (Que les autres fassent la guerre, toi, heureuse Autriche, marie-toi). Charles Quint règne sur l'Espagne, l'Autriche, les Pays-Bas et les Amériques.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1683</div>
+      <div class="timeline-event"><strong>Le Grand Siège de Vienne.</strong> 150 000 soldats ottomans assiègent Vienne (14 juillet–12 septembre). Le roi de Pologne Jean III Sobieski conduit la charge de la cavalerie polonaise et sauve l'Occident. La victoire de Kahlenberg marque le début du déclin ottoman. Le croissant disparaît des drapeaux européens.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1740 — 1848</div>
+      <div class="timeline-event"><strong>Marie-Thérèse et l'âge classique.</strong> Marie-Thérèse (1740–1780) — l'impératrice réformatrice et mère de 16 enfants. Joseph II abolit le servage. Le Congrès de Vienne (1815) redessine l'Europe. Mozart, Haydn, Beethoven, Schubert font de Vienne la capitale musicale mondiale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1848 — 1916</div>
+      <div class="timeline-event"><strong>François-Joseph et la Belle Époque.</strong> François-Joseph règne 68 ans (1848–1916) — le plus long règne d'un souverain européen. Ringstrasse de Vienne — la plus belle avenue d'Europe. Sissi épouse l'empereur en 1854. Freud, Klimt, Mahler, Wittgenstein — Vienne 1900 révolutionne la pensée mondiale. L'Autriche-Hongrie s'étend sur 12 nations.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1918 — aujourd'hui</div>
+      <div class="timeline-event"><strong>République et neutralité.</strong> Fin de l'Empire austro-hongrois (1918). Annexion par Hitler en 1938 (Anschluss). Seconde Guerre mondiale. Occupation alliée jusqu'en 1955 — Traité d'État signé au Belvédère, neutralité permanente. Vienne accueille l'OPEP, l'AIEA et l'ONU. Pays parmi les plus riches et les mieux notés au monde.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇦🇹</div>
+  <p class="footer-text">Guide du Voyageur · Autriche · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([47.5,13.5],7);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconPalais=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconCathedrale=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>');
+
+var iconMusique=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(237,41,57,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#ED2939" stroke="#8a0010" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#c8102e"/><line x1="20" y1="10" x2="28" y2="6" stroke="#ED2939" stroke-width="1.2" stroke-linecap="round"/><line x1="20" y1="14" x2="28" y2="10" stroke="#ED2939" stroke-width="1" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#c8102e"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#c8102e"/></svg>');
+
+var iconAlpes=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,100,180,.8))"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e8e8f0" stroke="#b0b8d0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/><path d="M2 32 Q8 28 14 30 Q18 32 22 30 Q28 28 34 30" fill="#6090d0" opacity="0.6"/><path d="M4 28 Q6 26 10 28 Q14 30 18 28 Q22 26 26 28 Q30 30 32 28" fill="none" stroke="#90b8e8" stroke-width="0.8"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconSki=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,100,200,.85))"><path d="M2 30 Q6 22 12 18 L16 6 L20 6 L24 18 Q30 22 34 30 Z" fill="#e8f0ff" stroke="#90a8e0" stroke-width="0.6"/><path d="M14 18 L16 6 L20 6 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="white"/><ellipse cx="10" cy="28" rx="10" ry="3" fill="#ED2939" opacity="0.4"/><line x1="4" y1="30" x2="32" y2="30" stroke="#c8102e" stroke-width="1.5" stroke-linecap="round"/><circle cx="18" cy="8" r="3" fill="#c9a84c" opacity="0.8"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,180,.9))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#2060b8" stroke="#1040a0" stroke-width="0.6"/><path d="M4 28 Q8 24 12 26 Q16 28 18 26 Q22 24 26 26 Q30 28 32 26" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><path d="M6 24 Q8 20 10 18 L14 10 L18 8 L22 10 L26 18 Q28 20 30 24" fill="#c8d8e8" opacity="0.5"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><path d="M10 16 Q14 20 18 20 Q22 20 26 16 Q22 19 18 19 Q14 19 10 16 Z" fill="#e05080" opacity="0.4"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="12" y="32" width="12" height="3" rx="1" fill="#5a0820"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconArtN=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,120,20,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#8060b0" stroke="#5a3890" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#9070c0" opacity="0.6"/><circle cx="14" cy="14" r="3" fill="#ED2939" opacity="0.8"/><path d="M18 8 Q24 12 26 16 Q24 20 18 20 Q12 20 10 16 Q12 12 18 8" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.7"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(237,41,57,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#ED2939" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="6" y="8" width="2" height="4" fill="#d02030"/><rect x="9" y="8" width="2" height="4" fill="#d02030"/><rect x="24" y="8" width="2" height="4" fill="#d02030"/><rect x="27" y="8" width="2" height="4" fill="#d02030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#6a0008"/></svg>');
+
+var iconCave=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,100,.8))"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060" stroke="#2a1040" stroke-width="0.7"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/><path d="M14 16 Q14 12 18 10 Q22 12 22 16" fill="none" stroke="#b0d8f0" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="10" r="2" fill="#b0d8f0" opacity="0.5"/><path d="M12 28 Q14 24 18 26 Q22 24 24 28" fill="none" stroke="#90c0e8" stroke-width="0.8" opacity="0.6"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#ED2939" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconOpera=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><path d="M4 34 Q4 22 18 16 Q32 22 32 34 Z" fill="#c8a020"/><path d="M6 34 Q6 24 18 18 Q30 24 30 34" fill="#d4b030" opacity="0.5"/><rect x="4" y="12" width="28" height="4" rx="0.5" fill="#b09010"/><rect x="14" y="4" width="8" height="10" rx="1" fill="#8a6010"/><circle cx="18" cy="6" r="3.5" fill="#c9a84c"/><line x1="18" y1="2" x2="18" y2="4" stroke="#c9a84c" stroke-width="1.2"/></svg>');
+
+var DATA={
+  palais:{icon:iconPalais,color:'#c8a020',label:'👑 Palais Impériaux',pts:[
+    {lat:48.1847,lng:16.3122,n:"Palais de Schönbrunn",c:"Vienne",d:"UNESCO 1996. 1 441 pièces, jardins de 160 ha, Gloriette. Versailles autrichienne. Mozart y joua à 6 ans.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Schönbrunn?useskin=vector"},
+    {lat:48.1908,lng:16.3697,n:"Hofburg — Palais Impérial",c:"Vienne",d:"600 ans de Habsbourg. 2 600 pièces. Trésors impériaux, Bibliothèque Nationale, Lipizzans.",u:"https://fr.m.wikipedia.org/wiki/Palais_impérial_de_la_Hofburg?useskin=vector"},
+    {lat:48.1913,lng:16.3793,n:"Palais du Belvédère",c:"Vienne",d:"UNESCO 2001. Le Baiser de Klimt. Jardins baroques en terrasses. Traité d'État 1955.",u:"https://fr.m.wikipedia.org/wiki/Palais_du_Belvédère?useskin=vector"},
+    {lat:47.2654,lng:11.3927,n:"Hofburg d'Innsbruck",c:"Innsbruck, Tyrol",d:"Palais impérial du Tyrol. Appartements de Marie-Thérèse et François-Joseph. Toit d'Or voisin.",u:"https://fr.m.wikipedia.org/wiki/Hofburg_d%27Innsbruck?useskin=vector"},
+    {lat:47.7621,lng:13.0494,n:"Château de Hellbrunn",c:"Salzbourg",d:"Jeux d'eau surprises (265 jets, 1619). Parc et zoo. Décor de la Mélodie du Bonheur.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Hellbrunn?useskin=vector"}
+  ]},
+  cathedrale:{icon:iconCathedrale,color:'#6040a0',label:'⛪ Cathédrales & Abbayes',pts:[
+    {lat:48.2086,lng:16.3726,n:"Cathédrale Saint-Étienne",c:"Vienne",d:"Le Stephansdom — symbole de Vienne. Toit en tuiles vernissées, tour de 136 m. Mozart s'y maria.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_Saint-Étienne_de_Vienne?useskin=vector"},
+    {lat:48.2309,lng:15.3319,n:"Abbaye de Melk",c:"Melk, Basse-Autriche",d:"UNESCO 2000. Abbaye baroque dominant le Danube depuis 60 m. 100 000 volumes. Umberto Eco.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Melk?useskin=vector"},
+    {lat:47.7982,lng:13.0474,n:"Cathédrale de Salzbourg",c:"Salzbourg",d:"Cathédrale baroque (1614–1628). Orgues à 4 000 tuyaux où Mozart fut baptisé. Façade italienne.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Salzbourg?useskin=vector"},
+    {lat:48.3635,lng:15.5956,n:"Abbaye de Göttweig",c:"Wachau, Basse-Autriche",d:"Abbaye bénédictine baroque sur un promontoire dominant la Wachau. Escalier impérial de Kremser Schmidt.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Göttweig?useskin=vector"},
+    {lat:47.3669,lng:15.0972,n:"Abbaye de Rein",c:"Styrie",d:"La plus ancienne abbaye cistercienne d'Autriche (1129). Cloître gothique, église baroque. Vignobles.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Rein?useskin=vector"}
+  ]},
+  musique:{icon:iconMusique,color:'#ED2939',label:'🎼 Mozart & Musique Classique',pts:[
+    {lat:47.7985,lng:13.0433,n:"Maison Natale de Mozart",c:"Salzbourg — Getreidegasse",d:"Lieu de naissance de Wolfgang Amadeus Mozart (27 janvier 1756). Violon et clavecin d'enfant.",u:"https://fr.m.wikipedia.org/wiki/Maison_natale_de_Mozart?useskin=vector"},
+    {lat:47.8040,lng:13.0416,n:"Résidence Mozart — Makartplatz",c:"Salzbourg",d:"La maison où Mozart vécut de 1773 à 1780. Piano-forte original. Son atelier de composition.",u:"https://fr.m.wikipedia.org/wiki/Résidence_Mozart?useskin=vector"},
+    {lat:48.2028,lng:16.3694,n:"Opéra de Vienne — Staatsoper",c:"Vienne",d:"300 représentations/an. Opernball. Mahler, Karajan, Böhm. Le plus grand opéra du monde.",u:"https://fr.m.wikipedia.org/wiki/Opéra_de_Vienne?useskin=vector"},
+    {lat:48.2008,lng:16.3680,n:"Musikverein — Salle Dorée",c:"Vienne",d:"La Salle Dorée — la meilleure acoustique du monde. Concert du Nouvel An retransmis dans 90 pays.",u:"https://fr.m.wikipedia.org/wiki/Musikverein?useskin=vector"},
+    {lat:48.2069,lng:16.3770,n:"Maison Beethoven — Heiligenstadt",c:"Vienne",d:"Beethoven y écrivit le Testament de Heiligenstadt (1802), désespéré par sa surdité naissante.",u:"https://fr.m.wikipedia.org/wiki/Ludwig_van_Beethoven?useskin=vector"}
+  ]},
+  alpes:{icon:iconAlpes,color:'#6090d0',label:'🏔️ Alpes & Montagnes',pts:[
+    {lat:47.0740,lng:12.6940,n:"Grossglockner — Toit de l\'Autriche",c:"Carinthie / Salzbourg",d:"3 798 m — sommet le plus haut d'Autriche. Route alpine (48 km). Glacier de Pasterze.",u:"https://fr.m.wikipedia.org/wiki/Grossglockner?useskin=vector"},
+    {lat:47.2654,lng:11.3927,n:"Nordkette — Innsbruck",c:"Innsbruck, Tyrol",d:"Chaîne des Karwendel dominant Innsbruck. Téléphérique Nordkette. Panorama à 2 256 m.",u:"https://fr.m.wikipedia.org/wiki/Nordkette?useskin=vector"},
+    {lat:47.2245,lng:10.1842,n:"Arlberg — Ski Alpin",c:"Tyrol / Vorarlberg",d:"Berceau du ski alpin mondial (1901). St. Anton, Lech, Zürs. 305 km de pistes.",u:"https://fr.m.wikipedia.org/wiki/Massif_de_l%27Arlberg?useskin=vector"},
+    {lat:47.4488,lng:12.3921,n:"Kitzbühel — La Streif",c:"Kitzbühel, Tyrol",d:"Station la plus chic d'Autriche. Hahnenkamm — descente la plus difficile du monde.",u:"https://fr.m.wikipedia.org/wiki/Kitzbühel?useskin=vector"},
+    {lat:47.5161,lng:12.6962,n:"Berchtesgadener Alpen",c:"Salzbourg",d:"Parc national des Berchtesgaden. Lac de Königssee aux eaux émeraudes. Aigle royal.",u:"https://fr.m.wikipedia.org/wiki/Alpes_de_Berchtesgaden?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:47.5622,lng:13.6493,n:"Hallstatt — Salzkammergut",c:"Haute-Autriche",d:"UNESCO 1997. Village le plus photographié du monde. Mines de sel (7 000 ans). Répliqué en Chine.",u:"https://fr.m.wikipedia.org/wiki/Hallstatt?useskin=vector"},
+    {lat:47.4679,lng:13.3233,n:"Vieille Ville de Salzbourg",c:"Salzbourg",d:"UNESCO 1996. Ville de Mozart. Forteresse, baroque, Festival de musique mondial.",u:"https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Salzbourg?useskin=vector"},
+    {lat:48.2309,lng:15.3319,n:"Wachau — Vallée du Danube",c:"Basse-Autriche",d:"UNESCO 2000. Vignes, villages médiévaux, ruines de châteaux. Richard Coeur de Lion.",u:"https://fr.m.wikipedia.org/wiki/Vallée_de_la_Wachau?useskin=vector"},
+    {lat:47.0667,lng:15.4500,n:"Graz — Vieille Ville",c:"Graz, Styrie",d:"UNESCO 1999. Vieille ville médiévale exemplaire. Schlossberg. Schwarzenegger est né près d'ici.",u:"https://fr.m.wikipedia.org/wiki/Graz?useskin=vector"},
+    {lat:47.7000,lng:15.8333,n:"Chemin de Fer du Semmering",c:"Basse-Autriche / Styrie",d:"UNESCO 1998. Première ligne ferroviaire de montagne au monde (1848). Viaducs et tunnels.",u:"https://fr.m.wikipedia.org/wiki/Chemin_de_fer_du_Semmering?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🏛️ Musées & Collections',pts:[
+    {lat:48.2042,lng:16.3618,n:"Kunsthistorisches Museum",c:"Vienne",d:"Collections impériales Habsbourg. Bruegel (plus grande collection mondiale), Velázquez, Vermeer.",u:"https://fr.m.wikipedia.org/wiki/Musée_d%27histoire_de_l%27art_de_Vienne?useskin=vector"},
+    {lat:48.2044,lng:16.3594,n:"Naturhistorisches Museum",c:"Vienne",d:"Vénus de Willendorf (25 000 av. J.-C.). Météorites, dinosaures. Face au KHM — les jumeaux impériaux.",u:"https://fr.m.wikipedia.org/wiki/Musée_d%27histoire_naturelle_de_Vienne?useskin=vector"},
+    {lat:48.1972,lng:16.3794,n:"Belvédère — Klimt",c:"Vienne",d:"Le Baiser (1907–1908) de Gustav Klimt. Collections d'art autrichien. Jardins baroques spectaculaires.",u:"https://fr.m.wikipedia.org/wiki/Palais_du_Belvédère?useskin=vector"},
+    {lat:47.5250,lng:12.3990,n:"Museum Kitzbühel",c:"Kitzbühel",d:"Musée de la ville médiévale et de la culture alpine tyrolienne. Histoire du ski et de la Streif.",u:"https://fr.m.wikipedia.org/wiki/Kitzbühel?useskin=vector"}
+  ]},
+  artnouveau:{icon:iconArtN,color:'#8060b0',label:'🎨 Art Nouveau & Klimt',pts:[
+    {lat:48.1989,lng:16.3699,n:"Sécession Viennoise",c:"Vienne",d:"Bâtiment (1898) Ver Sacrum. La Frise de Beethoven de Klimt (34 m). Der Zeit ihre Kunst.",u:"https://fr.m.wikipedia.org/wiki/Sécession_viennoise?useskin=vector"},
+    {lat:48.1972,lng:16.3794,n:"Belvédère — Le Baiser",c:"Vienne",d:"Le Baiser (1907–1908) de Gustav Klimt — symbole de l'Art Nouveau mondial. Or et symbolisme.",u:"https://fr.m.wikipedia.org/wiki/Le_Baiser_(Klimt)?useskin=vector"},
+    {lat:48.2161,lng:16.3575,n:"Ringstrasse — Bulevar Impérial",c:"Vienne",d:"5 km de monuments néo-gothiques, néo-Renaissance, néo-baroque. Opéra, Parlement, Burgtheater.",u:"https://fr.m.wikipedia.org/wiki/Ringstraße?useskin=vector"},
+    {lat:48.2208,lng:16.3584,n:"Musée Sigmund Freud",c:"Vienne — Berggasse",d:"Le cabinet de Freud au 19 Berggasse. Son divan, ses objets. Psychanalyse née ici.",u:"https://fr.m.wikipedia.org/wiki/Sigmund_Freud?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#2060b8',label:'💧 Lacs Alpins',pts:[
+    {lat:47.5622,lng:13.6493,n:"Lac de Hallstatt",c:"Salzkammergut",d:"Le lac le plus photographié du monde. Eaux vertes, village médiéval, mines de sel de 7 000 ans.",u:"https://fr.m.wikipedia.org/wiki/Hallstatt?useskin=vector"},
+    {lat:47.7500,lng:13.3833,n:"Wolfgangsee",c:"Salzbourg",d:"Lac de Sissi — sa villégiature préférée. St. Wolfgang, Weisses Rössl. Mozart y flâna.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Wolfgang?useskin=vector"},
+    {lat:47.8667,lng:13.5167,n:"Attersee",c:"Haute-Autriche",d:"Klimt y peignit son lac en été. Lac le plus grand de Haute-Autriche. Voile et plongée.",u:"https://fr.m.wikipedia.org/wiki/Attersee?useskin=vector"},
+    {lat:46.6167,lng:14.1333,n:"Wörthersee",c:"Klagenfurt, Carinthie",d:"La Riviera autrichienne (28°C en été). Mahler, Brahms y composèrent. Villas de rêve.",u:"https://fr.m.wikipedia.org/wiki/Wörthersee?useskin=vector"},
+    {lat:47.4833,lng:13.5667,n:"Grundlsee",c:"Styrie",d:"Le plus grand lac de Styrie aux eaux turquoise. Countess of Austria Tournament. Alpes voisines.",u:"https://fr.m.wikipedia.org/wiki/Grundlsee?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:47.0740,lng:12.6940,n:"Parc National des Hohe Tauern",c:"Carinthie / Salzbourg / Tyrol",d:"Plus grand parc national des Alpes (1 836 km²). 266 glaciers. Chutes de Krimml (380 m).",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Hohe_Tauern?useskin=vector"},
+    {lat:47.5167,lng:14.5167,n:"Parc National Gesäuse",c:"Styrie",d:"Canyon sauvage de l'Enns. Parois calcaires de 1 600 m. Faucon pèlerin, loutre, lynx.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Gesäuse?useskin=vector"},
+    {lat:48.5833,lng:15.4000,n:"Parc National du Thayatal",c:"Basse-Autriche",d:"Vallée encaissée de la Thaya à la frontière tchèque. Forêts alluviales, castors, martins-pêcheurs.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Thaya?useskin=vector"},
+    {lat:47.8167,lng:16.8500,n:"Parc National Neusiedler See",c:"Burgenland",d:"UNESCO. Steppe pannonienne et lac peu profond (max. 1,8 m). 350 espèces d'oiseaux. Cicognes.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_lac_de_Neusiedl?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#7a1840',label:'🍷 Vins & Gastronomie',pts:[
+    {lat:48.2309,lng:15.3319,n:"Wachau — Grüner Veltliner",c:"Basse-Autriche",d:"UNESCO 2000. Vins blancs parmi les meilleurs au monde. Grüner Veltliner et Riesling de terrasse.",u:"https://fr.m.wikipedia.org/wiki/Vallée_de_la_Wachau?useskin=vector"},
+    {lat:48.3000,lng:16.5167,n:"Weinviertel — Région Viticole",c:"Basse-Autriche",d:"La plus grande région viticole d'Autriche. Grüner Veltliner AOC. Villages de vignerons.",u:"https://fr.m.wikipedia.org/wiki/Weinviertel?useskin=vector"},
+    {lat:47.8167,lng:16.8500,n:"Burgenland — Vins Rouges",c:"Burgenland",d:"Blaufränkisch, Zweigelt. Vignobles au bord du lac de Neusiedl. Vins dorés Eiswein.",u:"https://fr.m.wikipedia.org/wiki/Burgenland?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🥐 Gastronomie Viennoise',pts:[
+    {lat:48.2056,lng:16.3667,n:"Café Central — Vienne",c:"Vienne",d:"UNESCO 2011. Le café viennois comme culture. Trotski et Lénine y jouèrent aux échecs. Torte et Melange.",u:"https://fr.m.wikipedia.org/wiki/Café_viennois?useskin=vector"},
+    {lat:48.2100,lng:16.3700,n:"Sachertorte — Hôtel Sacher",c:"Vienne",d:"Le plus grand litige culinaire de l'Histoire — 7 ans de procès pour la recette originale (1954).",u:"https://fr.m.wikipedia.org/wiki/Sachertorte?useskin=vector"},
+    {lat:48.2069,lng:16.3694,n:"Naschmarkt — Grand Marché",c:"Vienne",d:"Plus grand marché de Vienne — 120 étals. Fromages, épices, poissons, saucisses viennoises.",u:"https://fr.m.wikipedia.org/wiki/Naschmarkt?useskin=vector"},
+    {lat:48.2000,lng:16.3600,n:"Heurigen — Caves à Vin",c:"Grinzing, Vienne",d:"Les Heurigen — tavernes de vignerons aux alentours de Vienne. Vin nouveau, musique de Schrammel.",u:"https://fr.m.wikipedia.org/wiki/Heuriger?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#ED2939',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:47.7948,lng:13.0479,n:"Forteresse de Hohensalzburg",c:"Salzbourg",d:"Plus grande forteresse médiévale d'Europe centrale (1077). Jamais prise. Vue panoramique.",u:"https://fr.m.wikipedia.org/wiki/Forteresse_de_Hohensalzburg?useskin=vector"},
+    {lat:47.2714,lng:11.3960,n:"Château d'Ambras",c:"Innsbruck, Tyrol",d:"Renaissance tyrolienne (XVIe s.). Galerie des Habsbourg. Chambre des Arts et Merveilles.",u:"https://fr.m.wikipedia.org/wiki/Château_d%27Ambras?useskin=vector"},
+    {lat:48.3970,lng:15.5990,n:"Château de Dürnstein",c:"Wachau, Basse-Autriche",d:"Ruines où fut emprisonné Richard Coeur de Lion (1193). Clocher baroque bleu emblématique.",u:"https://fr.m.wikipedia.org/wiki/Dürnstein?useskin=vector"},
+    {lat:47.0856,lng:14.6619,n:"Château de Riegersburg",c:"Styrie orientale",d:"Imposante forteresse baroque (1670) sur un rocher volcanique de 482 m. Jamais prise par les Turcs.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Riegersburg?useskin=vector"}
+  ]},
+  cave:{icon:iconCave,color:'#3a2060',label:'🦇 Grottes & Géologie',pts:[
+    {lat:47.4700,lng:13.2000,n:"Eisriesenwelt — Grottes de Glace",c:"Werfen, Salzbourg",d:"Plus grande grotte de glace au monde (42 km). Formations de 30 m. Accessible par téléphérique.",u:"https://fr.m.wikipedia.org/wiki/Eisriesenwelt?useskin=vector"},
+    {lat:47.5920,lng:15.1860,n:"Grottes de Lurgrotte",c:"Styrie",d:"Réseau de grottes de 6,5 km. Stalactites géantes, rivière souterraine. La plus longue d'Autriche.",u:"https://fr.m.wikipedia.org/wiki/Lurgrotte?useskin=vector"},
+    {lat:47.5000,lng:15.8000,n:"Grottes du Semmering",c:"Basse-Autriche",d:"Karst alpin du Semmering. Grottes calcaires, cours d'eau souterrains. Parc naturel.",u:"https://fr.m.wikipedia.org/wiki/Semmering?useskin=vector"}
+  ]},
+  ski:{icon:iconSki,color:'#4070c0',label:'⛷️ Ski & Sports Alpins',pts:[
+    {lat:47.1290,lng:10.2726,n:"St. Anton am Arlberg",c:"Tyrol",d:"Berceau du ski alpin mondial (club 1901). Technique Schneider. Premier moniteur de ski au monde.",u:"https://fr.m.wikipedia.org/wiki/St._Anton_am_Arlberg?useskin=vector"},
+    {lat:47.4488,lng:12.3921,n:"Kitzbühel — Hahnenkamm",c:"Tyrol",d:"La Streif — descente la plus difficile du monde. Hahnenkamm Race annuelle en janvier.",u:"https://fr.m.wikipedia.org/wiki/Kitzbühel?useskin=vector"},
+    {lat:46.9697,lng:12.7564,n:"Zell am See — Kaprun",c:"Salzbourg",d:"Glacier de Kitzsteinhorn (ski été-hiver). Europa-Sportregion. Lac de Zell à 755 m.",u:"https://fr.m.wikipedia.org/wiki/Zell_am_See?useskin=vector"},
+    {lat:47.2167,lng:11.6333,n:"Seefeld — Ski Nordique",c:"Tyrol",d:"Capitale autrichienne du ski nordique. 3 fois site olympique. Plateau à 1 200 m.",u:"https://fr.m.wikipedia.org/wiki/Seefeld_in_Tirol?useskin=vector"}
+  ]},
+  opera:{icon:iconOpera,color:'#c8a020',label:'🎭 Opéra & Festivals',pts:[
+    {lat:48.2028,lng:16.3694,n:"Staatsoper — Opéra de Vienne",c:"Vienne",d:"Le plus grand opéra du monde. 300 représentations/an. Opernball — le plus grand bal du monde.",u:"https://fr.m.wikipedia.org/wiki/Opéra_de_Vienne?useskin=vector"},
+    {lat:47.7985,lng:13.0457,n:"Festival de Salzbourg",c:"Salzbourg",d:"Le plus grand festival de musique classique au monde (août). Karajan, Bernstein, Solti.",u:"https://fr.m.wikipedia.org/wiki/Festival_de_Salzbourg?useskin=vector"},
+    {lat:47.5028,lng:9.7487,n:"Festival de Bregenz",c:"Bregenz, Vorarlberg",d:"Scène flottante sur le lac de Constance (7 000 places). James Bond Goldeneye tourné ici.",u:"https://fr.m.wikipedia.org/wiki/Festival_de_Bregenz?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:47.4488,lng:12.3921,n:"Golf de Kitzbühel",c:"Kitzbühel, Tyrol",d:"Golf alpin de luxe face aux Alpes. Green fee parmi les plus beaux paysages du monde.",u:"https://fr.m.wikipedia.org/wiki/Kitzbühel?useskin=vector"},
+    {lat:47.7985,lng:13.0433,n:"Golf de Salzbourg",c:"Salzbourg",d:"Plusieurs parcours autour de Salzbourg. Golf de Salzbourg-Eugendorf (18 trous, vue Hohensalzburg).",u:"https://fr.m.wikipedia.org/wiki/Salzbourg?useskin=vector"},
+    {lat:48.2100,lng:16.3200,n:"Golf de Vienne",c:"Vienne",d:"Golf Wien Am Wienerberg et Golf Club Süßenbrunn. Capitale européenne avec 7 golfs à proximité.",u:"https://fr.m.wikipedia.org/wiki/Vienne_(Autriche)?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#ED2939\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'palais',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Palais Impériaux', count:5},
+      {cat:'cathedrale', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>', label:'Cathédrales &amp; Abbayes', count:5},
+      {cat:'musique',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#ED2939"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#c8102e"/><line x1="20" y1="10" x2="28" y2="6" stroke="#ED2939" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#c8102e"/></svg>', label:'Mozart &amp; Musique', count:5},
+      {cat:'alpes',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e8e8f0" stroke="#b0b8d0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/></svg>', label:'Alpes &amp; Montagnes', count:5},
+      {cat:'unesco',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'musee',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Collections', count:4},
+      {cat:'artnouveau', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#8060b0"/><circle cx="14" cy="14" r="3" fill="#ED2939" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#3a1870"/></svg>', label:'Art Nouveau &amp; Klimt', count:4},
+      {cat:'lac',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#2060b8"/><path d="M6 22 Q8 18 12 16 L18 8 L22 16 Q26 18 30 22" fill="#b0c8e8" opacity="0.5"/></svg>', label:'Lacs Alpins', count:5},
+      {cat:'nature',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'vin',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins &amp; Gastronomie', count:3},
+      {cat:'gastro',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Viennoise', count:4},
+      {cat:'chateau',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#ED2939"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="6" y="8" width="2" height="4" fill="#d02030"/><rect x="9" y="8" width="2" height="4" fill="#d02030"/></svg>', label:'Châteaux &amp; Forteresses', count:4},
+      {cat:'cave',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#3a2060"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#5a3090" opacity="0.7"/></svg>', label:'Grottes &amp; Géologie', count:3},
+      {cat:'ski',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 22 12 18 L16 6 L20 6 L24 18 Q30 22 34 30 Z" fill="#e8f0ff" stroke="#90a8e0" stroke-width="0.6"/><line x1="4" y1="30" x2="32" y2="30" stroke="#c8102e" stroke-width="1.5" stroke-linecap="round"/></svg>', label:'Ski &amp; Sports Alpins', count:4},
+      {cat:'opera',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q4 22 18 16 Q32 22 32 34 Z" fill="#c8a020"/><rect x="4" y="12" width="28" height="4" rx="0.5" fill="#b09010"/><circle cx="18" cy="8" r="3.5" fill="#c9a84c"/></svg>', label:'Opéra &amp; Festivals', count:3},
+      {cat:'golf',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#ED2939"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#ED2939 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#ED2939;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#4a0a18;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#ED2939;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #ED2939';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#ED2939':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'ED2939\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suisse — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Suisse.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#FF0000;      /* rouge suisse */
+      --blanc:#f8f8f8;
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --alpin:#1a3a5a;
+      --neige:#e8f0f8;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#02040a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(255,0,0,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(200,160,10,.06) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 100%);opacity:.4;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(255,0,0,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(255,0,0,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(255,0,0,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,4,10,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(255,0,0,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(255,0,0,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(255,0,0,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(255,0,0,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#02040a;border-bottom:1px solid rgba(255,0,0,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #aa0000;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#cc0000;border-color:#cc0000;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(220,0,0,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Suisse';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Suisse');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">HELVETIA</div>
+  <div class="hero-eyebrow">Suisse · Guide du Voyageur</div>
+  <h1 class="hero-title">Alpes, Chocolat<br>&amp; <em>Précision Helvétique</em></h1>
+  <p class="hero-subtitle">Cervin majestueux, lacs alpins, montres de luxe, chocolat &amp; neutralité éternelle au coeur de l'Europe</p>
+
+  <!-- GUILLAUME TELL — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(255,0,0,.25))" shape-rendering="geometricPrecision">
+
+      <!-- Croix suisse en fond -->
+      <rect x="66" y="40" width="28" height="80" rx="2" fill="#FF0000" opacity="0.12"/>
+      <rect x="40" y="66" width="80" height="28" rx="2" fill="#FF0000" opacity="0.12"/>
+
+      <!-- Bouquetin des Alpes — symbole helvétique da Vinci -->
+      <!-- Corps du bouquetin -->
+      <path d="M42 108 Q38 94 44 80 Q52 66 68 62 Q80 58 92 62 Q106 68 112 82 Q118 96 112 110 Q104 122 86 126 Q66 128 52 118 Q44 114 42 108 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M50 68 Q64 60 80 60 Q94 62 104 72 Q94 66 80 65 Q66 66 50 68 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures corps -->
+      <path d="M52 84 Q64 79 78 80 Q86 81 94 80 Q104 79 112 84" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M50 96 Q62 91 78 92 Q86 93 94 92 Q106 91 114 96" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M52 108 Q62 104 78 105 Q86 106 94 105 Q104 104 110 108" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Tête du bouquetin -->
+      <ellipse cx="66" cy="54" rx="20" ry="16" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M50 48 Q58 40 66 38 Q74 40 80 48 Q74 44 66 43 Q58 44 50 48 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Grandes cornes recourbées du bouquetin -->
+      <!-- Corne gauche -->
+      <path d="M52 42 Q44 30 46 18 Q50 10 56 14 Q54 20 52 28 Q54 36 56 42 Z"
+            fill="#d4a820" stroke="#8a6010" stroke-width="0.8"/>
+      <path d="M56 14 Q62 8 66 12 Q62 16 58 20 Q56 26 54 32" fill="none" stroke="#8a6010" stroke-width="0.8" stroke-linecap="round"/>
+      <!-- Rainures des cornes -->
+      <line x1="53" y1="40" x2="47" y2="20" stroke="#7a5808" stroke-width="0.5" opacity="0.6"/>
+      <line x1="55" y1="38" x2="50" y2="18" stroke="#7a5808" stroke-width="0.4" opacity="0.5"/>
+
+      <!-- Corne droite (arrière) -->
+      <path d="M80 42 Q88 30 86 18 Q82 10 76 14 Q78 20 80 28 Q78 36 76 42 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.7" opacity="0.8"/>
+
+      <!-- Oeil -->
+      <circle cx="72" cy="50" r="5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="72" cy="50" r="2.8" fill="#2a1000"/>
+      <circle cx="73.5" cy="48.5" r="1.1" fill="white" opacity="0.8"/>
+
+      <!-- Museau avec barbe -->
+      <path d="M56 58 Q60 62 66 62 Q72 62 76 58" fill="none" stroke="#8a5808" stroke-width="1.1"/>
+      <ellipse cx="66" cy="64" rx="7" ry="5" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M62 66 Q62 70 60 72" fill="none" stroke="#8a5808" stroke-width="0.8" stroke-linecap="round"/>
+      <path d="M66 66 Q66 72 64 74" fill="none" stroke="#8a5808" stroke-width="0.7" stroke-linecap="round"/>
+
+      <!-- Pattes -->
+      <path d="M56 126 Q52 134 54 140 Q58 140 62 136 Q60 132 58 128 Z" fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <path d="M74 128 Q70 136 72 142 Q76 142 80 138 Q78 134 76 130 Z" fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <path d="M94 126 Q90 134 92 140 Q96 140 100 136 Q98 132 96 128 Z" fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <path d="M108 120 Q106 128 108 134 Q112 134 114 130 Q113 126 110 122 Z" fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+
+      <!-- Queue courte du bouquetin -->
+      <path d="M112 110 Q120 106 122 100 Q118 104 114 106 Z" fill="#c8960a" opacity="0.8"/>
+
+      <!-- Croix suisse sur le flanc -->
+      <rect x="76" y="84" width="20" height="20" rx="1" fill="#FF0000" stroke="#aa0000" stroke-width="0.7"/>
+      <rect x="76" y="91" width="20" height="6" fill="#f8f8f8" opacity="0.95"/>
+      <rect x="83" y="84" width="6" height="20" fill="#f8f8f8" opacity="0.95"/>
+
+      <!-- Montagne en arrière-plan (Cervin stylisé) -->
+      <path d="M120 100 Q126 88 132 76 Q138 64 142 52 Q146 64 148 76 Q150 88 152 100 Z"
+            fill="#c8d8e8" stroke="#90a8c8" stroke-width="0.5" opacity="0.6"/>
+      <path d="M138 60 Q142 52 146 60 Q144 58 142 57 Q140 58 138 60 Z" fill="white" opacity="0.8"/>
+
+      <!-- Edelweiss -->
+      <circle cx="18" cy="100" r="4" fill="white" opacity="0.5" stroke="#c8b090" stroke-width="0.5"/>
+      <path d="M14 100 Q16 96 18 94 Q20 96 22 100 Q20 104 18 106 Q16 104 14 100 Z" fill="white" opacity="0.3"/>
+      <circle cx="18" cy="100" r="1.8" fill="#FAE042" opacity="0.6"/>
+
+      <!-- Annotation Léonard -->
+      <text x="12" y="80" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Capra</text>
+      <text x="12" y="88" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">ibex</text>
+      <line x1="26" y1="82" x2="42" y2="80" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles alpines -->
+      <circle cx="140" cy="30" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="24" cy="30" r="0.9" fill="#FF0000" opacity="0.5"/>
+      <circle cx="148" cy="120" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Cervin &amp; Alpes, lacs alpins, villes médiévales, montres de luxe, chocolat, fromages, ski &amp; sports alpins, institutions internationales, art &amp; architecture, vignobles du Lavaux, abbayes de Saint-Gall &amp; Mustair, châteaux, gastronomie, Glacier Express &amp; trains panoramiques.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">4 478</div><div class="stat-label">m — Cervin</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Suisse</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Helvètes à la Confédération moderne</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cervin','Cervin — La Pyramide des Alpes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Zermatt, Valais</div><h3 class="card-name">Le Cervin — La Pyramide des Alpes</h3><p class="card-context">4 478 m — la montagne la plus photographiée et la plus emblématique des Alpes. Pyramide de roche parfaite dominant Zermatt. Première ascension par Edward Whymper (1865). Logo du chocolat Toblerone. Vue depuis le Gornergrat.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Berne','Vieille Ville de Berne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Berne, capitale</div><h3 class="card-name">Berne — Vieille Ville UNESCO</h3><p class="card-context">UNESCO 1983 — vieille ville médiévale aux arcades de 6 km, la plus longue couverture piétonne du monde. Zytglogge (horloge astronomique du XIIIe s.), fontaines Renaissance colorées, Rose de Berne. Einstein y développa la Relativité (1905).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lac_Léman','Lac Léman — La Grande Mer Douce')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Vaud / Genève / Valais</div><h3 class="card-name">Lac Léman</h3><p class="card-context">Le plus grand lac alpin d'Europe occidentale (582 km²). Genève, Lausanne, Montreux sur ses rives. Jet d'Eau de Genève (140 m). Vignobles du Lavaux en terrasses UNESCO. Byron, Voltaire, Rousseau — la Suisse romande des Lumières.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Saint-Gall','Abbaye de Saint-Gall')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Saint-Gall</div><h3 class="card-name">Abbaye de Saint-Gall</h3><p class="card-context">UNESCO 1983 — la bibliothèque baroque la plus belle et la mieux conservée au monde. 170 000 volumes dont des manuscrits du IXe s. Fondée en 612 par le moine irlandais Gall. Centre intellectuel de l'Europe carolingienne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Chillon','Château de Chillon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Veytaux, Vaud</div><h3 class="card-name">Château de Chillon</h3><p class="card-context">Le château le plus visité de Suisse — forteresse médiévale sur un îlot rocheux au bord du Lac Léman. Construit par les Comtes de Savoie. Lord Byron y écrivit "Le Prisonnier de Chillon" (1816). Vue parfaite sur les Dents du Midi.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Interlaken','Interlaken — Entre les Lacs')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Interlaken, Berne</div><h3 class="card-name">Interlaken &amp; La Région de la Jungfrau</h3><p class="card-context">Entre le lac de Thoune et le lac de Brienz. Capitale touristique des Alpes bernoises. Jungfrau (4 158 m) — le Toit de l'Europe (UNESCO 2001). Télécabine Harder Kulm. Parachutisme, canyoning — capitale mondiale des sports extrêmes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Jungfrau','Jungfraujoch — Toit de l\'Europe')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Jungfrau, Berne / Valais</div><h3 class="card-name">Jungfraujoch — Toit de l'Europe</h3><p class="card-context">La gare la plus haute d'Europe (3 454 m) — accessible par le train à crémaillère. Glacier d'Aletsch visible — le plus long des Alpes (23 km, UNESCO). Palace de glace dans le glacier. Panorama sur 4 000 km² des Alpes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lavaux','Vignobles du Lavaux')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Lavaux, Vaud</div><h3 class="card-name">Vignobles du Lavaux</h3><p class="card-context">UNESCO 2007 — 830 ha de vignobles en terrasses dominant le Lac Léman depuis le XIe s. Chasselas vaudois — le plus délicat des blancs suisses. Trois soleils : celui du ciel, du lac et des murs de pierre chauffés la nuit.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_des_Nations','Palais des Nations — Genève')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Genève</div><h3 class="card-name">Genève — Palais des Nations &amp; CICR</h3><p class="card-context">Palais des Nations — siège européen de l'ONU (ancienne SDN). CICR fondé par Henri Dunant (1863) — père de la Croix-Rouge. 750 organisations internationales à Genève. Capitale mondiale de la diplomatie et des droits de l'Homme.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Glacier_Express','Glacier Express')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Zermatt — Saint-Moritz</div><h3 class="card-name">Glacier Express — Le Train le Plus Lent du Monde</h3><p class="card-context">Le train panoramique le plus célèbre au monde — 291 km, 91 tunnels, 291 ponts, 2 033 m d'altitude maximum en 8 heures. De Zermatt à Saint-Moritz à travers les Alpes. Wagons panoramiques, service à table. Le mythe ferroviaire suisse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lucerne','Lucerne — Pont de la Chapelle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Lucerne</div><h3 class="card-name">Lucerne — Le Pont de la Chapelle</h3><p class="card-context">Le plus ancien pont couvert en bois d'Europe (1333) orné de 112 peintures du XVIIe s. — incendié en 1993 et reconstruit. Lion de Lucerne — monument funéraire des Gardes suisses (Mark Twain : "le rocher le plus triste du monde").</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zürich','Zürich — Capitale Économique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Zürich</div><h3 class="card-name">Zürich — La Ville la Plus Vivable</h3><p class="card-context">Régulièrement classée 1re ville mondiale pour la qualité de vie. Altstadt (vieille ville), Grossmünster (Zwingli), lac de Zürich. Place financière mondiale. Cabaret Voltaire — berceau du mouvement Dada (1916). James Joyce y vécut et mourut.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Saint-Moritz','Saint-Moritz — Le Haut Lieu du Ski')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Saint-Moritz, Grisons</div><h3 class="card-name">Saint-Moritz — La Station des Rois</h3><p class="card-context">La station de ski la plus chic du monde depuis 1864. Deux fois ville olympique (1928, 1948). Engadine — vallée haute-alpine aux lacs turquoise. Bobsleigh, polo sur glace, cricket sur la neige. L'air tonique de la Haute-Engadine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Montreux','Montreux — Festival de Jazz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Montreux, Vaud</div><h3 class="card-name">Montreux — Festival de Jazz</h3><p class="card-context">Le plus grand festival de jazz du monde (juillet). Lac Léman, Château de Chillon voisin, Riviera vaudoise. Freddie Mercury y vécut et y a sa statue. Queen y enregistra "Smoke on the Water" (Deep Purple). Microclimate de palmiers et mimosas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bâle','Bâle — Art Basel')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Bâle</div><h3 class="card-name">Bâle — Capital Mondiale de l'Art</h3><p class="card-context">Art Basel — la foire d'art contemporain la plus importante du monde. Cathédrale romane, Kunstmuseum (plus vieux musée public du monde, 1661), Fondation Beyeler. Carnaval de Bâle UNESCO. Erasme y vécut et mourut. Ville des 3 frontières.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grindelwald','Grindelwald — Village des Alpes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Grindelwald, Berne</div><h3 class="card-name">Grindelwald — Face Nord de l'Eiger</h3><p class="card-context">Le village le plus spectaculaire des Alpes bernoises. La Face Nord de l'Eiger (1 800 m de paroi verticale) surplombe le village. Eiger Trail, First (2 168 m), glacier inférieur. Grindelwald-First Cliff Walk — passerelle vertigineuse sur le vide.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Müstair','Abbaye bénédictine de Müstair')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Müstair, Grisons</div><h3 class="card-name">Abbaye de Müstair</h3><p class="card-context">UNESCO 1983 — la plus belle collection de fresques carolingiennes du monde (IXe s.) dans cette abbaye fondée par Charlemagne. Isolée dans la vallée du Val Müstair aux confins du Tyrol. Habitée par des bénédictines depuis 1 200 ans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sierre','Valais — Pays du Merlot')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Valais</div><h3 class="card-name">Valais — Pays des Vins</h3><p class="card-context">Le Valais — premier canton viticole suisse. Fendant (Chasselas), Pinot Noir, Cornalin, Humagne Rouge. Caves de Sion. Raclette au bord du feu. Fondue bourguignonne. Le Valais entre 4 000ers et vignes — la plus belle région de Suisse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Loèche-les-Bains','Loèche-les-Bains — Thermes Alpins')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Loèche-les-Bains, Valais</div><h3 class="card-name">Loèche-les-Bains — Thermes Alpins</h3><p class="card-context">La plus grande station thermale des Alpes — sources naturelles à 51°C. Bains romains depuis 2 000 ans. Sous les Gemmi — paroi calcaire de 1 000 m plongeant dans les bains. Hess Health Resort. Thermalisme suisse de luxe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pays_de_Guillaume_Tell','Lac des Quatre-Cantons')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Uri / Schwyz / Unterwald</div><h3 class="card-name">Lac des Quatre-Cantons &amp; Guillaume Tell</h3><p class="card-context">Le berceau de la Confédération suisse — Rütli (1291), Grütli. Lac entouré de falaises verticales. Bateau à vapeur Belle Époque. Tell et sa pomme (Schiller). Grotte de Tell, Chapelle de Tell. Le lac le plus romantique de Suisse.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Davos','Davos — Forum Économique Mondial')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Davos, Grisons</div><h3 class="card-name">Davos — Le Forum Économique Mondial</h3><p class="card-context">Forum Économique Mondial (WEF) chaque janvier — 3 000 dirigeants mondiaux. La plus haute ville d'Europe (1 560 m). Robert Louis Stevenson y écrivit Dr Jekyll et Mr Hyde. Kirchner Museum (expressionnisme allemand). Patinoire naturelle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Matterhorn_Glacier_Paradise','Zermatt &amp; Klein Matterhorn')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Zermatt, Valais</div><h3 class="card-name">Zermatt — Village Sans Voitures</h3><p class="card-context">Village alpin sans voitures — seuls les taxis électriques et les chevaux. 38 sommets de plus de 4 000 m accessibles. Klein Matterhorn (3 883 m) — plus haute télécabine d'Europe. Ski été-hiver sur glacier. Le village le plus chic des Alpes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/CERN','CERN — Le Grand Collisionneur')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Genève</div><h3 class="card-name">CERN — Le Grand Collisionneur de Hadrons</h3><p class="card-context">Le plus grand laboratoire de physique des particules du monde. LHC — 27 km de tunnel à 100 m de profondeur. Découverte du boson de Higgs (2012). WWW inventé ici par Tim Berners-Lee (1989). 10 000 scientifiques de 100 pays.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lauterbrunnen','Lauterbrunnen — Vallée des 72 Cascades')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Lauterbrunnen, Berne</div><h3 class="card-name">Lauterbrunnen — La Vallée des Cascades</h3><p class="card-context">La plus belle vallée glaciaire des Alpes — parois verticales de 1 000 m et 72 cascades dont Staubbach (300 m). Tolkien s'en inspira pour Rivendell. Village de Gimmelwald perché à 1 363 m. Wengen et Mürren accessibles sans voiture.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rheinfall','Chutes du Rhin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Neuhausen, Schaffhouse</div><h3 class="card-name">Chutes du Rhin</h3><p class="card-context">Les plus grandes chutes d'eau d'Europe — 150 m de large, 23 m de chute, débit de 600 m³/s. Barque jusqu'au rocher central au milieu des chutes. Château de Laufen dominant les chutes. Spectacle son et lumière en été.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Aletsch','Glacier d\'Aletsch')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Valais / Berne</div><h3 class="card-name">Glacier d'Aletsch</h3><p class="card-context">UNESCO 2001 — le plus grand glacier des Alpes (23 km, 900 km²). Vu de la Jungfrau ou de la Riederalp. Recule de 50 m par an. Forêt d'Aletsch — les pins les plus anciens des Alpes. Région des 3 UNESCO.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Stein_am_Rhein','Stein am Rhein — Village Peint')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Stein am Rhein, Schaffhouse</div><h3 class="card-name">Stein am Rhein — Le Village Peint</h3><p class="card-context">Le plus beau village médiéval de Suisse — façades en colombages entièrement peintes de fresques du XVIe s. représentant des scènes historiques et allégoriques. Abbaye de Saint-Georges (1007). Rhin limpide. Bijou architectural helvétique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Chocolat_suisse','Chocolat Suisse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Broc / Gruyères, Fribourg</div><h3 class="card-name">Chocolat Suisse — La Maison Cailler</h3><p class="card-context">La Suisse — patrie du chocolat au lait (Daniel Peter, 1875) et du chocolat fondu (Rodolphe Lindt, 1879). Cailler (1819) à Broc — la plus ancienne fabrique encore active. Gruyères médiéval voisin. 12 kg par habitant et par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vallée_de_l%27Engadine','Engadine — Vallée Haute-Alpine')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Engadine, Grisons</div><h3 class="card-name">Engadine — La Haute Vallée des Grisons</h3><p class="card-context">Haute-Engadine à 1 800 m — lacs turquoise (Silvaplana, Sils, Maloja), lumière dorée incomparable. Nietzsche y séjourna chaque été. Parc National Suisse voisin. Romanche — langue romanche encore parlée. Villages aux sgraffites peints.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wengen','Wengen — La Lauberhorn')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Wengen, Berne</div><h3 class="card-name">Lauberhorn — La Plus Longue Descente du Monde</h3><p class="card-context">Course de ski Lauberhorn de Wengen — la plus longue descente de ski alpin (4 480 m) et la plus ancienne du monde (1930). Village sans voitures à 1 274 m. Panorama sur Eiger, Mönch et Jungfrau. Ski et soleil sur l'Alpe suisse emblématique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rolle','Rolle &amp; La Côte Vaudoise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">La Côte, Vaud</div><h3 class="card-name">La Côte Vaudoise — Vignes &amp; Léman</h3><p class="card-context">De Genève à Lausanne — 40 km de vignobles entre lac et Jura. Vins de la Côte (Chasselas). Rolle, Morges, Nyon aux châteaux médiévaux. Apothicaire Voltaire à Ferney-Voltaire. Vue sur le Mont-Blanc les jours de beau temps.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_suisse','Parc National Suisse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Grisons, Engadine</div><h3 class="card-name">Parc National Suisse</h3><p class="card-context">Le plus ancien parc national des Alpes (1914) — 170 km², aucune intervention humaine depuis 110 ans. Cerfs, chamois, bouquetins, ours, lynx, gypaète barbu. Flore alpine primaire. Val Cluozza inaccessible sans guide. Nature à l'état pur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Verbier','Verbier — Station de Ski')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Verbier, Valais</div><h3 class="card-name">Verbier — Ski &amp; Festival de Musique</h3><p class="card-context">Station de ski de luxe du Valais — 4 Vallées (412 km de pistes). Hors-piste légendaire. Festival de Verbier — festival de musique classique de renom mondial chaque juillet. Verbier E-Prix de Formule E. Le chic valaisan.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fribourg_(Suisse)','Fribourg — Ville Médiévale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Fribourg</div><h3 class="card-name">Fribourg — La Ville des Ponts</h3><p class="card-context">Ville médiévale perchée sur un méandre de la Sarine — 5 ponts dont le Pont de Zaehringen (1250 m de long). Cathédrale Saint-Nicolas (tour de 76 m). Frontière linguistique Röstigraben. Université bilingue (1889). Fondue voisine de Gruyères.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Montres_suisses','Horlogerie Suisse — La Côte')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Vallée du Jura, Neuchâtel</div><h3 class="card-name">La Suisse Horlogère</h3><p class="card-context">La Chaux-de-Fonds et Le Locle — UNESCO 2009 — berceau de l'horlogerie mondiale. Rolex, Patek Philippe, Omega, Swatch, IWC. 95% du marché mondial des montres de luxe. Le Musée International d'Horlogerie à La Chaux-de-Fonds.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Helvètes au Pays le Plus Riche du Monde</div>
+  <h2 class="section-title">Histoire de la Suisse</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">58 av. J.-C. — 400</div>
+      <div class="timeline-event"><strong>Les Helvètes et Rome.</strong> César bat les Helvètes à Bibracte (58 av. J.-C.) lors de leur migration vers l'Ouest. La Suisse devient Helvetia — province romaine prospère. Aventicum (Avenches) — capitale avec 20 000 habitants. Voies romaines, thermes, amphithéâtre. Le nom Helvetia reste sur les timbres suisses.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1291</div>
+      <div class="timeline-event"><strong>Le Pacte du Rütli — Naissance de la Confédération.</strong> Le 1er août 1291 — Uri, Schwyz et Unterwald signent le Pacte de Rütli sur le lac des Quatre-Cantons. Naissance officielle de la Confédération Suisse. Guillaume Tell et son fils Gessler — légende fondatrice. La Suisse fête sa fête nationale chaque 1er août par des feux de joie sur toutes les collines.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1315 — 1515</div>
+      <div class="timeline-event"><strong>Les guerres de Bourgogne et l'expansion.</strong> Batailles de Morgarten (1315) et Sempach (1386) — les Confédérés battent les Habsbourg contre toute attente. Charles le Téméraire de Bourgogne battu à Grandson, Murten et Nancy (1476–1477). La Confédération atteint 13 cantons. Mercenaires suisses — les meilleurs soldats d'Europe, loués à tous les princes.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1516 — 1648</div>
+      <div class="timeline-event"><strong>Neutralité et Réforme.</strong> Après Marignan (1515), la Suisse adopte la neutralité perpétuelle. Zwingli (Zürich, 1519) et Calvin (Genève, 1536) lancent la Réforme protestante. Guerre des Trente Ans (1618–1648) — la Suisse reste neutre et prospère. Traité de Westphalie (1648) reconnaît l'indépendance totale de la Confédération.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1798 — 1848</div>
+      <div class="timeline-event"><strong>République Helvétique et Constitution Fédérale.</strong> Napoléon envahit la Suisse et crée la République Helvétique (1798). Résistance des Nidwaldiens. Congrès de Vienne (1815) garantit la neutralité perpétuelle. Constitution fédérale de 1848 — la Suisse devient un État fédéral moderne. Berne devient capitale. Le franc suisse unifie les monnaies cantonales.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1863 — 1914</div>
+      <div class="timeline-event"><strong>Croix-Rouge et Belle Époque.</strong> Henri Dunant fonde le Comité International de la Croix-Rouge (1863) après Solférino. Convention de Genève (1864) — première loi internationale humanitaire. Les deux guerres mondiales épargnent la Suisse neutre. La Suisse accueille la Société des Nations (1920). L'or et les banques font de Genève la capitale de la neutralité.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1971 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Démocratie Directe et Prospérité.</strong> Les femmes obtiennent le droit de vote en 1971 (dernier grand pays d'Europe). La Suisse rejoint l'ONU en 2002. Referendum obligatoire, initiative populaire — la démocratie directe la plus avancée au monde. 1er PIB par habitant mondial. 4 langues officielles, 26 cantons souverains. La Suisse — un miracle politique et économique.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇨🇭</div>
+  <p class="footer-text">Guide du Voyageur · Suisse · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([46.8,8.2],8);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconAlpes=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,120,200,.8))"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e8eef8" stroke="#b0c0d8" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/><path d="M2 32 Q8 28 14 30 Q18 32 22 30 Q28 28 34 30" fill="#3060a0" opacity="0.5"/></svg>');
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,0,0,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#aa0000"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#FF0000" stroke="#aa0000" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#dd1010"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#dd1010"/><rect x="6" y="8" width="2" height="4" fill="#dd1010"/><rect x="9" y="8" width="2" height="4" fill="#dd1010"/><rect x="24" y="8" width="2" height="4" fill="#dd1010"/><rect x="27" y="8" width="2" height="4" fill="#dd1010"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#880000"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,180,.9))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a60b8" stroke="#1040a0" stroke-width="0.6"/><path d="M4 28 Q8 24 12 26 Q16 28 18 26 Q22 24 26 26 Q30 28 32 26" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><path d="M6 24 Q8 18 12 14 L18 8 L22 14 Q26 18 30 24" fill="#b8d0e8" opacity="0.4"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,134,10,.8))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconTrain=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(220,0,0,.9))"><rect x="4" y="12" width="28" height="18" rx="2" fill="#FF0000" stroke="#aa0000" stroke-width="0.7"/><rect x="6" y="14" width="9" height="7" rx="1" fill="#f0f8ff" opacity="0.9"/><rect x="17" y="14" width="9" height="7" rx="1" fill="#f0f8ff" opacity="0.9"/><rect x="4" y="28" width="4" height="4" rx="2" fill="#333"/><rect x="28" y="28" width="4" height="4" rx="2" fill="#333"/><rect x="14" y="28" width="4" height="4" rx="2" fill="#333"/><line x1="2" y1="30" x2="34" y2="30" stroke="#666" stroke-width="1.5"/><rect x="14" y="8" width="8" height="6" rx="1" fill="#cc0000"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><path d="M10 16 Q14 20 18 20 Q22 20 26 16 Q22 19 18 19 Q14 19 10 16 Z" fill="#e05080" opacity="0.4"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="12" y="32" width="12" height="3" rx="1" fill="#5a0820"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconSki=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,100,200,.85))"><path d="M2 30 Q6 22 12 18 L16 6 L20 6 L24 18 Q30 22 34 30 Z" fill="#e8f0ff" stroke="#90a8e0" stroke-width="0.6"/><path d="M14 18 L16 6 L20 6 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="white"/><line x1="4" y1="30" x2="32" y2="30" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round"/><circle cx="18" cy="8" r="3" fill="#c9a84c" opacity="0.8"/></svg>');
+
+var iconInter=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,200,.85))"><circle cx="18" cy="18" r="14" fill="#003080" stroke="#002060" stroke-width="0.7"/><circle cx="18" cy="18" r="10" fill="#0040a0" opacity="0.4"/><circle cx="18" cy="8" r="1.5" fill="#f8f8f8"/><circle cx="25" cy="11" r="1.5" fill="#f8f8f8"/><circle cx="28" cy="18" r="1.5" fill="#f8f8f8"/><circle cx="25" cy="25" r="1.5" fill="#f8f8f8"/><circle cx="18" cy="28" r="1.5" fill="#f8f8f8"/><circle cx="11" cy="25" r="1.5" fill="#f8f8f8"/><circle cx="8" cy="18" r="1.5" fill="#f8f8f8"/><circle cx="11" cy="11" r="1.5" fill="#f8f8f8"/><line x1="10" y1="18" x2="26" y2="18" stroke="#FF0000" stroke-width="1.2"/><line x1="18" y1="10" x2="18" y2="26" stroke="#FF0000" stroke-width="1.2"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconMontre=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,140,10,.8))"><circle cx="18" cy="20" r="11" fill="#f8f8e8" stroke="#c8a820" stroke-width="1.2"/><circle cx="18" cy="20" r="9" fill="white" stroke="#e8d060" stroke-width="0.5"/><circle cx="18" cy="20" r="1.5" fill="#c8a820"/><line x1="18" y1="20" x2="18" y2="13" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/><line x1="18" y1="20" x2="23" y2="22" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/><rect x="15" y="4" width="6" height="7" rx="1" fill="#c8a820"/><rect x="15" y="29" width="6" height="7" rx="1" fill="#c8a820"/></svg>');
+
+var iconChocolat=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,40,10,.9))"><rect x="4" y="10" width="28" height="20" rx="2" fill="#5a2808" stroke="#3a1004" stroke-width="0.7"/><line x1="4" y1="17" x2="32" y2="17" stroke="#3a1004" stroke-width="0.8"/><line x1="4" y1="24" x2="32" y2="24" stroke="#3a1004" stroke-width="0.8"/><line x1="13" y1="10" x2="13" y2="30" stroke="#3a1004" stroke-width="0.8"/><line x1="23" y1="10" x2="23" y2="30" stroke="#3a1004" stroke-width="0.8"/><path d="M8 7 Q12 4 18 5 Q24 4 28 7 L26 10 Q24 8 18 9 Q12 8 10 10 Z" fill="#FF0000" opacity="0.6"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#FF0000" stroke="#aa0000" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var DATA={
+  alpes:{icon:iconAlpes,color:'#5080c0',label:'🏔️ Alpes & Sommets',pts:[
+    {lat:45.9763,lng:7.6586,n:"Le Cervin",c:"Zermatt, Valais",d:"4 478 m — pyramide parfaite, montagne la plus photographiée des Alpes. Première ascension Whymper (1865).",u:"https://fr.m.wikipedia.org/wiki/Cervin?useskin=vector"},
+    {lat:46.5358,lng:7.9637,n:"Jungfraujoch — Toit de l\'Europe",c:"Jungfrau, Berne",d:"Gare la plus haute d'Europe (3 454 m). Train à crémaillère. Glacier d'Aletsch visible.",u:"https://fr.m.wikipedia.org/wiki/Jungfraujoch?useskin=vector"},
+    {lat:46.5500,lng:7.9000,n:"Grindelwald — Face Nord de l\'Eiger",c:"Grindelwald, Berne",d:"Face Nord de l'Eiger (1 800 m de paroi). First Cliff Walk. Village emblématique des Alpes bernoises.",u:"https://fr.m.wikipedia.org/wiki/Grindelwald?useskin=vector"},
+    {lat:46.4600,lng:7.7200,n:"Lauterbrunnen — Vallée des Cascades",c:"Lauterbrunnen, Berne",d:"72 cascades, parois de 1 000 m. Tolkien s'en inspira pour Rivendell. Staubbach (300 m).",u:"https://fr.m.wikipedia.org/wiki/Lauterbrunnen?useskin=vector"},
+    {lat:46.6150,lng:7.9860,n:"Grosse Scheidegg — Alpes Bernoises",c:"Hasliberg, Berne",d:"Col de 1 962 m entre Grindelwald et Meiringen. Vue imprenable sur Eiger, Mönch, Jungfrau.",u:"https://fr.m.wikipedia.org/wiki/Alpes_bernoises?useskin=vector"}
+  ]},
+  ville:{icon:iconVille,color:'#FF0000',label:'🏙️ Villes Historiques',pts:[
+    {lat:46.9480,lng:7.4474,n:"Berne — Vieille Ville UNESCO",c:"Berne, capitale",d:"UNESCO 1983. Arcades de 6 km, Zytglogge, fontaines Renaissance. Einstein y développa la Relativité.",u:"https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Berne?useskin=vector"},
+    {lat:47.3769,lng:8.5417,n:"Zürich — La Plus Vivable",c:"Zürich",d:"1re ville mondiale qualité de vie. Altstadt, Grossmünster. Dada (1916). James Joyce.",u:"https://fr.m.wikipedia.org/wiki/Zürich?useskin=vector"},
+    {lat:46.2044,lng:6.1432,n:"Genève — Capitale Diplomatique",c:"Genève",d:"ONU, CICR, Croix-Rouge, 750 organisations internationales. Jet d'Eau (140 m).",u:"https://fr.m.wikipedia.org/wiki/Genève?useskin=vector"},
+    {lat:47.5596,lng:7.5886,n:"Bâle — Art Basel",c:"Bâle",d:"Art Basel. Kunstmuseum (1661, plus vieux musée public du monde). Carnaval UNESCO. Erasme.",u:"https://fr.m.wikipedia.org/wiki/Bâle?useskin=vector"},
+    {lat:46.5197,lng:6.6323,n:"Lausanne — Ville Olympique",c:"Lausanne, Vaud",d:"Siège du Comité International Olympique. Cathédrale gothique. Musée de l'Art Brut.",u:"https://fr.m.wikipedia.org/wiki/Lausanne?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a60b8',label:'💧 Lacs Alpins',pts:[
+    {lat:46.4500,lng:6.7000,n:"Lac Léman",c:"Vaud / Genève",d:"Plus grand lac alpin d'Europe occidentale (582 km²). Vignobles du Lavaux UNESCO. Byron, Voltaire.",u:"https://fr.m.wikipedia.org/wiki/Lac_Léman?useskin=vector"},
+    {lat:46.9500,lng:7.9833,n:"Lac de Thoune",c:"Thoune, Berne",d:"Lac alpin aux eaux turquoise dominé par l'Eiger, Mönch, Jungfrau. Château de Thoune.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Thoune?useskin=vector"},
+    {lat:47.0000,lng:8.5000,n:"Lac des Quatre-Cantons",c:"Uri / Schwyz",d:"Berceau de la Confédération (1291). Rütli, Guillaume Tell. Bateaux à vapeur Belle Époque.",u:"https://fr.m.wikipedia.org/wiki/Lac_des_Quatre-Cantons?useskin=vector"},
+    {lat:47.4167,lng:8.4000,n:"Lac de Zürich",c:"Zürich",d:"Riviera zurichoise. Villas, promenades, Rapperswil médiéval. Nagez dans le lac en été.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Zurich?useskin=vector"},
+    {lat:46.8167,lng:9.8000,n:"Lac de Silvaplana — Engadine",c:"Engadine, Grisons",d:"Lacs turquoise de la Haute-Engadine. Nietzsche y séjourna. Kitesurf légendaire.",u:"https://fr.m.wikipedia.org/wiki/Lac_de_Silvaplana?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:47.4244,lng:9.3767,n:"Abbaye de Saint-Gall",c:"Saint-Gall",d:"UNESCO 1983. Plus belle bibliothèque baroque du monde (170 000 volumes). Manuscrits du IXe s.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Saint-Gall?useskin=vector"},
+    {lat:46.6383,lng:8.0367,n:"Région Jungfrau-Aletsch",c:"Valais / Berne",d:"UNESCO 2001. Glacier d'Aletsch (23 km). Jungfrau (4 158 m). Zone glaciaire majeure des Alpes.",u:"https://fr.m.wikipedia.org/wiki/Région_Jungfrau-Aletsch?useskin=vector"},
+    {lat:46.5000,lng:6.8000,n:"Vignobles du Lavaux",c:"Lavaux, Vaud",d:"UNESCO 2007. 830 ha de terrasses sur le Léman depuis le XIe s. Trois soleils. Chasselas.",u:"https://fr.m.wikipedia.org/wiki/Lavaux?useskin=vector"},
+    {lat:47.1000,lng:7.2333,n:"La Chaux-de-Fonds — Horlogerie",c:"Neuchâtel",d:"UNESCO 2009. Berceau de l'horlogerie mondiale. Rolex, Omega, Patek Philippe.",u:"https://fr.m.wikipedia.org/wiki/La_Chaux-de-Fonds?useskin=vector"},
+    {lat:46.6397,lng:10.4419,n:"Abbaye de Müstair",c:"Müstair, Grisons",d:"UNESCO 1983. Plus belles fresques carolingiennes du monde (IXe s.). Fondée par Charlemagne.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_bénédictine_de_Müstair?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Culture',pts:[
+    {lat:47.5596,lng:7.5886,n:"Kunstmuseum Bâle",c:"Bâle",d:"Le plus vieux musée public du monde (1661). Holbein le Jeune, Picasso, Giacometti, Klee.",u:"https://fr.m.wikipedia.org/wiki/Kunstmuseum_de_Bâle?useskin=vector"},
+    {lat:47.3769,lng:8.5417,n:"Kunsthaus Zürich",c:"Zürich",d:"Plus grand musée d'art de Suisse. Munch, Monet, Giacometti. Extension Chipperfield (2021).",u:"https://fr.m.wikipedia.org/wiki/Kunsthaus_de_Zurich?useskin=vector"},
+    {lat:46.2044,lng:6.1432,n:"MAMCO Genève",c:"Genève",d:"Musée d'Art Moderne et Contemporain. Art suisse et international. Ancienne usine réhabilitée.",u:"https://fr.m.wikipedia.org/wiki/MAMCO?useskin=vector"},
+    {lat:47.1000,lng:7.2333,n:"Musée International d\'Horlogerie",c:"La Chaux-de-Fonds",d:"La plus grande collection d'horlogerie du monde — 4 500 pièces. UNESCO 2009.",u:"https://fr.m.wikipedia.org/wiki/Musée_international_d%27horlogerie?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:46.4138,lng:6.9278,n:"Château de Chillon",c:"Veytaux, Vaud",d:"Plus visité de Suisse — îlot rocheux sur le Léman (XIIIe s.). Lord Byron, Prisonnier de Chillon.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Chillon?useskin=vector"},
+    {lat:47.4981,lng:8.7228,n:"Château de Kyburg",c:"Kyburg, Zürich",d:"Château médiéval le mieux conservé du Plateau suisse (XIe s.). Collections des Comtes de Kyburg.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Kyburg?useskin=vector"},
+    {lat:47.5980,lng:8.2000,n:"Stein am Rhein — Village Peint",c:"Schaffhouse",d:"Plus beau village médiéval — façades entièrement peintes de fresques du XVIe s. Rhin.",u:"https://fr.m.wikipedia.org/wiki/Stein_am_Rhein?useskin=vector"},
+    {lat:47.0033,lng:7.7497,n:"Château de Gruyères",c:"Gruyères, Fribourg",d:"Château comtal médiéval (XIe s.) — berceau du fromage de Gruyère. HR Giger Museum voisin.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Gruyères?useskin=vector"}
+  ]},
+  train:{icon:iconTrain,color:'#FF0000',label:'🚂 Trains Panoramiques',pts:[
+    {lat:46.7748,lng:8.6319,n:"Glacier Express — Andermatt",c:"Andermatt, Uri",d:"Point culminant (2 033 m) du train le plus célèbre du monde. 8h de Zermatt à Saint-Moritz.",u:"https://fr.m.wikipedia.org/wiki/Glacier_Express?useskin=vector"},
+    {lat:46.4875,lng:9.8456,n:"Glacier Express — Saint-Moritz",c:"Saint-Moritz, Grisons",d:"Terminus est du Glacier Express. Engadine, haute vallée des Grisons. Vue sur Piz Bernina.",u:"https://fr.m.wikipedia.org/wiki/Glacier_Express?useskin=vector"},
+    {lat:45.9763,lng:7.6586,n:"Glacier Express — Zermatt",c:"Zermatt, Valais",d:"Terminus ouest sous le Cervin. 291 ponts, 91 tunnels à travers les Alpes suisses.",u:"https://fr.m.wikipedia.org/wiki/Glacier_Express?useskin=vector"},
+    {lat:46.5333,lng:7.9833,n:"Train à Crémaillère du Jungfrau",c:"Kleine Scheidegg, Berne",d:"Le train de montagne le plus haut d'Europe (3 454 m). Creusé dans la roche de l'Eiger.",u:"https://fr.m.wikipedia.org/wiki/Chemin_de_fer_de_la_Jungfrau?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#7a1840',label:'🍷 Vins & Gastronomie',pts:[
+    {lat:46.5000,lng:6.8000,n:"Lavaux — Chasselas Vaudois",c:"Lavaux, Vaud",d:"UNESCO. Chasselas — le blanc suisse par excellence. Terrasses sur le Léman depuis le XIe s.",u:"https://fr.m.wikipedia.org/wiki/Lavaux?useskin=vector"},
+    {lat:46.2333,lng:7.3667,n:"Valais — Vignobles alpins",c:"Sion, Valais",d:"Fendant, Pinot Noir, Cornalin, Humagne. Vignes les plus hautes d'Europe. Raclette.",u:"https://fr.m.wikipedia.org/wiki/Viticulture_en_Valais?useskin=vector"},
+    {lat:47.0000,lng:7.0000,n:"Neuchâtel — Vins du Lac",c:"Neuchâtel",d:"Pinot Noir et Chasselas du lac de Neuchâtel. Oeil-de-Perdrix — rosé rosé pâle unique.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_du_canton_de_Neuchâtel?useskin=vector"}
+  ]},
+  ski:{icon:iconSki,color:'#4070c0',label:'⛷️ Ski & Sports Alpins',pts:[
+    {lat:46.4938,lng:9.8425,n:"Saint-Moritz — La Station des Rois",c:"Grisons",d:"Plus chic station du monde. Deux JO (1928, 1948). Polo sur glace, bobsleigh, cricket.",u:"https://fr.m.wikipedia.org/wiki/Saint-Moritz?useskin=vector"},
+    {lat:46.0981,lng:7.2800,n:"Verbier — 4 Vallées",c:"Verbier, Valais",d:"412 km de pistes. Hors-piste légendaire. Festival de musique classique de renom.",u:"https://fr.m.wikipedia.org/wiki/Verbier?useskin=vector"},
+    {lat:46.1781,lng:7.2467,n:"Crans-Montana",c:"Haut-Plateau, Valais",d:"Station de golf et ski. Vue sur le Mont-Blanc. Omega European Masters (golf).",u:"https://fr.m.wikipedia.org/wiki/Crans-Montana?useskin=vector"},
+    {lat:46.5672,lng:7.9153,n:"Wengen — Lauberhorn",c:"Wengen, Berne",d:"Plus longue descente du monde (4 480 m). Course depuis 1930. Village sans voitures.",u:"https://fr.m.wikipedia.org/wiki/Wengen?useskin=vector"},
+    {lat:46.6869,lng:9.5147,n:"Davos — Station et Forum",c:"Davos, Grisons",d:"Forum Économique Mondial (WEF). Plus haute ville d'Europe (1 560 m). Stevenson y écrivit.",u:"https://fr.m.wikipedia.org/wiki/Davos?useskin=vector"}
+  ]},
+  inter:{icon:iconInter,color:'#003080',label:'🌐 Institutions Internationales',pts:[
+    {lat:46.2314,lng:6.1419,n:"Palais des Nations",c:"Genève",d:"Siège européen de l'ONU. Ancienne SDN. 1 000 réunions/an. Salle du Conseil.",u:"https://fr.m.wikipedia.org/wiki/Palais_des_Nations?useskin=vector"},
+    {lat:46.2317,lng:6.1481,n:"CICR — Croix-Rouge",c:"Genève",d:"Comité International de la Croix-Rouge (1863). Henri Dunant. Droit humanitaire international.",u:"https://fr.m.wikipedia.org/wiki/Comité_international_de_la_Croix-Rouge?useskin=vector"},
+    {lat:46.2333,lng:6.0556,n:"CERN",c:"Genève — Meyrin",d:"Grand Collisionneur de Hadrons (27 km). Boson de Higgs (2012). WWW inventé ici (1989).",u:"https://fr.m.wikipedia.org/wiki/CERN?useskin=vector"},
+    {lat:47.1640,lng:8.5151,n:"Tribunal Fédéral",c:"Lucerne",d:"Cour suprême de Suisse à Lucerne. Démocratie directe — référendum et initiative populaire.",u:"https://fr.m.wikipedia.org/wiki/Tribunal_fédéral_suisse?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🧀 Gastronomie Suisse',pts:[
+    {lat:47.0847,lng:7.1572,n:"Gruyères — Fromage et Fondue",c:"Gruyères, Fribourg",d:"Fromage de Gruyère AOC depuis le XIIe s. Fondue fondée ici. Village médiéval intact.",u:"https://fr.m.wikipedia.org/wiki/Gruyères?useskin=vector"},
+    {lat:46.2167,lng:7.3667,n:"Sion — Raclette Valaisanne",c:"Sion, Valais",d:"Raclette — fromage fondu raclé sur pain et pommes de terre. Tradition valaisanne depuis le XIIe s.",u:"https://fr.m.wikipedia.org/wiki/Raclette?useskin=vector"},
+    {lat:46.8333,lng:6.8667,n:"Broc — Maison Cailler",c:"Broc, Fribourg",d:"Cailler (1819) — plus ancienne fabrique de chocolat encore active. Visite et dégustation.",u:"https://fr.m.wikipedia.org/wiki/Chocolat_suisse?useskin=vector"},
+    {lat:47.3769,lng:8.5417,n:"Zürich — Bistrots et Restaurants",c:"Zürich",d:"Zürich — 2e ville gastronomique de Suisse. Cervelat, Zürcher Geschnetzeltes, Bircher Muesli.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_suisse?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:46.6667,lng:10.1667,n:"Parc National Suisse",c:"Grisons, Engadine",d:"Plus ancien parc national des Alpes (1914). 170 km², zéro intervention humaine. Ours, lynx.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_suisse?useskin=vector"},
+    {lat:47.6700,lng:8.6100,n:"Chutes du Rhin",c:"Neuhausen, Schaffhouse",d:"Plus grandes chutes d'Europe (150 m large, 23 m). Barque jusqu'au rocher central.",u:"https://fr.m.wikipedia.org/wiki/Rheinfall?useskin=vector"},
+    {lat:46.6383,lng:8.0367,n:"Glacier d\'Aletsch",c:"Valais / Berne",d:"Plus grand glacier des Alpes (23 km). UNESCO 2001. Recule de 50 m/an.",u:"https://fr.m.wikipedia.org/wiki/Glacier_d%27Aletsch?useskin=vector"},
+    {lat:46.8833,lng:9.5333,n:"Parc Naturel Ela",c:"Grisons",d:"Plus grand parc naturel de Suisse. 600 km². Bouquetins, gypaètes barbus. Villages romans.",u:"https://fr.m.wikipedia.org/wiki/Parc_naturel_régional_Ela?useskin=vector"}
+  ]},
+  montre:{icon:iconMontre,color:'#c8a820',label:'⌚ Horlogerie Suisse',pts:[
+    {lat:47.1000,lng:7.2333,n:"La Chaux-de-Fonds",c:"Neuchâtel",d:"UNESCO 2009. Berceau de l'horlogerie mondiale. Rolex, Omega, Patek Philippe, Cartier.",u:"https://fr.m.wikipedia.org/wiki/La_Chaux-de-Fonds?useskin=vector"},
+    {lat:47.0602,lng:7.2267,n:"Le Locle — Horlogerie",c:"Neuchâtel",d:"UNESCO 2009. Ville jumelée avec La Chaux-de-Fonds. Daniel JeanRichard fonde l'industrie ici (1681).",u:"https://fr.m.wikipedia.org/wiki/Le_Locle?useskin=vector"},
+    {lat:47.2167,lng:8.0667,n:"Vallée de Joux — Haute Horlogerie",c:"Joux, Vaud",d:"Berceau de la haute horlogerie — Jaeger-LeCoultre, Audemars Piguet, Blancpain fondés ici.",u:"https://fr.m.wikipedia.org/wiki/Vallée_de_Joux?useskin=vector"}
+  ]},
+  chocolat:{icon:iconChocolat,color:'#5a2808',label:'🍫 Chocolat &amp; Spécialités',pts:[
+    {lat:46.5944,lng:7.1297,n:"Broc — Cailler",c:"Fribourg",d:"Maison Cailler (1819) — plus ancienne chocolaterie encore active. Gruyères médiéval voisin.",u:"https://fr.m.wikipedia.org/wiki/Cailler?useskin=vector"},
+    {lat:47.3769,lng:8.5417,n:"Zürich — Sprüngli",c:"Zürich",d:"Confiserie Sprüngli depuis 1836. Luxemburgerli — macarons suisses. Bahnhofstrasse.",u:"https://fr.m.wikipedia.org/wiki/Chocolat_suisse?useskin=vector"},
+    {lat:46.8046,lng:9.8453,n:"Engadine — Spécialités Locales",c:"Engadine, Grisons",d:"Torta da nusch (tarte aux noix engadinoise). Capuns, maluns — gastronomie grisonne.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_suisse?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💆 Thermes &amp; Spa',pts:[
+    {lat:46.3833,lng:7.6333,n:"Loèche-les-Bains",c:"Valais",d:"Plus grande station thermale des Alpes. Sources à 51°C. Sous les Gemmi (1 000 m de paroi).",u:"https://fr.m.wikipedia.org/wiki/Loèche-les-Bains?useskin=vector"},
+    {lat:46.3558,lng:9.9422,n:"Bormio — Bagni Vecchi",c:"Frontière suisse-italienne",d:"Sources thermales romaines (2 000 ans). Sources naturelles à 38°C dans la montagne.",u:"https://fr.m.wikipedia.org/wiki/Bormio?useskin=vector"},
+    {lat:47.3667,lng:9.7167,n:"Bad Ragaz",c:"Saint-Gall",d:"Resort thermal le plus luxueux de Suisse. Sources thermales dans les Gorges de la Tamina.",u:"https://fr.m.wikipedia.org/wiki/Bad_Ragaz?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf &amp; Resorts',pts:[
+    {lat:46.1781,lng:7.2467,n:"Crans-Montana Golf",c:"Haut-Plateau, Valais",d:"Omega European Masters — tournoi ATP du Tour européen. Vue sur le Mont-Blanc. 5 parcours.",u:"https://fr.m.wikipedia.org/wiki/Crans-Montana?useskin=vector"},
+    {lat:46.4938,lng:9.8425,n:"Golf de Saint-Moritz",c:"Saint-Moritz, Grisons",d:"Golf à 1 800 m d'altitude. Fairways entre lacs turquoise et Alpes. Le golf le plus chic des Alpes.",u:"https://fr.m.wikipedia.org/wiki/Saint-Moritz?useskin=vector"},
+    {lat:46.5197,lng:6.6323,n:"Golf de Lausanne",c:"Lausanne, Vaud",d:"Club de golf lausannois avec vue sur le Léman. Royal Golf Club de Lausanne (1902).",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Suisse?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#FF0000\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'alpes',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e8eef8" stroke="#b0c0d8" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/></svg>', label:'Alpes &amp; Sommets', count:5},
+      {cat:'ville',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#FF0000"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#dd1010"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#dd1010"/><rect x="6" y="8" width="2" height="4" fill="#dd1010"/></svg>', label:'Villes Historiques', count:5},
+      {cat:'lac',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a60b8"/><path d="M6 22 Q8 18 12 14 L18 8 L22 14 Q26 18 30 22" fill="#b8d0e8" opacity="0.5"/></svg>', label:'Lacs Alpins', count:5},
+      {cat:'unesco',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'musee',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Culture', count:4},
+      {cat:'chateau',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Villages', count:4},
+      {cat:'train',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="12" width="28" height="18" rx="2" fill="#FF0000"/><rect x="6" y="14" width="9" height="7" rx="1" fill="#f0f8ff" opacity="0.9"/><rect x="17" y="14" width="9" height="7" rx="1" fill="#f0f8ff" opacity="0.9"/><line x1="2" y1="30" x2="34" y2="30" stroke="#666" stroke-width="1.5"/></svg>', label:'Trains Panoramiques', count:4},
+      {cat:'vin',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins &amp; Gastronomie', count:3},
+      {cat:'ski',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 22 12 18 L16 6 L20 6 L24 18 Q30 22 34 30 Z" fill="#e8f0ff" stroke="#90a8e0" stroke-width="0.6"/><line x1="4" y1="30" x2="32" y2="30" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round"/></svg>', label:'Ski &amp; Sports Alpins', count:5},
+      {cat:'inter',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="#003080"/><circle cx="18" cy="8" r="1.5" fill="#f8f8f8"/><circle cx="28" cy="18" r="1.5" fill="#f8f8f8"/><circle cx="18" cy="28" r="1.5" fill="#f8f8f8"/><circle cx="8" cy="18" r="1.5" fill="#f8f8f8"/><line x1="10" y1="18" x2="26" y2="18" stroke="#FF0000" stroke-width="1.2"/><line x1="18" y1="10" x2="18" y2="26" stroke="#FF0000" stroke-width="1.2"/></svg>', label:'Institutions Internationales', count:4},
+      {cat:'gastro',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Suisse', count:4},
+      {cat:'nature',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'montre',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="20" r="11" fill="#f8f8e8" stroke="#c8a820" stroke-width="1.2"/><circle cx="18" cy="20" r="1.5" fill="#c8a820"/><line x1="18" y1="20" x2="18" y2="13" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/><line x1="18" y1="20" x2="23" y2="22" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/><rect x="15" y="4" width="6" height="7" rx="1" fill="#c8a820"/></svg>', label:'Horlogerie Suisse', count:3},
+      {cat:'chocolat', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="10" width="28" height="20" rx="2" fill="#5a2808"/><line x1="4" y1="17" x2="32" y2="17" stroke="#3a1004" stroke-width="0.8"/><line x1="13" y1="10" x2="13" y2="30" stroke="#3a1004" stroke-width="0.8"/><line x1="23" y1="10" x2="23" y2="30" stroke="#3a1004" stroke-width="0.8"/></svg>', label:'Chocolat &amp; Spécialités', count:3},
+      {cat:'spa',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Thermes &amp; Spa', count:3},
+      {cat:'golf',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#FF0000"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#FF0000 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#FF0000;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#4a0a08;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#FF0000;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #FF0000';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#FF0000':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'FF0000\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

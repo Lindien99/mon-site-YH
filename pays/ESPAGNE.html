@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espagne — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de l'Espagne.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rojo:#c60b1e;      /* rouge espagnol */
+      --amarillo:#ffc400;  /* jaune espagnol */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --toro:#3a0a08;
+      --azul:#003580;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#04030a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(198,11,30,.14) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,196,0,.07) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rojo) 0%,var(--rojo) 25%,var(--amarillo) 25%,var(--amarillo) 75%,var(--rojo) 75%,var(--rojo) 100%);opacity:.45;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(198,11,30,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--amarillo);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--amarillo);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--amarillo),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--amarillo);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--amarillo);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(198,11,30,.25);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(198,11,30,.1);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(4,3,10,.88);border:1px solid rgba(255,196,0,.5);border-radius:3px;
+      color:#ffc400;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(198,11,30,.12);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rojo),var(--amarillo));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(255,196,0,.03);border-color:rgba(255,196,0,.25);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(198,11,30,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--amarillo);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amarillo);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--amarillo) 10%,var(--amarillo) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--amarillo);box-shadow:0 0 12px rgba(255,196,0,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--amarillo);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(198,11,30,.2);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--amarillo);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(255,196,0,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#04030a;border-bottom:1px solid rgba(198,11,30,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--amarillo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rojo);border:1px solid #8a0010;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#e01020;border-color:#e01020;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(198,11,30,.95);border-top:1px solid rgba(255,196,0,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--amarillo);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Espagne';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Espagne');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">ESPAÑA</div>
+  <div class="hero-eyebrow">Espagne · Guide du Voyageur</div>
+  <h1 class="hero-title">Flamenco, Cathédrales<br>&amp; <em>Âme de l'Espagne</em></h1>
+  <p class="hero-subtitle">Palais mauresques, cathédrales gothiques, Gaudí, flamenco, tapas &amp; soleil de la Méditerranée</p>
+
+  <!-- TAUREAU IBÉRIQUE — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(198,11,30,.3))" shape-rendering="geometricPrecision">
+
+      <!-- Corps massif du taureau -->
+      <path d="M30 100 Q28 82 36 68 Q46 54 62 50 Q74 46 88 48 Q106 50 118 62 Q132 76 130 96 Q128 114 112 122 Q94 130 72 126 Q48 120 36 110 Q30 106 30 100 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Reflet doré -->
+      <path d="M50 56 Q66 48 88 50 Q108 54 120 66 Q108 58 88 56 Q68 54 50 56 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures anatomiques — style Léonard -->
+      <path d="M44 80 Q58 74 72 76 Q82 77 92 76 Q106 74 116 80" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M40 92 Q56 86 72 88 Q82 89 92 88 Q108 86 120 92" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M42 104 Q58 99 72 100 Q82 101 92 100 Q106 99 116 104" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Cou puissant -->
+      <path d="M62 50 Q54 38 52 26 Q56 20 64 22 Q70 24 72 34 Q68 42 66 50 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Fanon (giron sous le cou) -->
+      <path d="M54 60 Q48 68 50 76 Q56 72 62 68 Q58 64 54 60 Z" fill="#c8960a" opacity="0.8"/>
+
+      <!-- Tête du taureau -->
+      <ellipse cx="60" cy="34" rx="22" ry="16" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M42 30 Q50 22 60 20 Q70 22 78 30 Q70 26 60 25 Q50 26 42 30 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Museau large du taureau -->
+      <ellipse cx="56" cy="42" rx="10" ry="7" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <ellipse cx="52" cy="41" rx="2.5" ry="1.8" fill="#7a4808" opacity="0.8"/>
+      <ellipse cx="60" cy="41" rx="2.5" ry="1.8" fill="#7a4808" opacity="0.8"/>
+      <!-- Anneau de taureau en or -->
+      <ellipse cx="56" cy="44" rx="4" ry="2" fill="none" stroke="#c9a84c" stroke-width="1.4"/>
+
+      <!-- Oeil du taureau -->
+      <circle cx="72" cy="28" r="5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="72" cy="28" r="3" fill="#2a1000"/>
+      <circle cx="73.5" cy="26.5" r="1.2" fill="white" opacity="0.8"/>
+
+      <!-- CORNES — courbées vers le haut -->
+      <!-- Corne gauche -->
+      <path d="M44 22 Q34 12 28 6 Q26 10 30 14 Q36 18 42 24 Z"
+            fill="#e8d060" stroke="#c8a840" stroke-width="0.8"/>
+      <!-- Corne droite -->
+      <path d="M76 22 Q86 12 92 6 Q94 10 90 14 Q84 18 78 24 Z"
+            fill="#e8d060" stroke="#c8a840" stroke-width="0.8"/>
+
+      <!-- Sabot avant gauche -->
+      <path d="M48 126 Q44 134 46 140 Q50 140 54 136 Q52 132 50 128 Z"
+            fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <!-- Sabot avant droit -->
+      <path d="M72 128 Q68 136 70 142 Q74 142 78 138 Q76 134 74 130 Z"
+            fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <!-- Sabot arrière gauche -->
+      <path d="M98 126 Q94 134 96 140 Q100 140 104 136 Q102 132 100 128 Z"
+            fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+      <!-- Sabot arrière droit -->
+      <path d="M116 122 Q114 130 116 136 Q120 136 122 132 Q122 128 120 124 Z"
+            fill="#8a6010" stroke="#5a3808" stroke-width="0.6"/>
+
+      <!-- Queue enroulée avec pinceau -->
+      <path d="M130 96 Q138 88 142 80 Q138 84 134 88 Q136 82 132 80 Q128 86 126 94 Z"
+            fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <!-- Pinceau de la queue -->
+      <path d="M142 80 Q144 74 146 72 Q144 78 142 80 Z" fill="#d4a020"/>
+      <path d="M142 80 Q146 76 148 78 Q145 82 142 80 Z" fill="#d4a020"/>
+
+      <!-- Bouclier espagnol sur le flanc -->
+      <path d="M76 82 Q76 74 82 72 Q88 74 88 82 Q88 92 82 96 Q76 92 76 82 Z"
+            fill="#c8102e" stroke="#8a0010" stroke-width="0.8"/>
+      <!-- Chateau de Castille -->
+      <rect x="79" y="75" width="6" height="6" rx="0" fill="#ffc400" opacity="0.9"/>
+      <rect x="79" y="74" width="2" height="2" fill="#ffc400" opacity="0.9"/>
+      <rect x="83" y="74" width="2" height="2" fill="#ffc400" opacity="0.9"/>
+      <!-- Lion de León -->
+      <path d="M78 84 Q79 82 82 82 Q85 82 86 84 Q85 88 82 90 Q79 88 78 84 Z" fill="#ffc400" opacity="0.9"/>
+
+      <!-- Annotation Léonard -->
+      <text x="100" y="50" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Taurus</text>
+      <text x="100" y="58" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">ibericus</text>
+      <line x1="100" y1="52" x2="94" y2="60" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles ibériques -->
+      <circle cx="140" cy="30" r="1.3" fill="#ffc400" opacity="0.5"/>
+      <circle cx="18" cy="50" r="0.9" fill="#c8102e" opacity="0.5"/>
+      <circle cx="148" cy="110" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — cathédrales gothiques, palais mauresques, Gaudí et modernisme, châteaux castillans, flamenco, tapas et gastronomie, plages méditerranéennes, sites UNESCO, art du Prado, Camino de Santiago, festivals, îles Canaries &amp; Baléares, parcs naturels, golf, tauromachie &amp; culture populaire.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">50</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">8 000</div><div class="stat-label">km de côtes</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez l'Espagne</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Romains aux Rois Catholiques</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alhambra','Alhambra de Grenade')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Grenade, Andalousie</div><h3 class="card-name">Alhambra de Grenade</h3><p class="card-context">Le chef-d'œuvre absolu de l'architecture arabo-andalouse (XIIIe–XIVe s.). Palais nasrides aux stucs ciselés, Cour des Lions, Generalife. UNESCO 1984. Dernier royaume maure de la péninsule ibérique, rendu aux Rois Catholiques en 1492.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sagrada_Familia','Sagrada Família de Barcelone')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Barcelone, Catalogne</div><h3 class="card-name">Sagrada Família</h3><p class="card-context">La cathédrale inachevée de Gaudí (1882–2026) — 18 tours symbolisant les apôtres, la Vierge et le Christ. UNESCO 2005. Financée uniquement par les dons des visiteurs. La basilique la plus visitée d'Espagne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Tolède','Cathédrale de Tolède')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Tolède, Castille</div><h3 class="card-name">Tolède — Ville des Trois Cultures</h3><p class="card-context">UNESCO 1986 — la ville de la Reconquista où coexistèrent chrétiens, musulmans et juifs. Cathédrale gothique (1227), Alcázar, synagogue du Transito. El Greco y vécut et peignit. La cité impériale de Charles Quint.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Santiago_de_Compostela','Cathédrale de Santiago de Compostela')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Santiago de Compostela</div><h3 class="card-name">Cathédrale de Santiago de Compostela</h3><p class="card-context">UNESCO 1985 — le plus grand pèlerinage catholique médiéval et toujours vivant. Façade baroque du Maître Mateo, tombe de Saint Jacques, Botafumeiro. 350 000 pèlerins par an sur le Camino.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mesquita_de_Cordoue','Mezquita de Cordoue')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Cordoue, Andalousie</div><h3 class="card-name">Mezquita de Cordoue</h3><p class="card-context">UNESCO 1984 — la plus grande mosquée médiévale d'Occident (856 colonnes de marbre bichrome). Une cathédrale gothique fut construite en son centre au XVIe s. Symbole du dialogue des civilisations.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_Güell','Parc Güell de Barcelone')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Barcelone, Catalogne</div><h3 class="card-name">Parc Güell — Gaudí</h3><p class="card-context">UNESCO 2005 — parc-jardin de Gaudí aux mosaïques de céramique (trencadís). Salamandre emblématique à l'entrée, grande esplanade aux bancs en serpentin. Gaudí y vécut dans sa maison désormais musée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alcázar_de_Séville','Alcazar de Séville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Séville, Andalousie</div><h3 class="card-name">Alcazar de Séville</h3><p class="card-context">UNESCO 1987 — palais royal encore en activité, résidence d'été du roi d'Espagne. Mudéjar splendide, patios de fontaines, jardins de 8 ha. Construit par le roi Pierre Ier avec des artisans maures. Décors de Game of Thrones.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_du_Prado','Musée du Prado')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Madrid</div><h3 class="card-name">Musée du Prado</h3><p class="card-context">L'un des trois plus grands musées du monde. Vélasquez (Las Meninas), Goya (Los Caprichos), El Greco, Rubens, Raphaël, Titien. 8 000 peintures dont 1 800 exposées. Le fleuron de la peinture espagnole.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Acueducto_de_Segovia','Aqueduc de Ségovie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Ségovie, Castille</div><h3 class="card-name">Aqueduc de Ségovie</h3><p class="card-context">UNESCO 1985 — l'aqueduc romain le mieux préservé du monde (Ier s.). 728 m de long, 163 arches, 28 m de haut — sans une goutte de mortier. Fonctionnel jusqu'en 1973. Symbole impérial de la domination romaine.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_royal_de_Madrid','Palais Royal de Madrid')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Madrid</div><h3 class="card-name">Palais Royal de Madrid</h3><p class="card-context">Le plus grand palais royal d'Europe occidentale — 135 000 m², 3 418 pièces, 870 fenêtres. Construit sur ordre de Philippe V (1738). Résidence officielle du roi Felipe VI. Armurerie royale exceptionnelle.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Escurial','El Escorial')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">San Lorenzo de El Escorial</div><h3 class="card-name">El Escorial — Panthéon des Rois</h3><p class="card-context">UNESCO 1984 — palais-monastère de Philippe II (1563–1584), le plus vaste édifice de la Renaissance. Panthéon royal où reposent tous les rois d'Espagne depuis Charles Quint. Bibliothèque aux 45 000 manuscrits.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Burgos','Cathédrale de Burgos')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Burgos, Castille-León</div><h3 class="card-name">Cathédrale de Burgos</h3><p class="card-context">UNESCO 1984 — chef-d'œuvre gothique (1221), troisième cathédrale d'Espagne. Flèches ajourées en dentelle de pierre. Tombeau du Cid Campeador. Lanterne dorée de la croisée du transept — joyau de l'art gothique espagnol.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Doñana','Parc National de Doñana')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Andalousie, Huelva</div><h3 class="card-name">Parc National de Doñana</h3><p class="card-context">UNESCO 1994 — le plus important sanctuaire d'oiseaux migrateurs d'Europe. Lynx ibérique (espèce la plus menacée du monde), aigle impérial d'Espagne. Marismas, dunes, forêts de pins. Palais de Doñana.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ciudad_Vieja_de_Salamanque','Salamanque — Ville Dorée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Salamanque, Castille</div><h3 class="card-name">Salamanque — La Ville Dorée</h3><p class="card-context">UNESCO 1988 — la ville universitaire la plus ancienne d'Espagne (1218). Pierre de grès dorée au coucher du soleil. Plaza Mayor baroque (1755) — la plus belle d'Espagne. La Grenouille cachée de la façade universitaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alcázar_de_Ségovie','Alcázar de Ségovie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Ségovie, Castille</div><h3 class="card-name">Alcázar de Ségovie</h3><p class="card-context">Le château qui inspira celui du film Cendrillon de Disney. Perché sur un éperon rocheux à la confluence de deux rivières. Résidence des rois de Castille. Armurerie et tour de Jean II. Symbole de la Castille médiévale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_de_Séville','Cathédrale de Séville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Séville, Andalousie</div><h3 class="card-name">Cathédrale de Séville</h3><p class="card-context">UNESCO 1987 — la plus grande cathédrale gothique du monde (superficie). Tombeau de Christophe Colomb. La Giralda — ancien minaret maure transformé en clocher. Construit en 1401 sur la grande mosquée almohade.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palau_de_la_Música_Catalana','Palau de la Música Catalana')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Barcelone, Catalogne</div><h3 class="card-name">Palau de la Música Catalana</h3><p class="card-context">UNESCO 1997 — chef-d'œuvre du modernisme catalan de Lluís Domènech i Montaner (1908). Verrière centrale de 2 tonnes de verre coloré. Sculptures polychromes. La salle de concert la plus belle d'Espagne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mérida','Mérida — Rome en Espagne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Mérida, Estrémadure</div><h3 class="card-name">Mérida — La Rome d'Espagne</h3><p class="card-context">UNESCO 1993 — l'Emerita Augusta romaine, capitale de la Lusitanie. Théâtre romain (25 av. J.-C.) encore utilisé pour le Festival de théâtre classique. Amphithéâtre, temple de Diane, aqueduc, pont de 792 m sur le Guadiana.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gaudi','Œuvres de Gaudí — Barcelone')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Barcelone, Catalogne</div><h3 class="card-name">Barcelone Moderniste — Gaudí</h3><p class="card-context">7 œuvres de Gaudí classées UNESCO 2005 — Casa Batlló aux balcons en forme d'os de dragon, Casa Milà (La Pedrera) au toit de guerriers de pierre, Palau Güell. L'architecte visionnaire de l'Art Nouveau catalan.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cuenca_(Espagne)','Cuenca — Maisons Suspendues')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Cuenca, Castille</div><h3 class="card-name">Cuenca — Les Maisons Suspendues</h3><p class="card-context">UNESCO 1996 — les Casas Colgadas, maisons médiévales accrochées à la falaise au-dessus des gorges. Vieille ville fortifiée sur un promontoire vertigineux entre deux gorges fluviales. Musée d'art abstrait espagnol.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Flamenco','Flamenco')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Andalousie</div><h3 class="card-name">Flamenco — L'Âme Andalouse</h3><p class="card-context">Patrimoine immatériel UNESCO 2010. Art total né de la fusion des cultures gitane, maure et juive en Andalousie. Chant (cante jondo), danse, guitare. Paco de Lucía, Carmen Amaya, Camarón de la Isla. La passion espagnole incarnée.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Costa_Brava','Costa Brava')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Catalogne, Méditerranée</div><h3 class="card-name">Costa Brava — Calanques de Catalogne</h3><p class="card-context">Côte sauvage catalane aux criques de roche rouge, forêts de pins et eau turquoise. Dalí avait sa maison à Cadaqués et Portlligat. Ruines grecques d'Empúries (600 av. J.-C.) — première implantation grecque en Espagne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Teide','Teide — Tenerife')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Tenerife, Canaries</div><h3 class="card-name">Teide — Le Toit de l'Espagne</h3><p class="card-context">UNESCO 2007 — volcan de 3 718 m, le plus haut sommet d'Espagne. Parc national aux paysages lunaires, lave solidifiée, ciel le plus pur d'Europe pour l'astronomie. Troisième plus grand volcan du monde par sa base.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Guggenheim_Bilbao','Musée Guggenheim de Bilbao')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Bilbao, Pays Basque</div><h3 class="card-name">Guggenheim de Bilbao</h3><p class="card-context">Chef-d'œuvre architectural de Frank Gehry (1997) en titane et verre. L'Effet Guggenheim — le musée qui a régénéré toute une ville. Chien géant en fleurs de Jeff Koons. Collection d'art contemporain mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ibiza','Ibiza — Île Blanche')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Ibiza, Baléares</div><h3 class="card-name">Ibiza — Dalt Vila UNESCO</h3><p class="card-context">UNESCO 1999 — Dalt Vila, la vieille ville fortifiée phénicienne sur une colline. Cathédrale gothique, remparts du XVIe s. Mélange unique de patrimoine et de modernité. Les couchers de soleil de Café del Mar.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Coca','Château de Coca')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Coca, Ségovie</div><h3 class="card-name">Château de Coca</h3><p class="card-context">Le plus beau château Mudéjar d'Espagne (XVe s.) — brique rouge et tuiles vernissées, tours circulaires, fossé. Construit par les Fonseca pour concurrencer les rois de Castille. École forestière aujourd'hui.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Las_Fallas','Las Fallas — Valencia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Valence</div><h3 class="card-name">Las Fallas de Valence</h3><p class="card-context">Patrimoine immatériel UNESCO 2016 — festival du feu de mars. Monumentaux figures satiriques en papier mâché brûlées le 19 mars (Saint-Joseph). Mascleta — pétards à 13h. La Tomatina, paella originale. La fête la plus bruyante du monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Promenoire_de_la_Concha','San Sebastián — La Concha')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">San Sebastián, Pays Basque</div><h3 class="card-name">San Sebastián — Gastronomie Basque</h3><p class="card-context">La ville avec le plus d'étoiles Michelin par habitant au monde. Plage de La Concha, la plus belle plage urbaine d'Europe. Pintxos dans la Parte Vieja. Festival de cinema international. La perle du Pays Basque.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sierra_Nevada_(Espagne)','Sierra Nevada')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Andalousie, Grenade</div><h3 class="card-name">Sierra Nevada</h3><p class="card-context">Plus haut massif de la péninsule ibérique — Mulhacén (3 479 m). Station de ski la plus méridionale d'Europe. Alpujarras — villages blancs aux toits plats d'origine berbère. Vue sur l'Alhambra et l'Afrique par temps clair.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grotte_d%27Altamira','Grotte d\'Altamira')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Santillana del Mar, Cantabrie</div><h3 class="card-name">Grotte d'Altamira — La Chapelle Sixtine Préhistorique</h3><p class="card-context">UNESCO 1985 — peintures rupestres de bisons du Paléolithique supérieur (36 000 av. J.-C.). Picasso, en les voyant, dit "Après Altamira, tout n'est que décadence". L'une des plus importantes découvertes archéologiques du monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ronda','Ronda — Ville des Ponts')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Ronda, Andalousie</div><h3 class="card-name">Ronda — Le Pont Nouveau</h3><p class="card-context">Cité perchée sur un promontoire découpé par les gorges du Tajo (100 m). Puente Nuevo (1793) spectaculaire. La plus ancienne arène de tauromachie d'Espagne (1785). Hemingway et Orson Welles adoraient Ronda.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_l%27Alhambra','Grenade — Le Sacromonte')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Grenade, Andalousie</div><h3 class="card-name">Grenade — Sacromonte &amp; Albaicín</h3><p class="card-context">UNESCO 1994 — Albaicín, quartier maure aux ruelles pavées, vue sur l'Alhambra. Sacromonte — grottes gitanes creusées dans la roche volcanique, flamenco authentique par excellence, bougainvillées et vue nocturne inoubliable.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_la_Generalitat_de_Catalogne','Barcelone — La Rambla')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Barcelone, Catalogne</div><h3 class="card-name">Barcelone — La Rambla &amp; Barri Gòtic</h3><p class="card-context">La Rambla — l'artère la plus animée d'Europe (1,2 km). Barri Gòtic — quartier gothique médiéval intact au cœur de Barcelone. Marché de la Boqueria, cathédrale, Palau de la Generalitat. La Barcelone vivante et historique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Picos_de_Europa','Picos de Europa')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Asturias / Cantabrie</div><h3 class="card-name">Picos de Europa</h3><p class="card-context">Premier parc national d'Espagne (1918). Massif calcaire aux gorges vertigineuses du Cares (1 000 m). Ours brun cantabrique, vautour percnoptère, chamois. Fromage Cabrales affiné en grotte. Cœur vert de l'Espagne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Plaza_Mayor_de_Madrid','Plaza Mayor de Madrid')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Madrid</div><h3 class="card-name">Madrid — Cœur Castillan</h3><p class="card-context">Plaza Mayor (1619) — le salon de Madrid. Puerta del Sol, kilomètre zéro de toutes les routes d'Espagne. Musée Reina Sofía (Guernica de Picasso). Parc du Retiro UNESCO. La capitale la plus haute d'Europe (667 m).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Ibères aux Rois Catholiques</div>
+  <h2 class="section-title">Histoire de l'Espagne</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">218 av. J.-C. — 415</div>
+      <div class="timeline-event"><strong>Hispania Romaine.</strong> Rome conquiert la péninsule ibérique sur Carthage (Guerres puniques). Hispania devient la province la plus riche de l'Empire. Mérida, Ségovie, Tarragone florissantes. Trajan et Hadrien — empereurs romains nés en Espagne.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">711 — 1492</div>
+      <div class="timeline-event"><strong>Al-Andalus et la Reconquista.</strong> Les Maures traversent Gibraltar (711) et conquièrent la péninsule en 7 ans. Cordoue devient la plus grande ville d'Europe (500 000 habitants). La Reconquista chrétienne dure 800 ans. Tolède, ville des trois cultures. Les Rois Catholiques prennent Grenade le 2 janvier 1492.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1492</div>
+      <div class="timeline-event"><strong>Année Extraordinaire.</strong> Le 2 janvier — chute de Grenade, fin de la Reconquista. Le 12 octobre — Christophe Colomb découvre l'Amérique pour les Rois Catholiques. Expulsion des Juifs (mars). Première grammaire de la langue espagnole (Nebrija). L'Espagne entre dans l'Histoire mondiale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1516 — 1700</div>
+      <div class="timeline-event"><strong>Le Siècle d'Or — Imperio Español.</strong> Charles Quint hérite du plus grand empire du monde. Philippe II et l'Armada Invencible (1588). Conquête des Amériques — Cortés, Pizarro, Magellan. Vélasquez, Murillo, El Greco, Cervantes (Don Quichotte, 1605). L'or des Amériques finance la Renaissance espagnole.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1808 — 1898</div>
+      <div class="timeline-event"><strong>Napoléon et la Perte des Colonies.</strong> Napoléon envahit l'Espagne (1808) et place son frère Joseph sur le trône. Guerre d'Indépendance héroïque — Goya la peint. Les colonies latino-américaines s'émancipent (1810–1825). Perte de Cuba, Porto Rico et Philippines (1898) — le Désastre.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1936 — 1975</div>
+      <div class="timeline-event"><strong>Guerre Civile et Franquisme.</strong> Coup d'État de Franco (juillet 1936). Guerre civile (1936–1939) — Brigades Internationales, Bombardement de Guernica. Dictature de Franco jusqu'en 1975. Picasso refuse de rentrer tant que Franco est au pouvoir. L'Espagne isolée pendant 40 ans.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1975 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Transition et Miracle Espagnol.</strong> Mort de Franco (1975), rétablissement de la démocratie sous Juan Carlos Ier. Constitution (1978). Adhésion à la CEE (1986). JO de Barcelone et Expo de Séville (1992) — l'Espagne renait. La Movida madrilène. Pedro Almodóvar, Rafael Nadal. L'Espagne devient la 4e économie de la zone euro.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇪🇸</div>
+  <p class="footer-text">Guide du Voyageur · Espagne · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([40.0,-3.5],6);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(198,11,30,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#c60b1e" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d42030" stroke="#8a0010" stroke-width="0.5"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d42030" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="8" width="2" height="4" fill="#d42030"/><rect x="9" y="8" width="2" height="4" fill="#d42030"/><rect x="24" y="8" width="2" height="4" fill="#d42030"/><rect x="27" y="8" width="2" height="4" fill="#d42030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#6a0008"/><line x1="9.5" y1="8" x2="9.5" y2="3" stroke="#ffc400" stroke-width="0.8"/><path d="M9.5 3 L16 5 L9.5 7 Z" fill="#c60b1e"/></svg>');
+
+var iconCathedrale=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/></svg>');
+
+var iconPalais=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5010" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5010" stroke-width="0.6"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconGaudi=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(198,11,30,.85))"><path d="M4 34 L8 20 L12 10 L16 4 L18 2 L20 4 L24 10 L28 20 L32 34 Z" fill="#c60b1e" stroke="#8a0010" stroke-width="0.6"/><path d="M8 20 L12 10 L16 4 L18 2 L20 4 L24 10 L28 20" fill="none" stroke="#ffc400" stroke-width="1" opacity="0.8"/><circle cx="18" cy="16" r="4" fill="#ffc400" opacity="0.8"/><path d="M4 34 Q8 28 12 30 Q16 32 18 30 Q20 32 24 30 Q28 28 32 34" fill="none" stroke="#ffc400" stroke-width="1.2" opacity="0.7"/><circle cx="10" cy="26" r="2" fill="#ffc400" opacity="0.6"/><circle cx="26" cy="26" r="2" fill="#ffc400" opacity="0.6"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#ffc400" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,80,160,.8))"><rect x="4" y="30" width="28" height="3" fill="#1a3870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="4" y="10" width="28" height="3" fill="#1a3870"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/><circle cx="18" cy="22" r="3" fill="#ffc400" opacity="0.7"/></svg>');
+
+var iconFlamenco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(198,11,30,.9))"><path d="M18 4 Q14 8 12 14 Q10 20 12 26 Q14 32 18 34 Q22 32 24 26 Q26 20 24 14 Q22 8 18 4 Z" fill="#c60b1e" stroke="#8a0010" stroke-width="0.7"/><path d="M12 14 Q8 12 6 16 Q8 20 12 20" fill="#e02030" opacity="0.7"/><path d="M24 14 Q28 12 30 16 Q28 20 24 20" fill="#e02030" opacity="0.7"/><path d="M14 26 Q10 28 8 26 Q10 24 14 24" fill="#e02030" opacity="0.6"/><path d="M22 26 Q26 28 28 26 Q26 24 22 24" fill="#e02030" opacity="0.6"/><circle cx="18" cy="10" r="3" fill="#ffc400" opacity="0.9"/><path d="M16 10 Q14 6 16 4" fill="none" stroke="#ffc400" stroke-width="0.8" stroke-linecap="round"/><path d="M20 10 Q22 6 20 4" fill="none" stroke="#ffc400" stroke-width="0.8" stroke-linecap="round"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconPlage=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a7ab5" stroke="#0a5a95" stroke-width="0.6"/><path d="M2 26 Q8 22 14 24 Q20 26 26 22 Q30 20 34 22" fill="none" stroke="#60b0e0" stroke-width="1.2" opacity="0.7"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M14 18 L20 10" stroke="#e8a020" stroke-width="1.5" stroke-linecap="round"/><path d="M10 20 L14 20 L14 12 L10 14 Z" fill="#e8c060" opacity="0.7"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="5" rx="0.5" fill="#c9a84c"/><line x1="10" y1="6" x2="10" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="18" y1="4" x2="18" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="26" y1="6" x2="26" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconFestival=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(255,196,0,.9))"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#ffc400" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#c60b1e" opacity="0.8"/><path d="M8 30 Q12 26 18 28 Q24 26 28 30" fill="none" stroke="#ffc400" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="4" x2="8" y2="8" stroke="#c60b1e" stroke-width="1" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="4" x2="28" y2="8" stroke="#c60b1e" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a7ab5" opacity="0.8"/><path d="M10 28 Q14 22 18 20 Q22 22 26 28 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="16" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="6" width="8" height="4" rx="0.5" fill="#c60b1e"/><path d="M14 6 L18 2 L22 6 Z" fill="#8a0010"/><line x1="18" y1="4" x2="10" y2="0" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/><line x1="18" y1="4" x2="26" y2="0" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/></svg>');
+
+var iconVolcan=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,60,10,.9))"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#e8d8c0" stroke="#c0a880" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f8f0e0"/><path d="M14 4 Q16 2 18 0 Q20 2 22 4" fill="#c60b1e" opacity="0.8"/><path d="M14 6 Q16 4 18 3 Q20 4 22 6" fill="none" stroke="#ff4020" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/><path d="M8 26 Q12 24 16 26 Q20 28 24 26 Q28 24 28 28" fill="#1a7ab5" opacity="0.7"/></svg>');
+
+var iconMoschee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(10,80,10,.85))"><path d="M10 18 Q10 12 18 10 Q26 12 26 18 L26 32 L10 32 Z" fill="#2a8a30" stroke="#1a5a20" stroke-width="0.6"/><path d="M14 12 Q14 8 18 6 Q22 8 22 12" fill="#3aaa40" opacity="0.6"/><ellipse cx="18" cy="8" rx="6" ry="8" fill="none" stroke="#2a8a30" stroke-width="1.2"/><line x1="18" y1="1" x2="18" y2="4" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><path d="M16 2 Q18 0 20 2" fill="#c9a84c" opacity="0.8"/><rect x="14" y="24" width="8" height="8" fill="#1a5a20"/></svg>');
+
+var iconArt=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,40,160,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0" stroke="#4a2080" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#8050c0" opacity="0.6"/><circle cx="13" cy="14" r="3" fill="#ffc400" opacity="0.8"/><path d="M18 10 Q22 12 24 16 Q22 20 18 20 Q14 20 12 16 Q14 12 18 10" fill="none" stroke="#ffc400" stroke-width="0.8" opacity="0.6"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#4a2080"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c60b1e" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconRomain=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(160,120,20,.8))"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#8a6010"/><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>');
+
+var DATA={
+  chateau:{icon:iconChateau,color:'#c60b1e',label:'🏰 Châteaux Castillans',pts:[
+    {lat:40.9482,lng:-4.1184,n:"Alcázar de Ségovie",c:"Ségovie, Castille",d:"Château qui inspira Cendrillon de Disney. Perché sur un éperon rocheux. Résidence des rois de Castille.",u:"https://fr.m.wikipedia.org/wiki/Alcázar_de_Ségovie?useskin=vector"},
+    {lat:40.9440,lng:-4.1185,n:"Château de Coca",c:"Coca, Ségovie",d:"Plus beau château Mudéjar d'Espagne (XVe s.). Brique rouge, fossé, tours circulaires.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Coca?useskin=vector"},
+    {lat:40.3500,lng:-5.5000,n:"Château de Peñaranda de Bracamonte",c:"Salamanque, Castille",d:"Château médiéval de Castille. Région des donjons castillans — les plus nombreux d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Peñaranda_de_Bracamonte?useskin=vector"},
+    {lat:41.5500,lng:-3.6833,n:"Château de Berlanga de Duero",c:"Soria, Castille",d:"Forteresse médiévale sur la Route des Châteaux du Duero. Paysage de Castille authentique.",u:"https://fr.m.wikipedia.org/wiki/Berlanga_de_Duero?useskin=vector"},
+    {lat:40.4996,lng:-3.9728,n:"Château de Manzanares el Real",c:"Madrid",d:"Château des Ducs de l'Infantado (XVe s.) au pied de la Sierra de Guadarrama. Parfaitement conservé.",u:"https://fr.m.wikipedia.org/wiki/Manzanares_el_Real?useskin=vector"}
+  ]},
+  cathedrale:{icon:iconCathedrale,color:'#6040a0',label:'⛪ Cathédrales Gothiques',pts:[
+    {lat:37.1773,lng:-3.5986,n:"Cathédrale de Grenade",c:"Grenade, Andalousie",d:"Première cathédrale Renaissance d'Espagne (1523). Capilla Real — tombeaux des Rois Catholiques.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Grenade?useskin=vector"},
+    {lat:37.3861,lng:-5.9930,n:"Cathédrale de Séville",c:"Séville, Andalousie",d:"UNESCO 1987. Plus grande cathédrale gothique du monde. Tombeau de Christophe Colomb. La Giralda.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Séville?useskin=vector"},
+    {lat:39.8567,lng:-4.0244,n:"Cathédrale de Tolède",c:"Tolède, Castille",d:"Gothique espagnol (1227). Retable mayor de 15 m. Trésor avec l'ostensoir de Juan de Arfe.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Tolède?useskin=vector"},
+    {lat:42.8782,lng:-8.5449,n:"Cathédrale de Santiago",c:"Santiago de Compostela",d:"UNESCO 1985. Tombeau de Saint Jacques. Botafumeiro de 80 kg. 350 000 pèlerins par an.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Santiago_de_Compostela?useskin=vector"},
+    {lat:42.3406,lng:-3.6993,n:"Cathédrale de Burgos",c:"Burgos, Castille-León",d:"UNESCO 1984. Gothique (1221). Flèches en dentelle de pierre. Tombeau du Cid Campeador.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Burgos?useskin=vector"}
+  ]},
+  palais:{icon:iconPalais,color:'#c8a020',label:'👑 Palais & Résidences Royales',pts:[
+    {lat:37.1764,lng:-3.5886,n:"Alhambra de Grenade",c:"Grenade, Andalousie",d:"UNESCO 1984. Chef-d'oeuvre nasride (XIIIe-XIVe s.). Palais de Comares, Cour des Lions, Generalife.",u:"https://fr.m.wikipedia.org/wiki/Alhambra?useskin=vector"},
+    {lat:37.3843,lng:-5.9912,n:"Alcazar de Séville",c:"Séville, Andalousie",d:"UNESCO 1987. Palais royal encore en usage. Mudéjar splendide, jardins de 8 ha. Résidence royale estivale.",u:"https://fr.m.wikipedia.org/wiki/Alcázar_de_Séville?useskin=vector"},
+    {lat:40.4183,lng:-3.7144,n:"Palais Royal de Madrid",c:"Madrid",d:"Plus grand palais royal d'Europe occidentale — 135 000 m², 3 418 pièces. Résidence officielle.",u:"https://fr.m.wikipedia.org/wiki/Palais_royal_de_Madrid?useskin=vector"},
+    {lat:40.5888,lng:-4.1488,n:"El Escorial",c:"San Lorenzo, Madrid",d:"UNESCO 1984. Palais-monastère de Philippe II (1563). Panthéon de tous les rois d'Espagne.",u:"https://fr.m.wikipedia.org/wiki/Escurial?useskin=vector"},
+    {lat:40.3590,lng:-3.8254,n:"Palais de La Granja",c:"Segovia, Castille",d:"Versailles espagnol (1723) aux jardins baroques et fontaines monumentales. Résidence royale d'été.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_La_Granja?useskin=vector"}
+  ]},
+  gaudi:{icon:iconGaudi,color:'#c60b1e',label:'🎨 Gaudí & Modernisme',pts:[
+    {lat:41.4036,lng:2.1744,n:"Sagrada Família",c:"Barcelone, Catalogne",d:"UNESCO 2005. Cathédrale de Gaudí (1882-2026). 18 tours. Financée par les visiteurs uniquement.",u:"https://fr.m.wikipedia.org/wiki/Sagrada_Família?useskin=vector"},
+    {lat:41.4145,lng:2.1527,n:"Parc Güell",c:"Barcelone, Catalogne",d:"UNESCO 2005. Mosaïques trencadís, salamandre, grande esplanade. Gaudí y vécut.",u:"https://fr.m.wikipedia.org/wiki/Parc_Güell?useskin=vector"},
+    {lat:41.3918,lng:2.1649,n:"Casa Batlló",c:"Barcelone, Catalogne",d:"UNESCO 2005. Façade en écailles de dragon, balcons en forme d'os. Passeig de Gràcia.",u:"https://fr.m.wikipedia.org/wiki/Casa_Batlló?useskin=vector"},
+    {lat:41.3954,lng:2.1619,n:"Casa Milà — La Pedrera",c:"Barcelone, Catalogne",d:"UNESCO 2005. Toit aux guerriers de pierre. Premier édifice de Gaudí entièrement en pierre.",u:"https://fr.m.wikipedia.org/wiki/Casa_Milà?useskin=vector"},
+    {lat:41.3670,lng:2.1064,n:"Palau Güell",c:"Barcelone, Catalogne",d:"UNESCO 2005. Premier grand bâtiment de Gaudí (1886). Cheminées habillées de mosaïques.",u:"https://fr.m.wikipedia.org/wiki/Palau_Güell?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:40.9482,lng:-4.1184,n:"Vieille Ville de Ségovie",c:"Ségovie, Castille",d:"UNESCO 1985. Aqueduc romain (Ier s.), Alcázar, cathédrale. Ville impériale de Castille.",u:"https://fr.m.wikipedia.org/wiki/Ségovie?useskin=vector"},
+    {lat:39.8567,lng:-4.0244,n:"Tolède Historique",c:"Tolède, Castille",d:"UNESCO 1986. Ville des trois cultures. El Greco, Cathédrale, Alcázar, synagogues.",u:"https://fr.m.wikipedia.org/wiki/Tolède?useskin=vector"},
+    {lat:37.8845,lng:-4.7796,n:"Centre Historique de Cordoue",c:"Cordoue, Andalousie",d:"UNESCO 1984. Mezquita, Alcázar, judería. Ancienne capitale du Califat de Cordoue.",u:"https://fr.m.wikipedia.org/wiki/Cordoue?useskin=vector"},
+    {lat:37.3861,lng:-5.9930,n:"Séville — Cathédrale, Alcazar, Archive",c:"Séville, Andalousie",d:"UNESCO 1987. Ensemble unique de trois monuments majeurs. Tombeau de Christophe Colomb.",u:"https://fr.m.wikipedia.org/wiki/Séville?useskin=vector"},
+    {lat:40.9585,lng:-8.8400,n:"Route de Santiago de Compostela",c:"Espagne entière",d:"UNESCO 1993. Le Camino Francés — 780 km de Saint-Jean-Pied-de-Port à Santiago.",u:"https://fr.m.wikipedia.org/wiki/Chemin_de_Saint-Jacques-de-Compostelle?useskin=vector"},
+    {lat:40.5888,lng:-4.1488,n:"El Escorial &amp; Vallée des Tombés",c:"Madrid",d:"UNESCO 1984. Palais-monastère de Philippe II. Panthéon des rois d'Espagne depuis Charles Quint.",u:"https://fr.m.wikipedia.org/wiki/Escurial?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#2a5ab0',label:'🏛️ Musées & Collections',pts:[
+    {lat:40.4138,lng:-3.6922,n:"Musée du Prado",c:"Madrid",d:"Un des trois plus grands musées du monde. Vélasquez, Goya, El Greco, Rubens. 8 000 peintures.",u:"https://fr.m.wikipedia.org/wiki/Musée_du_Prado?useskin=vector"},
+    {lat:40.4085,lng:-3.6940,n:"Musée Reina Sofía",c:"Madrid",d:"Art contemporain espagnol. Guernica de Picasso (1937). Miró, Dalí, Juan Gris.",u:"https://fr.m.wikipedia.org/wiki/Musée_Reina_Sofía?useskin=vector"},
+    {lat:40.4231,lng:-3.6884,n:"Musée Thyssen-Bornemisza",c:"Madrid",d:"La troisième collection privée d'art du monde. Du Greco au Pop Art. Triangle d'or des musées madrilènes.",u:"https://fr.m.wikipedia.org/wiki/Musée_Thyssen-Bornemisza?useskin=vector"},
+    {lat:43.2685,lng:-2.9340,n:"Musée Guggenheim Bilbao",c:"Bilbao, Pays Basque",d:"Frank Gehry (1997). Architecture en titane. L'Effet Guggenheim — renaissance d'une ville.",u:"https://fr.m.wikipedia.org/wiki/Musée_Guggenheim_Bilbao?useskin=vector"},
+    {lat:41.3851,lng:2.1734,n:"Musée Picasso de Barcelone",c:"Barcelone, Catalogne",d:"4 249 oeuvres de Picasso. Palais médiévaux du quartier gothique. Série des Ménines.",u:"https://fr.m.wikipedia.org/wiki/Musée_Picasso_de_Barcelone?useskin=vector"}
+  ]},
+  flamenco:{icon:iconFlamenco,color:'#c60b1e',label:'💃 Flamenco & Culture',pts:[
+    {lat:37.3891,lng:-5.9845,n:"Triana — Berceau du Flamenco",c:"Séville, Andalousie",d:"Quartier gitan de Séville — berceau de la Bulerias et de la Soleá. Poterie traditionnelle, azulejos.",u:"https://fr.m.wikipedia.org/wiki/Triana_(Séville)?useskin=vector"},
+    {lat:37.1769,lng:-3.5986,n:"Sacromonte de Grenade",c:"Grenade, Andalousie",d:"Grottes gitanes sur la colline du Sacromonte. Flamenco zambra authentique. Vue sur l'Alhambra.",u:"https://fr.m.wikipedia.org/wiki/Sacromonte?useskin=vector"},
+    {lat:36.5271,lng:-6.2886,n:"Jerez de la Frontera",c:"Cádiz, Andalousie",d:"Capitale mondiale du Flamenco — festivals internationaux. Vin de Xérès. Haras royaux d'Andalousie.",u:"https://fr.m.wikipedia.org/wiki/Jerez_de_la_Frontera?useskin=vector"},
+    {lat:37.5443,lng:-4.7277,n:"Cordoue — Patios Fleuris",c:"Cordoue, Andalousie",d:"Festival des Patios (mai) — UNESCO 2012. Courettes privées fleuries de géraniums. Art de vivre andalou.",u:"https://fr.m.wikipedia.org/wiki/Festival_des_patios_de_Cordoue?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:37.0167,lng:-6.4333,n:"Parc National de Doñana",c:"Huelva, Andalousie",d:"UNESCO 1994. Sanctuaire d'oiseaux migrateurs. Lynx ibérique, aigle impérial. Marismas sacrées.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Doñana?useskin=vector"},
+    {lat:43.2000,lng:-4.8000,n:"Picos de Europa",c:"Asturias / Cantabrie",d:"Premier parc national (1918). Gorges du Cares, ours brun, chamois. Fromage Cabrales. Montagne verde.",u:"https://fr.m.wikipedia.org/wiki/Picos_de_Europa?useskin=vector"},
+    {lat:37.0544,lng:-2.6530,n:"Sierra Nevada",c:"Andalousie, Grenade",d:"Mulhacén (3 479 m). Ski le plus méridional d'Europe. Alpujarras, villages blancs berbères.",u:"https://fr.m.wikipedia.org/wiki/Sierra_Nevada_(Espagne)?useskin=vector"},
+    {lat:39.4850,lng:2.7878,n:"Parc de Tramuntana — Majorque",c:"Majorque, Baléares",d:"UNESCO 2011. Paysage montagneux olive, citron, village de Deià. Frédéric Chopin à Valldemossa.",u:"https://fr.m.wikipedia.org/wiki/Serra_de_Tramuntana?useskin=vector"}
+  ]},
+  plage:{icon:iconPlage,color:'#1a7ab5',label:'🏖️ Plages & Côtes',pts:[
+    {lat:41.8833,lng:3.1167,n:"Costa Brava — Cap de Creus",c:"Catalogne",d:"Côte sauvage aux criques de roche rouge. Dalí à Cadaqués. Ruines grecques d'Empúries.",u:"https://fr.m.wikipedia.org/wiki/Costa_Brava?useskin=vector"},
+    {lat:38.9200,lng:1.4325,n:"Ibiza — Plages et Dalt Vila",c:"Ibiza, Baléares",d:"UNESCO 1999. Dalt Vila fortifiée phénicienne. Ses Es Vedrà, Cala Comte. Soleil méditerranéen.",u:"https://fr.m.wikipedia.org/wiki/Ibiza?useskin=vector"},
+    {lat:36.5340,lng:-4.6251,n:"Costa del Sol",c:"Málaga, Andalousie",d:"La côte du soleil — 320 jours de soleil par an. Marbella, Puerto Banús, Torremolinos. Tourisme mondial.",u:"https://fr.m.wikipedia.org/wiki/Costa_del_Sol?useskin=vector"},
+    {lat:43.3241,lng:-1.9861,n:"Plage de La Concha",c:"San Sebastián, Pays Basque",d:"Plus belle plage urbaine d'Europe. Ile de Santa Clara, promenoir de la Concha, pintxos voisins.",u:"https://fr.m.wikipedia.org/wiki/Plage_de_La_Concha?useskin=vector"},
+    {lat:28.1235,lng:-15.4321,n:"Maspalomas — Grand Canaria",c:"Gran Canaria, Canaries",d:"Dunes de sable dorée d'Afrique et mer tropicale. Phare emblématique. Microclimat unique en Europe.",u:"https://fr.m.wikipedia.org/wiki/Maspalomas?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍷 Gastronomie & Vins',pts:[
+    {lat:42.4627,lng:-2.4456,n:"La Rioja — Vignobles",c:"La Rioja",d:"Première région viticole d'Espagne AOC (1925). Tempranillo. Bodegas souterraines de Haro.",u:"https://fr.m.wikipedia.org/wiki/La_Rioja_(communauté_autonome)?useskin=vector"},
+    {lat:43.3241,lng:-1.9861,n:"San Sebastián — Pintxos",c:"Pays Basque",d:"Ville avec le plus d'étoiles Michelin par habitant au monde. Pintxos, txakoli, culture basque.",u:"https://fr.m.wikipedia.org/wiki/Saint-Sébastien?useskin=vector"},
+    {lat:38.3452,lng:-0.4810,n:"Valence — Paella",c:"Valence",d:"Berceau de la paella valenciana originale. Huertas, riz de Albufera. L'Albufera — lac et parc naturel.",u:"https://fr.m.wikipedia.org/wiki/Valence_(Espagne)?useskin=vector"},
+    {lat:36.8201,lng:-6.4900,n:"Jambón Ibérique — Jabugo",c:"Huelva, Andalousie",d:"Berceau du jamón ibérico bellota de pata negra — le meilleur jambon du monde. Porcs noirs sous les chênes.",u:"https://fr.m.wikipedia.org/wiki/Jambon_ibérique?useskin=vector"}
+  ]},
+  festival:{icon:iconFestival,color:'#ffc400',label:'🎊 Festivals & Traditions',pts:[
+    {lat:39.4699,lng:-0.3763,n:"Las Fallas de Valence",c:"Valence",d:"UNESCO 2016. Figures satiriques de papier brûlées le 19 mars. Mascleta. La fête la plus bruyante du monde.",u:"https://fr.m.wikipedia.org/wiki/Las_Fallas?useskin=vector"},
+    {lat:37.3891,lng:-5.9845,n:"Feria de Abril — Séville",c:"Séville, Andalousie",d:"La plus grande fête populaire d'Espagne. Casetas, flamenco, chevaux, robes de sevillane. 2 semaines en avril.",u:"https://fr.m.wikipedia.org/wiki/Feria_de_Abril?useskin=vector"},
+    {lat:42.8177,lng:-1.6442,n:"Encierros — Pampelune",c:"Navarre",d:"San Fermín (7 juillet). Course des taureaux dans les rues. Hemingway et l'aficion mondiale.",u:"https://fr.m.wikipedia.org/wiki/Fête_de_San_Fermín?useskin=vector"},
+    {lat:38.3536,lng:-0.4990,n:"Tomatina de Buñol",c:"Valence",d:"La bataille de tomates — 130 tonnes de tomates jetées en 1 heure. Fête mondiale unique.",u:"https://fr.m.wikipedia.org/wiki/Tomatina?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#1a7ab5',label:'🏝️ Îles Espagnoles',pts:[
+    {lat:28.2916,lng:-16.6291,n:"Ténérife — Teide",c:"Ténérife, Canaries",d:"UNESCO 2007. Teide (3 718 m) — plus haut sommet d'Espagne. Paysage volcanique. Astronomie de classe mondiale.",u:"https://fr.m.wikipedia.org/wiki/Teide?useskin=vector"},
+    {lat:28.1235,lng:-15.4321,n:"Gran Canaria",c:"Gran Canaria, Canaries",d:"L'île continent — désert de dunes, forêts de lauriers, montagnes. Maspalomas, Las Palmas.",u:"https://fr.m.wikipedia.org/wiki/Grande_Canarie?useskin=vector"},
+    {lat:39.5696,lng:2.6502,n:"Palma de Majorque",c:"Majorque, Baléares",d:"Cathédrale La Seu au bord de la mer. Serra de Tramuntana UNESCO. Calanques de Cala Pi.",u:"https://fr.m.wikipedia.org/wiki/Palma_de_Majorque?useskin=vector"},
+    {lat:38.9067,lng:1.4206,n:"Ibiza — Ile Blanche",c:"Ibiza, Baléares",d:"UNESCO 1999. Dalt Vila fortifiée. Couchers de soleil légendaires. Energie unique de la Méditerranée.",u:"https://fr.m.wikipedia.org/wiki/Ibiza?useskin=vector"}
+  ]},
+  volcan:{icon:iconVolcan,color:'#c85010',label:'🌋 Volcans & Géologie',pts:[
+    {lat:28.2916,lng:-16.6291,n:"Teide — Volcan Sacré",c:"Ténérife, Canaries",d:"Volcan actif (3 718 m). UNESCO 2007. Paysages lunaires de lave. Troisième plus grand du monde.",u:"https://fr.m.wikipedia.org/wiki/Teide?useskin=vector"},
+    {lat:29.0500,lng:-13.5833,n:"Lanzarote — Volcans Timanfaya",c:"Lanzarote, Canaries",d:"Parc national de Timanfaya — éruptions de 1730. Paysage martien, poissons grillés par la chaleur volcanique.",u:"https://fr.m.wikipedia.org/wiki/Lanzarote?useskin=vector"},
+    {lat:43.3544,lng:-4.0486,n:"Grotte d'Altamira",c:"Cantabrie",d:"UNESCO 1985. Peintures rupestres (36 000 av. J.-C.) — la Chapelle Sixtine préhistorique.",u:"https://fr.m.wikipedia.org/wiki/Grotte_d%27Altamira?useskin=vector"}
+  ]},
+  moschee:{icon:iconMoschee,color:'#2a8a30',label:'🕌 Patrimoine Maure',pts:[
+    {lat:37.8792,lng:-4.7794,n:"Mezquita de Cordoue",c:"Cordoue, Andalousie",d:"UNESCO 1984. Plus grande mosquée médiévale d'Occident (856 colonnes). Cathédrale enchâssée.",u:"https://fr.m.wikipedia.org/wiki/Mezquita_de_Córdoba?useskin=vector"},
+    {lat:37.1764,lng:-3.5986,n:"Alhambra — Palais Nasrides",c:"Grenade, Andalousie",d:"UNESCO 1984. Le summum de l'art arabo-andalou. Stucs ciselés, fontaines, jardins. Derniers Maures.",u:"https://fr.m.wikipedia.org/wiki/Alhambra?useskin=vector"},
+    {lat:37.3843,lng:-5.9912,n:"Alcazar de Séville — Mudéjar",c:"Séville, Andalousie",d:"Mudéjar royal construit par des artisans maures pour un roi chrétien. Unique au monde.",u:"https://fr.m.wikipedia.org/wiki/Alcázar_de_Séville?useskin=vector"},
+    {lat:37.8845,lng:-4.7796,n:"Médine de Cordoue",c:"Cordoue, Andalousie",d:"Ancienne capitale du Califat — la plus grande ville d'Europe au Xe s. (500 000 habitants).",u:"https://fr.m.wikipedia.org/wiki/Cordoue?useskin=vector"}
+  ]},
+  art:{icon:iconArt,color:'#7040b0',label:'🖼️ Art & Architecture',pts:[
+    {lat:41.3918,lng:2.1649,n:"Barcelone Moderniste",c:"Barcelone, Catalogne",d:"Eixample aux édifices modernistes. Domènech i Montaner, Puig i Cadafalch. Manzana de la Discordia.",u:"https://fr.m.wikipedia.org/wiki/Modernisme_catalan?useskin=vector"},
+    {lat:40.4262,lng:-3.6971,n:"Musée du Prado",c:"Madrid",d:"Un des trois plus grands musées. Las Meninas de Vélasquez, Saturne dévorant Goya. Art espagnol.",u:"https://fr.m.wikipedia.org/wiki/Musée_du_Prado?useskin=vector"},
+    {lat:40.4085,lng:-3.6940,n:"Reina Sofía — Guernica",c:"Madrid",d:"Guernica de Picasso (1937) — symbole universel des horreurs de la guerre. Art contemporain espagnol.",u:"https://fr.m.wikipedia.org/wiki/Musée_Reina_Sofía?useskin=vector"},
+    {lat:40.6503,lng:0.8793,n:"Musée Dalí — Figueres",c:"Figueres, Catalogne",d:"Théâtre-musée conçu par Dalí lui-même — la plus grande oeuvre surréaliste du monde. Tombe de Dalí.",u:"https://fr.m.wikipedia.org/wiki/Théâtre-Musée_Dalí?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:36.5052,lng:-4.8838,n:"Marbella — Golf Resort",c:"Málaga, Andalousie",d:"70 parcours de golf dans un rayon de 30 km. Puerto Banús. Soleil 320 jours par an. Jet set mondial.",u:"https://fr.m.wikipedia.org/wiki/Marbella?useskin=vector"},
+    {lat:36.5093,lng:-6.2812,n:"Golf de Valderrama",c:"Sotogrande, Cádiz",d:"Valderrama — classé n°1 en Europe pendant des années. Site de la Ryder Cup 1997. Terrain légendaire.",u:"https://fr.m.wikipedia.org/wiki/Valderrama?useskin=vector"},
+    {lat:39.5696,lng:2.6502,n:"Golf de Majorque",c:"Majorque, Baléares",d:"Majorque — île du golf avec 24 parcours. Son Gual, Golf de Arabella. Paysages méditerranéens.",u:"https://fr.m.wikipedia.org/wiki/Majorque?useskin=vector"}
+  ]},
+  romain:{icon:iconRomain,color:'#b47814',label:'🏛️ Patrimoine Romain',pts:[
+    {lat:40.9508,lng:-4.1184,n:"Aqueduc de Ségovie",c:"Ségovie, Castille",d:"UNESCO 1985. Aqueduc romain (Ier s.), 728 m, 163 arches. Sans mortier. Fonctionnel jusqu'en 1973.",u:"https://fr.m.wikipedia.org/wiki/Aqueduc_de_Ségovie?useskin=vector"},
+    {lat:38.9175,lng:-6.3338,n:"Mérida — Théâtre Romain",c:"Mérida, Estrémadure",d:"UNESCO 1993. Théâtre romain (25 av. J.-C.), amphithéâtre, pont du Guadiana. La Rome espagnole.",u:"https://fr.m.wikipedia.org/wiki/Mérida?useskin=vector"},
+    {lat:41.1175,lng:1.2544,n:"Tarragone — Tarraco",c:"Tarragone, Catalogne",d:"UNESCO 2000. Capitale romaine de Hispanie. Amphithéâtre, murailles cyclopéennes, voie Domitia.",u:"https://fr.m.wikipedia.org/wiki/Tarragone?useskin=vector"},
+    {lat:42.1447,lng:2.9528,n:"Empúries — Grecs et Romains",c:"Catalogne",d:"Première implantation grecque en Espagne (600 av. J.-C.). Ruines grecques et romaines superposées.",u:"https://fr.m.wikipedia.org/wiki/Empúries?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#c60b1e\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'chateau',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#c60b1e"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d42030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d42030"/><rect x="6" y="8" width="2" height="4" fill="#d42030"/><rect x="9" y="8" width="2" height="4" fill="#d42030"/></svg>', label:'Châteaux Castillans', count:5},
+      {cat:'cathedrale', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>', label:'Cathédrales Gothiques', count:5},
+      {cat:'palais',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Palais Royaux', count:5},
+      {cat:'gaudi',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 L8 20 L12 10 L16 4 L18 2 L20 4 L24 10 L28 20 L32 34 Z" fill="#c60b1e"/><circle cx="18" cy="16" r="4" fill="#ffc400" opacity="0.8"/></svg>', label:'Gaudí &amp; Modernisme', count:5},
+      {cat:'unesco',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:6},
+      {cat:'musee',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/></svg>', label:'Musées &amp; Collections', count:5},
+      {cat:'flamenco',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 Q14 8 12 14 Q10 20 12 26 Q14 32 18 34 Q22 32 24 26 Q26 20 24 14 Q22 8 18 4 Z" fill="#c60b1e"/><circle cx="18" cy="10" r="3" fill="#ffc400" opacity="0.9"/></svg>', label:'Flamenco &amp; Culture', count:4},
+      {cat:'nature',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:4},
+      {cat:'plage',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a7ab5"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M10 18 L14 18 L14 10 L10 12 Z" fill="#e8c060" opacity="0.7"/></svg>', label:'Plages &amp; Côtes', count:5},
+      {cat:'gastro',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie &amp; Vins', count:4},
+      {cat:'festival',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#ffc400" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#c60b1e" opacity="0.8"/></svg>', label:'Festivals &amp; Traditions', count:4},
+      {cat:'ile',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a7ab5"/><path d="M10 26 Q14 20 18 18 Q22 20 26 26 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="14" fill="#f5ead8"/><rect x="14" y="6" width="8" height="4" fill="#c60b1e"/></svg>', label:'Îles Espagnoles', count:4},
+      {cat:'volcan',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#e8d8c0"/><path d="M14 4 Q16 2 18 0 Q20 2 22 4" fill="#c60b1e" opacity="0.8"/></svg>', label:'Volcans &amp; Géologie', count:3},
+      {cat:'moschee',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 18 Q10 12 18 10 Q26 12 26 18 L26 32 L10 32 Z" fill="#2a8a30"/><ellipse cx="18" cy="8" rx="6" ry="8" fill="none" stroke="#2a8a30" stroke-width="1.2"/><line x1="18" y1="1" x2="18" y2="4" stroke="#c9a84c" stroke-width="1.2"/></svg>', label:'Patrimoine Maure', count:4},
+      {cat:'art',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0"/><circle cx="13" cy="14" r="3" fill="#ffc400" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#4a2080"/></svg>', label:'Art &amp; Architecture', count:4},
+      {cat:'golf',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#c60b1e"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3},
+      {cat:'romain',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>', label:'Patrimoine Romain', count:4}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#c60b1e #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#c60b1e;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#3a0a08;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#c60b1e;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #c60b1e';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#c60b1e':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'c60b1e\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

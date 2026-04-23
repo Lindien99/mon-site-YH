@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pays-Bas — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels des Pays-Bas.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#AE1C28;      /* rouge néerlandais */
+      --blanc:#f8f8f8;
+      --bleu:#21468B;       /* bleu néerlandais */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --tulipe:#e8607a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#020408;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(174,28,40,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 80% 80%,rgba(33,70,139,.08) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 33%,var(--blanc) 33%,var(--blanc) 66%,var(--bleu) 66%,var(--bleu) 100%);opacity:.5;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,14rem);font-weight:300;
+      color:rgba(174,28,40,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(174,28,40,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(174,28,40,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,4,8,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(174,28,40,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold),var(--bleu));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(174,28,40,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(174,28,40,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(174,28,40,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#020408;border-bottom:1px solid rgba(174,28,40,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #6a0810;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#8a1020;border-color:#8a1020;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(174,28,40,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Pays-Bas';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Pays-Bas');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">NEDERLAND</div>
+  <div class="hero-eyebrow">Pays-Bas · Guide du Voyageur</div>
+  <h1 class="hero-title">Moulins, Tulipes<br>&amp; <em>Age d'Or Hollandais</em></h1>
+  <p class="hero-subtitle">Canaux d'Amsterdam, Rembrandt &amp; Vermeer, polders gagnés sur la mer &amp; art de vivre néerlandais unique</p>
+
+  <!-- LION DES PAYS-BAS — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(174,28,40,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Tulipe en arrière-plan — symbole des Pays-Bas -->
+      <path d="M76 130 Q76 120 80 118 Q84 120 84 130 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M76 130 L76 140 L84 140 L84 130" fill="#3a7a30" stroke="#2a5a20" stroke-width="0.5"/>
+      <path d="M76 118 Q68 108 70 98 Q74 90 80 88 Q86 90 90 98 Q92 108 84 118 Z" fill="#e8607a" stroke="#a04050" stroke-width="0.6"/>
+      <path d="M70 108 Q66 100 68 94 Q72 88 76 90" fill="none" stroke="#c04060" stroke-width="0.5"/>
+      <path d="M90 108 Q94 100 92 94 Q88 88 84 90" fill="none" stroke="#c04060" stroke-width="0.5"/>
+
+      <!-- Corps du lion néerlandais couronné -->
+      <path d="M36 102 Q30 86 34 70 Q40 54 56 48 Q70 42 84 46 Q100 52 108 66 Q116 82 112 98 Q106 114 88 120 Q68 124 52 116 Q38 110 36 102 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M44 56 Q58 46 74 46 Q90 48 100 58 Q90 52 74 51 Q58 52 44 56 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures plumes -->
+      <path d="M44 76 Q56 70 70 72 Q78 73 86 72 Q96 70 104 76" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M42 88 Q54 82 70 84 Q78 85 86 84 Q98 82 106 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M44 100 Q56 95 70 96 Q78 97 86 96 Q96 95 104 100" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Crinière royale -->
+      <path d="M36 68 Q24 54 26 40 Q32 32 42 32" fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M40 52 Q28 46 24 34 Q28 26 38 24 Q44 28 42 36" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M48 38 Q40 28 42 16 Q48 10 56 12 Q58 18 54 24" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M62 34 Q60 22 64 12 Q70 6 76 10 Q76 18 72 24" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M76 36 Q80 24 88 18 Q96 14 100 22 Q98 28 92 30" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M88 46 Q98 36 106 34 Q112 36 112 44 Q108 50 102 50" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête du lion -->
+      <ellipse cx="72" cy="42" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+
+      <!-- Oeil -->
+      <circle cx="79" cy="38" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="79" cy="38" r="3" fill="#2a1000"/>
+      <circle cx="80.5" cy="36.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau -->
+      <path d="M62 48 Q66 52 72 52 Q78 52 82 48" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="72" cy="54" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Couronne royale néerlandaise -->
+      <path d="M54 28 L90 28 L88 32 L56 32 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M57 28 Q57 22 60 20 Q62 24 62 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M68 28 Q68 20 72 17 Q76 20 76 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M81 28 Q81 22 84 20 Q86 24 86 28" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <circle cx="72" cy="18" r="2.5" fill="#AE1C28" opacity="0.9"/>
+      <circle cx="60" cy="22" r="1.8" fill="#21468B" opacity="0.85"/>
+      <circle cx="84" cy="22" r="1.8" fill="#21468B" opacity="0.85"/>
+
+      <!-- Ecu avec le lion de Nassau sur fond bleu -->
+      <path d="M60 82 Q60 74 72 72 Q84 74 84 82 Q84 92 72 98 Q60 92 60 82 Z"
+            fill="#21468B" stroke="#101860" stroke-width="0.8"/>
+      <!-- Lion doré sur l'écu -->
+      <ellipse cx="72" cy="82" rx="6" ry="5" fill="#c9a84c" opacity="0.9"/>
+      <path d="M66 82 Q62 78 62 74 Q66 76 68 80 Z" fill="#c9a84c" opacity="0.7"/>
+      <path d="M78 82 Q82 78 82 74 Q78 76 76 80 Z" fill="#c9a84c" opacity="0.7"/>
+      <!-- Flèches de Nassau -->
+      <line x1="68" y1="76" x2="76" y2="88" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+      <line x1="76" y1="76" x2="68" y2="88" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+
+      <!-- Epée et flèches (symboles néerlandais) -->
+      <line x1="100" y1="28" x2="108" y2="68" stroke="#8a5010" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M96 34 Q90 26 98 22 Q108 24 106 34 Q104 38 100 36 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+
+      <!-- Patte arrière -->
+      <path d="M50 112 Q42 120 44 126 Q48 126 52 122 Q50 118 48 114 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Queue -->
+      <path d="M88 114 Q100 118 110 110 Q118 102 114 94 Q110 90 106 94 Q110 94 108 100 Q104 108 96 110 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M110 94 Q114 86 116 82 Q114 88 110 92 Z" fill="#d4a020"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="70" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="10" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">belgicus</text>
+      <line x1="24" y1="72" x2="36" y2="70" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="130" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="140" cy="50" r="0.9" fill="#AE1C28" opacity="0.4"/>
+      <circle cx="18" cy="122" r="1.1" fill="#21468B" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Amsterdam et ses canaux UNESCO, Rembrandt &amp; Vermeer, moulins de Kinderdijk, champs de tulipes de Keukenhof, Delta Works, Delft et ses faïences, La Haye diplomatique, Rotterdam port mondial, Frise, Gueldre &amp; provinces historiques, vélo &amp; art de vivre.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">26%</div><div class="stat-label">du pays sous le niveau de la mer</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez les Pays-Bas</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Bataves à l'Age d'Or</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Canaux_d%27Amsterdam','Canaux d\'Amsterdam')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Amsterdam</div><h3 class="card-name">Canaux d'Amsterdam — UNESCO</h3><p class="card-context">UNESCO 2010 — la ceinture de canaux du XVIIe s., chef-d'oeuvre de l'urbanisme de l'Age d'Or. 165 canaux, 1 500 ponts, 2 500 maisons-canaux penchées. Promenade en bateau ou à vélo. Le coeur battant de la capitale néerlandaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rijksmuseum','Rijksmuseum — Amsterdam')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Amsterdam</div><h3 class="card-name">Rijksmuseum — La Ronde de Nuit</h3><p class="card-context">Le plus grand musée des Pays-Bas — 8 000 oeuvres, 80 galeries. La Ronde de Nuit de Rembrandt (1642), La Laitière de Vermeer, Frans Hals. Le temple de l'Age d'Or hollandais. Rénové par Cruz y Ortiz (2013). 2,5 millions de visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Moulins_de_Kinderdijk','Moulins de Kinderdijk')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Kinderdijk, Hollande-Méridionale</div><h3 class="card-name">Moulins de Kinderdijk</h3><p class="card-context">UNESCO 1997 — 19 moulins à vent du XVIIIe s. alignés le long des canaux de Kinderdijk — le symbole absolu des Pays-Bas. Système de gestion des eaux unique. Toujours fonctionnels. Visite à vélo ou en bateau. Photographiés des millions de fois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Keukenhof','Keukenhof — Jardin des Tulipes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Lisse, Hollande-Méridionale</div><h3 class="card-name">Keukenhof — Le Jardin des Fleurs</h3><p class="card-context">Le plus beau jardin de fleurs du monde — 32 ha, 7 millions de bulbes, 800 variétés de tulipes. Ouvert 8 semaines au printemps (mars-mai). Les Pays-Bas produisent 65% des fleurs mondiales. La Hollande en fleurs vue depuis les airs — tapis multicolores.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maison_d%27Anne_Frank','Maison d\'Anne Frank')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Amsterdam</div><h3 class="card-name">Maison d'Anne Frank</h3><p class="card-context">Le 263 Prinsengracht — la cachette où Anne Frank et sa famille se cachèrent 2 ans (1942–1944) avant d'être dénoncés. Le Journal d'Anne Frank — 31 millions d'exemplaires vendus en 70 langues. Musée le plus visité d'Amsterdam après le Rijksmuseum.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Delta_Works','Delta Works — Maîtrise de la Mer')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Delta, Zélande</div><h3 class="card-name">Delta Works — La Septième Merveille</h3><p class="card-context">L'American Society of Civil Engineers l'a désigné 7e merveille du monde moderne. Réseau de barrages, digues et écluses protégeant les Pays-Bas de la mer du Nord. Construit après la catastrophe de 1953 (1 835 morts). L'ingénierie hydraulique au sommet.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Delft','Delft — Vermeer et la Faïence')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Delft, Hollande-Méridionale</div><h3 class="card-name">Delft — La Ville de Vermeer</h3><p class="card-context">La ville de Johannes Vermeer (né à Delft en 1632). La Vue de Delft — l'un des plus grands tableaux du monde. Delftware — la faïence bleue et blanche emblématique. Vieille ville aux canaux, Nouvelle Église (tombeaux des Oranje), Vieil Hôtel de Ville. Charme intact.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/La_Haye','La Haye — Capitale Mondiale du Droit')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">La Haye, Hollande-Méridionale</div><h3 class="card-name">La Haye — Capitale de la Paix</h3><p class="card-context">Siège de la Cour Internationale de Justice, CPI, Tribunal Pénal International. Mauritshaus — La Jeune Fille à la Perle de Vermeer. Le Binnenhof — parlement néerlandais depuis le XIIIe s. La ville des diplomates et des institutions internationales.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rotterdam','Rotterdam — Premier Port d\'Europe')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Rotterdam, Hollande-Méridionale</div><h3 class="card-name">Rotterdam — Architecture et Port</h3><p class="card-context">Premier port d'Europe (11e mondial). Ville reconstruite après 1940 — laboratoire d'architecture audacieuse. Maisons Cubes de Piet Blom, Markthal (2014), Pont Érasme. Musée Boijmans Van Beuningen. Tourné vers l'avenir après la destruction.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Van_Gogh','Musée Van Gogh')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Amsterdam</div><h3 class="card-name">Musée Van Gogh</h3><p class="card-context">La plus grande collection Van Gogh au monde — 200 peintures, 500 dessins. Les Tournesols, La Chambre à Arles, Les Mangeurs de Pommes de Terre. Vincent van Gogh (1853–1890) — né à Nuenen, enterré à Auvers-sur-Oise. Le génie incompris qui changea la peinture.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Schokland','Schokland — Île dans les Polders')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Flevoland</div><h3 class="card-name">Schokland &amp; Les Polders</h3><p class="card-context">UNESCO 1995 — Schokland, ancienne île maintenant dans les polders asséchés. Symbole de la lutte contre la mer. Le Flevoland — la plus grande île artificielle du monde (970 km², asséchée en 1968). Les Pays-Bas ont créé 17% de leur territoire en asséchant la mer.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Haarlem','Haarlem — La Tulipe et la Cathédrale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Haarlem, Hollande-Septentrionale</div><h3 class="card-name">Haarlem — Grande Église et Frans Hals</h3><p class="card-context">Grande Église Sint-Bavo (XVe s.) et son orgue de Müller (1738) — Haendel, Mozart et Liszt y jouèrent. Musée Frans Hals — chef d'oeuvre de la peinture de groupe du XVIIe s. Marché aux fleurs. La ville à 20 min d'Amsterdam — calme et authentique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gouda','Gouda — La Ville du Fromage')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Gouda, Hollande-Méridionale</div><h3 class="card-name">Gouda — Fromage et Vitraux</h3><p class="card-context">La ville du fromage Gouda — marché aux fromages du jeudi (avril-août). Cathédrale Sint-Jan — les plus longs vitraux du monde (37 fenêtres gothiques). Stroopwafels (gaufres au caramel) inventées ici. Hôtel de Ville gothique de 1450. Parfait.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Utrecht','Utrecht — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Utrecht</div><h3 class="card-name">Utrecht — La Ville des Canaux Bas</h3><p class="card-context">Canaux bordés de caves-restaurants au niveau de l'eau (unica au monde). Dom Tower — la plus haute tour gothique des Pays-Bas (112 m). Université d'Utrecht (1636). Dick Bruna (Miffy / Nijntje) y vécut. Ville étudiante animée et charmante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Mauritshuis','Mauritshuis — La Jeune Fille à la Perle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">La Haye</div><h3 class="card-name">Mauritshuis — La Jeune Fille à la Perle</h3><p class="card-context">Le "Mona Lisa du Nord" — La Jeune Fille à la Perle de Vermeer (1665) dans le palais Mauritshuis (1644). La Vue de Delft (Vermeer), L'Anatomie du Dr Tulp (Rembrandt). La plus belle collection de peintures néerlandaises et flamandes au monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Muiderslot','Château de Muiderslot')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Muiden, Hollande-Septentrionale</div><h3 class="card-name">Château de Muiderslot</h3><p class="card-context">Le château médiéval le mieux conservé des Pays-Bas (1285) — construit par le Comte Floris V. Quatre tours rondes, douves pleines, pont-levis. Musée vivant — chevaliers en armure, fauconnerie. Le château de conte de fées à 15 km d'Amsterdam.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Groningue','Groningue — La Capitale du Nord')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Groningue</div><h3 class="card-name">Groningue — La Capitale du Nord</h3><p class="card-context">La capitale de la province septentrionale — jeune, estudiantine, animée. Musée de Groningue (Alessandro Mendini, 1994) — architecture provocatrice. Martinitoren — la plus grande tour de Groningue. Musée Groninger Museum. Cyclistes partout.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zaanse_Schans','Zaanse Schans — Village de Moulins')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Zaandam, Hollande-Septentrionale</div><h3 class="card-name">Zaanse Schans — Village Moulinier</h3><p class="card-context">Village musée aux moulins à vent, maisons vertes et artisans traditionnels. Fabrique de fromages, sabot de bois (klompen), moulins à huile et à moutarde. Pierre le Grand y apprit la construction navale incognito (1697). La Hollande d'antan vivante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Stedelijk_Museum','Stedelijk Museum Amsterdam')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Amsterdam</div><h3 class="card-name">Stedelijk Museum — Art Moderne</h3><p class="card-context">Le musée d'art moderne et contemporain d'Amsterdam. Mondrian, Kandinsky, Chagall, Appel. La "baignoire" — extension controversée et réussie (2012). Design néerlandais — De Stijl, Gerrit Rietveld. Les Pays-Bas pionniers du design moderne au XXe s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Texel','Texel — L\'Île des Moutons')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Texel, Frise occidentale</div><h3 class="card-name">Texel — La Plus Grande Île des Pays-Bas</h3><p class="card-context">L'île la plus grande et la plus visitée des Pays-Bas — plages de sable fin, dunes, oiseaux migrateurs. Moutons texelois (la race la plus réputée d'Europe). Phare de 1864. Écomusée "Ecomare". Les Wadden Islands — UNESCO 2009. Art de vivre insulaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Efteling','Efteling — Le Parc Enchanté')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Kaatsheuvel, Brabant-Septentrional</div><h3 class="card-name">Efteling — La Magie des Contes</h3><p class="card-context">Le plus grand parc d'attractions des Pays-Bas et l'un des plus vieux du monde (1952). Inspiré des contes des frères Grimm et d'Andersen. Forêt des Contes, Joris en de Draak. 5 millions de visiteurs par an. L'âme fantastique des Pays-Bas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Leeuwarden','Leeuwarden — Capitale Frisonne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Leeuwarden, Frise</div><h3 class="card-name">Leeuwarden — Capitale Frisonne</h3><p class="card-context">Capitale de la Frise — peuple aux traditions millénaires, langue propre (le frison). Musée Fries — art et histoire frisons. Tour d'Oldehove (penchée depuis le XVIe s.). Mata Hari née ici (1876). Capitale Européenne de la Culture 2018. Vaches frisonnes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maastricht','Maastricht — La Plus Ancienne Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Maastricht, Limbourg</div><h3 class="card-name">Maastricht — Ville du Traité</h3><p class="card-context">La plus ancienne ville des Pays-Bas — fondée par les Romains. Traité de Maastricht (1992) — création de l'Union Européenne. Basilique Saint-Servais, la plus ancienne des Pays-Bas. TEFAF — la plus grande foire d'antiquités du monde. Gastronomie bourguignonne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_royal_d%27Amsterdam','Palais Royal d\'Amsterdam')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Amsterdam</div><h3 class="card-name">Palais Royal d'Amsterdam</h3><p class="card-context">L'ancien Hôtel de Ville (1655) de Jacob van Campen — considéré à l'époque comme la 8e merveille du monde. Converti en palais royal par Napoléon (1808). Aujourd'hui résidence officielle du Roi Guillaume-Alexandre. Sur la Dam — place centrale d'Amsterdam.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alkmaar','Alkmaar — Marché aux Fromages')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Alkmaar, Hollande-Septentrionale</div><h3 class="card-name">Alkmaar — Le Marché aux Fromages</h3><p class="card-context">Le plus célèbre marché aux fromages des Pays-Bas (depuis 1622, le vendredi d'avril à septembre). Porteurs en blanc et rouge, meules de Gouda et d'Edam sur traîneaux en bois. L'Edam — fromage à la croûte rouge emblématique. La tradition fromagère vivante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Giethoorn','Giethoorn — La Venise des Pays-Bas')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Giethoorn, Overijssel</div><h3 class="card-name">Giethoorn — La Venise Verte</h3><p class="card-context">Le plus beau village des Pays-Bas — pas de routes, que des canaux et des sentiers piétonniers. Maisons à toits de chaume sur des îles reliées par 176 ponts. Bateaux à fond plat (punters). Réserve naturelle du Weerribben-Wieden voisine. Paradis de la quiétude.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Madurodam','Madurodam — La Miniature des Pays-Bas')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">La Haye</div><h3 class="card-name">Madurodam — Les Pays-Bas en Miniature</h3><p class="card-context">Parc miniature au 1/25e — tous les monuments et sites des Pays-Bas reproduits à taille réduite. Aéroport Schiphol, Delta Works, moulins, canaux d'Amsterdam. Fondé en mémoire de George Maduro, résistant néerlandais mort à Dachau. Délicieux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Beekse_Bergen','Safaripark Beekse Bergen')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Hilvarenbeek, Brabant-Sept.</div><h3 class="card-name">Beekse Bergen — Le Safari des Pays-Bas</h3><p class="card-context">Le plus grand parc animalier des Pays-Bas — lions, éléphants, girafes, rhinocéros dans 135 ha. Visite en voiture, à vélo ou à pied sur des passerelles surélevées. Safari-lodge pour nuit en pleine nature. Plus de 1 000 animaux de 150 espèces.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_néerlandaise','Gastronomie Néerlandaise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Pays-Bas entiers</div><h3 class="card-name">Gastronomie — Stroopwafel &amp; Haring</h3><p class="card-context">Haring (hareng cru avec oignons) — mangé à la main, tête en arrière. Stroopwafel (gaufre caramel). Bitterballen (boulettes frites). Stamppot (purée aux légumes). Jenever (genièvre, ancêtre du gin). Fromages Gouda et Edam. Simple, généreux, délicieux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/De_Stijl','De Stijl — L\'Art Géométrique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Utrecht — Pays-Bas</div><h3 class="card-name">De Stijl — Mondrian et Rietveld</h3><p class="card-context">De Stijl (1917) — le mouvement artistique néerlandais le plus influent. Piet Mondrian — grilles noires et couleurs primaires. Gerrit Rietveld — Chaise Rouge et Bleue, Maison Rietveld-Schröder (Utrecht, UNESCO). L'abstraction géométrique qui changea le design mondial.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Wadden','Îles des Wadden')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Mer des Wadden, Nord</div><h3 class="card-name">Îles des Wadden — UNESCO</h3><p class="card-context">UNESCO 2009 — la plus grande zone intertidale du monde. Texel, Vlieland, Terschelling, Ameland, Schiermonnikoog. Millions d'oiseaux migrateurs. Wadlopen — marche dans la vase à marée basse. Phoques. Paysage naturel primaire unique en Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_Het_Loo','Palais Het Loo')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Apeldoorn, Gueldre</div><h3 class="card-name">Palais Het Loo — Versailles Néerlandais</h3><p class="card-context">Le "Versailles des Pays-Bas" (1686) — résidence d'été de la Maison d'Orange-Nassau pendant 300 ans. Jardins baroques restaurés à l'identique. Musée de la Maison d'Orange. Rénové et réouvert en 2022. Le palais le plus grandiose des Pays-Bas.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nieuw-Amsterdam','Nouvelle-Amsterdam — Ancienne New York')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Manhattan, ex-Nouvelle-Amsterdam</div><h3 class="card-name">Héritage Néerlandais dans le Monde</h3><p class="card-context">La VOC (Compagnie des Indes Orientales, 1602) — la première multinationale de l'histoire. Nouvelle-Amsterdam (Manhattan), Cap (Afrique du Sud), Batavia (Jakarta). Le Suriname, Aruba, Curaçao — encore néerlandais. L'empire commercial le plus vaste du XVIIe s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Leiden','Leiden — Rembrandt et l\'Université')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Leiden, Hollande-Méridionale</div><h3 class="card-name">Leiden — Rembrandt et Spinoza</h3><p class="card-context">Ville natale de Rembrandt van Rijn (1606). Plus vieille université des Pays-Bas (1575). Jardin botanique Hortus Botanicus (1590) — le plus ancien du monde encore en activité. Moulins à vent du De Valk. La ville des savants et des artistes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Floriade','Floriade — Exposition Horticole')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Pays-Bas</div><h3 class="card-name">Floriculture Néerlandaise</h3><p class="card-context">Les Pays-Bas — premier exportateur de fleurs au monde (65% du marché mondial). Marché FloraHolland à Aalsmeer — la plus grande vente aux enchères de fleurs au monde. 12 milliards de fleurs coupées par an. La tulipe — introduite de Turquie en 1593, la "tulipomanie" de 1637.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Bataves à l'Age d'Or et au XXIe s.</div>
+  <h2 class="section-title">Histoire des Pays-Bas</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">50 av. J.-C. — 1400</div>
+      <div class="timeline-event"><strong>Bataves, Francs et Moyen Age.</strong> Les Bataves — le peuple gaulois qui habitait le delta du Rhin. Julius César les mentionne comme guerriers redoutables. Empire romain, puis Francs, puis Empire du Saint-Empire. Les Comtes de Hollande et de Zélande construisent les premières digues pour lutter contre la mer. La lutte millénaire contre l'eau commence.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1568 — 1648</div>
+      <div class="timeline-event"><strong>Guerre de Quatre-Vingts Ans et Indépendance.</strong> Les Provinces-Unies se révoltent contre Philippe II d'Espagne (1568). Guillaume d'Orange — le Père de la Patrie. 80 ans de guerre pour l'indépendance. Trêve de Douze Ans (1609). Traité de Westphalie (1648) reconnaît l'indépendance. La République des Sept Provinces-Unies naît.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1602 — 1700</div>
+      <div class="timeline-event"><strong>L'Age d'Or.</strong> La VOC (1602) — la première société par actions et multinationale de l'histoire. Amsterdam — centre financier et culturel mondial. Rembrandt, Vermeer, Frans Hals, Jan Steen — le plus grand mouvement pictural de l'histoire. 1 500 tableaux produits par an à Amsterdam. La plus petite puissance mondiale la plus riche.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1795 — 1815</div>
+      <div class="timeline-event"><strong>Napoléon et Restauration.</strong> Les Français envahissent (1795) — République Batave. Louis Bonaparte — frère de Napoléon — roi des Pays-Bas (1806). Défaite de Napoléon — Congrès de Vienne (1815). Royaume-Uni des Pays-Bas créé avec la Belgique. La Belgique se sépare en 1830. Le Royaume des Pays-Bas moderne naît.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1940 — 1945</div>
+      <div class="timeline-event"><strong>Occupation et Libération.</strong> L'Allemagne envahit le 10 mai 1940 — Rotterdam bombardée en 4 heures. 75% des Juifs néerlandais (105 000 personnes) assassinés — le plus fort taux d'Europe occidentale. Anne Frank. Hiver de la Famine (1944–1945) — 22 000 morts. Libération en mai 1945. La Reine Wilhelmine en exil à Londres dirige la résistance.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1953</div>
+      <div class="timeline-event"><strong>La Grande Inondation.</strong> Le 1er février 1953 — tempête catastrophique, digues rompues, 1 835 morts, 70 000 personnes évacuées. Décision de construire le Delta Plan — les Delta Works. 40 ans de chantier colossal. Le résultat — la plus grande oeuvre d'ingénierie hydraulique de l'humanité, 7e merveille du monde moderne.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1992 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Maastricht et la Tolérance.</strong> Traité de Maastricht (1992) — création de l'UE. Les Pays-Bas — pionniers de la tolérance et des droits : premier pays à légaliser le mariage homosexuel (2001), l'euthanasie (2002), le cannabis toléré. Rotterdam — premier port d'Europe. La lutte contre le changement climatique — les Pays-Bas pionniers mondiaux de l'adaptation.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇳🇱</div>
+  <p class="footer-text">Guide du Voyageur · Pays-Bas · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([52.3,5.3],8);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(174,28,40,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#6a0808"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#AE1C28" stroke="#6a0808" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#8e0c18"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#8e0c18"/><rect x="6" y="8" width="2" height="4" fill="#8e0c18"/><rect x="9" y="8" width="2" height="4" fill="#8e0c18"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#500008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#AE1C28"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconMoulin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(174,28,40,.9))"><rect x="12" y="20" width="12" height="14" rx="0.5" fill="#8e5a28" stroke="#5a3010" stroke-width="0.6"/><path d="M8 20 L28 20 L26 16 L10 16 Z" fill="#c8a050"/><rect x="15" y="24" width="6" height="10" fill="#4a2808"/><line x1="18" y1="16" x2="18" y2="2" stroke="#6a3808" stroke-width="1.4" stroke-linecap="round"/><path d="M18 8 L6 14 L10 10 L18 8 Z" fill="#AE1C28"/><path d="M18 8 L30 14 L26 10 L18 8 Z" fill="#AE1C28"/><path d="M18 8 L24 20 L20 16 L18 8 Z" fill="#AE1C28" opacity="0.7"/><path d="M18 8 L12 20 L16 16 L18 8 Z" fill="#AE1C28" opacity="0.7"/></svg>');
+
+var iconTulipe=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(230,80,120,.85))"><line x1="18" y1="36" x2="18" y2="18" stroke="#2a7a20" stroke-width="1.4" stroke-linecap="round"/><path d="M18 18 Q14 20 12 16 Q14 10 18 8 Q22 10 24 16 Q22 20 18 18 Z" fill="#e8607a" stroke="#a04050" stroke-width="0.6"/><path d="M12 16 Q8 14 8 10 Q12 6 16 8 Q18 12 18 18 Q14 18 12 16 Z" fill="#f080a0" opacity="0.7"/><path d="M24 16 Q28 14 28 10 Q24 6 20 8 Q18 12 18 18 Q22 18 24 16 Z" fill="#f080a0" opacity="0.7"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/></svg>');
+
+var iconEau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,80,180,.9))"><path d="M2 24 Q6 18 12 20 Q18 22 24 18 Q30 14 34 18 L34 28 Q28 24 22 26 Q16 28 10 26 Q6 28 2 26 Z" fill="#21468B"/><path d="M4 24 Q8 20 12 22 Q16 24 18 22 Q22 20 26 22 Q30 24 32 22" fill="none" stroke="#4080e0" stroke-width="1.2" opacity="0.7"/><rect x="14" y="4" width="8" height="16" rx="0.5" fill="#AE1C28" opacity="0.8"/><rect x="14" y="14" width="8" height="4" fill="#f8f8f8" opacity="0.9"/><line x1="2" y1="18" x2="34" y2="18" stroke="#21468B" stroke-width="1" opacity="0.4"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconDesign=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,120,.8))"><rect x="4" y="4" width="28" height="28" rx="1" fill="#f8f8f8" stroke="#21468B" stroke-width="1.2"/><rect x="4" y="4" width="14" height="14" fill="#AE1C28"/><rect x="18" y="18" width="14" height="14" fill="#21468B"/><rect x="4" y="18" width="14" height="14" fill="#f8f8f8" stroke="#ccc" stroke-width="0.5"/><rect x="18" y="4" width="14" height="14" fill="#f8f8f8" stroke="#ccc" stroke-width="0.5"/></svg>');
+
+var iconVelo=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,50,.85))"><circle cx="9" cy="26" r="7" fill="none" stroke="#21468B" stroke-width="1.5"/><circle cx="27" cy="26" r="7" fill="none" stroke="#21468B" stroke-width="1.5"/><circle cx="9" cy="26" r="2" fill="#21468B"/><circle cx="27" cy="26" r="2" fill="#21468B"/><path d="M9 26 L18 10 L27 26 L18 18 Z" fill="#AE1C28" stroke="#21468B" stroke-width="0.7"/><path d="M15 10 L21 10 L18 10" fill="none" stroke="#21468B" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconFromage=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,150,10,.85))"><path d="M4 24 L18 8 L32 24 Z" fill="#e8c020" stroke="#a08010" stroke-width="0.7"/><path d="M4 24 L32 24 L32 30 L4 30 Z" fill="#c8a010" stroke="#a08010" stroke-width="0.6"/><circle cx="22" cy="18" r="2.5" fill="#a08010" opacity="0.6"/><circle cx="14" cy="22" r="2" fill="#a08010" opacity="0.5"/><circle cx="24" cy="24" r="1.5" fill="#a08010" opacity="0.4"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a60b8" opacity="0.8"/><path d="M10 28 Q14 22 18 20 Q22 22 26 28 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="16" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="6" width="8" height="4" rx="0.5" fill="#AE1C28"/></svg>');
+
+var iconInter=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,60,150,.85))"><circle cx="18" cy="18" r="14" fill="#003399" stroke="#002266" stroke-width="0.7"/><circle cx="18" cy="18" r="10" fill="#0044cc" opacity="0.4"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="25" cy="11" r="1.5" fill="#FAE042"/><circle cx="28" cy="18" r="1.5" fill="#FAE042"/><circle cx="25" cy="25" r="1.5" fill="#FAE042"/><circle cx="18" cy="28" r="1.5" fill="#FAE042"/><circle cx="11" cy="25" r="1.5" fill="#FAE042"/><circle cx="8" cy="18" r="1.5" fill="#FAE042"/><circle cx="11" cy="11" r="1.5" fill="#FAE042"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#AE1C28" stroke="#6a0808" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#AE1C28',label:'🏙️ Villes Historiques',pts:[
+    {lat:52.3676,lng:4.9041,n:"Amsterdam — Canaux UNESCO",c:"Amsterdam",d:"UNESCO 2010. 165 canaux, 1500 ponts, maisons penchées. Coeur de l\'Age d\'Or hollandais.",u:"https://fr.m.wikipedia.org/wiki/Amsterdam?useskin=vector"},
+    {lat:52.0116,lng:4.3571,n:"La Haye — Capitale Diplomatique",c:"La Haye, Hollande-Méridionale",d:"CIJ, CPI. Mauritshuis (Jeune Fille à la Perle). Binnenhof depuis le XIIIe s.",u:"https://fr.m.wikipedia.org/wiki/La_Haye?useskin=vector"},
+    {lat:51.9244,lng:4.4777,n:"Rotterdam — Port et Architecture",c:"Rotterdam, Hollande-Méridionale",d:"1er port d\'Europe. Maisons Cubes, Markthal, Pont Érasme. Ville du futur.",u:"https://fr.m.wikipedia.org/wiki/Rotterdam?useskin=vector"},
+    {lat:52.0907,lng:5.1214,n:"Utrecht — Canaux Bas et Dom Tower",c:"Utrecht",d:"Canaux avec caves-restaurants. Dom Tower (112 m). Miffy née ici. Université (1636).",u:"https://fr.m.wikipedia.org/wiki/Utrecht?useskin=vector"},
+    {lat:51.9225,lng:4.4792,n:"Delft — Vermeer et Faïence",c:"Delft, Hollande-Méridionale",d:"Ville de Vermeer. Delftware bleue et blanche. Nouvelle Église. Canaux charmants.",u:"https://fr.m.wikipedia.org/wiki/Delft?useskin=vector"},
+    {lat:52.3808,lng:4.6368,n:"Haarlem — Grande Église",c:"Haarlem, Hollande-Sept.",d:"Sint-Bavo (XVe s.), orgue Müller — Haendel, Mozart. Musée Frans Hals.",u:"https://fr.m.wikipedia.org/wiki/Haarlem?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Collections',pts:[
+    {lat:52.3600,lng:4.8852,n:"Rijksmuseum — La Ronde de Nuit",c:"Amsterdam",d:"8 000 oeuvres. Ronde de Nuit (Rembrandt), La Laitière (Vermeer). Temple de l\'Age d\'Or.",u:"https://fr.m.wikipedia.org/wiki/Rijksmuseum?useskin=vector"},
+    {lat:52.3584,lng:4.8811,n:"Musée Van Gogh",c:"Amsterdam",d:"200 peintures. Les Tournesols, La Chambre à Arles. Plus grande collection Van Gogh.",u:"https://fr.m.wikipedia.org/wiki/Musée_Van_Gogh?useskin=vector"},
+    {lat:52.0813,lng:4.3139,n:"Mauritshuis — Jeune Fille à la Perle",c:"La Haye",d:"La Jeune Fille à la Perle (Vermeer). La Vue de Delft. Anatomie du Dr Tulp (Rembrandt).",u:"https://fr.m.wikipedia.org/wiki/Mauritshuis?useskin=vector"},
+    {lat:52.3573,lng:4.8762,n:"Stedelijk Museum",c:"Amsterdam",d:"Art moderne et contemporain. Mondrian, Kandinsky, Chagall. De Stijl. Baignoire (2012).",u:"https://fr.m.wikipedia.org/wiki/Stedelijk_Museum?useskin=vector"},
+    {lat:53.2178,lng:6.5670,n:"Musée de Groningue",c:"Groningue",d:"Architecture provocatrice d\'Alessandro Mendini (1994). Art contemporain du Grand Nord.",u:"https://fr.m.wikipedia.org/wiki/Groninger_Museum?useskin=vector"}
+  ]},
+  moulin:{icon:iconMoulin,color:'#AE1C28',label:'🌬️ Moulins à Vent',pts:[
+    {lat:51.8837,lng:4.6261,n:"Moulins de Kinderdijk",c:"Kinderdijk, Hollande-Méridionale",d:"UNESCO 1997. 19 moulins du XVIIIe s. alignés. Symbole absolu des Pays-Bas. Toujours fonctionnels.",u:"https://fr.m.wikipedia.org/wiki/Moulins_de_Kinderdijk?useskin=vector"},
+    {lat:52.4750,lng:4.8239,n:"Zaanse Schans — Village Moulinier",c:"Zaandam, Hollande-Sept.",d:"Moulins, maisons vertes, artisans. Fromages, sabots. Pierre le Grand y apprit la charpente.",u:"https://fr.m.wikipedia.org/wiki/Zaanse_Schans?useskin=vector"},
+    {lat:52.1600,lng:4.4856,n:"Moulin De Valk — Leiden",c:"Leiden, Hollande-Méridionale",d:"Moulin tour de 1743 — musée vivant de la meunerie. Au bord du canal de Leiden.",u:"https://fr.m.wikipedia.org/wiki/Moulin_De_Valk?useskin=vector"}
+  ]},
+  tulipe:{icon:iconTulipe,color:'#e8607a',label:'🌷 Tulipes & Floriculture',pts:[
+    {lat:52.2697,lng:4.5469,n:"Keukenhof — Jardin des Fleurs",c:"Lisse, Hollande-Méridionale",d:"32 ha, 7 millions de bulbes. Le plus beau jardin au monde. 8 semaines au printemps.",u:"https://fr.m.wikipedia.org/wiki/Keukenhof?useskin=vector"},
+    {lat:52.2631,lng:4.7569,n:"Aalsmeer — Vente aux Enchères",c:"Aalsmeer, Hollande-Sept.",d:"FloraHolland — plus grande vente aux enchères de fleurs du monde. 12 milliards de fleurs/an.",u:"https://fr.m.wikipedia.org/wiki/Aalsmeer?useskin=vector"},
+    {lat:52.1000,lng:4.5500,n:"Champs de Tulipes — Bollenstreek",c:"Bollenstreek, Hollande-Méridionale",d:"La Streek des Bulbes — tapis de couleurs de mars à mai. Vue depuis les airs incomparable.",u:"https://fr.m.wikipedia.org/wiki/Bollenstreek?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:52.3676,lng:4.9041,n:"Canaux d\'Amsterdam",c:"Amsterdam",d:"UNESCO 2010. Ceinture de canaux du XVIIe s. 165 canaux, 2 500 maisons-canaux.",u:"https://fr.m.wikipedia.org/wiki/Canaux_d%27Amsterdam?useskin=vector"},
+    {lat:51.8837,lng:4.6261,n:"Moulins de Kinderdijk",c:"Kinderdijk",d:"UNESCO 1997. 19 moulins du XVIIIe s. Système de gestion des eaux unique.",u:"https://fr.m.wikipedia.org/wiki/Moulins_de_Kinderdijk?useskin=vector"},
+    {lat:52.4592,lng:5.7778,n:"Schokland — Ile dans les Polders",c:"Flevoland",d:"UNESCO 1995. Ancienne île dans les polders asséchés. La lutte contre la mer.",u:"https://fr.m.wikipedia.org/wiki/Schokland?useskin=vector"},
+    {lat:52.0907,lng:5.1214,n:"Maison Rietveld-Schröder — Utrecht",c:"Utrecht",d:"UNESCO 2000. Chef-d\'oeuvre de De Stijl (1924). Gerrit Rietveld. Architecture révolutionnaire.",u:"https://fr.m.wikipedia.org/wiki/Maison_Rietveld-Schröder?useskin=vector"},
+    {lat:53.3000,lng:5.3000,n:"Îles des Wadden",c:"Mer des Wadden, Nord",d:"UNESCO 2009. Plus grande zone intertidale du monde. Oiseaux, phoques, marée.",u:"https://fr.m.wikipedia.org/wiki/Mer_des_Wadden?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Palais',pts:[
+    {lat:52.3303,lng:5.0731,n:"Château de Muiderslot",c:"Muiden, Hollande-Sept.",d:"Le plus beau château médiéval (1285). 4 tours, douves. Chevaliers, fauconnerie. Conte de fées.",u:"https://fr.m.wikipedia.org/wiki/Muiderslot?useskin=vector"},
+    {lat:52.2236,lng:5.9706,n:"Palais Het Loo — Versailles NL",c:"Apeldoorn, Gueldre",d:"Versailles néerlandais (1686). Maison d\'Orange-Nassau 300 ans. Jardins baroques restaurés.",u:"https://fr.m.wikipedia.org/wiki/Palais_Het_Loo?useskin=vector"},
+    {lat:52.3737,lng:4.8934,n:"Palais Royal d\'Amsterdam",c:"Amsterdam",d:"Ancien Hôtel de Ville (1655). 8e merveille du monde à l\'époque. Résidence du Roi.",u:"https://fr.m.wikipedia.org/wiki/Palais_royal_d%27Amsterdam?useskin=vector"},
+    {lat:52.0116,lng:4.3134,n:"Binnenhof — La Haye",c:"La Haye",d:"Parlement néerlandais depuis le XIIIe s. La Salle des Chevaliers. Siège du gouvernement.",u:"https://fr.m.wikipedia.org/wiki/Binnenhof?useskin=vector"}
+  ]},
+  eau:{icon:iconEau,color:'#21468B',label:'💧 Eau & Delta Works',pts:[
+    {lat:51.6230,lng:3.6880,n:"Delta Works — Barrages",c:"Delta, Zélande",d:"7e merveille du monde moderne. Barrages après la catastrophe de 1953. 40 ans de chantier.",u:"https://fr.m.wikipedia.org/wiki/Delta_Works?useskin=vector"},
+    {lat:52.9328,lng:5.0000,n:"Zuiderzee — Lac IJssel",c:"IJsselmeer, Hollande",d:"Ancien golfe marin fermé par la digue Afsluitdijk (32 km, 1932). Polders asséchés ensuite.",u:"https://fr.m.wikipedia.org/wiki/IJsselmeer?useskin=vector"},
+    {lat:52.4592,lng:5.7778,n:"Flevoland — L\'Île Artificielle",c:"Flevoland",d:"970 km² de terre gagnée sur la mer (1968). Plus grande île artificielle du monde.",u:"https://fr.m.wikipedia.org/wiki/Flevoland?useskin=vector"},
+    {lat:52.2631,lng:4.7569,n:"Afsluitdijk — La Grande Digue",c:"Hollande/Frise",d:"32 km de digue fermant l\'ancienne Zuiderzee (1932). Génie civil de l\'impossible.",u:"https://fr.m.wikipedia.org/wiki/Afsluitdijk?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🐟 Gastronomie Néerlandaise',pts:[
+    {lat:52.3676,lng:4.9041,n:"Haring — Hareng Cru d\'Amsterdam",c:"Amsterdam",d:"Hareng cru avec oignons — mangé tête en arrière. La spécialité nationale. Kraam (baraque).",u:"https://fr.m.wikipedia.org/wiki/Harengs_crus?useskin=vector"},
+    {lat:51.9886,lng:4.7025,n:"Gouda — Fromage et Stroopwafel",c:"Gouda, Hollande-Méridionale",d:"Marché aux fromages. Stroopwafel inventée ici. Cathédrale Sint-Jan (vitraux gothiques).",u:"https://fr.m.wikipedia.org/wiki/Gouda?useskin=vector"},
+    {lat:52.6324,lng:4.7484,n:"Alkmaar — Marché aux Fromages",c:"Alkmaar, Hollande-Sept.",d:"Le plus célèbre marché aux fromages (depuis 1622). Porteurs en blanc et rouge.",u:"https://fr.m.wikipedia.org/wiki/Alkmaar?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:51.9692,lng:5.6694,n:"Parc National de Hoge Veluwe",c:"Gueldre",d:"Le plus grand parc national des Pays-Bas (5 400 ha). Sangliers, cerfs, mouflons. Musée Kröller-Möller (Musée Van Gogh extérieur).",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Hoge_Veluwe?useskin=vector"},
+    {lat:52.7767,lng:6.0000,n:"Weerribben-Wieden — Tourbières",c:"Overijssel",d:"Plus grande zone de tourbières des Pays-Bas. Loutres, grues, cigognes. Barques sur les canaux.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Weerribben-Wieden?useskin=vector"},
+    {lat:52.6167,lng:4.9500,n:"Duinen van Texel — Dunes",c:"Texel, Frise occidentale",d:"Dunes, plages, oiseaux. Moutons texelois. Écomusée. UNESCO Wadden. Île la plus visitée.",u:"https://fr.m.wikipedia.org/wiki/Texel?useskin=vector"}
+  ]},
+  design:{icon:iconDesign,color:'#5040b0',label:'🟥 De Stijl & Design',pts:[
+    {lat:52.0907,lng:5.1214,n:"Maison Rietveld-Schröder — Utrecht",c:"Utrecht",d:"UNESCO 2000. Maison De Stijl (1924) de Gerrit Rietveld. Révolution architecturale.",u:"https://fr.m.wikipedia.org/wiki/Maison_Rietveld-Schröder?useskin=vector"},
+    {lat:51.9244,lng:4.4777,n:"Rotterdam — Maisons Cubes",c:"Rotterdam",d:"Maisons Cubes de Piet Blom (1984). Markthal (2014). Pont Érasme. Laboratoire architectural.",u:"https://fr.m.wikipedia.org/wiki/Maisons_cubes_de_Rotterdam?useskin=vector"},
+    {lat:52.3584,lng:4.8811,n:"Stedelijk — De Stijl et Mondrian",c:"Amsterdam",d:"De Stijl — Mondrian, Van Doesburg. Grilles noires et couleurs primaires. Design mondial.",u:"https://fr.m.wikipedia.org/wiki/De_Stijl?useskin=vector"}
+  ]},
+  velo:{icon:iconVelo,color:'#21468B',label:'🚲 Vélo & Art de Vivre',pts:[
+    {lat:52.3676,lng:4.9041,n:"Amsterdam — Capitale du Vélo",c:"Amsterdam",d:"880 000 vélos pour 860 000 habitants. 800 km de pistes. Le vélo — ADN néerlandais.",u:"https://fr.m.wikipedia.org/wiki/Vélo_à_Amsterdam?useskin=vector"},
+    {lat:52.0907,lng:5.1214,n:"Utrecht — Plus de Vélos que d\'Habitants",c:"Utrecht",d:"Stationsplein Utrecht — plus grand parking à vélos du monde (12 500 places). Record mondial.",u:"https://fr.m.wikipedia.org/wiki/Utrecht?useskin=vector"},
+    {lat:52.6324,lng:4.7484,n:"Alkmaar — Vélo en Hollande du Nord",c:"Hollande-Septentrionale",d:"Vélo sur digues, entre moulins et champs de tulipes. Le paradis du cyclotourisme.",u:"https://fr.m.wikipedia.org/wiki/Cyclotourisme_aux_Pays-Bas?useskin=vector"}
+  ]},
+  fromage:{icon:iconFromage,color:'#e8c020',label:'🧀 Fromages & Artisanat',pts:[
+    {lat:51.9886,lng:4.7025,n:"Gouda — Marché aux Fromages",c:"Gouda, Hollande-Méridionale",d:"Marché aux fromages du jeudi. Gouda — le fromage le plus exporté au monde. Stroopwafel.",u:"https://fr.m.wikipedia.org/wiki/Gouda?useskin=vector"},
+    {lat:52.6324,lng:4.7484,n:"Alkmaar — Porteurs de Fromages",c:"Alkmaar",d:"Marché depuis 1622. Porteurs en blanc/rouge, traîneaux de bois. Edam à croûte rouge.",u:"https://fr.m.wikipedia.org/wiki/Alkmaar?useskin=vector"},
+    {lat:52.4750,lng:4.8239,n:"Zaanse Schans — Sabots et Fromage",c:"Zaandam",d:"Fabrique de fromages traditionnelle, fabricant de klompen (sabots), moulin à huile.",u:"https://fr.m.wikipedia.org/wiki/Zaanse_Schans?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#1a60b8',label:'🏝️ Îles & Côtes',pts:[
+    {lat:53.0639,lng:4.8028,n:"Texel — La Grande Île",c:"Texel, Frise occidentale",d:"Plus grande île des Pays-Bas. Plages, dunes, moutons. UNESCO Wadden. Phoques.",u:"https://fr.m.wikipedia.org/wiki/Texel?useskin=vector"},
+    {lat:53.3000,lng:5.3000,n:"Terschelling — Île des Wadden",c:"Terschelling, Frise",d:"Île de sable et de dunes. Festival Oerol (juin). Phare de 1594. Vie insulaire préservée.",u:"https://fr.m.wikipedia.org/wiki/Terschelling?useskin=vector"},
+    {lat:52.2436,lng:5.1017,n:"Giethoorn — La Venise Verte",c:"Giethoorn, Overijssel",d:"Pas de routes. Canaux, ponts, toits de chaume. Le plus beau village des Pays-Bas.",u:"https://fr.m.wikipedia.org/wiki/Giethoorn?useskin=vector"}
+  ]},
+  inter:{icon:iconInter,color:'#003399',label:'🌐 Institutions Internationales',pts:[
+    {lat:52.0833,lng:4.3225,n:"Cour Internationale de Justice",c:"La Haye",d:"La plus haute juridiction internationale (1945). Palais de la Paix (1913). 193 nations.",u:"https://fr.m.wikipedia.org/wiki/Cour_internationale_de_justice?useskin=vector"},
+    {lat:52.0878,lng:4.2956,n:"CPI — Cour Pénale Internationale",c:"La Haye",d:"Tribunal pour crimes contre l\'humanité (2002). Génocides, crimes de guerre jugés ici.",u:"https://fr.m.wikipedia.org/wiki/Cour_pénale_internationale?useskin=vector"},
+    {lat:50.8514,lng:5.6910,n:"Maastricht — Traité de l\'UE",c:"Maastricht, Limbourg",d:"Traité de Maastricht (1992) — naissance de l\'Union Européenne. La plus ancienne ville NL.",u:"https://fr.m.wikipedia.org/wiki/Maastricht?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:52.2236,lng:5.9706,n:"Golf de Hoge Veluwe",c:"Apeldoorn, Gueldre",d:"Golf dans le plus grand parc national. Paysage de bruyère et de sable. Kröller-Möller voisin.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_la_Hoge_Veluwe?useskin=vector"},
+    {lat:52.3676,lng:4.9041,n:"Golf de l\'Amstelborgh",c:"Amsterdam",d:"Golf d\'Amsterdam — 36 trous dans les polders. Paysage plat et vert typiquement néerlandais.",u:"https://fr.m.wikipedia.org/wiki/Golf_aux_Pays-Bas?useskin=vector"},
+    {lat:52.0116,lng:4.3571,n:"Golf de La Haye",c:"La Haye, Hollande-Méridionale",d:"Haagsche Golf & Country Club (1893). Un des plus anciens clubs des Pays-Bas.",u:"https://fr.m.wikipedia.org/wiki/Golf_aux_Pays-Bas?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#AE1C28\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#AE1C28"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#8e0c18"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#8e0c18"/><rect x="6" y="8" width="2" height="4" fill="#8e0c18"/></svg>', label:'Villes Historiques', count:6},
+      {cat:'musee',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Collections', count:5},
+      {cat:'moulin',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="12" y="20" width="12" height="14" rx="0.5" fill="#8e5a28"/><line x1="18" y1="16" x2="18" y2="2" stroke="#6a3808" stroke-width="1.4" stroke-linecap="round"/><path d="M18 8 L6 14 L10 10 L18 8 Z" fill="#AE1C28"/><path d="M18 8 L30 14 L26 10 L18 8 Z" fill="#AE1C28"/></svg>', label:'Moulins à Vent', count:3},
+      {cat:'tulipe',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><line x1="18" y1="36" x2="18" y2="18" stroke="#2a7a20" stroke-width="1.4" stroke-linecap="round"/><path d="M18 18 Q14 20 12 16 Q14 10 18 8 Q22 10 24 16 Q22 20 18 18 Z" fill="#e8607a"/></svg>', label:'Tulipes &amp; Floriculture', count:3},
+      {cat:'unesco',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'chateau', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/></svg>', label:'Châteaux &amp; Palais', count:4},
+      {cat:'eau',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 22 Q10 18 18 20 Q26 18 34 22 L34 28 L2 28 Z" fill="#21468B"/><rect x="14" y="4" width="8" height="14" rx="0.5" fill="#AE1C28" opacity="0.8"/><rect x="14" y="12" width="8" height="4" fill="#f8f8f8" opacity="0.9"/></svg>', label:'Eau &amp; Delta Works', count:4},
+      {cat:'gastro',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie', count:3},
+      {cat:'nature',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:3},
+      {cat:'design',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="1" fill="#f8f8f8" stroke="#21468B" stroke-width="1.2"/><rect x="4" y="4" width="14" height="14" fill="#AE1C28"/><rect x="18" y="18" width="14" height="14" fill="#21468B"/></svg>', label:'De Stijl &amp; Design', count:3},
+      {cat:'velo',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="9" cy="26" r="7" fill="none" stroke="#21468B" stroke-width="1.5"/><circle cx="27" cy="26" r="7" fill="none" stroke="#21468B" stroke-width="1.5"/><path d="M9 26 L18 10 L27 26 L18 18 Z" fill="#AE1C28" stroke="#21468B" stroke-width="0.7"/></svg>', label:'Vélo &amp; Art de Vivre', count:3},
+      {cat:'fromage', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 24 L18 8 L32 24 Z" fill="#e8c020" stroke="#a08010" stroke-width="0.7"/><path d="M4 24 L32 24 L32 30 L4 30 Z" fill="#c8a010"/><circle cx="22" cy="18" r="2.5" fill="#a08010" opacity="0.6"/></svg>', label:'Fromages &amp; Artisanat', count:3},
+      {cat:'ile',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a60b8"/><path d="M10 26 Q14 20 18 18 Q22 20 26 26 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="14" fill="#f5ead8"/><rect x="14" y="6" width="8" height="4" fill="#AE1C28"/></svg>', label:'Îles &amp; Côtes', count:3},
+      {cat:'inter',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="#003399"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="28" cy="18" r="1.5" fill="#FAE042"/><circle cx="18" cy="28" r="1.5" fill="#FAE042"/><circle cx="8" cy="18" r="1.5" fill="#FAE042"/></svg>', label:'Institutions Internationales', count:3},
+      {cat:'golf',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#AE1C28"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#AE1C28 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#AE1C28;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#21468B;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#AE1C28;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #AE1C28';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#AE1C28':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'AE1C28\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

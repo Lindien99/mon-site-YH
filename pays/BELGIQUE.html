@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belgique — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Belgique.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --noir:#1a1a1a;      /* noir belge */
+      --jaune:#FAE042;     /* jaune belge */
+      --rouge:#EF3340;     /* rouge belge */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --brun:#5a2a08;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#03030a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(239,51,64,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(250,224,66,.06) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--noir) 0%,var(--noir) 33%,var(--jaune) 33%,var(--jaune) 66%,var(--rouge) 66%,var(--rouge) 100%);opacity:.5;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(239,51,64,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--jaune);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--jaune),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--jaune);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--jaune);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(239,51,64,.25);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(239,51,64,.08);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(3,3,10,.88);border:1px solid rgba(250,224,66,.5);border-radius:3px;
+      color:#FAE042;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(239,51,64,.12);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--noir),var(--jaune),var(--rouge));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(250,224,66,.03);border-color:rgba(250,224,66,.25);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(239,51,64,.07);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--jaune);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--jaune);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--jaune) 10%,var(--jaune) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--jaune);box-shadow:0 0 12px rgba(250,224,66,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(239,51,64,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--jaune);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(250,224,66,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#03030a;border-bottom:1px solid rgba(239,51,64,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--jaune);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #b01020;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#cc2030;border-color:#cc2030;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(239,51,64,.95);border-top:1px solid rgba(250,224,66,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--jaune);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Belgique';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Belgique');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">BELGIQUE</div>
+  <div class="hero-eyebrow">Belgique · Guide du Voyageur</div>
+  <h1 class="hero-title">Chocolat, Bières<br>&amp; <em>Joyaux de Belgique</em></h1>
+  <p class="hero-subtitle">Beffrois médiévaux, Grand-Place de Bruxelles, Bruges la Morte, bandes dessinées &amp; capitale de l'Europe</p>
+
+  <!-- MANNEKEN PIS — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(239,51,64,.25))" shape-rendering="geometricPrecision">
+
+      <!-- Lion héraldique belge — Leo Belgicus -->
+      <!-- Corps du lion -->
+      <path d="M44 112 Q36 96 38 80 Q40 64 52 56 Q64 48 78 48 Q94 48 106 60 Q118 74 114 94 Q110 112 94 120 Q78 128 60 122 Q50 118 44 112 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M52 62 Q64 52 78 52 Q92 52 102 62 Q92 56 78 55 Q66 55 52 62 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures anatomiques -->
+      <path d="M56 82 Q66 76 76 78 Q82 79 88 78 Q96 76 104 82" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M54 93 Q64 87 76 89 Q82 90 88 89 Q96 87 106 93" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M56 104 Q66 99 76 100 Q82 101 88 100 Q96 99 104 104" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Crinière -->
+      <path d="M42 74 Q30 60 32 46 Q38 38 48 38" fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M46 58 Q34 52 30 40 Q34 32 44 30 Q50 34 48 42" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M54 44 Q46 34 48 22 Q54 16 62 18 Q64 24 60 30" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M68 40 Q66 28 70 18 Q76 12 82 16 Q82 24 78 30" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M82 42 Q86 30 94 24 Q102 20 106 28 Q104 34 98 36" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M94 52 Q104 42 112 40 Q118 42 118 50 Q114 56 108 56" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête -->
+      <ellipse cx="78" cy="46" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M60 40 Q68 30 78 28 Q88 30 96 40 Q88 34 78 33 Q68 34 60 40 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Oeil -->
+      <circle cx="85" cy="42" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="85" cy="42" r="3" fill="#2a1000"/>
+      <circle cx="86.5" cy="40.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau -->
+      <path d="M68 50 Q72 54 78 54 Q84 54 88 50" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="78" cy="56" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <ellipse cx="75" cy="55" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+      <ellipse cx="81" cy="55" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+
+      <!-- Moustaches -->
+      <line x1="72" y1="57" x2="50" y2="54" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="72" y1="59" x2="50" y2="60" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="84" y1="57" x2="106" y2="54" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="84" y1="59" x2="106" y2="60" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+
+      <!-- Patte avant avec hache (emblème belge) -->
+      <path d="M98 82 Q108 74 114 62 Q118 54 116 48" fill="#b07808" stroke="#7a5008" stroke-width="0.7"/>
+      <!-- Hache médiévale belge -->
+      <line x1="110" y1="30" x2="118" y2="72" stroke="#8a5010" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M106 36 Q100 28 108 24 Q118 26 116 36 Q114 40 110 38 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+
+      <!-- Patte arrière -->
+      <path d="M54 114 Q46 122 44 132 Q48 132 52 128 Q54 134 58 134 Q62 130 60 124 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Queue avec flamme -->
+      <path d="M94 120 Q106 124 116 116 Q124 108 120 100 Q116 96 112 100 Q116 100 114 106 Q110 114 102 116 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M112 100 Q116 92 120 88 Q118 94 114 98 Z" fill="#d4a020"/>
+
+      <!-- Couronne royale belge -->
+      <path d="M60 32 L96 32 L94 38 L62 38 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M63 32 Q63 26 66 24 Q68 28 68 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M74 32 Q74 23 78 20 Q82 23 82 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M87 32 Q87 26 90 24 Q92 28 92 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <circle cx="78" cy="22" r="3" fill="#FAE042" opacity="0.9"/>
+      <circle cx="66" cy="26" r="2" fill="#EF3340" opacity="0.85"/>
+      <circle cx="90" cy="26" r="2" fill="#EF3340" opacity="0.85"/>
+
+      <!-- Ecu belge tricolore -->
+      <path d="M68 92 Q68 84 78 82 Q88 84 88 92 Q88 102 78 108 Q68 102 68 92 Z" fill="#1a1a1a" stroke="#0a0a0a" stroke-width="0.8"/>
+      <rect x="68" y="91" width="7" height="16" fill="#1a1a1a"/>
+      <rect x="75" y="91" width="6" height="16" fill="#FAE042"/>
+      <rect x="81" y="91" width="7" height="16" fill="#EF3340"/>
+      <!-- Lion doré sur l'écu (simplifié) -->
+      <path d="M71 95 Q73 92 76 92 Q75 96 73 98 Z" fill="#FAE042" opacity="0.6"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="74" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="10" y="82" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">belgicus</text>
+      <line x1="24" y1="76" x2="42" y2="74" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="132" cy="30" r="1.3" fill="#FAE042" opacity="0.5"/>
+      <circle cx="142" cy="52" r="0.9" fill="#EF3340" opacity="0.4"/>
+      <circle cx="20" cy="122" r="1.1" fill="#FAE042" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — beffrois médiévaux, Grand-Place, Bruges la Morte, chocolat &amp; pralines, bières trappistes, bandes dessinées, Art Nouveau, champs de bataille de la Grande Guerre, musées royaux, Waterloo, gastronomie, institutions européennes, carnavals, Ardennes &amp; nature.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">1 500+</div><div class="stat-label">Bières brassées</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Belgique</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Celtes à la capitale de l'Europe</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grand-Place_de_Bruxelles','Grand-Place de Bruxelles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Bruxelles</div><h3 class="card-name">Grand-Place de Bruxelles</h3><p class="card-context">UNESCO 1998 — Victor Hugo la surnommait "la plus belle place du monde". Hôtel de Ville gothique (1402), Maison du Roi, guildes en or baroque (XVIIe s.). Tapis de fleurs tous les 2 ans. Cœur battant de Bruxelles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bruges','Bruges — La Venise du Nord')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Bruges, Flandre</div><h3 class="card-name">Bruges — La Venise du Nord</h3><p class="card-context">UNESCO 2000 — centre historique médiéval parfaitement préservé. Canaux, beffroi de 83 m, Markt, Basilique du Saint-Sang. Capitale européenne du commerce au Moyen-Âge. Les Primitifs flamands (Van Eyck) y vécurent.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gand','Gand — Ville Médiévale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Gand, Flandre</div><h3 class="card-name">Gand — Gravensteen &amp; Saint-Bavon</h3><p class="card-context">Château des Comtes de Flandre (1180), cathédrale Saint-Bavon (Polyptyque de l'Agneau Mystique de Van Eyck — l'un des chefs-d'oeuvre de la peinture mondiale), beffroi UNESCO. La ville estudiantine et culturelle de Belgique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Atomium','Atomium de Bruxelles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Bruxelles — Laeken</div><h3 class="card-name">Atomium</h3><p class="card-context">Symbole de l'Expo 58 de Bruxelles — molécule de fer agrandie 165 milliards de fois (102 m). Rénovée en 2006. Vue panoramique sur Bruxelles depuis la sphère supérieure. Monument le plus photographié de Belgique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Beffroi_de_Mons','Beffrois de Belgique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Partout en Belgique</div><h3 class="card-name">Beffrois — UNESCO</h3><p class="card-context">UNESCO 1999 — les beffrois belges et français représentent le pouvoir communal médiéval. Bruges (83 m), Gand, Mons, Tournai, Lier... Clochers de liberté bourgeoise face aux châteaux seigneuriaux. Carillons célèbres.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Villers','Abbaye de Villers-la-Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Villers-la-Ville, Brabant</div><h3 class="card-name">Abbaye de Villers-la-Ville</h3><p class="card-context">Les plus belles ruines médiévales de Belgique — abbaye cistercienne du XIIe s. abandonnée après la Révolution française. Réfectoire de 45 m, brasserie, cloître, église abbatiale. Festival de théâtre chaque été.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Waterloo_(Belgique)','Butte du Lion — Waterloo')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Waterloo, Brabant</div><h3 class="card-name">Waterloo — La Dernière Bataille</h3><p class="card-context">Le 18 juin 1815 — Napoléon perd sa dernière bataille face à Wellington et Blücher. Butte du Lion (40 m), Musée Wellington, Panorama de la Bataille (1912). Le tournant qui a redessiné l'Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Manneken_Pis','Manneken Pis')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Bruxelles</div><h3 class="card-name">Manneken Pis</h3><p class="card-context">La statue la plus célèbre de Belgique — petit garçon urinant en bronze (61 cm) de Jérôme Duquesnoy (1619). Plus de 1 000 costumes dans sa garde-robe. La Jeanneke Pis et le Zinneke Pis complètent la trilogie bruxelloise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tournai','Cathédrale de Tournai')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Tournai, Hainaut</div><h3 class="card-name">Cathédrale Notre-Dame de Tournai</h3><p class="card-context">UNESCO 2000 — l'une des plus importantes cathédrales gothiques de Belgique. Cinq tours romanes du XIIe s. Nef romane (1130), choeur gothique. La plus ancienne ville de Belgique — capitale de Clovis au Ve s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Champs_de_bataille_de_la_Première_Guerre_mondiale_(Flandre)','In Flanders Fields — Ypres')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Ypres (Ieper), Flandre</div><h3 class="card-name">Flandres — In Flanders Fields</h3><p class="card-context">Ypres — la ville martyre de la Grande Guerre, rasée à 90% et reconstruite à l'identique. Menin Gate Memorial — 54 896 noms gravés de soldats disparus. Last Post sonné chaque soir à 20h depuis 1928. Cimetières militaires.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bruxelles','Palais Royal de Bruxelles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Bruxelles</div><h3 class="card-name">Palais Royal de Bruxelles</h3><p class="card-context">Résidence officielle du roi Philippe. Façade néo-classique de 180 m sur la Place des Palais. Salle du Trône plafonnée de 1,4 million d'élytres de scarabées. Ouvert au public en été. Face aux Musées Royaux.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musées_royaux_des_beaux-arts_de_Belgique','Musées Royaux des Beaux-Arts')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Bruxelles</div><h3 class="card-name">Musées Royaux des Beaux-Arts</h3><p class="card-context">La plus grande collection d'art en Belgique — Bruegel l'Ancien, Rubens, Van Dyck, les surréalistes belges (Magritte). Musée Magritte — 230 oeuvres de René Magritte dont la Trahison des Images (Ceci n'est pas une pipe).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Orval','Abbaye d\'Orval')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Orval, Luxembourg belge</div><h3 class="card-name">Abbaye d'Orval</h3><p class="card-context">Abbaye cistercienne en Gaume (1132) — ruines romantiques et abbaye moderne (1926). Bière Orval trappiste — l'une des 14 bières trappistes certifiées au monde. Fromage Orval. Au coeur des Ardennes belges.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Bouillon','Château de Bouillon')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Bouillon, Luxembourg belge</div><h3 class="card-name">Château de Bouillon</h3><p class="card-context">Le château médiéval le plus visité de Wallonie — forteresse du XIe s. de Godefroid de Bouillon, chef de la Première Croisade (1096). Sur un éperon rocheux dans un méandre de la Semois. Reconstitutions médiévales.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maison_de_la_Bande_Dessinée','Centre Belge de la Bande Dessinée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Bruxelles</div><h3 class="card-name">Centre Belge de la BD</h3><p class="card-context">Dans le magasin Waucquez de Victor Horta (Art Nouveau, 1906). Tintin, les Schtroumpfs, Lucky Luke, Spirou — tous nés en Belgique. La Belgique est la patrie de la bande dessinée — 9e Art. 700 parcours de fresques dans Bruxelles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Art_nouveau_à_Bruxelles','Art Nouveau à Bruxelles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Bruxelles</div><h3 class="card-name">Bruxelles Art Nouveau — Victor Horta</h3><p class="card-context">UNESCO 2000 — Bruxelles, berceau mondial de l'Art Nouveau. Hôtel Tassel (1893) de Victor Horta — premier immeuble Art Nouveau du monde. Hôtel van Eetvelde, Maison du Peuple. Ligne organique, fer et verre.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_des_Princes-Évêques','Palais des Princes-Évêques — Liège')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Liège</div><h3 class="card-name">Palais des Princes-Évêques — Liège</h3><p class="card-context">Palais Renaissance (XVIe s.) des princes-évêques qui gouvernèrent Liège pendant 8 siècles. Deux cours intérieures aux 60 colonnes ornées. Aujourd'hui Palais de Justice. Liège — la cité ardente, capitale wallonne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grottes_de_Han','Grottes de Han-sur-Lesse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Han-sur-Lesse, Namur</div><h3 class="card-name">Grottes de Han-sur-Lesse</h3><p class="card-context">Les grottes les plus visitées de Belgique — 5 km de galeries souterraines. La Lesse traverse la montagne et réapparaît dans la grotte. Stalactites géantes, salle du Dôme (129 m), son et lumière grandiose. Safari en Ardennes adjacent.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_naturel_de_la_Haute_Ardenne','Hautes Fagnes — Signal de Botrange')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Hautes Fagnes, Liège</div><h3 class="card-name">Hautes Fagnes — Signal de Botrange</h3><p class="card-context">Le plus haut sommet de Belgique (694 m) dans la plus grande réserve naturelle du pays. Tourbières millénaires, bruyères violettes, auroch reconstitué. Hiver neigeux. Fagne — paysage mystérieux d'automne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Liège','Liège — La Cité Ardente')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Liège</div><h3 class="card-name">Liège — La Cité Ardente</h3><p class="card-context">Capitale culturelle de Wallonie. Gare de Liège-Guillemins de Calatrava (2009). Marché de Noël le plus grand de Belgique. Boulets à la liégeoise, sirop de Liège, gaufres. Patrie de Georges Simenon (Maigret).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Dinant','Dinant — Cité des Bouvines')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Dinant, Namur</div><h3 class="card-name">Dinant &amp; La Citadelle</h3><p class="card-context">Cité médiévale blottie entre la Meuse et les falaises. Citadelle imprenable (1530), collégiale gothique au bulbe de plomb. Ville natale d'Adolphe Sax (inventeur du saxophone, 1814). Couques de Dinant.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Spa_(Belgique)','Spa — Cité Thermale Royale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Spa, Liège</div><h3 class="card-name">Spa — La Ville qui a Donné son Nom au Monde</h3><p class="card-context">La ville dont le nom désigne toutes les stations thermales du monde. Sources ferrugineuses connues depuis l'Antiquité. Reine des villes d'eaux depuis le XVIe s. Circuit de Spa-Francorchamps — Grand Prix de Belgique F1.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Anvers','Anvers — La Ville du Diamant')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Anvers, Flandre</div><h3 class="card-name">Anvers — Capitale du Diamant</h3><p class="card-context">Capitale mondiale du diamant depuis le XVe s. (85% du diamant mondial brut). Cathédrale gothique Notre-Dame (Rubens), gare centrale néo-baroque, MAS (Musée aan de Stroom). Mode et design — Anvers Six designers.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Carnaval_de_Binche','Carnaval de Binche')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Binche, Hainaut</div><h3 class="card-name">Carnaval de Binche — UNESCO</h3><p class="card-context">UNESCO 2003 — le plus célèbre carnaval de Belgique. Les Gilles en costume du XVIe s., masques de cire, chapeaux de plumes d'autruche, lancers d'oranges. Le mardi gras de Binche est un rituel unique au monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Quartier_européen_de_Bruxelles','Quartier Européen — Bruxelles')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Bruxelles — Ixelles</div><h3 class="card-name">Bruxelles — Capitale de l'Europe</h3><p class="card-context">Siège de la Commission Européenne, du Conseil de l'UE, du Parlement Européen. Berlaymont, Europe Building, Parlamentarium. 80 000 eurocrates et lobbyistes. Bruxelles — capitale de facto de 450 millions d'Européens.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Abbaye_de_Stavelot','Abbaye de Stavelot')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Stavelot, Liège</div><h3 class="card-name">Abbaye de Stavelot</h3><p class="card-context">Abbaye carolingienne (648 apr.) refondée au XIe s. Ruines spectaculaires, musées (Guillaume Apollinaire, circuit de F1). Carnaval de Stavelot — les célèbres Blancs-Moussis aux nez rouges. Ardennes profondes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Louvain','Louvain — Ville Universitaire')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Louvain (Leuven), Brabant</div><h3 class="card-name">Louvain — La Plus Ancienne Université</h3><p class="card-context">Université Catholique de Louvain (1425) — la plus ancienne université encore active des Pays-Bas historiques. Hôtel de Ville gothique flamboyant (1469) — dentelle de pierre parmi les plus remarquables d'Europe. Bière Stella Artois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_royal_de_l%27Afrique_centrale','Musée Royal de l\'Afrique Centrale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Tervuren, Brabant</div><h3 class="card-name">Musée Royal de l'Afrique Centrale</h3><p class="card-context">Le plus grand musée africain d'Europe — collections exceptionnelles du Congo belge. Palais néo-classique (1898) de Léopold II dans un cadre forestier. 180 000 objets ethnographiques. Rénové et repensé en 2018.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Forêt_de_Soignes','Forêt de Soignes')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Bruxelles — Brabant</div><h3 class="card-name">Forêt de Soignes</h3><p class="card-context">UNESCO 2017 — hêtraie primaire aux fûts majestueux de 40 m autour de Bruxelles. 4 400 ha. Abbaye de la Cambre. Piste cyclable de Stockel. Réserve de biosphère où couraient les soldats avant Waterloo.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ypres','Ypres — Flandres Champ de Bataille')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Ypres (Ieper), Flandre</div><h3 class="card-name">Tyne Cot Cemetery</h3><p class="card-context">Le plus grand cimetière militaire du Commonwealth au monde — 11 956 tombes blanches alignées. Passchendaele, Polygon Wood, Langemarck — noms des batailles les plus meurtrières. In Flanders Fields Museum d'Ypres.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ardennes_belges','Ardennes Belges')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Ardennes, Luxembourg belge</div><h3 class="card-name">Ardennes — Paysage de Légende</h3><p class="card-context">Forêts profondes, rivières encaissées, villages de schiste. Bastogne — siège de la Bataille des Ardennes (1944). Rochers de Freyr pour l'escalade. Grottes de Remouchamps. Sangliers, cerfs, rapaces. Le coeur vert de Belgique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gentse_Feesten','Gentse Feesten — Gand')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Gand, Flandre</div><h3 class="card-name">Gentse Feesten</h3><p class="card-context">Le plus grand festival de rue d'Europe — 10 jours mi-juillet, 1,5 million de visiteurs. Musique, théâtre de rue, animations dans tout le centre historique de Gand. Gratuit. Bières de Gand et spécialités flamandes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Trappistes','Bières Trappistes Belges')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Partout en Belgique</div><h3 class="card-name">Bières Trappistes — UNESCO</h3><p class="card-context">La Belgique produit 8 des 14 bières trappistes certifiées au monde — Chimay, Orval, Rochefort, Westmalle, Westvleteren (note parfaite), Achel, Chimay, La Trappe. Brassées par des moines dans leurs abbayes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Chocolate_belge','Chocolat Belge')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Bruxelles — partout</div><h3 class="card-name">Le Chocolat Belge</h3><p class="card-context">La Belgique — patrie du pralin (inventé en 1857 par Jean Neuhaus à Bruxelles). 172 000 tonnes par an. Godiva, Neuhaus, Leonidas, Côte d'Or. La Galerie de la Reine — galerie marchande de 1847 et paradis du chocolat.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tintin','Tintin — La BD Belge')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Bruxelles</div><h3 class="card-name">Tintin &amp; Hergé</h3><p class="card-context">Tintin né à Bruxelles le 10 janvier 1929 sous le crayon d'Hergé (Georges Remi). Traduit en 110 langues, 250 millions d'albums vendus. Musée Hergé à Louvain-la-Neuve. Les Schtroumpfs de Peyo, Spirou de Franquin. La BD belge conquiert le monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Celtes à l'Union Européenne</div>
+  <h2 class="section-title">Histoire de la Belgique</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">57 av. J.-C. — 400</div>
+      <div class="timeline-event"><strong>Les Belges — les plus braves des Gaules.</strong> César écrit dans la Guerre des Gaules : "De tous les peuples gaulois, les Belges sont les plus braves." Belgica romaine — Tongres, Tournai, Bavay. Voies romaines, temples, amphithéâtres. Tournai, future capitale de Clovis.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">843 — 1384</div>
+      <div class="timeline-event"><strong>Comtés médiévaux — Flandre et Brabant.</strong> Traité de Verdun (843) — la Belgique entre dans le royaume franc oriental. Le Comté de Flandre devient la région la plus riche d'Europe grâce au commerce de la laine et du drap. Bruges, Gand et Ypres rayonnent dans le monde entier. Les Primitifs flamands révolutionnent la peinture.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1384 — 1555</div>
+      <div class="timeline-event"><strong>Ducs de Bourgogne — L'Age d'Or.</strong> Philippe le Hardi réunit les Pays-Bas bourguignons. Les Ducs de Bourgogne font de Bruges et Bruxelles des capitales culturelles mondiales. Charles Quint naît à Gand (1500). La Toison d'Or, Van Eyck, Memling, Rogier van der Weyden — l'art flamand domine l'Europe.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1815 — 1830</div>
+      <div class="timeline-event"><strong>Waterloo et Indépendance.</strong> Napoléon est vaincu à Waterloo (18 juin 1815). La Belgique est rattachée aux Pays-Bas. La Révolution belge du 25 août 1830 — à l'opéra de la Monnaie pendant la représentation de La Muette de Portici — conduit à l'indépendance reconnue en 1831. Léopold Ier devient le premier roi des Belges.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1914 — 1918</div>
+      <div class="timeline-event"><strong>Invasion et Résistance.</strong> L'Allemagne envahit la Belgique neutre le 4 août 1914 — "chiffon de papier" selon le chancelier allemand. Résistance héroïque. Ypres, Passchendaele, la Meuse — champs de bataille les plus meurtriers de l'Histoire. Albert Ier, le "Roi Chevalier", refuse de capituler. 600 000 Belges morts.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1940 — 1945</div>
+      <div class="timeline-event"><strong>Deuxième Occupation.</strong> L'Allemagne envahit de nouveau la Belgique le 10 mai 1940. Résistance, déportations, Bataille des Ardennes (décembre 1944). La Belgique est le pays qui a le plus souffert par habitant en Europe occidentale. Libération par les Alliés en septembre 1944.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1957 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Coeur de l'Europe.</strong> Bruxelles accueille l'OTAN (1950) et la CEE — traités de Rome signés (1957). Expo 58 — l'Atomium. La Belgique devient le coeur institutionnel de l'Europe unie. Querelles linguistiques entre Flamands et Wallons. 541 jours sans gouvernement (2010–2011) — record mondial. La Belgique tient grâce au chocolat et à la bière.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇧🇪</div>
+  <p class="footer-text">Guide du Voyageur · Belgique · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([50.5,4.5],8);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconGP=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(239,51,64,.9))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#EF3340" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d02030" stroke="#8a0010" stroke-width="0.5"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d02030" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="8" width="2" height="4" fill="#d02030"/><rect x="9" y="8" width="2" height="4" fill="#d02030"/><rect x="24" y="8" width="2" height="4" fill="#d02030"/><rect x="27" y="8" width="2" height="4" fill="#d02030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#6a0008"/><line x1="9.5" y1="8" x2="9.5" y2="3" stroke="#FAE042" stroke-width="0.9"/><path d="M9.5 3 L16 5 L9.5 7 Z" fill="#EF3340"/></svg>');
+
+var iconCathedrale=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/></svg>');
+
+var iconBeffroi=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(250,224,66,.9))"><rect x="12" y="28" width="12" height="6" rx="0.5" fill="#8a6010"/><rect x="14" y="10" width="8" height="20" rx="0.5" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/><rect x="11" y="8" width="14" height="4" rx="0.5" fill="#b08820"/><path d="M11 8 L18 2 L25 8 Z" fill="#8a6010"/><line x1="18" y1="2" x2="18" y2="0" stroke="#FAE042" stroke-width="1.2"/><rect x="16" y="16" width="4" height="6" rx="0.5" fill="#5a3808"/><circle cx="18" cy="10" r="1.5" fill="#FAE042"/></svg>');
+
+var iconBiere=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,120,10,.85))"><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020" stroke="#8a6010" stroke-width="0.8"/><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/><circle cx="15" cy="20" r="1" fill="#FAE042" opacity="0.5"/><circle cx="19" cy="23" r="0.8" fill="#FAE042" opacity="0.4"/><circle cx="22" cy="18" r="1.1" fill="#FAE042" opacity="0.45"/><rect x="13" y="14" width="2.5" height="12" rx="1" fill="white" opacity="0.2"/></svg>');
+
+var iconChocolat=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,40,10,.9))"><rect x="4" y="10" width="28" height="20" rx="2" fill="#5a2808" stroke="#3a1004" stroke-width="0.7"/><line x1="4" y1="17" x2="32" y2="17" stroke="#3a1004" stroke-width="0.8"/><line x1="4" y1="24" x2="32" y2="24" stroke="#3a1004" stroke-width="0.8"/><line x1="13" y1="10" x2="13" y2="30" stroke="#3a1004" stroke-width="0.8"/><line x1="23" y1="10" x2="23" y2="30" stroke="#3a1004" stroke-width="0.8"/><rect x="6" y="12" width="5" height="4" rx="0.5" fill="#7a4020" opacity="0.6"/><rect x="15" y="12" width="6" height="4" rx="0.5" fill="#7a4020" opacity="0.6"/><rect x="25" y="12" width="5" height="4" rx="0.5" fill="#7a4020" opacity="0.6"/><path d="M8 7 Q12 4 18 5 Q24 4 28 7 L26 10 Q24 8 18 9 Q12 8 10 10 Z" fill="#FAE042" opacity="0.7"/></svg>');
+
+var iconBD=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><rect x="4" y="6" width="28" height="22" rx="2" fill="#FAE042" stroke="#c8a000" stroke-width="0.7"/><path d="M20 6 L24 2 L28 6" fill="#FAE042" stroke="#c8a000" stroke-width="0.5"/><rect x="6" y="8" width="10" height="8" rx="1" fill="#EF3340" opacity="0.8"/><rect x="18" y="8" width="12" height="8" rx="1" fill="#1a1a1a" opacity="0.8"/><rect x="6" y="18" width="24" height="7" rx="1" fill="white" opacity="0.9"/><line x1="6" y1="21" x2="30" y2="21" stroke="#c8a000" stroke-width="0.4"/></svg>');
+
+var iconArtNouveau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,100,.8))"><rect x="6" y="16" width="24" height="18" rx="0.5" fill="#705090" stroke="#4a2870" stroke-width="0.6"/><path d="M6 16 Q10 8 18 6 Q26 8 30 16 Z" fill="#8060a8" stroke="#4a2870" stroke-width="0.5"/><rect x="5" y="10" width="6" height="12" rx="0.5" fill="#6040a0"/><rect x="25" y="10" width="6" height="12" rx="0.5" fill="#6040a0"/><path d="M5 10 Q8 4 11 10 Z" fill="#4a2870"/><path d="M25 10 Q28 4 31 10 Z" fill="#4a2870"/><rect x="14" y="24" width="8" height="10" rx="0.5" fill="#2a1040"/><path d="M12 14 Q14 10 18 10 Q22 10 24 14" fill="none" stroke="#FAE042" stroke-width="1" opacity="0.7"/><circle cx="18" cy="10" r="1.5" fill="#FAE042" opacity="0.8"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,80,160,.8))"><rect x="4" y="30" width="28" height="3" fill="#1a3870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="4" y="10" width="28" height="3" fill="#1a3870"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/><circle cx="18" cy="22" r="3" fill="#FAE042" opacity="0.7"/></svg>');
+
+var iconGuerre=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,60,80,.9))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><rect x="14" y="8" width="8" height="23" rx="0.5" fill="#5a5a6a" stroke="#3a3a4a" stroke-width="0.5"/><path d="M14 20 L16 22 L22 20 L22 21 L16 23 L14 21 Z" fill="#3a3a4a"/><line x1="16" y1="8" x2="16" y2="31" stroke="#3a3a4a" stroke-width="0.4"/><line x1="20" y1="8" x2="20" y2="19" stroke="#3a3a4a" stroke-width="0.4"/><line x1="20" y1="22" x2="20" y2="31" stroke="#3a3a4a" stroke-width="0.4"/><path d="M12 8 L24 8 L22 5 L14 5 Z" fill="#4a4a5a" stroke="#3a3a4a" stroke-width="0.4"/><circle cx="18" cy="3" r="2.5" fill="none" stroke="#FAE042" stroke-width="0.8"/><circle cx="18" cy="3" r="1" fill="#FAE042" opacity="0.6"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#FAE042" opacity="0.5"/></svg>');
+
+var iconEurope=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,60,150,.85))"><circle cx="18" cy="18" r="14" fill="#003399" stroke="#002266" stroke-width="0.7"/><circle cx="18" cy="18" r="10" fill="#0044cc" opacity="0.4"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="24" cy="10" r="1.5" fill="#FAE042"/><circle cx="28" cy="16" r="1.5" fill="#FAE042"/><circle cx="26" cy="23" r="1.5" fill="#FAE042"/><circle cx="20" cy="28" r="1.5" fill="#FAE042"/><circle cx="13" cy="28" r="1.5" fill="#FAE042"/><circle cx="8" cy="23" r="1.5" fill="#FAE042"/><circle cx="8" cy="16" r="1.5" fill="#FAE042"/><circle cx="12" cy="10" r="1.5" fill="#FAE042"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="5" rx="0.5" fill="#FAE042"/></svg>');
+
+var iconCarnaval=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(250,224,66,.9))"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#FAE042" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#EF3340" opacity="0.8"/><path d="M8 30 Q12 26 18 28 Q24 26 28 30" fill="none" stroke="#FAE042" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="4" x2="8" y2="8" stroke="#EF3340" stroke-width="1" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="4" x2="28" y2="8" stroke="#EF3340" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M7 27 Q10 25 13 27 Q16 29 19 27 Q22 25 25 27 Q28 29 29 27" fill="none" stroke="#90c8f0" stroke-width="0.9"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#EF3340" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var DATA={
+  grandplace:{icon:iconGP,color:'#EF3340',label:'🏛️ Villes Historiques',pts:[
+    {lat:50.8467,lng:4.3525,n:"Grand-Place de Bruxelles",c:"Bruxelles",d:"UNESCO 1998. Victor Hugo : la plus belle place du monde. Hôtel de Ville gothique (1402), guildes baroques.",u:"https://fr.m.wikipedia.org/wiki/Grand-Place_de_Bruxelles?useskin=vector"},
+    {lat:51.2093,lng:3.2247,n:"Bruges — Centre Historique",c:"Bruges, Flandre",d:"UNESCO 2000. Canaux, beffroi (83 m), Markt. Capitale européenne du commerce au Moyen-Age.",u:"https://fr.m.wikipedia.org/wiki/Bruges?useskin=vector"},
+    {lat:51.0543,lng:3.7174,n:"Gand — Gravensteen",c:"Gand, Flandre",d:"Château des Comtes (1180), Cathédrale Saint-Bavon (Van Eyck), beffroi UNESCO. Ville estudiantine.",u:"https://fr.m.wikipedia.org/wiki/Gand?useskin=vector"},
+    {lat:50.6100,lng:5.5800,n:"Liège — Cité Ardente",c:"Liège",d:"Palais des Princes-Évêques (XVIe s.), gare Calatrava. Patrie de Simenon et du saxophone.",u:"https://fr.m.wikipedia.org/wiki/Liège?useskin=vector"},
+    {lat:50.6070,lng:3.9800,n:"Tournai — Cathédrale",c:"Tournai, Hainaut",d:"UNESCO 2000. Cinq tours romanes (XIIe s.). La plus ancienne ville de Belgique — capitale de Clovis.",u:"https://fr.m.wikipedia.org/wiki/Tournai?useskin=vector"}
+  ]},
+  cathedrale:{icon:iconCathedrale,color:'#6040a0',label:'⛪ Cathédrales & Abbayes',pts:[
+    {lat:51.2093,lng:3.2247,n:"Basilique Saint-Sang — Bruges",c:"Bruges",d:"Basilique abritant une relique du Saint-Sang du Christ. Style roman et gothique mêlés. Procession annuelle.",u:"https://fr.m.wikipedia.org/wiki/Basilique_du_Saint-Sang?useskin=vector"},
+    {lat:51.2193,lng:4.4025,n:"Cathédrale Notre-Dame — Anvers",c:"Anvers",d:"Gothique brabançon (XIVe-XVIe s.). Plus haute tour de Belgique (123 m). Retables de Rubens.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_Notre-Dame_d%27Anvers?useskin=vector"},
+    {lat:50.6439,lng:5.5698,n:"Cathédrale Saint-Paul — Liège",c:"Liège",d:"Trésor exceptionnel — reliquaire de Charles le Téméraire, oeuvres de Delcourt. Gothique tardif.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_Saint-Paul_de_Liège?useskin=vector"},
+    {lat:50.5968,lng:4.5340,n:"Abbaye de Villers-la-Ville",c:"Brabant Wallon",d:"Les plus belles ruines médiévales de Belgique. Abbaye cistercienne du XIIe s. Festival de théâtre.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Villers?useskin=vector"},
+    {lat:49.6333,lng:5.3000,n:"Abbaye d'Orval",c:"Gaume, Luxembourg belge",d:"Abbaye cistercienne (1132). Bière trappiste Orval. Fromage Orval. Ruines romantiques et abbaye moderne.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_d%27Orval?useskin=vector"}
+  ]},
+  beffroi:{icon:iconBeffroi,color:'#FAE042',label:'🗼 Beffrois UNESCO',pts:[
+    {lat:51.2093,lng:3.2247,n:"Beffroi de Bruges",c:"Bruges",d:"UNESCO 1999. 83 m, 366 marches. Carillon de 47 cloches. Symbole du pouvoir communal médiéval.",u:"https://fr.m.wikipedia.org/wiki/Beffroi_de_Bruges?useskin=vector"},
+    {lat:51.0543,lng:3.7218,n:"Beffroi de Gand",c:"Gand",d:"UNESCO 1999. 95 m. Dragon doré au sommet. Cloche Roland (XIVe s.) sonnait pour convoquer les citoyens.",u:"https://fr.m.wikipedia.org/wiki/Beffroi_de_Gand?useskin=vector"},
+    {lat:50.4538,lng:3.9528,n:"Beffroi de Mons",c:"Mons, Hainaut",d:"UNESCO 1999. Beffroi baroque unique en Belgique (1661). Car d'or — procession annuelle de la Trinité.",u:"https://fr.m.wikipedia.org/wiki/Beffroi_de_Mons?useskin=vector"},
+    {lat:50.8467,lng:4.3525,n:"Tour et Hôtel de Ville — Bruxelles",c:"Bruxelles",d:"Hôtel de Ville gothique (1402) avec sa tour de 96 m. Statue de Saint Michel en or au sommet.",u:"https://fr.m.wikipedia.org/wiki/Hôtel_de_ville_de_Bruxelles?useskin=vector"}
+  ]},
+  biere:{icon:iconBiere,color:'#d4a020',label:'🍺 Bières & Abbayes Trappistes',pts:[
+    {lat:50.1508,lng:4.6067,n:"Abbaye de Chimay",c:"Chimay, Hainaut",d:"Bière trappiste Chimay depuis 1862. 4 variétés — Rouge, Bleue, Blanche, Dorée. Fromages de Chimay.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Notre-Dame_de_Scourmont?useskin=vector"},
+    {lat:51.0833,lng:4.8333,n:"Abbaye de Westmalle",c:"Westmalle, Anvers",d:"Bière trappiste Westmalle — Tripel et Dubbel légendaires. L'abbaye qui a inventé le style Tripel en 1934.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Notre-Dame_de_Westmalle?useskin=vector"},
+    {lat:49.6333,lng:5.3000,n:"Abbaye d'Orval",c:"Gaume, Luxembourg belge",d:"Bière Orval — l'unique, avec sa levure sauvage de garde. Flaveur unique au monde. Fromagerie.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_d%27Orval?useskin=vector"},
+    {lat:50.1167,lng:5.1333,n:"Abbaye de Rochefort",c:"Rochefort, Namur",d:"Bières Rochefort 6, 8 et 10 — parmi les meilleures bières du monde. Brassage artisanal depuis 1595.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Saint-Rémy_de_Rochefort?useskin=vector"},
+    {lat:50.8815,lng:2.8815,n:"Westvleteren — La Meilleure Bière",c:"Westvleteren, Flandre",d:"Westvleteren 12 — régulièrement élue meilleure bière du monde. Vendue uniquement sur place par téléphone.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_Saint-Sixte_de_Westvleteren?useskin=vector"}
+  ]},
+  chocolat:{icon:iconChocolat,color:'#5a2808',label:'🍫 Chocolat & Gastronomie',pts:[
+    {lat:50.8467,lng:4.3548,n:"Galerie de la Reine — Bruxelles",c:"Bruxelles",d:"Galerie marchande néo-classique (1847). Paradis du chocolat belge — Neuhaus (inventeur du pralin 1857).",u:"https://fr.m.wikipedia.org/wiki/Galeries_royales_Saint-Hubert?useskin=vector"},
+    {lat:50.8450,lng:4.3500,n:"Rue Royale — Chocolatiers",c:"Bruxelles",d:"Godiva, Marcolini, Wittamer — les plus grands chocolatiers belges. 172 000 tonnes de chocolat par an.",u:"https://fr.m.wikipedia.org/wiki/Chocolat_belge?useskin=vector"},
+    {lat:50.6440,lng:5.5680,n:"Gaufres de Liège",c:"Liège",d:"La vraie gaufre belge — moelleuse, sucrée à la vergeoise. Perles de sucre caramélisées. Différente de la gaufre de Bruxelles.",u:"https://fr.m.wikipedia.org/wiki/Gaufre_de_Liège?useskin=vector"},
+    {lat:50.2310,lng:4.9140,n:"Frites Belges — Han",c:"Ardennes",d:"Les frites ont été inventées en Belgique (et non en France !). Double friture dans la graisse de bœuf.",u:"https://fr.m.wikipedia.org/wiki/Frite?useskin=vector"}
+  ]},
+  bd:{icon:iconBD,color:'#FAE042',label:'📚 Bandes Dessinées',pts:[
+    {lat:50.8490,lng:4.3530,n:"Centre Belge de la BD",c:"Bruxelles",d:"Dans le magasin Waucquez de Horta (Art Nouveau). Tintin, Schtroumpfs, Lucky Luke, Spirou. Le 9e Art belge.",u:"https://fr.m.wikipedia.org/wiki/Centre_belge_de_la_bande_dessinée?useskin=vector"},
+    {lat:50.7167,lng:4.6167,n:"Musée Hergé — Louvain-la-Neuve",c:"Louvain-la-Neuve",d:"Musée dédié au créateur de Tintin (1929). Architecture de Jean-Jacques Fiechter. 250 millions d'albums vendus.",u:"https://fr.m.wikipedia.org/wiki/Musée_Hergé?useskin=vector"},
+    {lat:50.8467,lng:4.3525,n:"Parcours BD — Bruxelles",c:"Bruxelles",d:"700 fresques BD dans les rues de Bruxelles. Tintin, Néron, Gaston, Lucky Luke peints sur les façades.",u:"https://fr.m.wikipedia.org/wiki/Parcours_BD?useskin=vector"}
+  ]},
+  artnouveau:{icon:iconArtNouveau,color:'#705090',label:'🏛️ Art Nouveau',pts:[
+    {lat:50.8452,lng:4.3622,n:"Hôtel Tassel — Victor Horta",c:"Bruxelles — Ixelles",d:"UNESCO 2000. Premier immeuble Art Nouveau du monde (1893). Escalier en colimaçon révolutionnaire.",u:"https://fr.m.wikipedia.org/wiki/Hôtel_Tassel?useskin=vector"},
+    {lat:50.8400,lng:4.3700,n:"Hôtel van Eetvelde",c:"Bruxelles — Ixelles",d:"UNESCO 2000. Victor Horta (1898). Verrière octogonale en verre et métal. Fer forgé organique.",u:"https://fr.m.wikipedia.org/wiki/Hôtel_van_Eetvelde?useskin=vector"},
+    {lat:50.8408,lng:4.3665,n:"Maison Horta — Musée",c:"Bruxelles — Saint-Gilles",d:"UNESCO 2000. La maison de Horta lui-même. Aujourd'hui musée — escalier d'or, luminaires, meubles.",u:"https://fr.m.wikipedia.org/wiki/Maison_et_atelier_Horta?useskin=vector"},
+    {lat:51.2200,lng:4.4050,n:"Maison de l'Art Nouveau — Anvers",c:"Anvers",d:"Anvers — deuxième ville Art Nouveau de Belgique. Maison Cogels-Osylei — ensemble Art Nouveau unique.",u:"https://fr.m.wikipedia.org/wiki/Cogels-Osylei?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#2a5ab0',label:'🖼️ Musées & Collections',pts:[
+    {lat:50.8428,lng:4.3600,n:"Musées Royaux des Beaux-Arts",c:"Bruxelles",d:"Bruegel, Rubens, Van Dyck. Musée Magritte — 230 oeuvres. Mémoire de l'art belge du XVe au XXe s.",u:"https://fr.m.wikipedia.org/wiki/Musées_royaux_des_beaux-arts_de_Belgique?useskin=vector"},
+    {lat:50.8520,lng:4.3660,n:"Musée des Sciences Naturelles",c:"Bruxelles",d:"Dinosaures iguanodons de Bernissart (1878). La plus grande collection de dinosaures d'Europe.",u:"https://fr.m.wikipedia.org/wiki/Institut_royal_des_sciences_naturelles_de_Belgique?useskin=vector"},
+    {lat:50.8333,lng:4.5167,n:"Musée Royal de l'Afrique Centrale",c:"Tervuren, Brabant",d:"Plus grand musée africain d'Europe. Collections du Congo belge. Palais néo-classique de Léopold II.",u:"https://fr.m.wikipedia.org/wiki/Musée_royal_de_l%27Afrique_centrale?useskin=vector"},
+    {lat:51.2200,lng:4.3978,n:"Musée Plantin-Moretus — Anvers",c:"Anvers",d:"UNESCO 2005. La plus ancienne imprimerie du monde encore intacte (XVIe s.). Deux Bibles de Gutenberg.",u:"https://fr.m.wikipedia.org/wiki/Musée_Plantin-Moretus?useskin=vector"}
+  ]},
+  guerre:{icon:iconGuerre,color:'#5a5a6a',label:'🕊️ Mémoriaux de Guerre',pts:[
+    {lat:50.8506,lng:2.8736,n:"Menin Gate — Ypres",c:"Ypres (Ieper), Flandre",d:"54 896 noms de soldats du Commonwealth disparus. Last Post sonné chaque soir à 20h depuis 1928.",u:"https://fr.m.wikipedia.org/wiki/Porte_de_Menin?useskin=vector"},
+    {lat:50.8911,lng:3.0136,n:"Cimetière de Tyne Cot",c:"Passchendaele, Flandre",d:"Plus grand cimetière militaire du Commonwealth (11 956 tombes). Passchendaele 1917.",u:"https://fr.m.wikipedia.org/wiki/Tyne_Cot?useskin=vector"},
+    {lat:50.4994,lng:5.9694,n:"Bastogne — Bastogne War Museum",c:"Bastogne, Luxembourg belge",d:"Bataille des Ardennes (décembre 1944). Tank Sherman, Mardasson Memorial. La résistance des Alliés.",u:"https://fr.m.wikipedia.org/wiki/Bastogne?useskin=vector"},
+    {lat:50.6927,lng:4.4122,n:"Waterloo — Butte du Lion",c:"Waterloo, Brabant",d:"18 juin 1815 — la dernière bataille de Napoléon. Butte du Lion (40 m), Musée Wellington.",u:"https://fr.m.wikipedia.org/wiki/Bataille_de_Waterloo?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Nature & Ardennes',pts:[
+    {lat:50.5000,lng:6.1000,n:"Hautes Fagnes — Signal de Botrange",c:"Hautes Fagnes, Liège",d:"Plus haut sommet de Belgique (694 m). Tourbières millénaires, bruyères. Plus grande réserve naturelle.",u:"https://fr.m.wikipedia.org/wiki/Hautes_Fagnes?useskin=vector"},
+    {lat:50.1167,lng:5.1833,n:"Grottes de Han-sur-Lesse",c:"Han-sur-Lesse, Namur",d:"5 km de galeries. La Lesse traverse la montagne. Stalactites géantes. Safari Ardennes adjacent.",u:"https://fr.m.wikipedia.org/wiki/Grottes_de_Han?useskin=vector"},
+    {lat:49.7961,lng:5.2648,n:"Château de Bouillon &amp; Semois",c:"Bouillon, Luxembourg belge",d:"Château de Godefroid de Bouillon (1096). Méandres de la Semois. Ardennes profondes et sauvages.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Bouillon?useskin=vector"},
+    {lat:50.6833,lng:4.3833,n:"Forêt de Soignes",c:"Bruxelles — Brabant",d:"UNESCO 2017. Hêtraie primaire aux fûts de 40 m. 4 400 ha autour de Bruxelles. Réserve de biosphère.",u:"https://fr.m.wikipedia.org/wiki/Forêt_de_Soignes?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:50.8467,lng:4.3525,n:"Grand-Place de Bruxelles",c:"Bruxelles",d:"UNESCO 1998. La plus belle place du monde selon Victor Hugo. Guildes baroques, Hôtel de Ville gothique.",u:"https://fr.m.wikipedia.org/wiki/Grand-Place_de_Bruxelles?useskin=vector"},
+    {lat:51.2093,lng:3.2247,n:"Bruges — Centre Historique",c:"Bruges",d:"UNESCO 2000. Centre médiéval intact. La Venise du Nord. Primitifs flamands (Van Eyck).",u:"https://fr.m.wikipedia.org/wiki/Bruges?useskin=vector"},
+    {lat:51.2200,lng:4.3978,n:"Musée Plantin-Moretus",c:"Anvers",d:"UNESCO 2005. Plus ancienne imprimerie intacte du monde. Deux Bibles de Gutenberg.",u:"https://fr.m.wikipedia.org/wiki/Musée_Plantin-Moretus?useskin=vector"},
+    {lat:50.4538,lng:3.9528,n:"Beffrois de Belgique",c:"Partout en Belgique",d:"UNESCO 1999. Beffrois de Bruges, Gand, Mons et autres — symboles du pouvoir communal médiéval.",u:"https://fr.m.wikipedia.org/wiki/Beffrois_de_Belgique_et_de_France?useskin=vector"},
+    {lat:50.5968,lng:4.5340,n:"Abbaye de Villers-la-Ville",c:"Brabant Wallon",d:"Plus belles ruines médiévales de Belgique. Abbaye cistercienne XIIe s. Festival de théâtre.",u:"https://fr.m.wikipedia.org/wiki/Abbaye_de_Villers?useskin=vector"}
+  ]},
+  europe:{icon:iconEurope,color:'#003399',label:'🇪🇺 Institutions Européennes',pts:[
+    {lat:50.8383,lng:4.3757,n:"Berlaymont — Commission Européenne",c:"Bruxelles — Schuman",d:"Siège de la Commission Européenne depuis 1967. Bâtiment en étoile sur pilotis. Coeur institutionnel de l'UE.",u:"https://fr.m.wikipedia.org/wiki/Berlaymont?useskin=vector"},
+    {lat:50.8362,lng:4.3781,n:"Europa Building — Conseil de l'UE",c:"Bruxelles — Schuman",d:"Nouveau siège du Conseil de l'UE (2017) — façade lanterne en bois. Conseil des ministres européens.",u:"https://fr.m.wikipedia.org/wiki/Bâtiment_Europa?useskin=vector"},
+    {lat:50.8434,lng:4.3654,n:"Parlamentarium — Parlement Européen",c:"Bruxelles",d:"Centre des visiteurs du Parlement Européen. Simulation du vote européen. 705 eurodéputés.",u:"https://fr.m.wikipedia.org/wiki/Parlamentarium?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍟 Gastronomie Belge',pts:[
+    {lat:50.8467,lng:4.3525,n:"Frites Belges — Bruxelles",c:"Bruxelles",d:"La friterie (frietkot) — institution nationale. Double friture, mayo belge maison. Nées en Belgique.",u:"https://fr.m.wikipedia.org/wiki/Frite?useskin=vector"},
+    {lat:50.6440,lng:5.5680,n:"Boulets à la Liégeoise",c:"Liège",d:"Boulettes de viande à la sauce liégeoise (sirop, raisins secs). Sirop de Liège sur tartines.",u:"https://fr.m.wikipedia.org/wiki/Boulets_à_la_liégeoise?useskin=vector"},
+    {lat:50.8533,lng:4.3500,n:"Moules-Frites — Bruxelles",c:"Bruxelles",d:"Le plat national belge. Moules de Zélande à la marinière, aux légumes ou à la crème. Avec frites belges.",u:"https://fr.m.wikipedia.org/wiki/Moules-frites?useskin=vector"},
+    {lat:51.2200,lng:4.4050,n:"Cuisine Flamande — Anvers",c:"Anvers",d:"Stoemp, waterzooi, carbonades flamandes. Cuisine généreuse et terroir belge. Bistrots de l'Escaut.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_belge?useskin=vector"}
+  ]},
+  carnaval:{icon:iconCarnaval,color:'#FAE042',label:'🎭 Carnavals & Fêtes',pts:[
+    {lat:50.4068,lng:4.1683,n:"Carnaval de Binche",c:"Binche, Hainaut",d:"UNESCO 2003. Gilles, masques en cire, chapeaux de plumes d'autruche, lancers d'oranges. Le plus célèbre.",u:"https://fr.m.wikipedia.org/wiki/Carnaval_de_Binche?useskin=vector"},
+    {lat:50.3897,lng:5.9282,n:"Carnaval de Stavelot",c:"Stavelot, Liège",d:"Les Blancs-Moussis aux nez rouges. Carnaval des Ardennes. Abbaye carolingienne adjacente.",u:"https://fr.m.wikipedia.org/wiki/Carnaval_de_Stavelot?useskin=vector"},
+    {lat:51.0543,lng:3.7174,n:"Gentse Feesten",c:"Gand, Flandre",d:"Plus grand festival de rue d'Europe. 10 jours, 1,5 million de visiteurs. Gratuit. Mi-juillet.",u:"https://fr.m.wikipedia.org/wiki/Gentse_Feesten?useskin=vector"},
+    {lat:50.8467,lng:4.3525,n:"Ommegang — Bruxelles",c:"Bruxelles",d:"Procession historique sur la Grand-Place depuis 1549. Reconstitution du cortège de Charles Quint.",u:"https://fr.m.wikipedia.org/wiki/Ommegang?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💧 Spa & Thermalisme',pts:[
+    {lat:50.4921,lng:5.8678,n:"Spa — Cité Thermale Royale",c:"Spa, Liège",d:"La ville dont le nom désigne toutes les stations thermales du monde. Sources depuis l'Antiquité.",u:"https://fr.m.wikipedia.org/wiki/Spa_(Belgique)?useskin=vector"},
+    {lat:50.5083,lng:5.8697,n:"Circuit de Spa-Francorchamps",c:"Spa, Liège",d:"Le plus beau circuit de Formule 1 au monde. Eau Rouge mythique. Grand Prix de Belgique.",u:"https://fr.m.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps?useskin=vector"},
+    {lat:50.5625,lng:5.6967,n:"Thermes de Chaudfontaine",c:"Chaudfontaine, Liège",d:"La seule source thermale naturelle de Belgique (38°C). Centre thermal au bord de la Vesdre.",u:"https://fr.m.wikipedia.org/wiki/Chaudfontaine?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:50.7000,lng:4.5333,n:"Royal Golf Club de Belgique",c:"Ravenstein, Brabant",d:"Le plus vieux golf club de Belgique (1906). Parcours du Duché et des Princes. Royal depuis 1953.",u:"https://fr.m.wikipedia.org/wiki/Royal_Golf_Club_de_Belgique?useskin=vector"},
+    {lat:50.8467,lng:4.4000,n:"Golf de Bruxelles",c:"Bruxelles",d:"Plusieurs golfs dans les environs de Bruxelles. Terrain plat et boisé du Brabant flamand.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Belgique?useskin=vector"},
+    {lat:50.4921,lng:5.8678,n:"Golf de Spa",c:"Spa, Liège",d:"Golf dans le cadre thermal des Ardennes liégeoises. Verdure et calme des collines de l'est.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Belgique?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#EF3340\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'grandplace',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#EF3340"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d02030"/><rect x="6" y="8" width="2" height="4" fill="#d02030"/><rect x="9" y="8" width="2" height="4" fill="#d02030"/></svg>', label:'Villes Historiques', count:5},
+      {cat:'cathedrale',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>', label:'Cathédrales &amp; Abbayes', count:5},
+      {cat:'beffroi',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="10" width="8" height="20" rx="0.5" fill="#c9a84c"/><rect x="11" y="8" width="14" height="4" rx="0.5" fill="#b08820"/><path d="M11 8 L18 2 L25 8 Z" fill="#8a6010"/><rect x="16" y="16" width="4" height="6" rx="0.5" fill="#5a3808"/></svg>', label:'Beffrois UNESCO', count:4},
+      {cat:'biere',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 28 L10 14 Q10 12 12 12 L24 12 Q26 12 26 14 L26 28 Q26 30 24 30 L12 30 Q10 30 10 28 Z" fill="#d4a020"/><path d="M26 16 Q34 16 34 21 Q34 26 26 26" fill="none" stroke="#c89010" stroke-width="2.2" stroke-linecap="round"/><path d="M8 12 Q11 7 18 8 Q25 7 28 12 L26 12 Q24 9 18 10 Q12 9 10 12 Z" fill="white" opacity="0.9"/></svg>', label:'Bières Trappistes', count:5},
+      {cat:'chocolat',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="10" width="28" height="20" rx="2" fill="#5a2808"/><line x1="4" y1="17" x2="32" y2="17" stroke="#3a1004" stroke-width="0.8"/><line x1="13" y1="10" x2="13" y2="30" stroke="#3a1004" stroke-width="0.8"/><line x1="23" y1="10" x2="23" y2="30" stroke="#3a1004" stroke-width="0.8"/></svg>', label:'Chocolat &amp; Gastronomie', count:4},
+      {cat:'bd',          svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="4" y="6" width="28" height="22" rx="2" fill="#FAE042"/><path d="M20 6 L24 2 L28 6" fill="#FAE042" stroke="#c8a000" stroke-width="0.5"/><rect x="6" y="8" width="10" height="8" rx="1" fill="#EF3340" opacity="0.8"/><rect x="18" y="8" width="12" height="8" rx="1" fill="#1a1a1a" opacity="0.8"/></svg>', label:'Bandes Dessinées', count:3},
+      {cat:'artnouveau',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="16" width="24" height="16" rx="0.5" fill="#705090"/><path d="M6 16 Q10 8 18 6 Q26 8 30 16 Z" fill="#8060a8"/><rect x="5" y="10" width="6" height="8" rx="0.5" fill="#6040a0"/><rect x="25" y="10" width="6" height="8" rx="0.5" fill="#6040a0"/></svg>', label:'Art Nouveau', count:4},
+      {cat:'musee',       svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/></svg>', label:'Musées &amp; Collections', count:4},
+      {cat:'guerre',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="8" width="8" height="23" rx="0.5" fill="#5a5a6a"/><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><circle cx="18" cy="4" r="2.5" fill="none" stroke="#FAE042" stroke-width="0.8"/></svg>', label:'Mémoriaux de Guerre', count:4},
+      {cat:'nature',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Nature &amp; Ardennes', count:4},
+      {cat:'unesco',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'europe',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="#003399"/><circle cx="18" cy="8" r="1.5" fill="#FAE042"/><circle cx="24" cy="10" r="1.5" fill="#FAE042"/><circle cx="28" cy="16" r="1.5" fill="#FAE042"/><circle cx="26" cy="23" r="1.5" fill="#FAE042"/><circle cx="18" cy="28" r="1.5" fill="#FAE042"/><circle cx="10" cy="25" r="1.5" fill="#FAE042"/><circle cx="8" cy="18" r="1.5" fill="#FAE042"/><circle cx="12" cy="11" r="1.5" fill="#FAE042"/></svg>', label:'Institutions Européennes', count:3},
+      {cat:'gastro',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Belge', count:4},
+      {cat:'carnaval',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#FAE042" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#EF3340" opacity="0.8"/></svg>', label:'Carnavals &amp; Fêtes', count:4},
+      {cat:'spa',         svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Spa &amp; Thermalisme', count:3},
+      {cat:'golf',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#EF3340"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#EF3340 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff8e8\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#1a1a1a;color:#FAE042;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#EF3340;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#EF3340;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff8e8';el.style.borderLeft='3px solid #EF3340';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#EF3340':'transparent')+';'
+        +'background:'+(isActive?'#fff8e8':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff8e8\'" onmouseout="if(!this.style.borderLeft.includes(\'EF3340\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

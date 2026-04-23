@@ -1,0 +1,26 @@
+# Fichiers système Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Fichiers système macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Dossiers Google Drive (métadonnées locales)
+.tmp.driveupload
+.tmp.drivedownload
+
+# Éditeurs
+.vscode/
+*.swp
+*.swo
+*~
+
+# Fichiers personnels / privés
+notes-privees.txt
+todo-perso.txt
+
+# Logs
+*.log

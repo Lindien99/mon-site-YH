@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danemark — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels du Danemark.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#C60C30;      /* rouge danois */
+      --blanc:#f8f8f8;
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --viking:#1a1a2e;
+      --mer:#1a4a6a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#02030c;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(198,12,48,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,160,10,.06) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 100%);opacity:.45;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(198,12,48,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(198,12,48,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(198,12,48,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,3,12,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(198,12,48,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(198,12,48,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(198,12,48,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(198,12,48,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#02030c;border-bottom:1px solid rgba(198,12,48,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #8a0820;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#a01028;border-color:#a01028;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(198,12,48,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Danemark';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Danemark');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">DANMARK</div>
+  <div class="hero-eyebrow">Danemark · Guide du Voyageur</div>
+  <h1 class="hero-title">Vikings, Design<br>&amp; <em>Hygge Danois</em></h1>
+  <p class="hero-subtitle">Copenhague cosmopolite, châteaux de contes, drakkar Vikings &amp; art de vivre nordique unique</p>
+
+  <!-- LION DANOIS couronné — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(198,12,48,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Corps du lion héraldique danois -->
+      <path d="M40 106 Q34 90 38 74 Q44 58 60 52 Q74 46 88 50 Q104 56 112 70 Q120 86 116 102 Q110 118 92 124 Q72 128 56 120 Q44 114 40 106 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M48 60 Q62 50 78 50 Q94 52 104 64 Q94 56 78 55 Q62 56 48 60 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Hachures anatomiques -->
+      <path d="M50 80 Q62 74 76 76 Q84 77 92 76 Q102 74 110 80" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M48 92 Q60 86 76 88 Q84 89 92 88 Q104 86 112 92" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M50 104 Q62 99 76 100 Q84 101 92 100 Q102 99 110 104" fill="none" stroke="#7a5008" stroke-width="0.45"/>
+
+      <!-- Crinière royale danoise -->
+      <path d="M40 72 Q28 58 30 44 Q36 36 46 36" fill="#b07010" stroke="#7a5008" stroke-width="0.7" opacity="0.9"/>
+      <path d="M44 56 Q32 50 28 38 Q32 30 42 28 Q48 32 46 40" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M52 42 Q44 32 46 20 Q52 14 60 16 Q62 22 58 28" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M66 38 Q64 26 68 16 Q74 10 80 14 Q80 22 76 28" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M80 40 Q84 28 92 22 Q100 18 104 26 Q102 32 96 34" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M92 50 Q102 40 110 38 Q116 40 116 48 Q112 54 106 54" fill="none" stroke="#8a5808" stroke-width="1.1" stroke-linecap="round"/>
+
+      <!-- Tête -->
+      <ellipse cx="76" cy="44" rx="22" ry="18" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M58 38 Q66 28 76 26 Q86 28 94 38 Q86 32 76 31 Q66 32 58 38 Z" fill="#f0d040" opacity="0.28"/>
+
+      <!-- Oeil -->
+      <circle cx="83" cy="40" r="5.5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="83" cy="40" r="3" fill="#2a1000"/>
+      <circle cx="84.5" cy="38.5" r="1.2" fill="white" opacity="0.75"/>
+
+      <!-- Museau -->
+      <path d="M66 50 Q70 54 76 54 Q82 54 86 50" fill="none" stroke="#8a5808" stroke-width="1.2"/>
+      <ellipse cx="76" cy="56" rx="6" ry="4" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <ellipse cx="73" cy="55" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+      <ellipse cx="79" cy="55" rx="1.5" ry="1" fill="#7a4808" opacity="0.7"/>
+
+      <!-- Moustaches -->
+      <line x1="70" y1="57" x2="50" y2="54" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="70" y1="59" x2="50" y2="60" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="82" y1="57" x2="102" y2="54" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+      <line x1="82" y1="59" x2="102" y2="60" stroke="#c8960a" stroke-width="0.6" opacity="0.5"/>
+
+      <!-- Hache viking dans la patte avant -->
+      <path d="M96 80 Q106 72 112 60 Q116 52 114 46" fill="#b07808" stroke="#7a5008" stroke-width="0.7"/>
+      <line x1="108" y1="28" x2="116" y2="70" stroke="#8a5010" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M104 34 Q98 26 106 22 Q116 24 114 34 Q112 38 108 36 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+      <path d="M108 36 Q112 40 114 46 Q110 44 108 40 Z" fill="#c9a84c"/>
+
+      <!-- Patte arrière -->
+      <path d="M52 116 Q44 124 46 130 Q50 130 54 126 Q52 122 50 118 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+
+      <!-- Queue avec fleur -->
+      <path d="M92 118 Q104 122 114 114 Q122 106 118 98 Q114 94 110 98 Q114 98 112 104 Q108 112 100 114 Z" fill="#b07808" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M112 98 Q116 90 120 86 Q118 92 114 96 Z" fill="#d4a020"/>
+
+      <!-- Couronne royale danoise -->
+      <path d="M58 30 L94 30 L92 34 L60 34 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M61 30 Q61 24 64 22 Q66 26 66 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M72 30 Q72 22 76 19 Q80 22 80 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M85 30 Q85 24 88 22 Q90 26 90 30" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <circle cx="76" cy="20" r="2.5" fill="#C60C30" opacity="0.9"/>
+      <circle cx="64" cy="24" r="1.8" fill="#C60C30" opacity="0.85"/>
+      <circle cx="88" cy="24" r="1.8" fill="#C60C30" opacity="0.85"/>
+
+      <!-- Dannebrog (croix blanche) sur l'écu rouge -->
+      <path d="M64 86 Q64 78 76 76 Q88 78 88 86 Q88 96 76 102 Q64 96 64 86 Z" fill="#C60C30" stroke="#8a0010" stroke-width="0.8"/>
+      <rect x="64" y="84" width="24" height="5" fill="#f8f8f8" opacity="0.95"/>
+      <rect x="73.5" y="77" width="5" height="22" fill="#f8f8f8" opacity="0.95"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="76" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Leo</text>
+      <text x="10" y="84" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">danicus</text>
+      <line x1="24" y1="78" x2="40" y2="76" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles nordiques -->
+      <circle cx="132" cy="28" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="142" cy="50" r="0.9" fill="#C60C30" opacity="0.4"/>
+      <circle cx="18" cy="120" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Copenhague et son design légendaire, châteaux de Shakespeare et de contes, musées vikings, îles danoises, gastronomie New Nordic, Lego, Tivoli, Andersen &amp; littérature, côtes rocheuses du Jutland, hygge &amp; art de vivre, éoliennes et durabilité, Groenland &amp; Féroé.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">443</div><div class="stat-label">Îles danoises</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez le Danemark</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Vikings à la Petite Sirène</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Copenhague','Copenhague — La Capitale du Bonheur')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Copenhague</div><h3 class="card-name">Copenhague — La Capitale du Bonheur</h3><p class="card-context">Régulièrement classée ville la plus heureuse du monde. Nyhavn aux maisons colorées, palais d'Amalienborg, canal de Christianshavn, quartier Vesterbro. Copenhague — capitale mondiale du design, de la gastronomie et de la durabilité.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Kronborg','Château de Kronborg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Helsingør, Zélande</div><h3 class="card-name">Château de Kronborg — Elseneur</h3><p class="card-context">UNESCO 2000 — le château de Hamlet. Forteresse Renaissance (1574–1585) dominant le détroit de l'Øresund face à la Suède. Shakespeare s'en inspira pour son Hamlet (1601). Festival Shakespeare annuel dans la cour. Symbole de la Renaissance nordique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nyhavn','Nyhavn — Le Canal Coloré')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Copenhague</div><h3 class="card-name">Nyhavn — Les Maisons Colorées</h3><p class="card-context">Le canal de Nyhavn (Nouveau Port, 1673) — ses maisons colorées du XVIIe et XVIIIe s. sont l'image emblématique du Danemark. Hans Christian Andersen y vécut au n°67 et 18. Bateaux à voile historiques amarrés. Restaurants, terrasses, hygge.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_national_de_Copenhague','Musée National — Vikings')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Copenhague</div><h3 class="card-name">Musée des Bateaux Vikings — Roskilde</h3><p class="card-context">Musée de bateaux vikings de Roskilde — 5 drakkars du XIe s. parfaitement conservés dans les eaux de Roskilde Fjord. Reconstruction en chantier naval. La civilisation viking révélée. Roskilde — ancienne capitale royale danoise. UNESCO 2023.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/La_Petite_Sirène_(statue)','La Petite Sirène')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Copenhague</div><h3 class="card-name">La Petite Sirène</h3><p class="card-context">La statue la plus célèbre du Danemark — bronze de 1,25 m d'Edvard Eriksen (1913) inspirée du conte d'Andersen. Vandalisée plusieurs fois. Présentée à l'Expo Shanghai 2010. Symbole international de Copenhague. 5 000 visiteurs par jour.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Tivoli_(parc_d%27attractions)','Jardins de Tivoli')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Copenhague</div><h3 class="card-name">Jardins de Tivoli</h3><p class="card-context">Le deuxième plus ancien parc d'attractions du monde (1843) — et l'un des plus beaux. Walt Disney s'en inspira pour créer Disneyland. Manèges centenaires, jardins illuminés, restaurants étoilés. 4 millions de visiteurs par an. Magie danoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Frederiksborg','Château de Frederiksborg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Hillerød, Zélande</div><h3 class="card-name">Château de Frederiksborg</h3><p class="card-context">Le plus grand château Renaissance de Scandinavie (1620) — construit par Christian IV sur trois îles d'un lac. Musée d'histoire nationale. Chapelle avec l'orgue Compenius (1610). Jardins baroques sur terrasses. Résidence d'été des rois danois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Jelling','Pierres Runiques de Jelling')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Jelling, Jutland</div><h3 class="card-name">Jelling — Berceau du Danemark</h3><p class="card-context">UNESCO 1994 — les pierres runiques de Jelling sont le "certificat de baptême" du Danemark. La grande pierre de Harald Dent-de-Bleue (XVIe s.) — la plus belle inscription runique scandinave. Tombeaux des premiers rois vikings danois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Amalienborg','Palais d\'Amalienborg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Copenhague</div><h3 class="card-name">Palais d'Amalienborg</h3><p class="card-context">La résidence officielle de la famille royale danoise — quatre palais Rococo identiques autour d'une place octogonale. Relève de la Garde royale à midi. Statue équestre de Frédéric V. Vue sur l'Opéra de Copenhague en face du port.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Roskilde','Cathédrale de Roskilde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Roskilde, Zélande</div><h3 class="card-name">Cathédrale de Roskilde</h3><p class="card-context">UNESCO 1995 — première cathédrale gothique de brique de Scandinavie (XIIe s.). Panthéon des rois danois — 40 monarques y sont enterrés depuis Harald Dent-de-Bleue. Festival de Roskilde — le plus grand festival de musique nordique (110 000 personnes).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Billund','Billund — Berceau de Lego')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Billund, Jutland</div><h3 class="card-name">Billund — Berceau de Lego</h3><p class="card-context">Billund — la ville construite autour de Lego (fondé en 1932 par Ole Kirk Christiansen). Legoland Billund — le parc d'attractions original. Lego — le jouet le plus vendu du monde. La brique Lego produite à 400 milliards d'exemplaires. Magie enfantine danoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Odense','Odense — Ville d\'Andersen')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Odense, Fionie</div><h3 class="card-name">Odense — Ville de Hans Christian Andersen</h3><p class="card-context">Ville natale de Hans Christian Andersen (1805–1875) — le plus grand écrivain danois. Musée Andersen, maison natale. La Petite Sirène, Le Vilain Petit Canard, La Reine des Neiges (Frozen). La ville la plus visitée de Fionie. Ville médiévale charmante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_national_du_Danemark','Musée National du Danemark')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Copenhague</div><h3 class="card-name">Musée National du Danemark</h3><p class="card-context">La plus grande collection archéologique de Scandinavie. Chariot du Soleil de Trundholm (1400 av. J.-C.) — l'un des objets de l'Age du Bronze les plus importants au monde. Cors de lur, momies de tourbières, ruines vikings, monnaies médiévales.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Skagen','Skagen — Le Bout du Danemark')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Skagen, Jutland du Nord</div><h3 class="card-name">Skagen — Grenen, Le Bout du Danemark</h3><p class="card-context">La pointe la plus septentrionale du Danemark — Grenen — où la mer du Nord rencontre le Skagerrak. Lumière dorée incomparable qui attira les peintres du XIXe s. (Ecole de Skagen). Maisons jaunes caractéristiques. Le soleil de minuit en été.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Rosenborg','Château de Rosenborg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Copenhague</div><h3 class="card-name">Château de Rosenborg</h3><p class="card-context">Château Renaissance (1624) de Christian IV au coeur du Jardin du Roi. Trésors de la Couronne danoise — couronnes, joyaux, l'épée de Christian III. La salle du Trône. Musée royal. Visite indispensable pour comprendre la monarchie danoise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_d%27art_de_Louisiana','Louisiana Museum of Modern Art')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Humlebæk, Zélande</div><h3 class="card-name">Louisiana Museum of Modern Art</h3><p class="card-context">L'un des plus beaux musées d'art moderne du monde — intégré dans un parc au bord de la mer. Sculptures de Giacometti face à l'eau, Calder, Warhol, Bacon. L'architecture parfaite entre nature et art. 40 km au nord de Copenhague.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mons_Klint','Mons Klint — Falaises Blanches')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Mon, Zélande du Sud</div><h3 class="card-name">Mons Klint — Falaises de Craie</h3><p class="card-context">Les falaises de craie blanche de 128 m dominant la mer Baltique — le paysage le plus spectaculaire du Danemark. Fossiles de 70 millions d'années. GeoCenter Mons Klint. Réserve de ciel noir. Unique en Scandinavie. Vue sur la Suède et la Pologne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Christiania','Christiania — La Ville Libre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Copenhague</div><h3 class="card-name">Christiania — La Ville Libre</h3><p class="card-context">Commune autogérée fondée en 1971 dans une ancienne caserne. 900 habitants, ses propres règles, architecture alternative, ateliers artisanaux. Symbole de la contre-culture danoise. Pusher Street — controversée. Attraction culturelle unique en Europe.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cathédrale_d%27Arhus','Aarhus — Capitale Culturelle')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Aarhus, Jutland</div><h3 class="card-name">Aarhus — Deuxième Ville de Danemark</h3><p class="card-context">La plus jeune ville universitaire d'Europe — 40 000 étudiants sur 350 000 habitants. ARoS Museum (Rainbow Panorama de Olafur Eliasson). Den Gamle By — musée en plein air. Capitale Européenne de la Culture 2017. Gastronomie de classe mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_des_dunes_de_Thy','Parc National des Dunes de Thy')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Thy, Jutland Nord-Ouest</div><h3 class="card-name">Thy — Les Dunes Sauvages</h3><p class="card-context">Premier parc national du Danemark (2008) — dunes de sable mouvantes, landes de bruyère, côte atlantique sauvage. Mer la plus dangereuse du Danemark — vagues de surf. Aigle pêcheur, lynx roux réintroduit. Paysage intact de l'Age de Glace.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bornholm','Bornholm — L\'Île du Soleil')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Bornholm, Baltique</div><h3 class="card-name">Bornholm — L'Île du Soleil</h3><p class="card-context">Île de granit au soleil le plus abondant du Danemark. Quatre églises rondes médiévales (XIIe s.) uniques en Scandinavie. Ruines de Hammershus — la plus grande forteresse médiévale nordique. Fumeries de harengs. Artistes céramistes. Art de vivre insulaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Møn','Møn — Île Enchanteresse')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Møn, Zélande du Sud</div><h3 class="card-name">Møn — Falaises et Mégalithes</h3><p class="card-context">La plus belle île du Danemark — falaises de Mons Klint, allées couvertes néolithiques, villages pittoresques. Réserve de ciel sombre UNESCO — les meilleures étoiles du Danemark. Moulin à vent de Møn. Paysage bocager préservé.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ledreborg','Château de Ledreborg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Lejre, Zélande</div><h3 class="card-name">Lejre — Centre de l\'Age Viking</h3><p class="card-context">Lejre — ancienne capitale légendaire des rois vikings danois. Centre expérimental de l'Age de Fer et Viking — reconstitutions de fermes, de forges, de drakkars. Beowulf s'y déroule selon les sagas. Expériences viking pour familles.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Noma_(restaurant)','Noma — Restaurant du Monde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Copenhague</div><h3 class="card-name">Noma — La Révolution Gastronomique</h3><p class="card-context">Noma (René Redzepi) — 4 fois meilleur restaurant du monde, inventeur de la cuisine New Nordic. Fermentation, foraging (cueillette sauvage), locavorisme radical. A influencé la gastronomie mondiale entière. Copenhague — capitale gastronomique mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Dybbøl','Dybbøl — Bataille Fondatrice')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Dybbøl, Jutland du Sud</div><h3 class="card-name">Dybbøl — Le Moulin et la Mémoire</h3><p class="card-context">Dybbøl Banke — la bataille de 1864 contre la Prusse et l'Autriche, la plus douloureuse de l'histoire danoise. Le Danemark perd le Schleswig-Holstein. Moulin de Dybbøl — symbole de résistance nationale. Museo en plein air. Réconciliation franco-allemande.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Copenhague','Opéra de Copenhague')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Copenhague — Port</div><h3 class="card-name">Opéra de Copenhague</h3><p class="card-context">L'opéra le plus moderne et le plus coûteux du monde — Henning Larsen (2005), offert à la ville par Maersk. 1 700 places, scène flottante, toit de 32 m. Face au palais d'Amalienborg. Acoustique mondiale. Symbole de Copenhague au XXIe s.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_d%27art_de_Copenhague','SMK — Statens Museum for Kunst')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Copenhague</div><h3 class="card-name">SMK — Musée National des Arts</h3><p class="card-context">Le plus grand musée d'art du Danemark — Rembrandt, Rubens, Matisse, Picasso, l'Age d'Or hollandais. Galerie d'art danois et nordique inégalée. Edvard Munch, Hammershøi, Willumsen. Architecture néoclassique et extension moderne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rundetårn','Rundetårn — La Tour Ronde')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Copenhague</div><h3 class="card-name">Rundetårn — La Tour Ronde</h3><p class="card-context">La Tour Ronde (1642) — observatoire le plus ancien de Scandinavie encore en activité. Rampe hélicoïdale à l'intérieur (pas d'escalier). Pierre le Grand y monta à cheval. 209 marches pour la vue sur Copenhague. Christian IV — le roi bâtisseur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Groenland','Groenland — La Grande Île')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Groenland (territoire danois)</div><h3 class="card-name">Groenland — La Plus Grande Île</h3><p class="card-context">La plus grande île du monde (2,17 millions km²) — territoire autonome du Danemark. 80% couverts par les glaces. Ilulissat — UNESCO (icebergs). Nuit polaire, aurores boréales. 56 000 habitants. Les Inuits y vivent depuis 4 500 ans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Dragsholm','Château de Dragsholm')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Odsherred, Zélande</div><h3 class="card-name">Château de Dragsholm</h3><p class="card-context">Le plus vieux château du Danemark (XIIe s.) converti en hôtel gastronomique. Trois fantômes légendaires — dont le Comte de Bothwell (mari de Marie Stuart d'Ecosse). Cuisine New Nordic récompensée. Paysage du fjord Lammefjord. Romantisme danois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Legoland_Billund','Legoland Billund')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Billund, Jutland</div><h3 class="card-name">Legoland Billund</h3><p class="card-context">L'original Legoland (1968) — 65 millions de briques Lego dans le parc. Miniland — reproductions en Lego des monuments mondiaux. 2 millions de visiteurs/an. Aquazone, Polar X-plorer, Duplo Land. Le parc d'attractions qui a formé des générations de designers.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Ribe','Ribe — La Plus Ancienne Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Ribe, Jutland</div><h3 class="card-name">Ribe — La Plus Ancienne Ville Danoise</h3><p class="card-context">La plus ancienne ville du Danemark (710 apr. J.-C.) — premier comptoir commercial de Scandinavie. Centre historique médiéval impeccablement conservé — maisons à colombages, pavés. Cathédrale romane (XIIe s.). Musée Viking d'Ribe. Cigognes blanches.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Design_Museum_Danmark','Design Museum Danmark')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Copenhague</div><h3 class="card-name">Design Museum Danmark</h3><p class="card-context">Le musée du design danois — Arne Jacobsen (Chaise Fourmi), Verner Panton, Georg Jensen, Bang &amp; Olufsen. Le design danois — fonctionnel, beau et durable depuis le XXe s. Le pays qui a inventé le design moderne. 700 ans d'artisanat danois.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Îles_Féroé','Îles Féroé')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Îles Féroé (territoire danois)</div><h3 class="card-name">Îles Féroé — Les Îles des Moutons</h3><p class="card-context">18 îles volcaniques entre la Norvège, l'Islande et l'Écosse. Falaises de 400 m, cascades dans la mer, villages de gazon. Restaurant Koks — 2 étoiles Michelin au bout du monde. Traditions séculaires, langue propre, football légendaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_danoise','Smørrebrød &amp; Gastronomie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Danemark entier</div><h3 class="card-name">Smørrebrød &amp; New Nordic</h3><p class="card-context">Le smørrebrød — sandwich ouvert sur pain de seigle noir, hareng mariné, saumon fumé, oeufs de caille. La bière Carlsberg et Tuborg. Pâtisserie danoise (Wienerbrød). Copenhague — 25 restaurants étoilés Michelin. La révolution gastronomique mondiale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Vikings à l'État Providence</div>
+  <h2 class="section-title">Histoire du Danemark</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">793 — 1050</div>
+      <div class="timeline-event"><strong>L'Ère Viking.</strong> Les Vikings danois terrorisent et colonisent l'Europe — Lindisfarne (793), Paris assiégée (845), Normandie colonisée (911), découverte de l'Amérique (Leif Erikson, 1000). Harald Dent-de-Bleue unifie le Danemark et le christianise (960). Bluetooth moderne porte son nom.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1397 — 1523</div>
+      <div class="timeline-event"><strong>L'Union de Kalmar.</strong> La reine Marguerite Ière crée l'Union de Kalmar (1397) — Danemark, Norvège, Suède sous une seule couronne. Le plus grand empire de l'histoire nordique. La Suède s'en détache en 1523 (Gustave Vasa). Le Danemark reste la puissance dominante de la Baltique.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1588 — 1648</div>
+      <div class="timeline-event"><strong>Christian IV — Le Roi Bâtisseur.</strong> Le règne le plus long du Danemark (59 ans). Constructeur prolifique — Kronborg, Rosenborg, Frederiksborg, la Bourse de Copenhague, Rundetårn. Guerre de Trente Ans désastreuse — le Danemark perd la Scanie à la Suède (1658). Mais l'art et l'architecture fleurissent.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1807 — 1864</div>
+      <div class="timeline-event"><strong>Déclin et Renaissance Culturelle.</strong> Les Anglais bombardent Copenhague (1807) et volent la flotte danoise. La Norvège cédée à la Suède (1814). Perte du Schleswig-Holstein face à la Prusse (1864). Mais l'Age d'Or danois fleurit — Andersen, Kierkegaard, Thorvaldsen, Ecole de Skagen. La défaite nourrit la créativité.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1940 — 1945</div>
+      <div class="timeline-event"><strong>Occupation et Résistance.</strong> L'Allemagne occupe le Danemark le 9 avril 1940 en 6 heures. Le gouvernement danois maintenu — le Danemark négocie. En 1943 — les Danois sauvent 95% de leur communauté juive (7 000 personnes) en les faisant passer en Suède par bateau en une nuit. Acte de résistance humaine unique.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1945 — 1970</div>
+      <div class="timeline-event"><strong>Construction de l'État Providence.</strong> Après la guerre — le Danemark construit le modèle social nordique le plus avancé. Sécurité sociale universelle, éducation gratuite, congé parental long. Le "modèle danois" devient référence mondiale. Soixante-huitards fondent Christiania (1971). Design et architecture s'exportent dans le monde entier.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1973 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Pionniers de la Durabilité.</strong> Crise pétrolière (1973) — le Danemark investit massivement dans les énergies renouvelables. Première éolienne offshore mondiale (1991). Aujourd'hui 50% de l'électricité danoise vient du vent. Vélo — 62% des Copenhagois vont au travail à vélo. Le Danemark — modèle mondial de durabilité et de bonheur.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇩🇰</div>
+  <p class="footer-text">Guide du Voyageur · Danemark · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([56.0,10.5],7);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(198,12,48,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#C60C30" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#b00820"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#b00820"/><rect x="6" y="8" width="2" height="4" fill="#b00820"/><rect x="9" y="8" width="2" height="4" fill="#b00820"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#700008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#C60C30"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconViking=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(60,40,140,.9))"><path d="M2 24 Q6 30 18 32 Q30 30 34 24 Q26 26 18 27 Q10 26 2 24 Z" fill="#4a2808"/><line x1="18" y1="8" x2="18" y2="26" stroke="#2a1008" stroke-width="1.4"/><path d="M10 8 Q18 6 26 8 L24 20 Q18 22 12 20 Z" fill="#C60C30" stroke="#8a0010" stroke-width="0.5"/><path d="M2 24 Q4 20 10 20 Q14 22 18 22 Q22 22 26 20 Q32 20 34 24" fill="none" stroke="#2a1008" stroke-width="0.8"/><circle cx="18" cy="4" r="3" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconDesign=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,40,120,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#5040b0" stroke="#3a2090" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#6050c0" opacity="0.6"/><circle cx="16" cy="14" r="4" fill="#C60C30" opacity="0.8"/><path d="M20 10 Q26 12 28 16 Q26 20 20 22 Q16 20 14 18" fill="none" stroke="#c9a84c" stroke-width="1" opacity="0.7"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#2a1080"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconMer=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,180,.9))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a60b8"/><path d="M4 26 Q8 22 12 24 Q16 26 18 24 Q22 22 26 24 Q30 26 32 24" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><path d="M8 22 Q10 16 14 12 L18 6 L22 12 Q26 16 28 22" fill="#b8d0e8" opacity="0.4"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a70c0" opacity="0.8"/><path d="M10 28 Q14 22 18 20 Q22 22 26 28 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="16" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="6" width="8" height="4" rx="0.5" fill="#C60C30"/></svg>');
+
+var iconCulture=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(198,12,48,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#C60C30" stroke="#8a0010" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#a00820"/><line x1="20" y1="10" x2="28" y2="6" stroke="#C60C30" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#a00820"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#a00820"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#C60C30" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconVelo=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,50,.85))"><circle cx="9" cy="26" r="7" fill="none" stroke="#1a6a30" stroke-width="1.5"/><circle cx="27" cy="26" r="7" fill="none" stroke="#1a6a30" stroke-width="1.5"/><circle cx="9" cy="26" r="2" fill="#1a6a30"/><circle cx="27" cy="26" r="2" fill="#1a6a30"/><path d="M9 26 L18 10 L27 26 L18 18 Z" fill="#2a8a40" stroke="#1a6a30" stroke-width="0.7"/><path d="M15 10 L21 10 L18 10" fill="none" stroke="#1a6a30" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconEolienne=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(30,80,180,.8))"><line x1="18" y1="34" x2="18" y2="4" stroke="#3060b0" stroke-width="1.5" stroke-linecap="round"/><path d="M18 14 Q26 10 30 4 Q24 8 18 14 Z" fill="#4080d0"/><path d="M18 14 Q10 10 6 4 Q12 8 18 14 Z" fill="#4080d0"/><path d="M18 14 Q22 22 28 28 Q22 20 18 14 Z" fill="#3060b0"/><circle cx="18" cy="14" r="3" fill="#2050a0"/></svg>');
+
+var iconHygge=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.85))"><path d="M18 8 Q22 6 26 8 Q28 12 26 16 Q22 22 18 26 Q14 22 10 16 Q8 12 10 8 Q14 6 18 8 Z" fill="#C60C30" opacity="0.8"/><path d="M18 10 Q21 8.5 24 10 Q26 13 24 16 Q21 21 18 24 Q15 21 12 16 Q10 13 12 10 Q15 8.5 18 10 Z" fill="#e84060" opacity="0.5"/><path d="M16 32 Q16 28 18 28 Q20 28 20 32" stroke="#c9a84c" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="18" cy="28" r="1.5" fill="#c9a84c"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#C60C30',label:'🏙️ Villes & Copenhague',pts:[
+    {lat:55.6761,lng:12.5683,n:"Copenhague — La Capitale du Bonheur",c:"Copenhague",d:"Régulièrement 1re ville mondiale pour la qualité de vie. Nyhavn, design, gastronomie, vélos.",u:"https://fr.m.wikipedia.org/wiki/Copenhague?useskin=vector"},
+    {lat:56.1629,lng:10.2039,n:"Aarhus — Capitale Culturelle",c:"Aarhus, Jutland",d:"2e ville du Danemark. ARoS Museum, Rainbow Panorama. Capitale Européenne de la Culture 2017.",u:"https://fr.m.wikipedia.org/wiki/Aarhus?useskin=vector"},
+    {lat:55.3959,lng:10.3883,n:"Odense — Ville d\'Andersen",c:"Odense, Fionie",d:"Ville natale de Hans Christian Andersen (1805). La Petite Sirène, Frozen, Le Vilain Petit Canard.",u:"https://fr.m.wikipedia.org/wiki/Odense?useskin=vector"},
+    {lat:55.4761,lng:9.4756,n:"Ribe — La Plus Ancienne Ville",c:"Ribe, Jutland",d:"710 apr. J.-C. — premier comptoir commercial de Scandinavie. Maisons à colombages. Cigognes.",u:"https://fr.m.wikipedia.org/wiki/Ribe?useskin=vector"},
+    {lat:55.6500,lng:12.5833,n:"Christiania — La Ville Libre",c:"Copenhague",d:"Commune autogérée depuis 1971. 900 habitants, propres règles, architecture alternative.",u:"https://fr.m.wikipedia.org/wiki/Christiania?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Palais',pts:[
+    {lat:56.0376,lng:12.6136,n:"Château de Kronborg",c:"Helsingør, Zélande",d:"UNESCO 2000. Château de Hamlet. Renaissance (1574). Face à la Suède. Festival Shakespeare.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Kronborg?useskin=vector"},
+    {lat:55.9347,lng:12.3008,n:"Château de Frederiksborg",c:"Hillerød, Zélande",d:"Plus grand château Renaissance de Scandinavie (1620). Sur 3 îles. Musée d\'histoire nationale.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Frederiksborg?useskin=vector"},
+    {lat:55.6864,lng:12.5930,n:"Palais d\'Amalienborg",c:"Copenhague",d:"Résidence officielle de la famille royale. 4 palais Rococo. Relève de la Garde à midi.",u:"https://fr.m.wikipedia.org/wiki/Palais_d%27Amalienborg?useskin=vector"},
+    {lat:55.6844,lng:12.5700,n:"Château de Rosenborg",c:"Copenhague",d:"Renaissance (1624). Trésors de la Couronne — couronnes, joyaux. Pierre le Grand y monta.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Rosenborg?useskin=vector"},
+    {lat:55.6783,lng:11.8219,n:"Château de Dragsholm",c:"Odsherred, Zélande",d:"Plus vieux château du Danemark (XIIe s.). Hotel gastronomique. 3 fantômes. Comte de Bothwell.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Dragsholm?useskin=vector"}
+  ]},
+  viking:{icon:iconViking,color:'#4a2808',label:'⚔️ Vikings & Archéologie',pts:[
+    {lat:55.6408,lng:12.0872,n:"Musée des Bateaux Vikings — Roskilde",c:"Roskilde, Zélande",d:"5 drakkars du XIe s. Chantier naval viking. UNESCO 2023. Civilisation viking révélée.",u:"https://fr.m.wikipedia.org/wiki/Musée_des_bateaux_vikings_de_Roskilde?useskin=vector"},
+    {lat:55.7569,lng:9.4208,n:"Pierres Runiques de Jelling",c:"Jelling, Jutland",d:"UNESCO 1994. Certificat de baptême du Danemark. Harald Dent-de-Bleue. Origines vikings.",u:"https://fr.m.wikipedia.org/wiki/Pierres_runiques_de_Jelling?useskin=vector"},
+    {lat:55.6325,lng:12.0844,n:"Lejre — Centre Viking",c:"Lejre, Zélande",d:"Ancienne capitale royale viking. Centre expérimental Age du Fer et Viking. Beowulf.",u:"https://fr.m.wikipedia.org/wiki/Lejre?useskin=vector"},
+    {lat:55.6383,lng:9.6378,n:"Vejle — Femme de Tourbière",c:"Vejle, Jutland",d:"Musée de Vejle — Tollund Man et Elling Woman — momies de tourbières de l\'Age du Fer.",u:"https://fr.m.wikipedia.org/wiki/Homme_de_Tollund?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:56.0376,lng:12.6136,n:"Château de Kronborg",c:"Helsingør",d:"UNESCO 2000. Elseneur de Shakespeare. Plus beau château Renaissance de Scandinavie.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Kronborg?useskin=vector"},
+    {lat:55.6408,lng:12.0869,n:"Cathédrale de Roskilde",c:"Roskilde",d:"UNESCO 1995. 1re cathédrale gothique en brique de Scandinavie. Panthéon des rois danois.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Roskilde?useskin=vector"},
+    {lat:55.7569,lng:9.4208,n:"Jelling — Berceau du Danemark",c:"Jutland",d:"UNESCO 1994. Pierres runiques de Harald Dent-de-Bleue. Naissance de la nation danoise.",u:"https://fr.m.wikipedia.org/wiki/Pierres_runiques_de_Jelling?useskin=vector"},
+    {lat:68.2186,lng:-51.0918,n:"Ilulissat — Groenland",c:"Groenland",d:"UNESCO 2004. Fjord de glace d\'Ilulissat. Icebergs du Glacier Sermeq Kujalleq.",u:"https://fr.m.wikipedia.org/wiki/Fjord_glaciaire_d%27Ilulissat?useskin=vector"}
+  ]},
+  design:{icon:iconDesign,color:'#5040b0',label:'🪑 Design & Architecture',pts:[
+    {lat:55.6892,lng:12.5792,n:"Design Museum Danmark",c:"Copenhague",d:"Arne Jacobsen (Chaise Fourmi), Verner Panton, Georg Jensen. 700 ans d\'artisanat danois.",u:"https://fr.m.wikipedia.org/wiki/Design_Museum_Danmark?useskin=vector"},
+    {lat:55.6868,lng:12.5694,n:"SMK — Statens Museum for Kunst",c:"Copenhague",d:"Plus grand musée d\'art du Danemark. Rembrandt, Matisse, Munch, Hammershøi.",u:"https://fr.m.wikipedia.org/wiki/Statens_Museum_for_Kunst?useskin=vector"},
+    {lat:55.6749,lng:12.5639,n:"Opéra de Copenhague",c:"Copenhague",d:"L\'opéra le plus cher et moderne du monde (Henning Larsen, 2005). Offert par Maersk.",u:"https://fr.m.wikipedia.org/wiki/Opéra_de_Copenhague?useskin=vector"},
+    {lat:55.9942,lng:12.5439,n:"Louisiana Museum of Modern Art",c:"Humlebæk, Zélande",d:"Un des plus beaux musées d\'art moderne. Giacometti face à la mer. Calder, Warhol, Bacon.",u:"https://fr.m.wikipedia.org/wiki/Louisiana_Museum_of_Modern_Art?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:57.0167,lng:8.5333,n:"Parc National des Dunes de Thy",c:"Jutland Nord-Ouest",d:"1er parc national du Danemark (2008). Dunes sauvages, landes, côte atlantique. Lynx roux.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Thy?useskin=vector"},
+    {lat:55.0028,lng:14.7236,n:"Mons Klint — Falaises de Craie",c:"Mon, Zélande du Sud",d:"Falaises de craie de 128 m. Fossiles de 70 millions d\'années. Réserve de ciel noir.",u:"https://fr.m.wikipedia.org/wiki/Mons_Klint?useskin=vector"},
+    {lat:56.7167,lng:8.9333,n:"Parc National de Mols Bjerge",c:"Jutland Est",d:"Collines et fjords du Jutland. Herbes sauvages, orchidées. Balades à vélo dans les vignes.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Mols_Bjerge?useskin=vector"}
+  ]},
+  mer:{icon:iconMer,color:'#1a60b8',label:'🌊 Côtes & Mer du Nord',pts:[
+    {lat:57.7167,lng:10.5833,n:"Skagen — Le Bout du Danemark",c:"Skagen, Jutland Nord",d:"Grenen — mer du Nord rencontre Skagerrak. Lumière dorée unique. Ecole de Skagen.",u:"https://fr.m.wikipedia.org/wiki/Skagen?useskin=vector"},
+    {lat:56.4625,lng:10.8722,n:"Djursland — Côte Jutlandaise",c:"Jutland Est",d:"Côte dentelée, forêts de hêtres, plages. Cathédrale d\'Ebeltoft, petit port coloré.",u:"https://fr.m.wikipedia.org/wiki/Djursland?useskin=vector"},
+    {lat:55.2061,lng:15.1381,n:"Bornholm — Île du Soleil",c:"Bornholm, Baltique",d:"Île de granit. 4 églises rondes médiévales uniques. Hammershus. Harengs fumés. Céramistes.",u:"https://fr.m.wikipedia.org/wiki/Bornholm?useskin=vector"},
+    {lat:55.0050,lng:12.5500,n:"Falsters Klint — Falaises Baltique",c:"Falster, Zélande du Sud",d:"Falaises blanches de Falster. Marcher jusqu\'au bout de la presqu\'île. Eaux calmes.",u:"https://fr.m.wikipedia.org/wiki/Falster?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍽️ New Nordic & Smørrebrød',pts:[
+    {lat:55.6803,lng:12.5996,n:"Noma — Copenhague",c:"Copenhague",d:"4 fois meilleur restaurant du monde. New Nordic — René Redzepi. Fermentation, foraging.",u:"https://fr.m.wikipedia.org/wiki/Noma_(restaurant)?useskin=vector"},
+    {lat:55.6761,lng:12.5683,n:"Smørrebrød de Copenhague",c:"Copenhague",d:"Sandwich ouvert sur seigle noir. Hareng, saumon, oeufs. La gastronomie danoise authentique.",u:"https://fr.m.wikipedia.org/wiki/Smørrebrød?useskin=vector"},
+    {lat:55.4128,lng:9.3667,n:"Carlsberg — Brasserie Historique",c:"Frederiksborg, Zélande",d:"Carlsberg (1847) — la bière danoise mondiale. Visite de la brasserie originale.",u:"https://fr.m.wikipedia.org/wiki/Carlsberg?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🏺 Musées & Collections',pts:[
+    {lat:55.6793,lng:12.5739,n:"Musée National du Danemark",c:"Copenhague",d:"Chariot du Soleil de Trundholm (1400 av. J.-C.). Cors de lur. Momies de tourbières.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_du_Danemark?useskin=vector"},
+    {lat:55.6908,lng:12.5797,n:"Rundetårn — La Tour Ronde",c:"Copenhague",d:"Observatoire (1642) — le plus ancien de Scandinavie. Rampe hélicoïdale. Pierre le Grand.",u:"https://fr.m.wikipedia.org/wiki/Rundetårn?useskin=vector"},
+    {lat:55.6753,lng:12.5688,n:"Ny Carlsberg Glyptotek",c:"Copenhague",d:"Antiquités grecques, romaines, sculptures françaises du XIXe s. Gauguin, Degas, Rodin.",u:"https://fr.m.wikipedia.org/wiki/Ny_Carlsberg_Glyptotek?useskin=vector"},
+    {lat:56.1564,lng:10.2118,n:"ARoS — Rainbow Panorama",c:"Aarhus",d:"Musée d\'art avec Rainbow Panorama d\'Olafur Eliasson (2011) — cercle de verre coloré au sommet.",u:"https://fr.m.wikipedia.org/wiki/ARoS_Aarhus_Kunstmuseum?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#1a70c0',label:'🏝️ Îles Danoises',pts:[
+    {lat:55.2061,lng:15.1381,n:"Bornholm",c:"Baltique",d:"Ile de granit. Eglises rondes médiévales. Hammershus. Artistes et céramistes. Soleil.",u:"https://fr.m.wikipedia.org/wiki/Bornholm?useskin=vector"},
+    {lat:54.9167,lng:12.4833,n:"Lolland-Falster",c:"Zélande du Sud",d:"Iles plates au soleil. Knuthenborg Safari Park. Lalandia — resort aquatique. Nature paisible.",u:"https://fr.m.wikipedia.org/wiki/Lolland?useskin=vector"},
+    {lat:62.0000,lng:-6.7833,n:"Îles Féroé",c:"Atlantique Nord",d:"18 îles volcaniques. Falaises de 400 m. Restaurant Koks. Traditions séculaires. Football.",u:"https://fr.m.wikipedia.org/wiki/Îles_Féroé?useskin=vector"},
+    {lat:68.2186,lng:-51.0918,n:"Groenland",c:"Arctique",d:"Plus grande île du monde. 80% sous la glace. Ilulissat UNESCO. Aurores boréales. Inuits.",u:"https://fr.m.wikipedia.org/wiki/Groenland?useskin=vector"}
+  ]},
+  culture:{icon:iconCulture,color:'#C60C30',label:'📚 Andersen & Littérature',pts:[
+    {lat:55.3959,lng:10.3883,n:"Maison Natale d\'Andersen — Odense",c:"Odense, Fionie",d:"La maison où naquit H.C. Andersen (1805). Musée, manuscrits. La Petite Sirène, la Reine des Neiges.",u:"https://fr.m.wikipedia.org/wiki/Hans_Christian_Andersen?useskin=vector"},
+    {lat:55.6767,lng:12.5639,n:"La Petite Sirène — Copenhague",c:"Copenhague",d:"Statue de bronze (1913) d\'Eriksen. Symbole international de Copenhague. 5 000 visiteurs/jour.",u:"https://fr.m.wikipedia.org/wiki/La_Petite_Sirène_(statue)?useskin=vector"},
+    {lat:55.6750,lng:12.5681,n:"Tivoli — Le Parc Enchanté",c:"Copenhague",d:"2e plus ancien parc d\'attractions (1843). Walt Disney s\'en inspira. 4 millions de visiteurs/an.",u:"https://fr.m.wikipedia.org/wiki/Tivoli?useskin=vector"},
+    {lat:55.7283,lng:9.1156,n:"Legoland Billund",c:"Billund, Jutland",d:"L\'original Legoland (1968). 65 millions de briques. Berceau du jouet le plus vendu du monde.",u:"https://fr.m.wikipedia.org/wiki/Legoland_Billund?useskin=vector"}
+  ]},
+  velo:{icon:iconVelo,color:'#1a6a30',label:'🚲 Vélo & Mobilité Verte',pts:[
+    {lat:55.6761,lng:12.5683,n:"Copenhague — Capitale du Vélo",c:"Copenhague",d:"62% des Copenhagois vont au travail à vélo. 390 km de pistes cyclables. Modèle mondial.",u:"https://fr.m.wikipedia.org/wiki/Cyclisme_à_Copenhague?useskin=vector"},
+    {lat:56.1629,lng:10.2039,n:"Aarhus à Vélo",c:"Aarhus, Jutland",d:"Deuxième ville de Danemark également pro-vélo. Pistes cyclables dans les collines de Jutland.",u:"https://fr.m.wikipedia.org/wiki/Aarhus?useskin=vector"},
+    {lat:55.0028,lng:14.7236,n:"Bornholm à Vélo",c:"Bornholm",d:"Le meilleur tour de Bornholm à vélo — 105 km de pistes autour de l\'île. Rochers et mer.",u:"https://fr.m.wikipedia.org/wiki/Bornholm?useskin=vector"}
+  ]},
+  eolienne:{icon:iconEolienne,color:'#3060b0',label:'💨 Énergie & Durabilité',pts:[
+    {lat:55.6761,lng:12.5683,n:"Middelgrunden — Ferme Offshore",c:"Copenhague",d:"Première grande ferme éolienne offshore du monde (2001). 20 éoliennes, 40 000 foyers alimentés.",u:"https://fr.m.wikipedia.org/wiki/Éolien_offshore_au_Danemark?useskin=vector"},
+    {lat:57.3333,lng:8.4167,n:"Jutland — Éoliennes Onshore",c:"Jutland",d:"50% de l\'électricité danoise vient du vent. Leader mondial. Vestas et Orsted fondées ici.",u:"https://fr.m.wikipedia.org/wiki/Énergie_éolienne_au_Danemark?useskin=vector"},
+    {lat:55.7000,lng:12.5500,n:"Copenhague Carbon Neutral 2025",c:"Copenhague",d:"Objectif neutralité carbone 2025 — la première capitale au monde. Systèmes de chauffage urbain.",u:"https://fr.m.wikipedia.org/wiki/Copenhague?useskin=vector"}
+  ]},
+  hygge:{icon:iconHygge,color:'#C60C30',label:'🕯️ Hygge & Art de Vivre',pts:[
+    {lat:55.6761,lng:12.5683,n:"Nyhavn — Canal du Bonheur",c:"Copenhague",d:"Maisons colorées, canaux, bateaux historiques. Le symbole du hygge danois par excellence.",u:"https://fr.m.wikipedia.org/wiki/Nyhavn?useskin=vector"},
+    {lat:55.7033,lng:12.5667,n:"Torvehallerne — Marché Couvert",c:"Copenhague",d:"Marché couvert de produits locaux. Smørrebrød artisanal, fromages, pain de seigle. Culture food.",u:"https://fr.m.wikipedia.org/wiki/Copenhague?useskin=vector"},
+    {lat:56.0408,lng:9.9381,n:"Silkeborg — Cœur du Jutland",c:"Silkeborg, Jutland",d:"Lacs, forêts, art de vivre danois à l\'état pur. Musée Silkeborg. Canot sur les rivières.",u:"https://fr.m.wikipedia.org/wiki/Silkeborg?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:56.1629,lng:10.2039,n:"Golf d\'Aarhus",c:"Aarhus, Jutland",d:"Aarhus Golf Club (1900) — un des plus anciens de Scandinavie. Fairways dans les collines.",u:"https://fr.m.wikipedia.org/wiki/Aarhus?useskin=vector"},
+    {lat:55.6761,lng:12.5683,n:"Golf de Copenhague",c:"Copenhague",d:"Royal Copenhagen Golf Club (1898). Plusieurs parcours autour de la capitale danoise.",u:"https://fr.m.wikipedia.org/wiki/Copenhague?useskin=vector"},
+    {lat:56.8000,lng:9.5000,n:"Golf du Jutland — Rebild",c:"Jutland du Nord",d:"Rebild Bakker — collines de bruyère du Jutland. Golf dans un parc national danois.",u:"https://fr.m.wikipedia.org/wiki/Rebild_Bakker?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#C60C30\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#C60C30"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#b00820"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#b00820"/><rect x="6" y="8" width="2" height="4" fill="#b00820"/></svg>', label:'Villes &amp; Copenhague', count:5},
+      {cat:'chateau',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Palais', count:5},
+      {cat:'viking',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q6 30 18 32 Q30 30 34 24 Q26 26 18 27 Q10 26 2 24 Z" fill="#4a2808"/><line x1="18" y1="8" x2="18" y2="26" stroke="#2a1008" stroke-width="1.4"/><path d="M10 8 Q18 6 26 8 L24 20 Q18 22 12 20 Z" fill="#C60C30"/></svg>', label:'Vikings &amp; Archéologie', count:4},
+      {cat:'unesco',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:4},
+      {cat:'design',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#5040b0"/><circle cx="16" cy="14" r="4" fill="#C60C30" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#2a1080"/></svg>', label:'Design &amp; Architecture', count:4},
+      {cat:'nature',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:3},
+      {cat:'mer',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a60b8"/><path d="M6 20 Q8 16 12 12 L18 6 L22 12 Q26 16 30 20" fill="#b8d0e8" opacity="0.4"/></svg>', label:'Côtes &amp; Mer du Nord', count:4},
+      {cat:'gastro',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'New Nordic &amp; Smørrebrød', count:3},
+      {cat:'musee',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Collections', count:4},
+      {cat:'ile',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a70c0"/><path d="M10 26 Q14 20 18 18 Q22 20 26 26 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="14" fill="#f5ead8"/><rect x="14" y="6" width="8" height="4" fill="#C60C30"/></svg>', label:'Îles Danoises', count:4},
+      {cat:'culture',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#C60C30"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#a00820"/></svg>', label:'Andersen &amp; Littérature', count:4},
+      {cat:'velo',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><circle cx="9" cy="26" r="7" fill="none" stroke="#1a6a30" stroke-width="1.5"/><circle cx="27" cy="26" r="7" fill="none" stroke="#1a6a30" stroke-width="1.5"/><path d="M9 26 L18 10 L27 26 L18 18 Z" fill="#2a8a40" stroke="#1a6a30" stroke-width="0.7"/></svg>', label:'Vélo &amp; Mobilité Verte', count:3},
+      {cat:'eolienne', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><line x1="18" y1="34" x2="18" y2="4" stroke="#3060b0" stroke-width="1.5" stroke-linecap="round"/><path d="M18 14 Q26 10 30 4 Q24 8 18 14 Z" fill="#4080d0"/><path d="M18 14 Q10 10 6 4 Q12 8 18 14 Z" fill="#4080d0"/><circle cx="18" cy="14" r="3" fill="#2050a0"/></svg>', label:'Énergie &amp; Durabilité', count:3},
+      {cat:'hygge',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 8 Q22 6 26 8 Q28 12 26 16 Q22 22 18 26 Q14 22 10 16 Q8 12 10 8 Q14 6 18 8 Z" fill="#C60C30" opacity="0.8"/><path d="M16 32 Q16 28 18 28 Q20 28 20 32" stroke="#c9a84c" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>', label:'Hygge &amp; Art de Vivre', count:3},
+      {cat:'golf',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#C60C30"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#C60C30 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#C60C30;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#1a1a2e;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#C60C30;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #C60C30';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#C60C30':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'C60C30\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>

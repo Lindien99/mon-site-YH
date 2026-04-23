@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pologne — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Pologne.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --blanc:#f5f5f5;      /* blanc polonais */
+      --rouge:#DC143C;      /* rouge polonais */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --royal:#1a0a30;
+      --amber:#c8760a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#02030a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(220,20,60,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(200,160,10,.06) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--blanc) 0%,var(--blanc) 50%,var(--rouge) 50%,var(--rouge) 100%);opacity:.45;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;
+      color:rgba(220,20,60,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(220,20,60,.2);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(220,20,60,.07);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(2,3,10,.88);border:1px solid rgba(200,160,10,.5);border-radius:3px;
+      color:#e8c97a;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;
+      letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(220,20,60,.1);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(220,20,60,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(220,20,60,.06);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(220,20,60,.15);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#02030a;border-bottom:1px solid rgba(220,20,60,.25);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #9a0820;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#b01030;border-color:#b01030;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(220,20,60,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Pologne';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Pologne');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<section class="hero">
+  <div class="hero-year">POLSKA</div>
+  <div class="hero-eyebrow">Pologne · Guide du Voyageur</div>
+  <h1 class="hero-title">Châteaux, Mémoire<br>&amp; <em>Âme Polonaise</em></h1>
+  <p class="hero-subtitle">Cracovie royale, Varsovie renaissante, Auschwitz, châteaux de l'Ordre Teutonique &amp; plaines infinies de la Vistule</p>
+
+  <!-- AIGLE BLANC POLONAIS — style Léonard de Vinci, plume sépia & or -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(220,20,60,.3))" shape-rendering="geometricPrecision">
+
+      <!-- Corps de l'aigle blanc polonais -->
+      <path d="M52 94 Q50 80 56 68 Q64 56 78 52 Q92 50 104 58 Q116 68 116 84 Q114 100 100 108 Q84 116 68 112 Q56 108 52 94 Z"
+            fill="#f0ece4" stroke="#c8b090" stroke-width="0.8"/>
+      <path d="M58 68 Q68 58 80 56 Q92 58 102 68 Q92 62 80 61 Q68 62 58 68 Z" fill="white" opacity="0.6"/>
+
+      <!-- Hachures plumes corps — sépia -->
+      <path d="M60 80 Q70 75 80 76 Q90 75 100 80" fill="none" stroke="#b09070" stroke-width="0.55"/>
+      <path d="M58 90 Q68 85 80 86 Q92 85 102 90" fill="none" stroke="#b09070" stroke-width="0.5"/>
+      <path d="M60 100 Q70 96 80 96 Q90 96 100 100" fill="none" stroke="#b09070" stroke-width="0.45"/>
+
+      <!-- Aile gauche deployée -->
+      <path d="M52 82 Q38 70 22 60 Q10 52 6 42 Q10 38 16 42 Q12 46 18 52 Q30 62 44 72 Q50 78 52 82 Z" fill="#e8e4dc" stroke="#b09070" stroke-width="0.7"/>
+      <path d="M52 90 Q36 84 18 78 Q6 72 4 62 Q8 60 14 64 Q12 70 20 74 Q36 80 50 86 Z" fill="#e0dcd4" stroke="#b09070" stroke-width="0.6"/>
+      <path d="M52 100 Q38 100 22 100 Q10 98 6 90 Q10 88 16 92 Q18 96 28 96 Q42 96 52 98 Z" fill="#e0dcd4" stroke="#b09070" stroke-width="0.6"/>
+      <line x1="52" y1="82" x2="8" y2="44" stroke="#a08060" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="52" y1="90" x2="6" y2="64" stroke="#a08060" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="52" y1="100" x2="6" y2="91" stroke="#a08060" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Aile droite deployée -->
+      <path d="M108 82 Q122 70 138 60 Q150 52 154 42 Q150 38 144 42 Q148 46 142 52 Q130 62 116 72 Q110 78 108 82 Z" fill="#e8e4dc" stroke="#b09070" stroke-width="0.7"/>
+      <path d="M108 90 Q124 84 142 78 Q154 72 156 62 Q152 60 146 64 Q148 70 140 74 Q124 80 110 86 Z" fill="#e0dcd4" stroke="#b09070" stroke-width="0.6"/>
+      <path d="M108 100 Q122 100 138 100 Q150 98 154 90 Q150 88 144 92 Q142 96 132 96 Q118 96 108 98 Z" fill="#e0dcd4" stroke="#b09070" stroke-width="0.6"/>
+      <line x1="108" y1="82" x2="152" y2="44" stroke="#a08060" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="108" y1="90" x2="154" y2="64" stroke="#a08060" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="108" y1="100" x2="154" y2="91" stroke="#a08060" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Tête de l'aigle -->
+      <ellipse cx="80" cy="48" rx="20" ry="16" fill="#f0ece4" stroke="#c8b090" stroke-width="0.8"/>
+      <path d="M64 42 Q72 34 80 32 Q88 34 96 42 Q88 38 80 37 Q72 38 64 42 Z" fill="white" opacity="0.5"/>
+
+      <!-- Bec crochu — doré (symbole de la noblesse polonaise) -->
+      <path d="M66 54 Q62 58 60 64 Q64 60 68 56 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
+      <path d="M60 64 Q58 68 62 70 Q64 66 60 64 Z" fill="#c9a84c"/>
+
+      <!-- Oeil -->
+      <circle cx="86" cy="44" r="5" fill="#1a0800" stroke="#c8b090" stroke-width="0.7"/>
+      <circle cx="86" cy="44" r="2.8" fill="#2a1000"/>
+      <circle cx="87.5" cy="42.5" r="1.1" fill="white" opacity="0.8"/>
+
+      <!-- Couronne royale polonaise -->
+      <path d="M62 32 L98 32 L96 36 L64 36 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M65 32 Q65 27 68 25 Q70 29 70 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M74 32 Q74 24 78 21 Q82 24 82 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <path d="M88 32 Q88 27 91 25 Q93 29 93 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
+      <!-- Rubis de la couronne -->
+      <circle cx="80" cy="22" r="2.5" fill="#DC143C" opacity="0.9"/>
+      <circle cx="68" cy="26" r="1.8" fill="#DC143C" opacity="0.8"/>
+      <circle cx="92" cy="26" r="1.8" fill="#DC143C" opacity="0.8"/>
+      <!-- Perles -->
+      <circle cx="74" cy="22" r="1.2" fill="#f0ece4" opacity="0.8"/>
+      <circle cx="86" cy="22" r="1.2" fill="#f0ece4" opacity="0.8"/>
+
+      <!-- Ecu sur le poitrail — aigle blanc sur rouge -->
+      <path d="M68 84 Q68 76 80 74 Q92 76 92 84 Q92 94 80 100 Q68 94 68 84 Z"
+            fill="#DC143C" stroke="#9a0820" stroke-width="0.8"/>
+      <!-- Petit aigle blanc sur l'écu -->
+      <ellipse cx="80" cy="84" rx="7" ry="6" fill="#f0ece4" opacity="0.85"/>
+      <path d="M74 84 Q68 80 66 76 Q72 78 74 82 Z" fill="#f0ece4" opacity="0.7"/>
+      <path d="M86 84 Q92 80 94 76 Q88 78 86 82 Z" fill="#f0ece4" opacity="0.7"/>
+      <path d="M76 80 Q78 76 80 74 Q82 76 84 80 Q82 78 80 77 Q78 78 76 80 Z" fill="#c9a84c" opacity="0.8"/>
+
+      <!-- Serres et queue -->
+      <path d="M64 110 Q58 118 60 124 Q64 122 68 118 Q66 114 64 110 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M96 110 Q102 118 100 124 Q96 122 92 118 Q94 114 96 110 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Queue -->
+      <path d="M66 114 Q70 122 80 126 Q90 122 94 114 Q86 120 80 121 Q74 120 66 114 Z" fill="#e0dcd4" stroke="#b09070" stroke-width="0.6"/>
+
+      <!-- Annotation Léonard -->
+      <text x="10" y="110" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Aquila</text>
+      <text x="10" y="118" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">alba</text>
+      <line x1="24" y1="112" x2="50" y2="104" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="136" cy="30" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="146" cy="52" r="0.9" fill="#DC143C" opacity="0.4"/>
+      <circle cx="18" cy="128" r="1.1" fill="#c9a84c" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Cracovie royale, Varsovie renaissante, Auschwitz-Birkenau, châteaux de l'Ordre Teutonique, mines de sel de Wieliczka, forêt de Bialowieza, côte baltique, gastronomie polonaise, musique de Chopin, architecture Art Nouveau de Lodz, Wroclaw &amp; ses nains, parcs nationaux &amp; mémoriaux.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">38M</div><div class="stat-label">Habitants</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Pologne</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Piasts aux temps modernes</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Cracovie','Cracovie — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Cracovie, Petite-Pologne</div><h3 class="card-name">Cracovie — Ancienne Capitale Royale</h3><p class="card-context">UNESCO 1978 — la plus belle vieille ville de Pologne. Château du Wawel (résidence royale), cathédrale du Wawel (tombeaux des rois), place du Marché (200x200 m — la plus grande médiévale d'Europe). Capital de Pologne jusqu'en 1596.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Auschwitz-Birkenau','Auschwitz-Birkenau')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Oświęcim, Petite-Pologne</div><h3 class="card-name">Auschwitz-Birkenau — Mémorial UNESCO</h3><p class="card-context">UNESCO 1979 — le plus grand camp d'extermination nazi (1,1 million de victimes, dont 90% Juifs). Conservé comme mémorial et musée. "Arbeit macht frei". Le symbole mondial de la Shoah et de la barbarie humaine. Lieu de mémoire obligatoire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Mines_de_sel_de_Wieliczka','Mines de Sel de Wieliczka')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Wieliczka, Petite-Pologne</div><h3 class="card-name">Mines de Sel de Wieliczka</h3><p class="card-context">UNESCO 1978 — mine de sel exploitée depuis le XIIIe s. 300 km de galeries, chapelles et sculptures entièrement creusées dans le sel gemme. La Chapelle Sainte-Kingie (54 m de long) est un chef-d'oeuvre souterrain unique au monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Malbork','Château de Malbork')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Malbork, Poméranie</div><h3 class="card-name">Château de Malbork — Forteresse Teutonique</h3><p class="card-context">UNESCO 1997 — le plus grand château en brique du monde et la plus grande forteresse médiévale d'Europe. Construit par les Chevaliers Teutoniques au XIIIe s. Restauré après la Seconde Guerre mondiale. Symbole de la résistance polonaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Varsovie','Varsovie — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Varsovie</div><h3 class="card-name">Varsovie — Vieille Ville Reconstruite</h3><p class="card-context">UNESCO 1980 — la vieille ville détruite à 85% par les nazis et reconstruite à l'identique après 1945 grâce aux peintures de Canaletto. Symbole mondial de la résistance et de la reconstruction. Château Royal, place du Château, Barbacane.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Forêt_de_Białowieża','Forêt de Bialowieza')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Bialowieza, Podlachie</div><h3 class="card-name">Forêt de Bialowieza — Dernière Forêt Primaire</h3><p class="card-context">UNESCO 1979 — la dernière grande forêt primaire des plaines d'Europe. 1 500 km². Bison européen réintroduit (troupeau de 900 individus). Chênes millénaires. Loups, lynx, loutres. Une fenêtre sur l'Europe d'avant l'Homme.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Torun','Torun — Ville de Copernic')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Torun, Coujavie-Poméranie</div><h3 class="card-name">Torun — Berceau de Copernic</h3><p class="card-context">UNESCO 1997 — ville médiévale hanséatique sur la Vistule. Lieu de naissance de Nicolas Copernic (1473) — l'homme qui a arrêté le Soleil et mis la Terre en mouvement. Maison de Copernic, cathédrale, château teutonique. Pain d'épices de Torun.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wrocław','Wroclaw — La Ville des Nains')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Wroclaw, Basse-Silésie</div><h3 class="card-name">Wroclaw — La Ville des Nains</h3><p class="card-context">La quatrième ville de Pologne — cathédrale gothique sur île, 12 îles et 112 ponts. 400 statues de nains (krasnoludki) cachées dans la ville. Capitale Européenne de la Culture 2016. Capitale de la Basse-Silésie. Université Léopoldine (1702).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Wawel','Château du Wawel')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Cracovie, Petite-Pologne</div><h3 class="card-name">Château Royal du Wawel</h3><p class="card-context">La résidence royale polonaise par excellence — sur la colline du Wawel dominant la Vistule. Renaissance italienne importée. Tombeaux des rois et des héros nationaux dans la cathédrale. La Tapisserie d'Aubusson — collection exceptionnelle. Dragon du Wawel.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Kazimierz','Kazimierz — Quartier Juif de Cracovie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Cracovie — Kazimierz</div><h3 class="card-name">Kazimierz — L'Ancien Quartier Juif</h3><p class="card-context">L'ancien quartier juif de Cracovie — fondé au XIVe s. Synagogues, cimetières, ruelles du shtetl. Décor du film de Spielberg "La Liste de Schindler". Aujourd'hui quartier bohème et culturel. Mémoire vivante de la communauté juive polonaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zakopane','Zakopane — Capital des Tatras')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Zakopane, Petite-Pologne</div><h3 class="card-name">Zakopane &amp; Les Tatras</h3><p class="card-context">La capitale d'hiver de la Pologne aux pieds des Tatras (Rysy — 2 499 m). Architecture en bois de style Zakopane créée par Witkiewicz. Vallée de Koscieliska. Morskie Oko — lac de montagne. Culture des Gorals (montagnards polonais).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gdańsk','Gdansk — La Ville de l\'Ambre')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Gdansk, Poméranie</div><h3 class="card-name">Gdansk — L'Ambre de la Baltique</h3><p class="card-context">Port hanséatique aux maisons flamandes colorées sur la Motlawa. Berceau de Solidarnosc (1980). Fontaine Neptune baroque. Musée de l'Ambre. Westerplatte — premier coup de feu de la Seconde Guerre mondiale (1er septembre 1939). Lech Walesa.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Poznan','Poznan — Berceau de la Pologne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Poznan, Grande-Pologne</div><h3 class="card-name">Poznan — Berceau de la Pologne</h3><p class="card-context">La plus ancienne ville de Pologne — cathédrale de Poznan (premier évêché en 968, tombeaux des premiers Piasts). Place du vieux marché aux maisons Renaissance colorées. Boucs de midi (automate célèbre). Foire internationale de Poznan.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Ksiaz','Château de Ksiaz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Walbrzych, Basse-Silésie</div><h3 class="card-name">Château de Ksiaz</h3><p class="card-context">Le plus grand château de Basse-Silésie et le troisième de Pologne. Siège des princes de Pless. Les nazis y construisirent le Projet Riese — réseau de tunnels souterrains mystérieux. Train d'or légendaire. Jardins terrasses sur falaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zamość','Zamość — Ville Renaissance')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Zamość, Lublin</div><h3 class="card-name">Zamość — La Perle de la Renaissance</h3><p class="card-context">UNESCO 1992 — ville Renaissance italienne parfaitement conservée, fondée en 1580 par le chancelier Zamoyski. Architecte Bernardo Morando. Place du marché aux arcades, cathédrale baroque, enceinte bastionnée intacte. La "Padoue du Nord".</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Łódź','Lodz — Ville du Textile')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Lodz, Pologne centrale</div><h3 class="card-name">Lodz — L'Art Nouveau Industriel</h3><p class="card-context">Ville ouvrière du XIXe s. aux usines-palaces des barons du textile. Manufaktura — usine reconvertie en centre culturel. Piotrkowska — 4,2 km de la plus longue rue commerçante de Pologne. Roman Polanski et Arthur Rubinstein y sont nés.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Varsovie','Palais de la Culture et de la Science')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Varsovie</div><h3 class="card-name">Palais de la Culture — Don de Staline</h3><p class="card-context">Le bâtiment le plus haut de Pologne (237 m, 1955) — "cadeau" de Staline, toujours controversé. Gratte-ciel néo-gothique socialiste réaliste avec terrasse panoramique. Théâtres, cinémas, musées, universités dans ses 42 étages.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Czestochowa','Czestochowa — La Vierge Noire')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Czestochowa, Silésie</div><h3 class="card-name">Czestochowa — La Vierge Noire</h3><p class="card-context">Le plus grand lieu de pèlerinage de Pologne — 4 millions de pèlerins par an à Jasna Gora. La Vierge Noire de Czestochowa (XIVe s.) — icône nationale de la Pologne catholique. Jean-Paul II y pèlerina 4 fois. "La Reine de Pologne".</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gniezno','Gniezno — Premier Capital')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Gniezno, Grande-Pologne</div><h3 class="card-name">Gniezno — La Première Capitale</h3><p class="card-context">Gniezno — la capitale originelle de la Pologne médiévale. Cathédrale avec les portes de bronze de Gniezno (XIIe s.) — la plus belle oeuvre d'art roman de Pologne. Tombe de Saint Adalbert. Route des Piasts — berceau de la nation polonaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wielka_Pętla_Mazur','Lacs de Mazurie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Mazurie, Warmie</div><h3 class="card-name">Lacs de Mazurie — La Terre des Mille Lacs</h3><p class="card-context">La plus grande région de lacs d'Europe — 2 000 lacs interconnectés dans la Mazurie. Voiliers, cygnes, cigognes blanches. Le canal d'Elblag aux bateaux montés sur des rails pour franchir des collines. Paradis des kayakistes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wieliczka','Wieliczka — Ville du Sel')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Wieliczka, Petite-Pologne</div><h3 class="card-name">Wieliczka — Le Sel de la Couronne</h3><p class="card-context">La mine qui finançait le royaume de Pologne depuis le XIIIe s. 64 niveaux jusqu'à 327 m de profondeur. 22 chapelles dont la Sainte-Kingie. Sanatorium souterrain pour les asthmatiques. Classée parmi les premières UNESCO (1978).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Łazienki','Parc Lazienki — Varsovie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Varsovie</div><h3 class="card-name">Parc Lazienki &amp; Palais sur l'Eau</h3><p class="card-context">Le plus beau parc de Varsovie — Palais sur l'Eau (XVIIIe s.), statue de Chopin sous les saules, paons, écureuils. Concerts Chopin en plein air chaque dimanche d'été depuis 1959. Résidence d'été du dernier roi Stanislaw August Poniatowski.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Fryderyk_Chopin','Zelazowa Wola — Maison de Chopin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Zelazowa Wola, Mazovie</div><h3 class="card-name">Zelazowa Wola — Berceau de Chopin</h3><p class="card-context">Maison natale de Frédéric Chopin (1810) dans un parc romantique. Concerts de piano dans le jardin chaque été. Varsovie possède le seul aéroport au monde nommé d'après un compositeur. Concours International Chopin tous les 5 ans à Varsovie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Tatra','Parc National des Tatras')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Tatras, Petite-Pologne</div><h3 class="card-name">Parc National des Tatras</h3><p class="card-context">Le parc national le plus visité de Pologne — Rysy (2 499 m), Morskie Oko (lac des yeux de la mer), vallée de Koscieliska. Ours brun, lynx, chamois des Tatras. Frontière avec la Slovaquie. Les seules vraies montagnes de Pologne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sopot','Sopot — Station Balnéaire')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Sopot, Poméranie</div><h3 class="card-name">Sopot — La Côte Baltique</h3><p class="card-context">La station balnéaire la plus chic de Pologne. Monte Cassino — l'artère piétonne la plus animée. Plus longue jetée en bois de la mer Baltique (511 m). Festival de musique pop international depuis 1961. Gdynia et Gdansk forment la Trójmiasto.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Szymbark','Szymbark — Village en Plein Air')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Szymbark, Cachoubie</div><h3 class="card-name">Cachoubie — Culture et Artisanat</h3><p class="card-context">La Cachoubie — région aux traditions millénaires, langue propre, broderies, bateaux de pêche peints. Musée en plein air de Szymbark. Maison à l'envers. Le dernier peuple celte de Pologne selon certains ethnologues. Lac de Charzykowy.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Treblinka','Treblinka — Mémorial')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Treblinka, Mazovie</div><h3 class="card-name">Treblinka — Mémorial de la Shoah</h3><p class="card-context">Site de l'un des trois camps de l'Aktion Reinhard — 700 000 à 900 000 victimes entre 1942 et 1943. Mémorial aux 17 000 pierres symbolisant les communautés juives assassinées. Silence, respect, mémoire. Sobibor et Belzec également en Pologne.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Kampinos','Parc National de Kampinos')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Kampinos, Mazovie</div><h3 class="card-name">Parc National de Kampinos</h3><p class="card-context">Forêt primaire aux portes de Varsovie — loups, cerfs, bisons réintroduits. Dunes de sable intérieures. Partisans de l'Insurrection de Varsovie (1944) y trouvèrent refuge. UNESCO réserve de biosphère. La forêt de 40 km au coeur de Mazovie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lublin','Lublin — Vieille Ville')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Lublin, Lublin</div><h3 class="card-name">Lublin — Capitale des Chevaliers</h3><p class="card-context">Vieille ville aux ruelles colorées et château royal. L'Union de Lublin (1569) — créa la République des Deux Nations Pologne-Lituanie. Université Catholique de Lublin (1918). Majdanek — camp de concentration en bordure immédiate de la ville.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Nidzica','Route des Châteaux Teutoniques')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Warmie-Mazurie</div><h3 class="card-name">Route des Châteaux Teutoniques</h3><p class="card-context">L'Ordre Teutonique construisit plus de 120 châteaux en brique en Prusse Orientale. Malbork, Nidzica, Olsztyn, Lidzbark Warminski — jalonner la route de l'ambre médiévale. Bataille de Grunwald (1410) — la plus grande bataille du Moyen Age européen.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Wielka_Wola','Varsovie — Uprising Museum')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Varsovie</div><h3 class="card-name">Musée de l'Insurrection de Varsovie</h3><p class="card-context">Le musée le plus émouvant de Pologne — l'Insurrection de Varsovie (1er août–2 octobre 1944). 63 jours de résistance héroïque contre les nazis. 200 000 civils tués, ville rasée à 90%. "Varsovie se leva, Varsovie tomba, Varsovie renaît".</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Bieszczady','Parc National de Bieszczady')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Bieszczady, Subcarpatie</div><h3 class="card-name">Bieszczady — Wilderness Polonaise</h3><p class="card-context">Les montagnes les plus sauvages de Pologne aux confins de l'Ukraine et de la Slovaquie. Loups (200), lynx, bisons, ours. Villages Lemkos abandonnés (déportation 1947). Polonyna — prairies alpines à perte de vue. La vraie wilderness polonaise.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Jean-Paul_II','Jean-Paul II — Wojtyla')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Wadowice, Petite-Pologne</div><h3 class="card-name">Wadowice — Berceau de Jean-Paul II</h3><p class="card-context">Maison natale de Karol Wojtyla (1920–2005) — le pape polonais, le plus voyagé de l'histoire. Son rôle dans la chute du communisme en Pologne et en Europe est inestimable. Musée dans sa maison natale. Kremówka — gâteau préféré du Pape.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gdynia','Gdynia — Port Moderne')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Gdynia, Poméranie</div><h3 class="card-name">Gdynia — Art Déco au Bord de la Mer</h3><p class="card-context">Le plus grand port polonais construit ex nihilo en 1920. Architecture Art Déco unique en Europe — la "Gdynia Style". Musées-navires (ORP Blyskawica). Île de Hel — péninsule de sable de 35 km dans la Baltique. Gdynia Design Days.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_polonaise','Gastronomie Polonaise')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Pologne entière</div><h3 class="card-name">La Gastronomie Polonaise</h3><p class="card-context">Pierogi (raviolis), bigos (choucroute et viande), zurek (soupe aigre), goulash, kielbasa (saucisse). Vodka polonaise — Zubrowka à l'herbe de bison, Chopin, Belvedere. Pain de seigle noir. Obwarzanek de Cracovie — bagel UNESCO. Cuisine généreuse et réconfortante.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Piasts à Solidarnosc</div>
+  <h2 class="section-title">Histoire de la Pologne</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">966 — 1385</div>
+      <div class="timeline-event"><strong>Les Piasts — Naissance du Royaume.</strong> Le duc Mieszko Ier se convertit au christianisme (966) — naissance officielle de la Pologne. Boleslaw Ier couronné premier roi (1025). Casimir le Grand (1333–1370) fait de Cracovie une capitale européenne. "Il trouva la Pologne en bois et la laissa en pierre." Université Jagellonne fondée (1364).</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1410 — 1569</div>
+      <div class="timeline-event"><strong>Les Jagellons et l'Âge d'Or.</strong> Bataille de Grunwald (1410) — la plus grande bataille médiévale d'Europe, victoire décisive sur l'Ordre Teutonique. Copernic révolutionne l'astronomie (1543). L'Union de Lublin (1569) crée la République des Deux Nations — la plus grande puissance d'Europe de l'Est.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1772 — 1795</div>
+      <div class="timeline-event"><strong>Les Partages — Disparition de la Pologne.</strong> La Pologne est partagée trois fois entre la Russie, la Prusse et l'Autriche. En 1795 — la Pologne disparaît des cartes d'Europe pendant 123 ans. La culture, la langue et la religion catholique maintiennent l'identité nationale. Insurrections répétées de 1794 à 1863.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1918 — 1939</div>
+      <div class="timeline-event"><strong>Résurrection — La Deuxième République.</strong> La Pologne recouvre son indépendance (11 novembre 1918) grâce à Woodrow Wilson. Maréchal Pilsudski repousse l'Armée Rouge (Miracle sur la Vistule, 1920). 20 ans de liberté chèrement regagnée. Le 1er septembre 1939 — Hitler envahit la Pologne. Le 17 septembre, Staline suit.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1939 — 1945</div>
+      <div class="timeline-event"><strong>La Pologne Martyre.</strong> La Pologne perd 6 millions d'habitants — dont 3 millions de Juifs polonais (90% de la communauté). Auschwitz, Treblinka, Sobibor, Belzec, Majdanek. Insurrection de Varsovie (1944) — la ville rasée. Les Polonais forment la 4e armée alliée en importance. Le pays est presque entièrement détruit.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1945 — 1989</div>
+      <div class="timeline-event"><strong>République Populaire et Résistance.</strong> La Pologne sous domination soviétique reconstruit son pays dévasté. Les intellectuels et l'Église catholique résistent. Jean-Paul II élu pape (1978) — visite en Pologne (1979) qui déclenche un immense espoir. Lech Walesa et Solidarnosc (1980) — le premier syndicat libre d'un pays communiste.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1989 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Renaissance et Europe.</strong> Table Ronde (1989) — transition pacifique vers la démocratie. Walesa devient président. Adhésion à l'OTAN (1999) et à l'UE (2004). La Pologne — l'économie qui a le mieux résisté à la crise de 2008 (seul pays de l'UE sans récession). La tragédie de Smolensk (2010). Puissance régionale montante.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇵🇱</div>
+  <p class="footer-text">Guide du Voyageur · Pologne · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([52.0,19.5],6);
+L.control.zoom({position:'bottomright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(220,20,60,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#DC143C" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#c01030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#c01030"/><rect x="6" y="8" width="2" height="4" fill="#c01030"/><rect x="9" y="8" width="2" height="4" fill="#c01030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#700008"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#DC143C"/></svg>');
+
+var iconMemorial=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,60,80,.9))"><rect x="14" y="8" width="8" height="26" rx="0.5" fill="#5a5a6a" stroke="#3a3a4a" stroke-width="0.5"/><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><path d="M12 8 L24 8 L22 5 L14 5 Z" fill="#4a4a5a"/><circle cx="18" cy="4" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.8"/><circle cx="18" cy="4" r="1" fill="#c9a84c" opacity="0.6"/><line x1="10" y1="18" x2="26" y2="18" stroke="#c9a84c" stroke-width="0.6" opacity="0.5"/></svg>');
+
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconMusique=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(220,20,60,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#DC143C" stroke="#8a0010" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#b01020"/><line x1="20" y1="10" x2="28" y2="6" stroke="#DC143C" stroke-width="1.2" stroke-linecap="round"/><line x1="20" y1="14" x2="28" y2="10" stroke="#DC143C" stroke-width="1" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#b01020"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#b01020"/></svg>');
+
+var iconMine=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(140,100,20,.8))"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#4a3060" stroke="#2a1040" stroke-width="0.7"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#6a4090" opacity="0.7"/><path d="M14 34 Q14 28 18 26 Q22 28 22 34 Z" fill="#c9a84c" opacity="0.4"/><path d="M12 22 Q14 18 18 16 Q22 18 24 22" fill="none" stroke="#e8c840" stroke-width="1" opacity="0.6"/><circle cx="18" cy="16" r="1.8" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconCote=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,180,.9))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a60b8"/><path d="M4 28 Q8 24 12 26 Q16 28 18 26 Q22 24 26 26 Q30 28 32 26" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><path d="M8 24 Q10 20 14 18 L18 10 L22 18 Q26 20 28 24" fill="#b8d0e8" opacity="0.4"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,80,180,.85))"><path d="M2 24 Q6 18 12 20 Q18 22 24 18 Q30 14 34 18 L34 28 Q28 24 22 26 Q16 28 10 26 Q6 28 2 26 Z" fill="#2050a8"/><path d="M4 24 Q8 20 12 22 Q16 24 18 22 Q22 20 26 22 Q30 24 32 22" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/><circle cx="14" cy="12" r="4" fill="#e8d0a0" opacity="0.5"/><circle cx="24" cy="10" r="3" fill="#e8d0a0" opacity="0.4"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconReligion=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,120,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/><rect x="14" y="8" width="2.5" height="1" fill="#c9a84c"/><line x1="15.5" y1="1" x2="15.5" y2="9" stroke="#c9a84c" stroke-width="0.7"/></svg>');
+
+var iconCulture=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconMontagne=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(60,80,160,.8))"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e0e8f0" stroke="#a0b0d0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/><path d="M2 32 Q8 28 14 30 Q18 32 22 30 Q28 28 34 30" fill="#4060a0" opacity="0.5"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#DC143C" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconVodka=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.85))"><path d="M14 34 L13 24 Q8 20 8 14 Q8 8 18 8 Q28 8 28 14 Q28 20 23 24 L22 34 Z" fill="#d4e8f8" stroke="#a0c0e0" stroke-width="0.7"/><path d="M8 14 Q8 10 18 10 Q28 10 28 14" fill="#e8f4ff" opacity="0.5"/><rect x="13" y="24" width="10" height="10" rx="0" fill="#c8d8e8" opacity="0.8"/><rect x="12" y="32" width="12" height="3" rx="1" fill="#a0b8d0"/><rect x="15" y="3" width="6" height="6" rx="0.5" fill="#c9a84c"/><rect x="14" y="5" width="8" height="2" rx="0.5" fill="#DC143C"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#DC143C',label:'🏛️ Villes Historiques',pts:[
+    {lat:50.0614,lng:19.9366,n:"Cracovie — Ancienne Capitale",c:"Cracovie, Petite-Pologne",d:"UNESCO 1978. Wawel, place du Marché (plus grande médiévale d'Europe), université Jagellonne (1364).",u:"https://fr.m.wikipedia.org/wiki/Cracovie?useskin=vector"},
+    {lat:52.2297,lng:21.0122,n:"Varsovie — Ville Renaissante",c:"Varsovie",d:"UNESCO 1980. Vieille ville reconstruite après 85% de destruction. Symbole de résistance mondiale.",u:"https://fr.m.wikipedia.org/wiki/Varsovie?useskin=vector"},
+    {lat:51.1079,lng:17.0385,n:"Wroclaw — La Ville des Nains",c:"Wroclaw, Basse-Silésie",d:"400 nains dans la ville. 12 îles, 112 ponts. Capitale européenne de la Culture 2016.",u:"https://fr.m.wikipedia.org/wiki/Wrocław?useskin=vector"},
+    {lat:53.0138,lng:18.5980,n:"Torun — Berceau de Copernic",c:"Torun, Coujavie-Poméranie",d:"UNESCO 1997. Ville hanséatique médiévale. Lieu de naissance de Copernic (1473).",u:"https://fr.m.wikipedia.org/wiki/Toruń?useskin=vector"},
+    {lat:52.4064,lng:16.9252,n:"Poznan — Berceau de la Pologne",c:"Poznan, Grande-Pologne",d:"La plus ancienne ville de Pologne. Cathédrale (968), place du Marché Renaissance. Boucs de midi.",u:"https://fr.m.wikipedia.org/wiki/Poznań?useskin=vector"},
+    {lat:51.2465,lng:22.5684,n:"Lublin — Carrefour des Cultures",c:"Lublin",d:"Union de Lublin (1569). Vieille ville colorée. Université Catholique (1918). Majdanek voisin.",u:"https://fr.m.wikipedia.org/wiki/Lublin?useskin=vector"}
+  ]},
+  memorial:{icon:iconMemorial,color:'#5a5a6a',label:'🕯️ Mémoriaux & Shoah',pts:[
+    {lat:50.0274,lng:19.1781,n:"Auschwitz-Birkenau",c:"Oświęcim, Petite-Pologne",d:"UNESCO 1979. 1,1 million de victimes. Symbole mondial de la Shoah. Musée-mémorial.",u:"https://fr.m.wikipedia.org/wiki/Auschwitz-Birkenau?useskin=vector"},
+    {lat:52.6331,lng:22.0289,n:"Treblinka — Mémorial",c:"Treblinka, Mazovie",d:"700 000 à 900 000 victimes. 17 000 pierres symboliques. Silence et mémoire.",u:"https://fr.m.wikipedia.org/wiki/Treblinka?useskin=vector"},
+    {lat:51.1700,lng:22.6000,n:"Majdanek — Mémorial",c:"Lublin",d:"Camp de concentration en bordure de la ville. 60 000 victimes. Crématorium conservé.",u:"https://fr.m.wikipedia.org/wiki/Majdanek?useskin=vector"},
+    {lat:52.2429,lng:20.9803,n:"Musée de l\'Insurrection de Varsovie",c:"Varsovie",d:"63 jours de résistance héroïque (1944). 200 000 civils tués. Le musée le plus émouvant de Pologne.",u:"https://fr.m.wikipedia.org/wiki/Insurrection_de_Varsovie?useskin=vector"}
+  ]},
+  chateau:{icon:iconChateau,color:'#c8a020',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:54.0397,lng:19.0275,n:"Château de Malbork",c:"Malbork, Poméranie",d:"UNESCO 1997. Plus grand château en brique du monde. Chevaliers Teutoniques (XIIIe s.).",u:"https://fr.m.wikipedia.org/wiki/Château_de_Malbork?useskin=vector"},
+    {lat:50.0539,lng:19.9356,n:"Château Royal du Wawel",c:"Cracovie",d:"Résidence royale polonaise. Renaissance italienne. Tombeaux des rois. Dragon du Wawel.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Wawel?useskin=vector"},
+    {lat:50.7554,lng:16.2886,n:"Château de Ksiaz",c:"Walbrzych, Basse-Silésie",d:"3e château de Pologne. Projet Riese — tunnels nazis mystérieux. Train d'or légendaire.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Książ?useskin=vector"},
+    {lat:53.7000,lng:21.1333,n:"Château de Nidzica",c:"Nidzica, Warmie",d:"Château teutonique (1370) sur la Route des Châteaux. Guerre de Grunwald voisine (1410).",u:"https://fr.m.wikipedia.org/wiki/Nidzica?useskin=vector"},
+    {lat:53.9028,lng:20.4897,n:"Château de Lidzbark Warminski",c:"Lidzbark, Warmie",d:"Plus beau château gothique de Pologne (XIVe s.). Résidence des évêques de Warmie. Copernic y séjourna.",u:"https://fr.m.wikipedia.org/wiki/Lidzbark_Warmiński?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:50.0614,lng:19.9366,n:"Cracovie Historique",c:"Cracovie",d:"UNESCO 1978. Première inscription polonaise. Wawel, place du Marché, quartier juif Kazimierz.",u:"https://fr.m.wikipedia.org/wiki/Cracovie?useskin=vector"},
+    {lat:50.0539,lng:20.0556,n:"Mines de Sel de Wieliczka",c:"Wieliczka",d:"UNESCO 1978. 300 km de galeries. Chapelle Sainte-Kingie en sel gemme. Mine depuis le XIIIe s.",u:"https://fr.m.wikipedia.org/wiki/Mines_de_sel_de_Wieliczka?useskin=vector"},
+    {lat:50.0533,lng:22.9769,n:"Zamość — Ville Renaissance",c:"Zamość, Lublin",d:"UNESCO 1992. Ville Renaissance italienne de 1580. Place aux arcades. La Padoue du Nord.",u:"https://fr.m.wikipedia.org/wiki/Zamość?useskin=vector"},
+    {lat:52.7000,lng:23.8333,n:"Forêt de Bialowieza",c:"Bialowieza, Podlachie",d:"UNESCO 1979. Dernière forêt primaire d'Europe. 1 500 km². Bison européen. 900 individus.",u:"https://fr.m.wikipedia.org/wiki/Forêt_de_Białowieża?useskin=vector"},
+    {lat:50.2167,lng:18.9000,n:"Parc de la Haute Silésie",c:"Silésie",d:"UNESCO. Paysage industriel du XIXe s. — galeries marchandes, villas et usines art déco.",u:"https://fr.m.wikipedia.org/wiki/Silésie?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:52.7000,lng:23.8333,n:"Forêt de Bialowieza",c:"Podlachie",d:"Dernière forêt primaire d'Europe. Bisons (900), loups, lynx. Arbres millénaires.",u:"https://fr.m.wikipedia.org/wiki/Forêt_de_Białowieża?useskin=vector"},
+    {lat:52.3500,lng:20.9500,n:"Parc National de Kampinos",c:"Mazovie",d:"Forêt primaire aux portes de Varsovie. Loups réintroduits. Dunes de sable. Réserve biosphère.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Kampinos?useskin=vector"},
+    {lat:49.1500,lng:22.5833,n:"Parc National de Bieszczady",c:"Subcarpatie",d:"Montagnes les plus sauvages. Loups (200), ours, lynx. Villages Lemkos abandonnés.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Bieszczady?useskin=vector"},
+    {lat:49.2614,lng:20.0247,n:"Parc National des Tatras",c:"Tatras, Petite-Pologne",d:"Rysy (2 499 m). Morskie Oko. Ours, chamois. Frontière avec la Slovaquie.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Tatras_(Pologne)?useskin=vector"},
+    {lat:54.3333,lng:18.3667,n:"Parc National de la Péninsule de Hel",c:"Poméranie",d:"Péninsule de 35 km dans la Baltique. Phoques gris, porpoise de Baltique. Dunes et plages.",u:"https://fr.m.wikipedia.org/wiki/Péninsule_de_Hel?useskin=vector"}
+  ]},
+  musique:{icon:iconMusique,color:'#DC143C',label:'🎼 Chopin & Culture',pts:[
+    {lat:52.2311,lng:20.1986,n:"Zelazowa Wola — Berceau de Chopin",c:"Mazovie",d:"Maison natale de Frédéric Chopin (1810). Concerts de piano en été. Unique en son genre.",u:"https://fr.m.wikipedia.org/wiki/Żelazowa_Wola?useskin=vector"},
+    {lat:52.2297,lng:21.0096,n:"Lazienki — Concerts Chopin",c:"Varsovie",d:"Concerts Chopin en plein air chaque dimanche d'été depuis 1959. Statue de Chopin.",u:"https://fr.m.wikipedia.org/wiki/Parc_Łazienki?useskin=vector"},
+    {lat:51.7592,lng:19.4559,n:"Lodz — Cinéma et Culture",c:"Lodz, Pologne centrale",d:"Ecole de cinéma de Lodz — la meilleure de l'Europe de l'Est. Polanski, Kieslowski.",u:"https://fr.m.wikipedia.org/wiki/Łódź?useskin=vector"},
+    {lat:53.4285,lng:14.5528,n:"Szczecin — Opera Baltique",c:"Szczecin, Poméranie",d:"Opéra sur la mer Baltique. Ville d'art baroque et moderniste. Port historique.",u:"https://fr.m.wikipedia.org/wiki/Szczecin?useskin=vector"}
+  ]},
+  mine:{icon:iconMine,color:'#4a3060',label:'⛏️ Mines & Souterrain',pts:[
+    {lat:50.0539,lng:20.0556,n:"Mines de Sel de Wieliczka",c:"Wieliczka, Petite-Pologne",d:"300 km de galeries, 22 chapelles en sel gemme. UNESCO 1978. Sanatorium souterrain.",u:"https://fr.m.wikipedia.org/wiki/Mines_de_sel_de_Wieliczka?useskin=vector"},
+    {lat:50.4014,lng:19.1014,n:"Mines de Sel de Bochnia",c:"Bochnia, Petite-Pologne",d:"UNESCO 2013. Plus ancienne mine de sel royale (1248). Concurrente de Wieliczka.",u:"https://fr.m.wikipedia.org/wiki/Mines_de_sel_de_Bochnia?useskin=vector"},
+    {lat:50.7554,lng:16.2886,n:"Projet Riese — Ksiaz",c:"Basse-Silésie",d:"Réseau de tunnels nazis mystérieux sous le château de Ksiaz. Train d'or légendaire.",u:"https://fr.m.wikipedia.org/wiki/Projet_Riese?useskin=vector"}
+  ]},
+  cote:{icon:iconCote,color:'#1a60b8',label:'🏖️ Côte Baltique',pts:[
+    {lat:54.4417,lng:18.5603,n:"Sopot — Station Balnéaire",c:"Sopot, Poméranie",d:"Station balnéaire la plus chic. Jetée la plus longue de la Baltique (511 m). Festival de musique.",u:"https://fr.m.wikipedia.org/wiki/Sopot?useskin=vector"},
+    {lat:54.3521,lng:18.6462,n:"Gdansk — Ville Hanséatique",c:"Gdansk",d:"Port hanséatique. Solidarnosc (1980). Fontaine Neptune baroque. Musée de l'Ambre.",u:"https://fr.m.wikipedia.org/wiki/Gdańsk?useskin=vector"},
+    {lat:54.5189,lng:18.5305,n:"Gdynia — Art Déco Baltique",c:"Gdynia, Poméranie",d:"Port Art Déco unique. Gdynia Style. Musées-navires. Île de Hel — péninsule de 35 km.",u:"https://fr.m.wikipedia.org/wiki/Gdynia?useskin=vector"},
+    {lat:54.1742,lng:15.5682,n:"Swinoujscie — Station Baltique",c:"Poméranie occidentale",d:"Grande station balnéaire sur île. Phare de 65 m. Plage de 12 km. Eau verte de Baltique.",u:"https://fr.m.wikipedia.org/wiki/Świnoujście?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#2050a8',label:'💧 Lacs & Rivières',pts:[
+    {lat:53.8000,lng:21.5000,n:"Lacs de Mazurie",c:"Mazurie, Warmie",d:"2 000 lacs interconnectés — Terre des mille lacs. Voiliers, cygnes, cigognes. Canal d'Elblag.",u:"https://fr.m.wikipedia.org/wiki/Lac_Śniardwy?useskin=vector"},
+    {lat:54.2167,lng:15.9833,n:"Lac de Drawsko",c:"Poméranie",d:"Lacs de Poméranie aux eaux cristallines. Pêche, kayak. Forêts de pins odorantes.",u:"https://fr.m.wikipedia.org/wiki/Lac_Drawsko?useskin=vector"},
+    {lat:50.0581,lng:19.9256,n:"Vistule — La Reine des Rivières",c:"Cracovie",d:"La Vistule — fleuve national polonais. De Cracovie à Gdansk (1 047 km). Symbole de la Pologne.",u:"https://fr.m.wikipedia.org/wiki/Vistule?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🥟 Gastronomie Polonaise',pts:[
+    {lat:50.0614,lng:19.9366,n:"Pierogi de Cracovie",c:"Cracovie",d:"Le plat national polonais — raviolis aux fromages, pommes de terre, choucroute, viande. Art culinaire.",u:"https://fr.m.wikipedia.org/wiki/Pierogi?useskin=vector"},
+    {lat:52.2297,lng:21.0122,n:"Gastronomie de Varsovie",c:"Varsovie",d:"Bigos (choucroute), zurek (soupe aigre de seigle), goulash, kielbasa. Scene culinaire moderne.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_polonaise?useskin=vector"},
+    {lat:53.0138,lng:18.5980,n:"Obwarzanek — Bagel de Torun",c:"Torun",d:"Pain d'épices de Torun — spécialité unique depuis le XIVe s. Obwarzanek de Cracovie UNESCO.",u:"https://fr.m.wikipedia.org/wiki/Obwarzanek?useskin=vector"},
+    {lat:51.1079,lng:17.0385,n:"Cuisine de Wroclaw",c:"Wroclaw",d:"Cuisine de Basse-Silésie — influences allemandes, tchèques, polonaises mêlées. Scene branchée.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_polonaise?useskin=vector"}
+  ]},
+  religion:{icon:iconReligion,color:'#6040a0',label:'⛪ Religion & Pèlerinages',pts:[
+    {lat:50.8175,lng:19.0994,n:"Czestochowa — Vierge Noire",c:"Czestochowa, Silésie",d:"4 millions de pèlerins/an. Vierge Noire (XIVe s.). Jean-Paul II y pèlerina 4 fois.",u:"https://fr.m.wikipedia.org/wiki/Częstochowa?useskin=vector"},
+    {lat:49.8839,lng:19.4958,n:"Wadowice — Berceau de Jean-Paul II",c:"Wadowice, Petite-Pologne",d:"Maison natale de Karol Wojtyla (1920–2005). Musée, chapelle. Kremówka préféré du Pape.",u:"https://fr.m.wikipedia.org/wiki/Wadowice?useskin=vector"},
+    {lat:50.0539,lng:19.9356,n:"Cathédrale du Wawel",c:"Cracovie",d:"Tombeaux des rois et héros polonais. Cloche Sigismond (1520). Trésor royal. Lieu sacré.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_du_Wawel?useskin=vector"},
+    {lat:52.4319,lng:16.9131,n:"Cathédrale de Poznan",c:"Poznan",d:"Premier évêché de Pologne (968). Tombeaux des premiers Piasts. Berceau du christianisme polonais.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_de_Poznań?useskin=vector"}
+  ]},
+  culture:{icon:iconCulture,color:'#7a40c0',label:'🎭 Arts & Architecture',pts:[
+    {lat:51.7592,lng:19.4559,n:"Lodz — Manufaktura",c:"Lodz",d:"Usine textile reconvertie en centre culturel. Art Nouveau industriel. Piotrkowska (4,2 km).",u:"https://fr.m.wikipedia.org/wiki/Łódź?useskin=vector"},
+    {lat:52.2297,lng:21.0058,n:"Palais de la Culture — Varsovie",c:"Varsovie",d:"Don de Staline (1955), 237 m. Terrasse panoramique. Théâtres, cinémas, musées.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_la_culture_et_des_sciences?useskin=vector"},
+    {lat:50.0584,lng:19.9262,n:"Sukiennice — Halle aux Draps",c:"Cracovie",d:"Renaissance (XVIe s.) — la plus belle halle de Pologne. Bijoux d'ambre, galerie nationale.",u:"https://fr.m.wikipedia.org/wiki/Sukiennice?useskin=vector"},
+    {lat:51.1075,lng:17.0342,n:"Hala Stulecia — Wroclaw",c:"Wroclaw",d:"UNESCO 2006. Salle du Centenaire (1913) — prouesse béton de Max Berg. 6 000 personnes.",u:"https://fr.m.wikipedia.org/wiki/Hala_Stulecia?useskin=vector"}
+  ]},
+  montagne:{icon:iconMontagne,color:'#4060a0',label:'🏔️ Montagnes & Tatras',pts:[
+    {lat:49.2614,lng:20.0247,n:"Zakopane — Les Tatras",c:"Petite-Pologne",d:"Capitale d'hiver. Rysy (2 499 m). Morskie Oko. Architecture Witkiewicz. Culture Gorals.",u:"https://fr.m.wikipedia.org/wiki/Zakopane?useskin=vector"},
+    {lat:49.2300,lng:20.0400,n:"Morskie Oko — Lac des Tatras",c:"Tatras",d:"Le plus grand et plus beau lac des Tatras (34,5 ha, 1 395 m). Entouré de parois de 500 m.",u:"https://fr.m.wikipedia.org/wiki/Morskie_Oko?useskin=vector"},
+    {lat:49.1900,lng:22.5000,n:"Bieszczady — Polonyna",c:"Subcarpatie",d:"Prairies alpines ( polonyna) — paysages de bout du monde. Ours, loups, lynx. Wilderness.",u:"https://fr.m.wikipedia.org/wiki/Bieszczady?useskin=vector"}
+  ]},
+  vodka:{icon:iconVodka,color:'#c8d8f0',label:'🥃 Vodka & Artisanat',pts:[
+    {lat:52.7000,lng:23.8333,n:"Zubrowka — Herbe de Bison",c:"Bialowieza",d:"La Zubrowka — vodka à l'herbe de bison de la forêt de Bialowieza. La vodka emblématique.",u:"https://fr.m.wikipedia.org/wiki/Żubrówka?useskin=vector"},
+    {lat:52.2297,lng:21.0122,n:"Vodka Belvedere — Varsovie",c:"Varsovie",d:"Belvedere et Chopin — premières vodkas premium polonaises. Distilleries artisanales.",u:"https://fr.m.wikipedia.org/wiki/Belvedere_(vodka)?useskin=vector"},
+    {lat:54.3521,lng:18.6462,n:"Ambre de Gdansk",c:"Gdansk",d:"Gdansk — capitale mondiale de l'ambre. Or de la Baltique. Bijoux, sculptures, oeuvres d'art.",u:"https://fr.m.wikipedia.org/wiki/Ambre?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:52.2297,lng:21.0122,n:"Golf Royal Warsaw",c:"Varsovie",d:"Royal Warsaw Golf Club — parcours historique au coeur de la Pologne. Forêt de conifères.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Pologne?useskin=vector"},
+    {lat:50.0614,lng:19.9366,n:"Golf de Cracovie",c:"Cracovie",d:"Plusieurs clubs autour de Cracovie. Paysage de la Petite-Pologne. Proximitité des Tatras.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Pologne?useskin=vector"},
+    {lat:54.3521,lng:18.6462,n:"Golf de Gdansk-Sopot",c:"Trójmiasto, Poméranie",d:"Golf entre mer Baltique et forêt de pins. Club de Gdansk près de Sopot. Terrain links.",u:"https://fr.m.wikipedia.org/wiki/Golf_en_Pologne?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#DC143C\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#DC143C"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#c01030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#c01030"/><rect x="6" y="8" width="2" height="4" fill="#c01030"/></svg>', label:'Villes Historiques', count:6},
+      {cat:'memorial', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="14" y="8" width="8" height="26" rx="0.5" fill="#5a5a6a"/><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#3a3a4a"/><circle cx="18" cy="4" r="2.5" fill="none" stroke="#c9a84c" stroke-width="0.8"/></svg>', label:'Mémoriaux &amp; Shoah', count:4},
+      {cat:'chateau',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Châteaux &amp; Forteresses', count:5},
+      {cat:'unesco',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'nature',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:5},
+      {cat:'musique',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#DC143C"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#b01020"/></svg>', label:'Chopin &amp; Culture', count:4},
+      {cat:'mine',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 Q4 24 10 18 Q14 14 18 12 Q22 14 26 18 Q32 24 32 34 Z" fill="#4a3060"/><path d="M10 34 Q10 26 14 22 Q16 20 18 18 Q20 20 22 22 Q26 26 26 34 Z" fill="#6a4090" opacity="0.7"/></svg>', label:'Mines &amp; Souterrain', count:3},
+      {cat:'cote',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a60b8"/><path d="M6 22 Q8 18 12 14 L18 8 L22 14 Q26 18 30 22" fill="#b8d0e8" opacity="0.4"/></svg>', label:'Côte Baltique', count:4},
+      {cat:'lac',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 22 Q6 16 12 18 Q18 20 24 16 Q30 12 34 16 L34 26 Q28 22 22 24 Q16 26 10 24 Q6 26 2 24 Z" fill="#2050a8"/></svg>', label:'Lacs &amp; Rivières', count:3},
+      {cat:'gastro',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Polonaise', count:4},
+      {cat:'religion', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>', label:'Religion &amp; Pèlerinages', count:4},
+      {cat:'culture',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Arts &amp; Architecture', count:4},
+      {cat:'montagne', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 6 L24 20 Q30 24 34 32 Z" fill="#e0e8f0" stroke="#a0b0d0" stroke-width="0.6"/><path d="M14 20 L18 6 L22 20 Q20 18 18 17 Q16 18 14 20 Z" fill="white"/></svg>', label:'Montagnes &amp; Tatras', count:3},
+      {cat:'vodka',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L13 24 Q8 20 8 14 Q8 8 18 8 Q28 8 28 14 Q28 20 23 24 L22 34 Z" fill="#d4e8f8" stroke="#a0c0e0" stroke-width="0.7"/><rect x="15" y="3" width="6" height="6" rx="0.5" fill="#c9a84c"/><rect x="14" y="5" width="8" height="2" rx="0.5" fill="#DC143C"/></svg>', label:'Vodka &amp; Artisanat', count:3},
+      {cat:'golf',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#DC143C"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#DC143C #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#DC143C;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#1a0a30;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#DC143C;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #DC143C';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#DC143C':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'DC143C\'))this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>
