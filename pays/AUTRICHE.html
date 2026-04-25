@@ -151,6 +151,29 @@
     <div id="wiki-modal-bar">
       <span id="wiki-modal-title">Wikipédia</span>
       <div id="wiki-modal-actions">
+        <div id="pays-dropdown-wrap" style="position:relative;display:inline-block;">
+          <button id="pays-dropdown-btn" onclick="togglePaysDropdown(event)" style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#06050e;text-decoration:none;padding:5px 14px;background:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-weight:700;cursor:pointer;transition:background .2s,color .2s;">🗺️ Liste des PAYS ▾</button>
+          <div id="pays-dropdown-list" style="display:none;position:absolute;top:110%;left:0;background:#1a1a1a;border:1px solid #c9a84c;border-radius:3px;z-index:9999;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.5);max-height:320px;overflow-y:auto;">
+            <a href="/pays/ALLEMAGNE.html"  onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇩🇪 Allemagne</a>
+            <a href="/pays/AUTRICHE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇦🇹 Autriche</a>
+            <a href="/pays/BELGIQUE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇧🇪 Belgique</a>
+            <a href="/pays/DANEMARK.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇩🇰 Danemark</a>
+            <a href="/pays/ESPAGNE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇪🇸 Espagne</a>
+            <a href="/pays/FINLANDE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇫🇮 Finlande</a>
+            <a href="/pays/FRANCE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇫🇷 France</a>
+            <a href="/pays/GRECE.html"      onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇬🇷 Grèce</a>
+            <a href="/pays/HONGRIE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇭🇺 Hongrie</a>
+            <a href="/pays/ITALIE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇮🇹 Italie</a>
+            <a href="/pays/LUXEMBOURG.html" onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇱🇺 Luxembourg</a>
+            <a href="/pays/NORVEGE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇳🇴 Norvège</a>
+            <a href="/pays/PAYS-BAS.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇳🇱 Pays-Bas</a>
+            <a href="/pays/POLOGNE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇵🇱 Pologne</a>
+            <a href="/pays/PORTUGAL.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇵🇹 Portugal</a>
+            <a href="/pays/SUEDE.html"      onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇸🇪 Suède</a>
+            <a href="/pays/SUISSE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇨🇭 Suisse</a>
+            <a href="/pays/TCHEQUIE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;transition:background .15s;"                onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇨🇿 Tchéquie</a>
+          </div>
+        </div>
         <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
         <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
       </div>
@@ -194,6 +217,20 @@ function closeWiki(){
   document.body.style.overflow='';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+
+function togglePaysDropdown(e){
+  e.stopPropagation();
+  var list=document.getElementById('pays-dropdown-list');
+  list.style.display=list.style.display==='block'?'none':'block';
+}
+function closePaysDropdown(){
+  document.getElementById('pays-dropdown-list').style.display='none';
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('pays-dropdown-wrap').contains(e.target)){
+    closePaysDropdown();
+  }
+});
 </script>
 
 <section class="hero">
