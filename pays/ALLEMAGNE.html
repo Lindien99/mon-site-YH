@@ -84,8 +84,7 @@
     #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#08060f;border-bottom:1px solid rgba(255,206,0,.2);flex-shrink:0;}
     #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gelb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
     #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
-    #wiki-modal-ext{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#06050e;text-decoration:none;padding:5px 14px;background:var(--gelb);border:1px solid var(--gelb);border-radius:3px;font-weight:700;transition:background .2s,color .2s;}
-    #wiki-modal-ext:hover{background:var(--gold-light);border-color:var(--gold-light);color:#06050e;}
+
     #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
     #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
     #wiki-modal-close{background:none;border:1px solid rgba(245,234,216,.25);border-radius:3px;color:rgba(245,234,216,.75);font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;line-height:1;cursor:pointer;padding:5px 12px;transition:color .2s,border-color .2s,background .2s;}
@@ -112,7 +111,6 @@
       <span id="wiki-modal-title">Wikipédia</span>
       <div id="wiki-modal-actions">
         <a id="wiki-modal-google" href="#" target="_blank" rel="noopener" title="Rechercher sur Google">🔍 Google</a>
-        <a id="wiki-modal-ext" href="#" target="_blank" rel="noopener">↗ Ouvrir</a>
         <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
       </div>
     </div>
@@ -133,7 +131,7 @@ function openWiki(url, title){
   var googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(_wikiCurrentTitle + ' Allemagne');
   document.getElementById('wiki-modal-frame').src = u;
   document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
-  document.getElementById('wiki-modal-ext').href = u;
+
   document.getElementById('wiki-modal-google').href = googleUrl;
   document.getElementById('wiki-banner-google').href = googleUrl;
   document.getElementById('wiki-error-banner').classList.remove('show');
