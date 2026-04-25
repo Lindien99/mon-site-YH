@@ -695,7 +695,7 @@ fc.addTo(map);
 var currentTile=null;
 var TILES=[
   {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
-  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'political', label:'COULEURS',  desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
   {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
   {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
   {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
@@ -740,7 +740,7 @@ function buildPoliticalLayer(){
       politicalLayer._labelLayer=lt;
       // Si "Politique" est encore actif quand le chargement se termine, on ajoute la couche
       var el=document.getElementById('tb-political');
-      if(el&&el.style.borderLeft.indexOf('ED2939')!==-1){politicalLayer.addTo(map);lt.addTo(map);}
+      if(el&&el.style.borderLeft.indexOf('255, 206, 0')!==-1){politicalLayer.addTo(map);lt.addTo(map);}
     }).catch(function(e){console.warn('GeoJSON:',e);});
 }
 function switchTile(id){
@@ -750,7 +750,7 @@ function switchTile(id){
   if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
   if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
   else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
-  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #ED2939';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff8e8';el.style.borderLeft='3px solid #ffce00';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
 }
 
 var McControl=L.Control.extend({
@@ -767,16 +767,13 @@ var McControl=L.Control.extend({
     TILES.forEach(function(t,idx){
       var isActive=idx===0;
       html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
-        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
         +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
-        +'transition:background .15s;border-left:3px solid '+(isActive?'#ED2939':'transparent')+';'
-        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
-        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(!this.style.borderLeft.includes(\'ED2939\'))this.style.background=\'transparent\'">'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#ffce00':'transparent')+';'
+        +'background:'+(isActive?'#fff8e8':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="if(document.getElementById(\'tb-'+t.id+'\').style.borderLeft!==\'3px solid rgb(255, 206, 0)\')this.style.background=\'transparent\'">'
         +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
-        +'<span style="flex:1;">'
-          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
-          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
-        +'</span>'
+        +'<span style="font-size:.82rem;font-weight:700;color:#222;flex:1;">'+t.label+'</span>'
         +'</div>';
     });
     html+='</div>';
