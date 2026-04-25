@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Poster GitHub Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #1a237e;
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.poster {
+  width: 780px;
+  background: #1a237e;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ─── HEADER PRINCIPAL ─── */
+.main-header {
+  background: linear-gradient(135deg, #0d1b6e 0%, #1565c0 50%, #0d1b6e 100%);
+  padding: 22px 28px 18px;
+  text-align: center;
+  border-bottom: 4px solid #ffd600;
+}
+.main-header h1 {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+.main-header h1 em {
+  color: #ffd600;
+  font-style: normal;
+}
+
+/* ─── SECTION BANNER ─── */
+.section-banner {
+  padding: 10px 22px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.banner-blue   { background: linear-gradient(90deg, #1976d2, #42a5f5); }
+.banner-yellow { background: linear-gradient(90deg, #f57f17, #fbc02d); color: #1a237e; }
+
+/* ─── CONTENT AREA ─── */
+.content {
+  background: #fff;
+  margin: 0 14px;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+}
+
+.section-wrap {
+  margin: 0 14px 12px;
+}
+.section-wrap:first-of-type { margin-top: 12px; }
+
+/* ─── TABLE SECTION 1 ─── */
+.big-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.big-table thead tr th {
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-align: left;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.th-red    { background: #e53935; }
+.th-orange { background: #f57c00; }
+.th-purple { background: #7b1fa2; }
+.th-yellow { background: #f9a825; color: #1a237e !important; }
+
+.big-table tbody tr {
+  border-bottom: 1px solid #e8eaf6;
+}
+.big-table tbody tr:last-child { border-bottom: none; }
+.big-table tbody tr:hover { background: #f5f5ff; }
+
+.big-table tbody td {
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  color: #263238;
+  vertical-align: middle;
+}
+.big-table tbody td:first-child {
+  font-weight: 800;
+  color: #1a237e;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+.row-icon { font-size: 1.3rem; text-align: center !important; width: 44px; }
+.tip-cell {
+  color: #555 !important;
+  font-style: italic;
+}
+.tip-cell strong { color: #1a237e; font-style: normal; }
+
+/* ─── ASTUCE MOBILE ─── */
+.astuce-box {
+  background: linear-gradient(90deg, #fffde7, #fff9c4);
+  border: 2px solid #ffd600;
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin: 10px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.astuce-box .astuce-title {
+  font-weight: 900;
+  font-size: 0.92rem;
+  color: #e65100;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+.astuce-box ul {
+  list-style: none;
+  padding: 0;
+}
+.astuce-box ul li {
+  font-size: 0.83rem;
+  color: #37474f;
+  padding: 2px 0;
+}
+.astuce-box ul li::before { content: '▶ '; color: #ffa000; }
+
+/* ─── SECTION SEPARATOR ─── */
+.sep { height: 12px; background: #1a237e; }
+
+/* ─── PIPELINE ─── */
+.pipeline-wrap {
+  background: #1a237e;
+  padding: 14px 14px 4px;
+}
+.pipeline-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pipeline-title span {
+  background: rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 2px 10px;
+}
+.pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 14px;
+  flex-wrap: nowrap;
+}
+.pipe-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #fff;
+  text-align: center;
+  min-width: 90px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.pipe-icon { font-size: 1.3rem; margin-bottom: 3px; }
+.step-1 { background: linear-gradient(135deg, #1565c0, #1976d2); }
+.step-2 { background: linear-gradient(135deg, #6a1b9a, #8e24aa); }
+.step-3 { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
+.step-4 { background: linear-gradient(135deg, #e65100, #f57c00); }
+.step-5 { background: linear-gradient(135deg, #b71c1c, #e53935); }
+.pipe-arrow {
+  font-size: 1.4rem;
+  color: #ffd600;
+  font-weight: 900;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ─── BOTTOM GRID ─── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 12px;
+  padding: 0 14px 14px;
+  background: #1a237e;
+}
+
+/* Commandes Git */
+.cmd-box {
+  background: #0d1117;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cmd-box-title {
+  background: linear-gradient(90deg, #37474f, #546e7a);
+  padding: 9px 16px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cmd-table { width: 100%; border-collapse: collapse; }
+.cmd-table tr { border-bottom: 1px solid #1e272e; }
+.cmd-table tr:last-child { border-bottom: none; }
+.cmd-table td {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+.cmd-name {
+  font-family: 'Fira Code', monospace;
+  color: #ff7043;
+  font-weight: 600;
+  white-space: nowrap;
+  width: 160px;
+}
+.cmd-alias {
+  color: #80cbc4;
+  font-size: 0.75rem;
+  width: 80px;
+}
+.cmd-desc { color: #b0bec5; font-style: italic; }
+
+/* Connexion Netlify */
+.netlify-box {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.netlify-title {
+  background: linear-gradient(90deg, #00695c, #00897b);
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.netlify-steps { padding: 12px 14px; }
+.netlify-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #e8f5e9;
+  font-size: 0.81rem;
+  color: #263238;
+}
+.netlify-step:last-child { border-bottom: none; }
+.step-num {
+  background: #00897b;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+.netlify-step span { line-height: 1.4; }
+
+/* ─── MÉMO EXPRESS ─── */
+.memo-bar {
+  margin: 0 14px 14px;
+  background: linear-gradient(90deg, #4a148c, #7b1fa2, #e91e63, #ff6f00);
+  border-radius: 10px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.memo-label {
+  font-weight: 900;
+  font-size: 0.88rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.memo-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.memo-step {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+.memo-arrow { color: #ffd600; font-size: 1rem; font-weight: 900; }
+
+/* ─── FOOTER ─── */
+.footer {
+  background: #0d1b6e;
+  padding: 12px 22px;
+  text-align: center;
+  border-top: 3px solid #ffd600;
+}
+.footer p {
+  color: #90caf9;
+  font-size: 0.78rem;
+}
+.footer p strong { color: #fff; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- HEADER -->
+  <div class="main-header">
+    <h1>🚀 POSTER GITHUB — <em>Ton Univers Dev en Un Coup d'Œil</em></h1>
+  </div>
+
+  <!-- SECTION 1 BANNER -->
+  <div class="section-banner banner-blue" style="margin-top:12px; margin: 12px 14px 0; border-radius:10px 10px 0 0;">
+    📱 Github Mobile &nbsp;+&nbsp; 🚀 Flux VS Code → GitHub → Netlify 🌍✨
+  </div>
+
+  <!-- TABLE SECTION 1 -->
+  <div style="margin: 0 14px; border-radius: 0 0 10px 10px; overflow:hidden;">
+    <table class="big-table">
+      <thead>
+        <tr>
+          <th class="th-red" style="width:44px">😀 Icône</th>
+          <th class="th-red">🔑 Section</th>
+          <th class="th-orange">🛠️ Fonction</th>
+          <th class="th-purple">💡 Astuce Pro</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-icon">🏠</td>
+          <td><strong>Accueil</strong></td>
+          <td>Feed d'activité, repos récents</td>
+          <td class="tip-cell">▶ Glisse ⬇ pour rafraîchir</td>
+        </tr>
+        <tr>
+          <td class="row-icon">🔔</td>
+          <td><strong>Notifications</strong></td>
+          <td>Issues, PR, mentions</td>
+          <td class="tip-cell">▶ Filtre par <strong>"Non lu"</strong></td>
+        </tr>
+        <tr>
+          <td class="row-icon">🔍</td>
+          <td><strong>Explorer</strong></td>
+          <td>Repos tendance, développeurs</td>
+          <td class="tip-cell">▶ Cherche par <strong>"langage"</strong></td>
+        </tr>
+        <tr>
+          <td class="row-icon">📋</td>
+          <td><strong>Issues</strong></td>
+          <td>Créer, commenter, assigner</td>
+          <td class="tip-cell">▶ Utilise les <strong>"labels colorés"</strong></td>
+        </tr>
+        <tr>
+          <td class="row-icon">🔀</td>
+          <td><strong>Pull Requests</strong></td>
+          <td>Review, approuver, merger</td>
+          <td class="tip-cell">▶ Swipe ➡ vers fichiers</td>
+        </tr>
+        <tr>
+          <td class="row-icon">💬</td>
+          <td><strong>Discussions</strong></td>
+          <td>Q&A, annonces, idées</td>
+          <td class="tip-cell">▶ Réponses utiles ✅</td>
+        </tr>
+        <tr>
+          <td class="row-icon">📁</td>
+          <td><strong>Repositories</strong></td>
+          <td>Code, branches, commits</td>
+          <td class="tip-cell">▶ ⭐ Étoile tes repos</td>
+        </tr>
+        <tr>
+          <td class="row-icon">👤</td>
+          <td><strong>Profil</strong></td>
+          <td>Contributions, followers</td>
+          <td class="tip-cell">▶ Graphe de contributions 📊</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ASTUCE MOBILE -->
+  <div class="astuce-box">
+    <div class="astuce-title">💡 Astuce Mobile</div>
+    <ul>
+      <li>Active les notifications push !</li>
+      <li>Merge les PR depuis ton téléphone ! 😉</li>
+    </ul>
+  </div>
+
+  <!-- SEPARATEUR -->
+  <div class="sep"></div>
+
+  <!-- SECTION 2 BANNER -->
+  <div class="section-banner banner-yellow" style="margin: 0 14px; border-radius:10px 10px 0 0;">
+    ⚡ SECTION 2 — FLUX VS CODE → GITHUB → NETLIFY 🎯
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline-wrap" style="border-radius: 0 0 10px 10px; margin: 0 14px 12px;">
+    <div class="pipeline-title"><span>🔄 Le Pipeline en 5 Étapes</span></div>
+    <div class="pipeline">
+      <div class="pipe-step step-1">
+        <div class="pipe-icon">💻</div>
+        <div>Coder</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step step-2">
+        <div class="pipe-icon">📤</div>
+        <div>Git Push</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step step-3">
+        <div class="pipe-icon">🐙</div>
+        <div>GitHub</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step step-4">
+        <div class="pipe-icon">⚡</div>
+        <div>Netlify</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step step-5">
+        <div class="pipe-icon">🌍</div>
+        <div>Site<br>En Ligne !</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- COMMANDES GIT -->
+    <div class="cmd-box">
+      <div class="cmd-box-title">⌨️ Commandes Git Essentielles</div>
+      <table class="cmd-table">
+        <tr>
+          <td class="cmd-name">▶ git init</td>
+          <td class="cmd-alias">▶ Initer</td>
+          <td class="cmd-desc">Initier un dépôt</td>
+        </tr>
+        <tr>
+          <td class="cmd-name">▶ git add ..</td>
+          <td class="cmd-alias">▶ Adopter</td>
+          <td class="cmd-desc">Ajouter les fichiers</td>
+        </tr>
+        <tr>
+          <td class="cmd-name">▶ git commit -m "msg"</td>
+          <td class="cmd-alias"></td>
+          <td class="cmd-desc">Sauver avec un message</td>
+        </tr>
+        <tr>
+          <td class="cmd-name">▶ git push</td>
+          <td class="cmd-alias"></td>
+          <td class="cmd-desc">Envoyer vers GitHub</td>
+        </tr>
+        <tr>
+          <td class="cmd-name">▶ git pull</td>
+          <td class="cmd-alias"></td>
+          <td class="cmd-desc">Récupérer les mises à jour</td>
+        </tr>
+        <tr>
+          <td class="cmd-name">▶ git log --oneline</td>
+          <td class="cmd-alias"></td>
+          <td class="cmd-desc">Voir l'historique</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- CONNEXION NETLIFY -->
+    <div class="netlify-box">
+      <div class="netlify-title">🔗 Connexion Netlify</div>
+      <div class="netlify-steps">
+        <div class="netlify-step">
+          <div class="step-num">1</div>
+          <span>Log in with GitHub</span>
+        </div>
+        <div class="netlify-step">
+          <div class="step-num">2</div>
+          <span>Add new site &gt; Import</span>
+        </div>
+        <div class="netlify-step">
+          <div class="step-num">3</div>
+          <span>Sélectionne ton repo</span>
+        </div>
+        <div class="netlify-step">
+          <div class="step-num">4</div>
+          <span>Clique sur Deploy site 🚀</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /bottom-grid -->
+
+  <!-- MÉMO EXPRESS -->
+  <div class="memo-bar">
+    <div class="memo-label">🏆 Mémo Express :</div>
+    <div class="memo-steps">
+      <span class="memo-step">📝 Modifier</span>
+      <span class="memo-arrow">→</span>
+      <span class="memo-step">📦 Git add</span>
+      <span class="memo-arrow">→</span>
+      <span class="memo-step">💾 Git commit</span>
+      <span class="memo-arrow">→</span>
+      <span class="memo-step">🚀 Git push</span>
+      <span class="memo-arrow">→</span>
+      <span class="memo-step">✅ En ligne !</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Créé par <strong>Yvon</strong> — Apprendre le Dev, c'est fun ! 🚀 &nbsp;|&nbsp; Avril 2026 &nbsp;|&nbsp; Version 1.0 &nbsp;|&nbsp; Imprime-moi ! 🖨️</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster GitHub Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1117;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .poster {
+    width: 1100px;
+    background: linear-gradient(160deg, #0d1117 0%, #161b22 100%);
+    border: 1px solid #30363d;
+    border-radius: 20px;
+    padding: 50px;
+    color: #e6edf3;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Déco fond */
+  .poster::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .poster::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; left: -150px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(163,113,247,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #30363d;
+  }
+  .header-left { display: flex; align-items: center; gap: 20px; }
+  .github-logo {
+    width: 56px; height: 56px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 0 30px rgba(88,166,255,0.3);
+  }
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #58a6ff, #a371f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+  }
+  .header h1 span { color: #e6edf3; -webkit-text-fill-color: #e6edf3; }
+  .header p { color: #8b949e; font-size: 0.95rem; margin-top: 4px; }
+  .badge {
+    background: linear-gradient(135deg, #238636, #2ea043);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(46,160,67,0.3);
+  }
+
+  /* GRID PRINCIPALE */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* CARDS */
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card-accent { border-top: 3px solid; }
+  .card-blue  { border-top-color: #58a6ff; }
+  .card-purple{ border-top-color: #a371f7; }
+  .card-green { border-top-color: #3fb950; }
+  .card-orange{ border-top-color: #f0883e; }
+  .card-red   { border-top-color: #f85149; }
+  .card-teal  { border-top-color: #39d353; }
+  .card-pink  { border-top-color: #ff7b72; }
+  .card-yellow{ border-top-color: #e3b341; }
+
+  .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .card h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+  }
+  .card-blue   h2 { color: #58a6ff; }
+  .card-purple h2 { color: #a371f7; }
+  .card-green  h2 { color: #3fb950; }
+  .card-orange h2 { color: #f0883e; }
+  .card-red    h2 { color: #f85149; }
+  .card-teal   h2 { color: #39d353; }
+  .card-pink   h2 { color: #ff7b72; }
+  .card-yellow h2 { color: #e3b341; }
+
+  /* TABLE interne */
+  .mini-table { width: 100%; border-collapse: collapse; }
+  .mini-table tr { border-bottom: 1px solid #21262d; }
+  .mini-table tr:last-child { border-bottom: none; }
+  .mini-table td {
+    padding: 6px 4px;
+    font-size: 0.82rem;
+    color: #c9d1d9;
+    vertical-align: top;
+  }
+  .mini-table td:first-child {
+    font-weight: 600;
+    color: #e6edf3;
+    white-space: nowrap;
+    padding-right: 12px;
+  }
+
+  /* CODE */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: #c9d1d9;
+    line-height: 1.7;
+    overflow: hidden;
+  }
+  .code-comment { color: #8b949e; }
+  .code-cmd     { color: #79c0ff; }
+  .code-str     { color: #a5d6ff; }
+  .code-key     { color: #ff7b72; }
+  .code-val     { color: #a5d6ff; }
+  .code-green   { color: #3fb950; }
+  .code-yellow  { color: #e3b341; }
+
+  /* PILL tags */
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin: 2px 2px 2px 0;
+  }
+  .pill-blue   { background: rgba(88,166,255,0.15); color: #58a6ff; border: 1px solid rgba(88,166,255,0.3); }
+  .pill-green  { background: rgba(63,185,80,0.15);  color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+  .pill-purple { background: rgba(163,113,247,0.15);color: #a371f7; border: 1px solid rgba(163,113,247,0.3); }
+  .pill-orange { background: rgba(240,136,62,0.15); color: #f0883e; border: 1px solid rgba(240,136,62,0.3); }
+  .pill-red    { background: rgba(248,81,73,0.15);  color: #f85149; border: 1px solid rgba(248,81,73,0.3); }
+
+  /* Branch flow */
+  .branch-flow {
+    background: #0d1117;
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    margin-bottom: 12px;
+    color: #8b949e;
+  }
+  .branch-main   { color: #58a6ff; font-weight: 600; }
+  .branch-feat   { color: #a371f7; font-weight: 600; }
+  .branch-dot    { color: #3fb950; }
+
+  /* Raccourcis */
+  .shortcut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .shortcut-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+  kbd {
+    background: #21262d;
+    border: 1px solid #444c56;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: #e6edf3;
+    white-space: nowrap;
+    box-shadow: 0 2px 0 #444c56;
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #30363d;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer p { color: #8b949e; font-size: 0.8rem; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a {
+    color: #58a6ff;
+    text-decoration: none;
+    font-size: 0.78rem;
+  }
+
+  /* WIDE card (pleine largeur) */
+  .card-wide { grid-column: 1 / -1; }
+
+  /* Tip */
+  .tip {
+    background: rgba(88,166,255,0.07);
+    border-left: 3px solid #58a6ff;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: #8b949e;
+    margin-top: 10px;
+  }
+  .tip strong { color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="github-logo">🐙</div>
+      <div>
+        <h1>GitHub <span>Docs</span></h1>
+        <p>Référence complète en une page • Commandes • Workflow • CI/CD • Sécurité</p>
+      </div>
+    </div>
+    <div class="badge">✦ Poster v2026</div>
+  </div>
+
+  <!-- LIGNE 1 : 3 colonnes -->
+  <div class="grid">
+
+    <!-- STRUCTURE -->
+    <div class="card card-accent card-blue">
+      <span class="card-icon">🗂️</span>
+      <h2>Structure d'un Dépôt</h2>
+      <table class="mini-table">
+        <tr><td>README.md</td><td>Page d'accueil visible auto</td></tr>
+        <tr><td>.gitignore</td><td>Fichiers exclus du versioning</td></tr>
+        <tr><td>LICENSE</td><td>Type de licence du projet</td></tr>
+        <tr><td>branches</td><td>Versions parallèles du code</td></tr>
+        <tr><td>commits</td><td>Instantanés de l'historique</td></tr>
+        <tr><td>tags</td><td>Marquer une version stable v1.0</td></tr>
+        <tr><td>.github/</td><td>Workflows, templates, config</td></tr>
+      </table>
+    </div>
+
+    <!-- COMMANDES GIT -->
+    <div class="card card-accent card-green">
+      <span class="card-icon">⚡</span>
+      <h2>Commandes Git</h2>
+      <div class="code-block">
+<span class="code-comment"># Initialiser</span>
+<span class="code-cmd">git init</span>          <span class="code-comment">nouveau dépôt</span>
+<span class="code-cmd">git clone</span> <span class="code-str">&lt;url&gt;</span>  <span class="code-comment">copier un repo</span>
+
+<span class="code-comment"># Sauvegarder</span>
+<span class="code-cmd">git add</span> .
+<span class="code-cmd">git commit</span> -m <span class="code-str">"msg"</span>
+<span class="code-cmd">git push</span>
+
+<span class="code-comment"># Branches</span>
+<span class="code-cmd">git branch</span> <span class="code-green">feature</span>
+<span class="code-cmd">git checkout</span> <span class="code-green">feature</span>
+<span class="code-cmd">git merge</span> <span class="code-green">feature</span>
+
+<span class="code-comment"># Historique</span>
+<span class="code-cmd">git log</span> --oneline
+<span class="code-cmd">git diff</span>
+<span class="code-cmd">git status</span>
+      </div>
+    </div>
+
+    <!-- ISSUES -->
+    <div class="card card-accent card-red">
+      <span class="card-icon">🐛</span>
+      <h2>Issues — Suivi des Tâches</h2>
+      <table class="mini-table">
+        <tr><td>Labels</td><td>
+          <span class="pill pill-red">bug</span>
+          <span class="pill pill-green">feature</span>
+          <span class="pill pill-blue">docs</span>
+        </td></tr>
+        <tr><td>Milestones</td><td>Regrouper par version / sprint</td></tr>
+        <tr><td>Assignees</td><td>Qui prend en charge l'issue</td></tr>
+        <tr><td>Templates</td><td>Formulaire standard de signalement</td></tr>
+      </table>
+      <div class="tip">
+        <strong>Fermer auto :</strong> écrire <code>Closes #42</code> · <code>Fixes #42</code> · <code>Resolves #42</code> dans un commit ou PR
+      </div>
+    </div>
+
+  </div><!-- /grid ligne 1 -->
+
+  <!-- LIGNE 2 : 2 colonnes -->
+  <div class="grid-2col">
+
+    <!-- WORKFLOW BRANCHES -->
+    <div class="card card-accent card-purple">
+      <span class="card-icon">🌿</span>
+      <h2>Workflow Branches</h2>
+      <div class="branch-flow">
+<span class="branch-main">main</span>    ──<span class="branch-dot">●</span>──────────────────<span class="branch-dot">●</span>── stable
+          \                  /
+<span class="branch-feat">feature</span>  <span class="branch-dot">●</span>──<span class="branch-dot">●</span>──<span class="branch-dot">●</span>──<span class="branch-dot">●</span>──/  dev
+      </div>
+      <table class="mini-table">
+        <tr><td>1. Créer</td><td><code style="color:#a5d6ff;font-size:.8rem">git checkout -b ma-feature</code></td></tr>
+        <tr><td>2. Coder</td><td>Faire les modifications</td></tr>
+        <tr><td>3. Commit</td><td><code style="color:#a5d6ff;font-size:.8rem">git add . && git commit</code></td></tr>
+        <tr><td>4. Pousser</td><td><code style="color:#a5d6ff;font-size:.8rem">git push origin ma-feature</code></td></tr>
+        <tr><td>5. PR</td><td>Ouvrir une Pull Request GitHub</td></tr>
+        <tr><td>6. Merger</td><td>Fusionner dans <code style="color:#58a6ff">main</code> après review</td></tr>
+      </table>
+    </div>
+
+    <!-- PULL REQUESTS -->
+    <div class="card card-accent card-orange">
+      <span class="card-icon">🔀</span>
+      <h2>Pull Requests</h2>
+      <table class="mini-table">
+        <tr><td>Draft PR</td><td>En cours, pas prête à être relue</td></tr>
+        <tr><td>Review</td><td>Un relecteur doit approuver</td></tr>
+        <tr><td>Merge commit</td><td>Historique complet préservé</td></tr>
+        <tr><td>Squash merge</td><td>Tous les commits → 1 seul</td></tr>
+        <tr><td>Rebase merge</td><td>Historique linéaire propre</td></tr>
+        <tr><td>Close</td><td>Abandon sans fusion</td></tr>
+      </table>
+      <div class="tip" style="margin-top:10px">
+        <strong>Tip :</strong> lier une PR à une Issue avec <code>Closes #n</code> dans la description
+      </div>
+    </div>
+
+  </div><!-- /grid ligne 2 -->
+
+  <!-- LIGNE 3 : 3 colonnes -->
+  <div class="grid">
+
+    <!-- GITHUB ACTIONS -->
+    <div class="card card-accent card-teal">
+      <span class="card-icon">⚙️</span>
+      <h2>GitHub Actions — CI/CD</h2>
+      <div class="code-block" style="margin-bottom:10px">
+<span class="code-comment"># .github/workflows/deploy.yml</span>
+<span class="code-key">name:</span> <span class="code-val">Déploiement</span>
+<span class="code-key">on:</span>
+  <span class="code-key">push:</span>
+    <span class="code-key">branches:</span> <span class="code-val">[main]</span>
+<span class="code-key">jobs:</span>
+  <span class="code-key">build:</span>
+    <span class="code-key">runs-on:</span> <span class="code-val">ubuntu-latest</span>
+    <span class="code-key">steps:</span>
+      - <span class="code-key">uses:</span> <span class="code-val">actions/checkout@v4</span>
+      - <span class="code-key">run:</span> <span class="code-val">npm run build</span>
+      </div>
+      <table class="mini-table">
+        <tr><td>Workflow</td><td>Fichier YAML d'automatisation</td></tr>
+        <tr><td>Job</td><td>Groupe d'étapes sur une machine</td></tr>
+        <tr><td>Step</td><td>Une action ou commande</td></tr>
+        <tr><td>Runner</td><td>Machine virtuelle d'exécution</td></tr>
+      </table>
+    </div>
+
+    <!-- GITHUB PAGES -->
+    <div class="card card-accent card-pink">
+      <span class="card-icon">🌐</span>
+      <h2>GitHub Pages</h2>
+      <table class="mini-table">
+        <tr><td>Activer</td><td>Settings → Pages → Source → main</td></tr>
+        <tr><td>URL auto</td><td><code style="color:#ff7b72;font-size:.78rem">username.github.io/repo</code></td></tr>
+        <tr><td>Domaine custom</td><td>Ajouter CNAME + configurer registrar</td></tr>
+        <tr><td>Déploiement</td><td>Auto à chaque push sur la branche</td></tr>
+        <tr><td>Netlify</td><td>Alternative : connecter le dépôt GitHub</td></tr>
+      </table>
+      <div class="tip">
+        <strong>Mon projet :</strong> GitHub → Netlify auto sur push <code>main</code>
+      </div>
+    </div>
+
+    <!-- SECURITE -->
+    <div class="card card-accent card-yellow">
+      <span class="card-icon">🔐</span>
+      <h2>Sécurité & Permissions</h2>
+      <table class="mini-table">
+        <tr><td><span class="pill pill-blue">Read</span></td><td>Voir, cloner, Issues</td></tr>
+        <tr><td><span class="pill pill-green">Triage</span></td><td>+ Gérer Issues & PR</td></tr>
+        <tr><td><span class="pill pill-purple">Write</span></td><td>+ Push sur branches</td></tr>
+        <tr><td><span class="pill pill-orange">Maintain</span></td><td>+ Paramètres (sans suppr.)</td></tr>
+        <tr><td><span class="pill pill-red">Admin</span></td><td>Contrôle total</td></tr>
+      </table>
+      <div class="tip">
+        🔑 <strong>Secrets</strong> → Settings → Secrets (variables chiffrées pour Actions)<br>
+        🛡️ <strong>Branch protection</strong> → bloquer push direct sur <code>main</code>
+      </div>
+    </div>
+
+  </div><!-- /grid ligne 3 -->
+
+  <!-- RACCOURCIS — pleine largeur -->
+  <div class="card card-accent card-blue" style="margin-bottom:0">
+    <div style="display:flex; gap:40px; align-items:flex-start">
+      <div style="flex:0 0 auto">
+        <span class="card-icon">⌨️</span>
+        <h2 style="margin-bottom:14px">Raccourcis GitHub</h2>
+        <div class="shortcut-grid">
+          <div class="shortcut-row"><kbd>T</kbd> <span style="color:#c9d1d9;font-size:.8rem">Chercher un fichier</span></div>
+          <div class="shortcut-row"><kbd>G</kbd><kbd>C</kbd> <span style="color:#c9d1d9;font-size:.8rem">Aller aux commits</span></div>
+          <div class="shortcut-row"><kbd>G</kbd><kbd>I</kbd> <span style="color:#c9d1d9;font-size:.8rem">Aller aux Issues</span></div>
+          <div class="shortcut-row"><kbd>G</kbd><kbd>P</kbd> <span style="color:#c9d1d9;font-size:.8rem">Pull Requests</span></div>
+          <div class="shortcut-row"><kbd>.</kbd> <span style="color:#c9d1d9;font-size:.8rem">VS Code web (vscode.dev)</span></div>
+          <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>K</kbd> <span style="color:#c9d1d9;font-size:.8rem">Palette de commandes</span></div>
+        </div>
+      </div>
+      <div style="width:1px; background:#30363d; align-self:stretch"></div>
+      <div style="flex:1">
+        <span class="card-icon">🔗</span>
+        <h2 style="margin-bottom:14px">Liens Essentiels</h2>
+        <table class="mini-table">
+          <tr><td>Documentation</td><td><span style="color:#58a6ff">docs.github.com</span></td></tr>
+          <tr><td>GitHub Skills</td><td><span style="color:#58a6ff">skills.github.com</span></td></tr>
+          <tr><td>Status</td><td><span style="color:#58a6ff">githubstatus.com</span></td></tr>
+          <tr><td>Markdown Guide</td><td><span style="color:#58a6ff">docs.github.com/fr/get-started/writing-on-github</span></td></tr>
+          <tr><td>Mon site Netlify</td><td><span style="color:#3fb950">taupe-starburst-97f87d.netlify.app</span></td></tr>
+        </table>
+      </div>
+      <div style="width:1px; background:#30363d; align-self:stretch"></div>
+      <div style="flex:0 0 200px">
+        <span class="card-icon">📦</span>
+        <h2 style="margin-bottom:14px">Markdown Utile</h2>
+        <div class="code-block">
+<span class="code-green"># Titre</span>
+<span class="code-yellow">**gras**</span>  <span style="color:#a5d6ff">*italique*</span>
+<span class="code-cmd">- liste</span>
+<span class="code-str">[lien](url)</span>
+<span class="code-comment">```code```</span>
+<span class="code-key">&gt; citation</span>
+- [x] <span style="color:#3fb950">tâche faite</span>
+- [ ] <span style="color:#8b949e">à faire</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>🐙 <strong style="color:#e6edf3">GitHub Docs</strong> — Poster de référence • Yvon H. • 25 avril 2026</p>
+    <div class="footer-links">
+      <a href="https://docs.github.com">docs.github.com</a>
+      <a href="https://github.com/Lindien99/mon-site-YH">Lindien99/mon-site-YH</a>
+      <a href="https://taupe-starburst-97f87d.netlify.app">Mon site Netlify</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

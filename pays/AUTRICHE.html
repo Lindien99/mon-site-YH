@@ -738,6 +738,9 @@ function buildPoliticalLayer(){
       });
       var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
       politicalLayer._labelLayer=lt;
+      // Si "Politique" est encore actif quand le chargement se termine, on ajoute la couche
+      var el=document.getElementById('tb-political');
+      if(el&&el.style.borderLeft.indexOf('ED2939')!==-1){politicalLayer.addTo(map);lt.addTo(map);}
     }).catch(function(e){console.warn('GeoJSON:',e);});
 }
 function switchTile(id){
