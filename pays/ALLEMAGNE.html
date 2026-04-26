@@ -36,13 +36,15 @@
     .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
     /* ── MAP ── */
     .map-section{padding:0 20px 80px;}
-    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(255,206,0,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(200,16,46,.1);}
+    .map-container{position:relative;max-width:1100px;margin:0 auto;border:1px solid rgba(255,206,0,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(200,16,46,.1);}
+    #capitale-badge{display:block;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:1000;background:#ffffff;color:#111111;font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;padding:10px 28px;border-radius:4px;box-shadow:0 3px 14px rgba(0,0,0,.45);letter-spacing:.06em;white-space:nowrap;pointer-events:none;text-align:center;}
     .leaflet-control-zoom{touch-action:none !important;}
     .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
     .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
     #leaflet-map{width:100%;height:710px;display:block;}
-    .country-tooltip{background:rgba(10,8,20,.85);border:1px solid rgba(255,206,0,.5);border-radius:3px;color:#ffce00;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
+    .country-tooltip{background:rgba(10,8,20,.88);border:1px solid rgba(255,206,0,.5);border-radius:4px;color:#ffce00;font-family:'Cormorant Garamond',Georgia,serif;font-size:.88rem;font-weight:700;letter-spacing:.08em;padding:7px 12px 8px;box-shadow:0 3px 12px rgba(0,0,0,.5);white-space:nowrap;line-height:1.4;text-align:center;}
     .country-tooltip::before{display:none;}
+    .cap-label{display:inline-block;margin-top:6px;background:#ffffff;color:#111111;font-family:'Playfair Display',serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;padding:3px 12px;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.3);}
     /* ── CARDS ── */
     .monuments-section{padding:0 20px 100px;}
     .monuments-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
@@ -330,7 +332,10 @@ document.addEventListener('click', function(e){
 </div>
 
 <div class="map-section">
-  <div class="map-container"><div id="leaflet-map"></div></div>
+  <div class="map-container">
+    <div id="leaflet-map"></div>
+    <div id="capitale-badge">🏛️ Capitale : <strong>Berlin</strong></div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
@@ -956,6 +961,27 @@ var COUNTRY_FR = {
   'Vatican City':'Vatican',    'Malta':'Malte',              'Cyprus':'Chypre'
 };
 
+// Dictionnaire des capitales européennes
+var COUNTRY_CAPITALS = {
+  'Germany':'Berlin',          'France':'Paris',            'Poland':'Varsovie',
+  'Italy':'Rome',              'Spain':'Madrid',            'Portugal':'Lisbonne',
+  'Netherlands':'Amsterdam',  'Belgium':'Bruxelles',       'Luxembourg':'Luxembourg',
+  'Switzerland':'Berne',      'Austria':'Vienne',          'Czech Republic':'Prague',
+  'Czechia':'Prague',         'Slovakia':'Bratislava',     'Hungary':'Budapest',
+  'Romania':'Bucarest',       'Bulgaria':'Sofia',          'Croatia':'Zagreb',
+  'Slovenia':'Ljubljana',     'Serbia':'Belgrade',         'Republic of Serbia':'Belgrade',
+  'Bosnia and Herzegovina':'Sarajevo','Montenegro':'Podgorica','Albania':'Tirana',
+  'North Macedonia':'Skopje', 'Greece':'Athènes',          'Turkey':'Ankara',
+  'Ukraine':'Kiev',           'Moldova':'Chișinău',        'Belarus':'Minsk',
+  'Lithuania':'Vilnius',      'Latvia':'Riga',             'Estonia':'Tallinn',
+  'Finland':'Helsinki',       'Sweden':'Stockholm',        'Norway':'Oslo',
+  'Denmark':'Copenhague',     'Iceland':'Reykjavik',       'Ireland':'Dublin',
+  'United Kingdom':'Londres', 'Russia':'Moscou',           'Kosovo':'Pristina',
+  'Andorra':'Andorre-la-Vieille','Monaco':'Monaco',        'Liechtenstein':'Vaduz',
+  'San Marino':'Saint-Marin', 'Vatican City':'Vatican',    'Malta':'La Valette',
+  'Cyprus':'Nicosie'
+};
+
 function getCountryColor(name) {
   if (COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
   // Fallback pastel palette for unmapped countries
@@ -1003,9 +1029,14 @@ function buildPoliticalLayer() {
         onEachFeature: function(feature, layer) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
           var nameFr = COUNTRY_FR[name] || name;
-          layer.bindTooltip(nameFr, {
+          var capital = COUNTRY_CAPITALS[name];
+          var tipContent = nameFr;
+          if (capital) {
+            tipContent += '<br><span class="cap-label">🏛️ ' + capital + '</span>';
+          }
+          layer.bindTooltip(tipContent, {
             permanent: false,
-            direction: 'center',
+            sticky: true,
             className: 'country-tooltip'
           });
           layer.on('mouseover', function(e) {
