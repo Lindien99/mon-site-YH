@@ -85,11 +85,8 @@
     #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gelb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
     #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
 
-    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;position:relative;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
     #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
-    #wiki-modal-google::after{content:attr(data-tooltip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f4e4bc;font-size:.7rem;letter-spacing:.08em;font-weight:600;white-space:nowrap;padding:5px 10px;border-radius:4px;border:1px solid #c9a84c;pointer-events:none;opacity:0;transition:opacity .2s;z-index:100;font-family:'Cormorant Garamond',Georgia,serif;text-transform:none;}
-    #wiki-modal-google::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#c9a84c;pointer-events:none;opacity:0;transition:opacity .2s;z-index:100;}
-    #wiki-modal-google:hover::after,#wiki-modal-google:hover::before{opacity:1;}
     #wiki-modal-close{background:none;border:1px solid rgba(245,234,216,.25);border-radius:3px;color:rgba(245,234,216,.75);font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;line-height:1;cursor:pointer;padding:5px 12px;transition:color .2s,border-color .2s,background .2s;}
     #wiki-modal-close:hover{color:var(--parchment);border-color:var(--parchment);background:rgba(245,234,216,.08);}
     #wiki-modal-frame{flex:1;border:none;width:100%;}
@@ -159,7 +156,6 @@ function openWiki(url, title){
   document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
 
   document.getElementById('wiki-modal-google').href = googleUrl;
-  document.getElementById('wiki-modal-google').setAttribute('data-tooltip', 'Cliquer sur GOOGLE pour tout savoir sur ' + _wikiCurrentTitle);
   document.getElementById('wiki-banner-google').href = googleUrl;
   document.getElementById('wiki-error-banner').classList.remove('show');
   document.getElementById('wiki-modal').classList.add('open');
@@ -940,6 +936,26 @@ var COUNTRY_COLORS = {
   'Russia':         '#d4c8b8', 'Kosovo':         '#e8d8a8'
 };
 
+// Dictionnaire de traduction Anglais → Français
+var COUNTRY_FR = {
+  'Germany':'Allemagne',       'France':'France',           'Poland':'Pologne',
+  'Italy':'Italie',            'Spain':'Espagne',            'Portugal':'Portugal',
+  'Netherlands':'Pays-Bas',    'Belgium':'Belgique',         'Luxembourg':'Luxembourg',
+  'Switzerland':'Suisse',      'Austria':'Autriche',         'Czech Republic':'Tchéquie',
+  'Czechia':'Tchéquie',        'Slovakia':'Slovaquie',       'Hungary':'Hongrie',
+  'Romania':'Roumanie',        'Bulgaria':'Bulgarie',        'Croatia':'Croatie',
+  'Slovenia':'Slovénie',       'Serbia':'Serbie',            'Bosnia and Herzegovina':'Bosnie-Herzégovine',
+  'Montenegro':'Monténégro',   'Albania':'Albanie',          'North Macedonia':'Macédoine du Nord',
+  'Greece':'Grèce',            'Turkey':'Turquie',           'Ukraine':'Ukraine',
+  'Moldova':'Moldavie',        'Belarus':'Biélorussie',      'Lithuania':'Lituanie',
+  'Latvia':'Lettonie',         'Estonia':'Estonie',          'Finland':'Finlande',
+  'Sweden':'Suède',            'Norway':'Norvège',            'Denmark':'Danemark',
+  'Iceland':'Islande',         'Ireland':'Irlande',          'United Kingdom':'Royaume-Uni',
+  'Russia':'Russie',           'Kosovo':'Kosovo',            'Andorra':'Andorre',
+  'Monaco':'Monaco',           'Liechtenstein':'Liechtenstein','San Marino':'Saint-Marin',
+  'Vatican City':'Vatican',    'Malta':'Malte',              'Cyprus':'Chypre'
+};
+
 function getCountryColor(name) {
   if (COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
   // Fallback pastel palette for unmapped countries
@@ -986,7 +1002,8 @@ function buildPoliticalLayer() {
         },
         onEachFeature: function(feature, layer) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
-          layer.bindTooltip(name, {
+          var nameFr = COUNTRY_FR[name] || name;
+          layer.bindTooltip(nameFr, {
             permanent: false,
             direction: 'center',
             className: 'country-tooltip'
