@@ -201,9 +201,26 @@
     from { opacity:0; transform:translateY(10px); }
     to   { opacity:1; transform:translateY(0); }
   }
+  /* ── NAVBAR 5 PARTIES ── */
+  #nav5{position:sticky;top:0;z-index:8000;background:rgba(15,15,17,.97);border-bottom:1px solid rgba(201,168,76,.25);backdrop-filter:blur(8px);display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin:0 -1rem 1.5rem;}
+  #nav5 a{display:flex;align-items:center;gap:7px;padding:11px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,234,216,.6);text-decoration:none;border-right:1px solid rgba(201,168,76,.12);transition:color .2s,background .2s;white-space:nowrap;}
+  #nav5 a:first-child{border-left:1px solid rgba(201,168,76,.12);}
+  #nav5 a:hover,#nav5 a.active{color:#c9a84c;background:rgba(201,168,76,.06);}
+  #nav5 a.fin{color:rgba(220,80,80,.7);}
+  #nav5 a.fin:hover{color:#ff6b6b;background:rgba(220,80,80,.08);}
+  #nav5 a .nav-icon{font-size:.95rem;}
+  @media(max-width:640px){#nav5 a{padding:9px 11px;font-size:.62rem;gap:5px;letter-spacing:.1em;}}
 </style>
 </head>
 <body>
+<nav id="nav5" aria-label="Navigation principale">
+  <a id="nav-pays" href="../index.html"><span class="nav-icon">🌍</span> Pays</a>
+  <a id="nav-guide" href="#"><span class="nav-icon">📖</span> Guide</a>
+  <a id="nav-carte" href="#"><span class="nav-icon">🗺️</span> Carte</a>
+  <a id="nav-monuments" href="#"><span class="nav-icon">🏛️</span> Monuments</a>
+  <a class="active" href="#"><span class="nav-icon">🔍</span> Google</a>
+  <a href="#" class="fin" onclick="window.close();return false;"><span class="nav-icon">✖</span> Fin</a>
+</nav>
 <div class="container">
 
   <div class="header">
@@ -398,11 +415,20 @@
   var footerSpan = document.querySelector('.footer span');
   if(footerSpan) footerSpan.textContent = q;
 
-  // Tous les liens
+  // Tous les liens des cartes
   document.querySelectorAll('.card-header[href]').forEach(function(a){
     var href = a.getAttribute('href');
     a.setAttribute('href', href.replace('Frauenkirche+de+Dresde+Allemagne', qPlus));
   });
+
+  // Liens retour vers le pays dans la navbar
+  var from = params.get('from') || '';
+  if(from) {
+    var base = '../pays/' + from + '.html';
+    document.getElementById('nav-guide').href = base + '#guide';
+    document.getElementById('nav-carte').href = base + '#carte';
+    document.getElementById('nav-monuments').href = base + '#monuments';
+  }
 })();
 </script>
 </body>

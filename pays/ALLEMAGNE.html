@@ -107,6 +107,8 @@
     #nav5 a{display:flex;align-items:center;gap:7px;padding:11px 18px;font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,234,216,.6);text-decoration:none;border-right:1px solid rgba(201,168,76,.12);transition:color .2s,background .2s;white-space:nowrap;}
     #nav5 a:first-child{border-left:1px solid rgba(201,168,76,.12);}
     #nav5 a:hover,#nav5 a.active{color:#c9a84c;background:rgba(201,168,76,.06);}
+    #nav5 a.fin{color:rgba(220,80,80,.7);}
+    #nav5 a.fin:hover{color:#ff6b6b;background:rgba(220,80,80,.08);}
     #nav5 a .nav-icon{font-size:.95rem;}
     @media(max-width:640px){#nav5 a{padding:9px 11px;font-size:.62rem;gap:5px;letter-spacing:.1em;}}
   </style>
@@ -119,7 +121,8 @@
   <a href="#guide"><span class="nav-icon">📖</span> Guide</a>
   <a href="#carte"><span class="nav-icon">🗺️</span> Carte</a>
   <a href="#monuments"><span class="nav-icon">🏛️</span> Monuments</a>
-  <a href="../Artefact/Google_Search.html?q=Allemagne" target="_blank"><span class="nav-icon">🔍</span> Google</a>
+  <a href="../Artefact/Google_Search.html?q=Allemagne&from=ALLEMAGNE"><span class="nav-icon">🔍</span> Google</a>
+  <a href="#" class="fin" onclick="window.close();return false;"><span class="nav-icon">✖</span> Fin</a>
 </nav>
 
 <!-- ── Modale Wikipedia ── -->
