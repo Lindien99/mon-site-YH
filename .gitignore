@@ -16,9 +16,7 @@ $RECYCLE.BIN/
 .vscode/
 *.swp
 *.swo
-*~
-
-# Fichiers personnels / privés
+*# Fichiers personnels / privés
 notes-privees.txt
 todo-perso.txt
 
