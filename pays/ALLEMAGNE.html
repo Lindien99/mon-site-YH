@@ -111,6 +111,39 @@
     #nav5 a.fin:hover{color:#ff6b6b;background:rgba(220,80,80,.08);}
     #nav5 a .nav-icon{font-size:.95rem;}
     @media(max-width:640px){#nav5 a{padding:9px 11px;font-size:.62rem;gap:5px;letter-spacing:.1em;}}
+    /* ── PANNEAU GOOGLE COULISSANT ── */
+    #google-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8500;display:none;opacity:0;transition:opacity .3s ease;}
+    #google-overlay.open{display:block;opacity:1;}
+    #google-panel{position:fixed;top:0;right:-110%;width:min(100vw,620px);height:100vh;background:#0f0f11;z-index:8600;transition:right .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;border-left:1px solid rgba(201,168,76,.3);box-shadow:-6px 0 40px rgba(0,0,0,.7);display:flex;flex-direction:column;}
+    #google-panel.open{right:0;}
+    #gp-topbar{position:sticky;top:0;z-index:10;background:rgba(15,15,17,.97);border-bottom:1px solid rgba(201,168,76,.25);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;}
+    #gp-topbar-title{font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;}
+    #gp-close{background:none;border:1px solid rgba(245,234,216,.25);border-radius:3px;color:rgba(245,234,216,.75);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;cursor:pointer;padding:5px 14px;font-family:'Cormorant Garamond',serif;transition:all .2s;}
+    #gp-close:hover{color:#fff;border-color:#fff;background:rgba(245,234,216,.08);}
+    #gp-content{padding:1.2rem 1rem 2.5rem;flex:1;}
+    #gp-search-bar{background:#1a1a1f;border:1px solid #2e2e38;border-radius:20px;padding:.6rem 1rem;display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem;font-size:.9rem;color:#9090a8;}
+    #gp-query{color:#e8e8f0;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .gp-card{background:#1a1a1f;border:1px solid #2e2e38;border-radius:14px;overflow:hidden;margin-bottom:.65rem;transition:border-color .2s,box-shadow .2s;}
+    .gp-card:hover{border-color:rgba(66,133,244,.4);box-shadow:0 4px 20px rgba(0,0,0,.35);}
+    .gp-card-header{display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;text-decoration:none;background:#22222a;border-bottom:1px solid #2e2e38;transition:background .2s;cursor:pointer;}
+    .gp-card-header:hover{background:#2a2a35;}
+    .gp-badge{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .gp-badge-ai{background:#4285F4;box-shadow:0 0 6px #4285F4;}
+    .gp-badge-all{background:#888;}
+    .gp-badge-img{background:#EA4335;}
+    .gp-badge-news{background:#FBBC04;}
+    .gp-badge-vid{background:#EA4335;}
+    .gp-badge-short{background:#ff6b6b;}
+    .gp-badge-map{background:#34A853;}
+    .gp-badge-more{background:#9c6fe4;}
+    .gp-badge-tool{background:#fb923c;}
+    .gp-label{font-weight:600;font-size:.92rem;color:#7db3ff;flex:1;}
+    .gp-arrow{font-size:.75rem;color:#9090a8;opacity:.6;}
+    .gp-card-body{padding:.8rem 1rem;font-size:.83rem;color:#9090a8;line-height:1.65;}
+    .gp-card-body strong{display:block;color:#e8e8f0;font-weight:600;margin-bottom:.3rem;font-size:.86rem;}
+    .gp-card-body ul{list-style:none;padding:0;margin-top:.25rem;}
+    .gp-card-body ul li::before{content:'›';color:#4285F4;margin-right:.4rem;}
+    @media(max-width:640px){#google-panel{width:100vw;}}
   </style>
 </head>
 <body>
@@ -121,9 +154,40 @@
   <a href="#guide"><span class="nav-icon">📖</span> Guide</a>
   <a href="#carte"><span class="nav-icon">🗺️</span> Carte</a>
   <a href="#monuments"><span class="nav-icon">🏛️</span> Monuments</a>
-  <a href="../Artefact/Google_Search.html?q=Allemagne&from=ALLEMAGNE"><span class="nav-icon">🔍</span> Google</a>
+  <a href="#" onclick="openGooglePanel('Allemagne');return false;"><span class="nav-icon">🔍</span> Google</a>
   <a href="#" class="fin" onclick="window.close();return false;"><span class="nav-icon">✖</span> Fin</a>
 </nav>
+
+<!-- ── OVERLAY + PANNEAU GOOGLE ── -->
+<div id="google-overlay" onclick="closeGooglePanel()"></div>
+<div id="google-panel" role="dialog" aria-label="Recherche Google">
+  <div id="gp-topbar">
+    <span id="gp-topbar-title">🔍 Options de Recherche Google</span>
+    <button id="gp-close" onclick="closeGooglePanel()">✖ Fermer</button>
+  </div>
+  <div id="gp-content">
+    <div id="gp-search-bar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" flex-shrink="0">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.4-1.04 2.58-2.22 3.37v2.8h3.6c2.1-1.94 3.26-4.79 3.26-8.18z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span id="gp-query">Allemagne</span>
+    </div>
+    <div id="gp-cards">
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&udm=50" target="_blank"><span class="gp-badge gp-badge-ai"></span><span>🤖</span><span class="gp-label">Mode IA</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Réponse générée par Gemini</strong>Résumé intelligent avec sources citées. Idéal pour comprendre rapidement un sujet.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}" target="_blank"><span class="gp-badge gp-badge-all"></span><span>🔎</span><span class="gp-label">Tout</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Recherche web universelle</strong>Tous les types de résultats : pages, extraits enrichis, Knowledge Graph, cartes, actualités, images, vidéos.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&tbm=isch" target="_blank"><span class="gp-badge gp-badge-img"></span><span>🖼️</span><span class="gp-label">Images</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Galerie d'images indexées</strong>Filtres : taille, couleur dominante, type (photo, clipart, dessin), droits d'utilisation.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://news.google.com/search?q={Q}" target="_blank"><span class="gp-badge gp-badge-news"></span><span>📰</span><span class="gp-label">Actualités</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Articles de presse récents</strong>Sources journalistiques vérifiées, triés par date. Filtres : période, pays, langue.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&tbm=vid" target="_blank"><span class="gp-badge gp-badge-vid"></span><span>🎦</span><span class="gp-label">Vidéos</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Vidéos longues</strong>Documentaires, reportages, visites virtuelles. Filtres : durée, date, qualité HD.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&tbm=vid&tbs=dur:s" target="_blank"><span class="gp-badge gp-badge-short"></span><span>📱</span><span class="gp-label">Vidéos courtes</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Shorts / Reels / TikToks</strong>Contenus verticaux de moins de 3 minutes. Aperçu rapide et visuel d'un lieu.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/maps/search/{Q}" target="_blank"><span class="gp-badge gp-badge-map"></span><span>🗺️</span><span class="gp-label">Maps</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Localisation Google Maps</strong>Plan, Satellite, Street View 360°, Relief, Itinéraire pied/vélo/voiture.</div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&tbm=shop" target="_blank"><span class="gp-badge gp-badge-more"></span><span>➕</span><span class="gp-label">Plus…</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Autres catégories</strong><ul><li>🛍️ Shopping</li><li>📚 Livres Google Books</li><li>✈️ Vols</li><li>💬 Forums Reddit</li></ul></div></div>
+      <div class="gp-card"><a class="gp-card-header" data-tpl="https://www.google.com/search?q={Q}&tbs=qdr:d" target="_blank"><span class="gp-badge gp-badge-tool"></span><span>⚙️</span><span class="gp-label">Outils</span><span class="gp-arrow">↗</span></a><div class="gp-card-body"><strong>Filtres avancés</strong><ul><li>Période : 24 h, semaine, mois</li><li>Langue et région</li><li>Verbatim : recherche exacte</li></ul></div></div>
+    </div>
+  </div>
+</div>
 
 <!-- ── Modale Wikipedia ── -->
 <div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
@@ -789,7 +853,7 @@ Object.keys(DATA).forEach(function(cat){
       +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
       +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
       +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
-      +'<a href="../Artefact/Google_Search.html?q='+encodeURIComponent(p.n+' Allemagne')+'" target="_blank" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#ED2939\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'<a onclick="openGooglePanel(\''+p.n+' Allemagne\');" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#ED2939\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
       +'</div>',
       {maxWidth:280}
     );
@@ -1219,6 +1283,25 @@ var obs=new IntersectionObserver(function(entries){
   });
 },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+
+// ── PANNEAU GOOGLE ──
+function openGooglePanel(q) {
+  var qEnc = encodeURIComponent(q);
+  var qPlus = q.replace(/ /g, '+');
+  document.getElementById('gp-query').textContent = q;
+  document.querySelectorAll('#gp-cards .gp-card-header').forEach(function(a) {
+    var tpl = a.getAttribute('data-tpl');
+    if (tpl) a.setAttribute('href', tpl.replace('{Q}', qPlus));
+  });
+  document.getElementById('google-panel').classList.add('open');
+  document.getElementById('google-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeGooglePanel() {
+  document.getElementById('google-panel').classList.remove('open');
+  document.getElementById('google-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 </script>
 </body>
 </html>
