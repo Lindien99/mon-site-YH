@@ -415,10 +415,15 @@
   var footerSpan = document.querySelector('.footer span');
   if(footerSpan) footerSpan.textContent = q;
 
-  // Tous les liens des cartes
+  // Tous les liens des cartes — ouvrir dans une popup
   document.querySelectorAll('.card-header[href]').forEach(function(a){
     var href = a.getAttribute('href');
     a.setAttribute('href', href.replace('Frauenkirche+de+Dresde+Allemagne', qPlus));
+    a.removeAttribute('target');
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      window.open(this.href, 'gpopup', 'width=1100,height=780,resizable=yes,scrollbars=yes,left=100,top=80');
+    });
   });
 
   // Liens retour vers le pays dans la navbar
