@@ -102,9 +102,25 @@
     /* ── Zoom en dessous du bouton Style de Carte ── */
     .leaflet-top.leaflet-right{display:flex !important;flex-direction:column !important;align-items:flex-end !important;}
     .leaflet-top.leaflet-right .leaflet-control-zoom{order:10 !important;}
+    /* ── NAVBAR 5 PARTIES ── */
+    #nav5{position:sticky;top:0;z-index:8000;background:rgba(4,6,14,.96);border-bottom:1px solid rgba(201,168,76,.25);backdrop-filter:blur(8px);display:flex;justify-content:center;gap:0;flex-wrap:wrap;}
+    #nav5 a{display:flex;align-items:center;gap:7px;padding:11px 18px;font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,234,216,.6);text-decoration:none;border-right:1px solid rgba(201,168,76,.12);transition:color .2s,background .2s;white-space:nowrap;}
+    #nav5 a:first-child{border-left:1px solid rgba(201,168,76,.12);}
+    #nav5 a:hover,#nav5 a.active{color:#c9a84c;background:rgba(201,168,76,.06);}
+    #nav5 a .nav-icon{font-size:.95rem;}
+    @media(max-width:640px){#nav5 a{padding:9px 11px;font-size:.62rem;gap:5px;letter-spacing:.1em;}}
   </style>
 </head>
 <body>
+
+<!-- ── NAVIGATION 5 PARTIES ── -->
+<nav id="nav5" aria-label="Navigation principale">
+  <a href="../index.html"><span class="nav-icon">🌍</span> Pays</a>
+  <a href="#guide"><span class="nav-icon">📖</span> Guide</a>
+  <a href="#carte"><span class="nav-icon">🗺️</span> Carte</a>
+  <a href="#monuments"><span class="nav-icon">🏛️</span> Monuments</a>
+  <a href="../Artefact/Google_Search.html?q=Allemagne" target="_blank"><span class="nav-icon">🔍</span> Google</a>
+</nav>
 
 <!-- ── Modale Wikipedia ── -->
 <div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
@@ -199,7 +215,7 @@ document.addEventListener('click', function(e){
 <!-- ══════════════════════════════════════════════════════
      HERO
 ══════════════════════════════════════════════════════ -->
-<section class="hero">
+<section id="guide" class="hero">
   <div class="hero-year">DEUTSCHLAND</div>
   <div class="hero-eyebrow">Allemagne · Guide du Voyageur</div>
   <h1 class="hero-title">Châteaux, Forêts<br>&amp; <em>Merveilles d'Allemagne</em></h1>
@@ -331,7 +347,7 @@ document.addEventListener('click', function(e){
   <h2 class="section-title">Explorez l'Allemagne</h2>
 </div>
 
-<div class="map-section">
+<div id="carte" class="map-section">
   <div class="map-container">
     <div id="leaflet-map"></div>
     <div id="capitale-badge">🏛️ Capitale : <strong>Berlin</strong></div>
@@ -345,7 +361,7 @@ document.addEventListener('click', function(e){
   <div class="section-tag">Histoire — du Saint-Empire à la Réunification</div>
   <h2 class="section-title">Les 35 Monuments Historiques</h2>
 </div>
-<div class="monuments-section">
+<div id="monuments" class="monuments-section">
   <div class="monuments-grid">
     <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porte_de_Brandebourg','Porte de Brandebourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Berlin</div><h3 class="card-name">Porte de Brandebourg</h3><p class="card-context">Symbole de l'unité allemande retrouvée, érigée en 1791 par Carl G. Langhans pour Frédéric-Guillaume II. La quadrige dorée domine l'avenue Unter den Linden.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
     <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Neuschwanstein','Château de Neuschwanstein')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Bavière, Allgäu</div><h3 class="card-name">Château de Neuschwanstein</h3><p class="card-context">Le château de conte de fées du roi Louis II de Bavière (1869). Modèle du château de La Belle au Bois Dormant de Disney. 1,5 million de visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
