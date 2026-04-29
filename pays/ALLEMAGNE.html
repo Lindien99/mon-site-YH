@@ -16,7 +16,7 @@
     .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(200,16,46,.12) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,206,0,.07) 0%,transparent 60%);}
     /* Bandes tricolores subtiles en arrière-plan */
     .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--schwarz) 0%,var(--schwarz) 33%,var(--rot) 33%,var(--rot) 66%,var(--gelb) 66%,var(--gelb) 100%);opacity:.35;}
-    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:rgba(255,206,0,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:transparent;letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;display:none;}
     .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gelb);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
     .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
     .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
