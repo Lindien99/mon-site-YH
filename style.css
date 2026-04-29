@@ -70,3 +70,59 @@ h1 {
     padding-top: 10px;
 }
 
+/* ── TABLETTE (max 768px) ── */
+@media (max-width: 768px) {
+    header {
+        padding: 30px 16px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+    }
+
+    #grid-pays {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        padding: 24px;
+    }
+
+    .drapeau {
+        font-size: 2.4rem;
+    }
+
+    .nom-pays {
+        font-size: 1rem;
+    }
+}
+
+/* ── TÉLÉPHONE (max 480px) ── */
+@media (max-width: 480px) {
+    header {
+        padding: 20px 12px;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+        letter-spacing: 1px;
+    }
+
+    #grid-pays {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .carte-pays {
+        padding: 14px 10px;
+    }
+
+    .drapeau {
+        font-size: 2rem;
+    }
+
+    .nom-pays {
+        font-size: 0.85rem;
+    }
+}
+
