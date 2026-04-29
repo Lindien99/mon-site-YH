@@ -122,7 +122,7 @@
 <nav id="nav5" aria-label="Navigation principale">
   <a href="../index.html"><span class="nav-icon">🌍</span> Pays</a>
   <a href="#guide"><span class="nav-icon">📖</span> Guide</a>
-  <a href="#carte"><span class="nav-icon">🗺️</span> Carte</a>
+  <a href="#carte" id="nav-carte"><span class="nav-icon">🗺️</span> Carte</a>
   <a href="#monuments"><span class="nav-icon">🏛️</span> Monuments</a>
   <a href="../Artefact/Google_Search.html?q=Allemagne&from=ALLEMAGNE" onclick="window.open(this.href,'gsearch','width=700,height=750,resizable=yes,scrollbars=yes');return false;"><span class="nav-icon">🔍</span> Google</a>
   <a href="#" class="fin" onclick="window.close();return false;"><span class="nav-icon">✖</span> Fin</a>
@@ -170,6 +170,38 @@
 </div>
 <script>
 var _wikiCurrentTitle = '';
+
+// --- Scroll automatique vers la carte et ses contrôles sur mobile ---
+document.addEventListener('DOMContentLoaded', function() {
+  var navCarte = document.getElementById('nav-carte');
+  if(navCarte) {
+    navCarte.addEventListener('click', function(e) {
+      // Lien normal pour desktop
+      if(window.innerWidth > 600) return;
+      e.preventDefault();
+      var carte = document.getElementById('carte');
+      if(carte) {
+        // Scroll pour que la carte soit bien visible
+        var rect = carte.getBoundingClientRect();
+        var y = window.scrollY + rect.top - 20;
+        window.scrollTo({top: y, behavior: 'smooth'});
+        // Après scroll, attendre puis ajuster pour voir les contrôles
+        setTimeout(function() {
+          // Les contrôles Leaflet sont en haut à droite de la carte
+          // On ajuste pour qu'ils soient visibles
+          var fc = document.querySelector('.leaflet-control');
+          if(fc) {
+            var fcRect = fc.getBoundingClientRect();
+            // Si le bas du contrôle n'est pas visible, on ajuste
+            if(fcRect.bottom > window.innerHeight) {
+              window.scrollBy({top: fcRect.bottom - window.innerHeight + 24, behavior: 'smooth'});
+            }
+          }
+        }, 500);
+      }
+    });
+  }
+});
 function openWiki(url, title){
   _wikiCurrentTitle = title || 'Allemagne';
   var u = url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
