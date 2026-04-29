@@ -181,20 +181,22 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       var carte = document.getElementById('carte');
       if(carte) {
-        // Scroll pour que la carte soit bien visible
+        // Scroll pour que la carte ET les contrôles soient bien visibles (offset augmenté)
         var rect = carte.getBoundingClientRect();
-        var y = window.scrollY + rect.top - 20;
+        var y = window.scrollY + rect.top - 80; // offset augmenté (était -20)
         window.scrollTo({top: y, behavior: 'smooth'});
         // Après scroll, attendre puis ajuster pour voir les contrôles
         setTimeout(function() {
-          // Les contrôles Leaflet sont en haut à droite de la carte
-          // On ajuste pour qu'ils soient visibles
           var fc = document.querySelector('.leaflet-control');
           if(fc) {
             var fcRect = fc.getBoundingClientRect();
+            // On descend encore un peu si besoin
+            if(fcRect.top < 10) {
+              window.scrollBy({top: fcRect.top - 10, behavior: 'smooth'});
+            }
             // Si le bas du contrôle n'est pas visible, on ajuste
             if(fcRect.bottom > window.innerHeight) {
-              window.scrollBy({top: fcRect.bottom - window.innerHeight + 24, behavior: 'smooth'});
+              window.scrollBy({top: fcRect.bottom - window.innerHeight + 32, behavior: 'smooth'});
             }
           }
         }, 500);
