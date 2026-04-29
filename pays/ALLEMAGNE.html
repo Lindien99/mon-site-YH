@@ -781,7 +781,7 @@ var groups = {};
 var activeGroups = {};
 Object.keys(DATA).forEach(function(cat){
   groups[cat] = L.layerGroup();
-  activeGroups[cat] = true;
+  activeGroups[cat] = (cat === 'cathedral');
   DATA[cat].pts.forEach(function(p){
     var mk = L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
     mk.bindPopup(
@@ -795,7 +795,7 @@ Object.keys(DATA).forEach(function(cat){
     );
     mk.addTo(groups[cat]);
   });
-  groups[cat].addTo(map);
+  if(activeGroups[cat]) groups[cat].addTo(map);
 });
 
 function toggle(cat){
@@ -887,6 +887,15 @@ var fc = L.Control.extend({
 });
 var fc = new fc();
 fc.addTo(map);
+setTimeout(function(){
+  Object.keys(DATA).forEach(function(cat){
+    var el = document.getElementById('fb-'+cat);
+    if(el && cat !== 'cathedral'){
+      el.style.opacity='0.48';
+      el.style.color='#999';
+    }
+  });
+}, 150);
 
 // ── PANNEAU CARTES ──
 var currentTile = null;
@@ -1138,7 +1147,7 @@ var mc = L.Control.extend({
       +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
 
     TILES.forEach(function(t, idx){
-      var isActive = idx === 0;
+      var isActive = idx === 1;
       html += '<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
         +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
         +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
@@ -1176,6 +1185,7 @@ var mc = L.Control.extend({
 });
 var mc = new mc();
 mc.addTo(map);
+switchTile('political');
 
 // Remove the default tileLayer added earlier (we re-add via switchTile logic)
 // The first tile was already added in TILES init above
