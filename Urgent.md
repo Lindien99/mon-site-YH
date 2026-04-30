@@ -25,3 +25,8 @@ git push
 ```
 
 Netlify déploie automatiquement après chaque `git push`.
+Non Yvon, tu n'as plus besoin de te présenter ! Voici pourquoi :
+
+Ta mémoire est maintenant corrigée — j'ai mis à jour mes notes avec GitHub Pages et ta vraie URL. Ces notes persistent entre toutes nos conversations.
+
+Au début de chaque session, je lis automatiquement ces notes + le contexte de ton workspace mon-site-YH, donc je sais qui tu es et où en est ton projet.

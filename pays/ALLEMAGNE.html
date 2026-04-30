@@ -171,35 +171,34 @@
 <script>
 var _wikiCurrentTitle = '';
 
-// --- Scroll automatique vers la carte et ses contrôles sur mobile ---
+// --- Scroll automatique vers la carte et masquage de la bannière capitale ---
 document.addEventListener('DOMContentLoaded', function() {
   var navCarte = document.getElementById('nav-carte');
   if(navCarte) {
     navCarte.addEventListener('click', function(e) {
-      // Lien normal pour desktop
-      if(window.innerWidth > 600) return;
       e.preventDefault();
       var carte = document.getElementById('carte');
       if(carte) {
         // Scroll pour que la carte ET les contrôles soient bien visibles (offset augmenté)
         var rect = carte.getBoundingClientRect();
-        var y = window.scrollY + rect.top - 80; // offset augmenté (était -20)
+        var y = window.scrollY + rect.top - 80;
         window.scrollTo({top: y, behavior: 'smooth'});
         // Après scroll, attendre puis ajuster pour voir les contrôles
         setTimeout(function() {
           var fc = document.querySelector('.leaflet-control');
           if(fc) {
             var fcRect = fc.getBoundingClientRect();
-            // On descend encore un peu si besoin
             if(fcRect.top < 10) {
               window.scrollBy({top: fcRect.top - 10, behavior: 'smooth'});
             }
-            // Si le bas du contrôle n'est pas visible, on ajuste
             if(fcRect.bottom > window.innerHeight) {
               window.scrollBy({top: fcRect.bottom - window.innerHeight + 32, behavior: 'smooth'});
             }
           }
         }, 500);
+        // Masquer la bannière capitale
+        var badge = document.getElementById('capitale-badge');
+        if(badge) badge.style.display = 'none';
       }
     });
   }
