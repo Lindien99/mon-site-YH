@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Allemagne — Guide de Yvon</title>
-  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de l'Allemagne.">
+  <title>Allemagne — Guide du Voyageur</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
@@ -16,7 +15,7 @@
     .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(200,16,46,.12) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(255,206,0,.07) 0%,transparent 60%);}
     /* Bandes tricolores subtiles en arrière-plan */
     .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--schwarz) 0%,var(--schwarz) 33%,var(--rot) 33%,var(--rot) 66%,var(--gelb) 66%,var(--gelb) 100%);opacity:.35;}
-    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:transparent;letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;display:none;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,20vw,16rem);font-weight:300;color:rgba(255,206,0,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
     .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gelb);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
     .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
     .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
@@ -36,15 +35,13 @@
     .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
     /* ── MAP ── */
     .map-section{padding:0 20px 80px;}
-    .map-container{position:relative;max-width:1100px;margin:0 auto;border:1px solid rgba(255,206,0,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(200,16,46,.1);}
-    #capitale-badge{display:block;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:1000;background:#ffffff;color:#111111;font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;padding:10px 28px;border-radius:4px;box-shadow:0 3px 14px rgba(0,0,0,.45);letter-spacing:.06em;white-space:nowrap;pointer-events:none;text-align:center;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(255,206,0,.2);border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(200,16,46,.1);}
     .leaflet-control-zoom{touch-action:none !important;}
     .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
     .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
     #leaflet-map{width:100%;height:710px;display:block;}
-    .country-tooltip{background:rgba(10,8,20,.88);border:1px solid rgba(255,206,0,.5);border-radius:4px;color:#ffce00;font-family:'Cormorant Garamond',Georgia,serif;font-size:.88rem;font-weight:700;letter-spacing:.08em;padding:7px 12px 8px;box-shadow:0 3px 12px rgba(0,0,0,.5);white-space:nowrap;line-height:1.4;text-align:center;}
+    .country-tooltip{background:rgba(10,8,20,.85);border:1px solid rgba(255,206,0,.5);border-radius:3px;color:#ffce00;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
     .country-tooltip::before{display:none;}
-    .cap-label{display:inline-block;margin-top:6px;background:#ffffff;color:#111111;font-family:'Playfair Display',serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;padding:3px 12px;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.3);}
     /* ── CARDS ── */
     .monuments-section{padding:0 20px 100px;}
     .monuments-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
@@ -79,9 +76,6 @@
     .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
     .reveal.visible{opacity:1;transform:translateY(0);}
     @media(max-width:640px){.hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}#leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}}
-    @media(max-width:640px){#leaflet-map{height:350px !important;}}
-    @media(max-width:640px){#leaflet-map{height:410px !important;}}
-    @media(max-width:640px){.map-container{min-height:410px !important;}#leaflet-map{height:410px !important;}}
     /* ── Modale Wikipedia ── */
     #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
     #wiki-modal.open{display:flex;}
@@ -89,7 +83,8 @@
     #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#08060f;border-bottom:1px solid rgba(255,206,0,.2);flex-shrink:0;}
     #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;color:var(--gelb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
     #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
-
+    #wiki-modal-ext{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#06050e;text-decoration:none;padding:5px 14px;background:var(--gelb);border:1px solid var(--gelb);border-radius:3px;font-weight:700;transition:background .2s,color .2s;}
+    #wiki-modal-ext:hover{background:var(--gold-light);border-color:var(--gold-light);color:#06050e;}
     #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;border-radius:3px;font-weight:700;transition:background .2s;}
     #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
     #wiki-modal-close{background:none;border:1px solid rgba(245,234,216,.25);border-radius:3px;color:rgba(245,234,216,.75);font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;line-height:1;cursor:pointer;padding:5px 12px;transition:color .2s,border-color .2s,background .2s;}
@@ -100,68 +95,22 @@
     #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
     #wiki-error-banner a:hover{color:#fff;}
     @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
-    /* ── Desktop : réduire le watermark DEUTSCHLAND et le monter vers le haut ── */
-    @media(min-width:900px){.hero-year{font-size:clamp(4rem,7vw,7rem) !important;top:12% !important;transform:translateX(-50%) !important;}}
-    /* ── Zoom en dessous du bouton Style de Carte ── */
-    .leaflet-top.leaflet-right{display:flex !important;flex-direction:column !important;align-items:flex-end !important;}
-    .leaflet-top.leaflet-right .leaflet-control-zoom{order:10 !important;}
-    /* ── NAVBAR 5 PARTIES ── */
-    #nav5{position:sticky;top:0;z-index:8000;background:rgba(4,6,14,.96);border-bottom:1px solid rgba(201,168,76,.25);backdrop-filter:blur(8px);display:flex;justify-content:center;gap:0;flex-wrap:wrap;}
-    #nav5 a{display:flex;align-items:center;gap:7px;padding:11px 18px;font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,234,216,.6);text-decoration:none;border-right:1px solid rgba(201,168,76,.12);transition:color .2s,background .2s;white-space:nowrap;}
-    #nav5 a:first-child{border-left:1px solid rgba(201,168,76,.12);}
-    #nav5 a:hover,#nav5 a.active{color:#c9a84c;background:rgba(201,168,76,.06);}
-    #nav5 a.fin{color:rgba(220,80,80,.7);}
-    #nav5 a.fin:hover{color:#ff6b6b;background:rgba(220,80,80,.08);}
-    #nav5 a .nav-icon{font-size:.95rem;}
-    @media(max-width:640px){#nav5 a{padding:9px 11px;font-size:.62rem;gap:5px;letter-spacing:.1em;}}
   </style>
 </head>
 <body>
 
-<!-- ── NAVIGATION 5 PARTIES ── -->
-<nav id="nav5" aria-label="Navigation principale">
-  <a href="../index.html"><span class="nav-icon">🌍</span> Pays</a>
-  <a href="#guide"><span class="nav-icon">📖</span> Guide</a>
-  <a href="#carte" id="nav-carte"><span class="nav-icon">🗺️</span> Carte</a>
-  <a href="#monuments"><span class="nav-icon">🏛️</span> Monuments</a>
-  <a href="../Artefact/Google_Search.html?q=Allemagne&from=ALLEMAGNE" onclick="window.open(this.href,'gsearch','width=700,height=750,resizable=yes,scrollbars=yes');return false;"><span class="nav-icon">🔍</span> Google</a>
-  <a href="#" class="fin" onclick="window.close();return false;"><span class="nav-icon">✖</span> Fin</a>
-</nav>
-
 <!-- ── Modale Wikipedia ── -->
-<div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
+<div id="wiki-modal" onclick="if(event.target===this)closeWiki()">
   <div id="wiki-modal-box">
     <div id="wiki-modal-bar">
       <span id="wiki-modal-title">Wikipédia</span>
       <div id="wiki-modal-actions">
-        <div id="pays-dropdown-wrap" style="position:relative;display:inline-block;">
-          <button id="pays-dropdown-btn" onclick="togglePaysDropdown(event)" style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#06050e;text-decoration:none;padding:5px 14px;background:var(--gelb);border:1px solid var(--gelb);border-radius:3px;font-weight:700;cursor:pointer;transition:background .2s,color .2s;">🗺️ Liste des PAYS ▾</button>
-          <div id="pays-dropdown-list" style="display:none;position:absolute;top:110%;left:0;background:#1a1a1a;border:1px solid #c9a84c;border-radius:3px;z-index:9999;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.5);max-height:320px;overflow-y:auto;">
-            <a href="/pays/ALLEMAGNE.html"  onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇩🇪 Allemagne</a>
-            <a href="/pays/AUTRICHE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇦🇹 Autriche</a>
-            <a href="/pays/BELGIQUE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇧🇪 Belgique</a>
-            <a href="/pays/DANEMARK.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇩🇰 Danemark</a>
-            <a href="/pays/ESPAGNE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇪🇸 Espagne</a>
-            <a href="/pays/FINLANDE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇫🇮 Finlande</a>
-            <a href="/pays/FRANCE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇫🇷 France</a>
-            <a href="/pays/GRECE.html"      onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇬🇷 Grèce</a>
-            <a href="/pays/HONGRIE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇭🇺 Hongrie</a>
-            <a href="/pays/ITALIE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇮🇹 Italie</a>
-            <a href="/pays/LUXEMBOURG.html" onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇱🇺 Luxembourg</a>
-            <a href="/pays/NORVEGE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇳🇴 Norvège</a>
-            <a href="/pays/PAYS-BAS.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇳🇱 Pays-Bas</a>
-            <a href="/pays/POLOGNE.html"    onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇵🇱 Pologne</a>
-            <a href="/pays/PORTUGAL.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇵🇹 Portugal</a>
-            <a href="/pays/SUEDE.html"      onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇸🇪 Suède</a>
-            <a href="/pays/SUISSE.html"     onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;border-bottom:1px solid #333;transition:background .15s;" onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇨🇭 Suisse</a>
-            <a href="/pays/TCHEQUIE.html"   onclick="closePaysDropdown()" style="display:block;padding:7px 14px;color:#f4e4bc;font-family:'Cormorant Garamond',Georgia,serif;font-size:.85rem;text-decoration:none;transition:background .15s;"                onmouseover="this.style.background='#c9a84c';this.style.color='#1a0e00'" onmouseout="this.style.background='';this.style.color='#f4e4bc'">🇨🇿 Tchéquie</a>
-          </div>
-        </div>
         <a id="wiki-modal-google" href="#" target="_blank" rel="noopener" title="Rechercher sur Google">🔍 Google</a>
+        <a id="wiki-modal-ext" href="#" target="_blank" rel="noopener">↗ Ouvrir</a>
         <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
       </div>
     </div>
-    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen></iframe>
     <div id="wiki-error-banner">
       ⚠️ Wikipedia ne trouve pas cette page.
       &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
@@ -170,39 +119,6 @@
 </div>
 <script>
 var _wikiCurrentTitle = '';
-
-// --- Scroll automatique vers la carte et masquage de la bannière capitale ---
-document.addEventListener('DOMContentLoaded', function() {
-  var navCarte = document.getElementById('nav-carte');
-  if(navCarte) {
-    navCarte.addEventListener('click', function(e) {
-      e.preventDefault();
-      var carte = document.getElementById('carte');
-      if(carte) {
-        // Scroll pour que la carte ET les contrôles soient bien visibles (offset augmenté)
-        var rect = carte.getBoundingClientRect();
-        var y = window.scrollY + rect.top - 80;
-        window.scrollTo({top: y, behavior: 'smooth'});
-        // Après scroll, attendre puis ajuster pour voir les contrôles
-        setTimeout(function() {
-          var fc = document.querySelector('.leaflet-control');
-          if(fc) {
-            var fcRect = fc.getBoundingClientRect();
-            if(fcRect.top < 10) {
-              window.scrollBy({top: fcRect.top - 10, behavior: 'smooth'});
-            }
-            if(fcRect.bottom > window.innerHeight) {
-              window.scrollBy({top: fcRect.bottom - window.innerHeight + 32, behavior: 'smooth'});
-            }
-          }
-        }, 500);
-        // Masquer la bannière capitale
-        var badge = document.getElementById('capitale-badge');
-        if(badge) badge.style.display = 'none';
-      }
-    });
-  }
-});
 function openWiki(url, title){
   _wikiCurrentTitle = title || 'Allemagne';
   var u = url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
@@ -211,7 +127,7 @@ function openWiki(url, title){
   var googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(_wikiCurrentTitle + ' Allemagne');
   document.getElementById('wiki-modal-frame').src = u;
   document.getElementById('wiki-modal-title').textContent = _wikiCurrentTitle;
-
+  document.getElementById('wiki-modal-ext').href = u;
   document.getElementById('wiki-modal-google').href = googleUrl;
   document.getElementById('wiki-banner-google').href = googleUrl;
   document.getElementById('wiki-error-banner').classList.remove('show');
@@ -235,26 +151,12 @@ function closeWiki(){
   document.body.style.overflow = '';
 }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeWiki(); });
-
-function togglePaysDropdown(e){
-  e.stopPropagation();
-  var list = document.getElementById('pays-dropdown-list');
-  list.style.display = list.style.display === 'block' ? 'none' : 'block';
-}
-function closePaysDropdown(){
-  document.getElementById('pays-dropdown-list').style.display = 'none';
-}
-document.addEventListener('click', function(e){
-  if(!document.getElementById('pays-dropdown-wrap').contains(e.target)){
-    closePaysDropdown();
-  }
-});
 </script>
 
 <!-- ══════════════════════════════════════════════════════
      HERO
 ══════════════════════════════════════════════════════ -->
-<section id="guide" class="hero">
+<section class="hero">
   <div class="hero-year">DEUTSCHLAND</div>
   <div class="hero-eyebrow">Allemagne · Guide du Voyageur</div>
   <h1 class="hero-title">Châteaux, Forêts<br>&amp; <em>Merveilles d'Allemagne</em></h1>
@@ -386,11 +288,8 @@ document.addEventListener('click', function(e){
   <h2 class="section-title">Explorez l'Allemagne</h2>
 </div>
 
-<div id="carte" class="map-section">
-  <div class="map-container">
-    <div id="leaflet-map"></div>
-    <div id="capitale-badge">🏛️ Capitale : <strong>Berlin</strong></div>
-  </div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
@@ -400,7 +299,7 @@ document.addEventListener('click', function(e){
   <div class="section-tag">Histoire — du Saint-Empire à la Réunification</div>
   <h2 class="section-title">Les 35 Monuments Historiques</h2>
 </div>
-<div id="monuments" class="monuments-section">
+<div class="monuments-section">
   <div class="monuments-grid">
     <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Porte_de_Brandebourg','Porte de Brandebourg')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Berlin</div><h3 class="card-name">Porte de Brandebourg</h3><p class="card-context">Symbole de l'unité allemande retrouvée, érigée en 1791 par Carl G. Langhans pour Frédéric-Guillaume II. La quadrige dorée domine l'avenue Unter den Linden.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
     <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Neuschwanstein','Château de Neuschwanstein')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Bavière, Allgäu</div><h3 class="card-name">Château de Neuschwanstein</h3><p class="card-context">Le château de conte de fées du roi Louis II de Bavière (1869). Modèle du château de La Belle au Bois Dormant de Disney. 1,5 million de visiteurs par an.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
@@ -524,7 +423,7 @@ var map = L.map('leaflet-map', {
   zoomControl: false
 }).setView([51.2, 10.4], 6);
 
-L.control.zoom({position:'topright'}).addTo(map);
+L.control.zoom({position:'topleft'}).addTo(map);
 setTimeout(function(){ map.invalidateSize(true); }, 300);
 window.addEventListener('resize', function(){ map.invalidateSize(); });
 // Tile layer managed by the map style switcher panel below
@@ -817,7 +716,7 @@ var groups = {};
 var activeGroups = {};
 Object.keys(DATA).forEach(function(cat){
   groups[cat] = L.layerGroup();
-  activeGroups[cat] = (cat === 'cathedral');
+  activeGroups[cat] = true;
   DATA[cat].pts.forEach(function(p){
     var mk = L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
     mk.bindPopup(
@@ -825,13 +724,13 @@ Object.keys(DATA).forEach(function(cat){
       +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
       +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
       +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
-      +'<a href="../Artefact/Google_Search.html?q='+encodeURIComponent(p.n+' Allemagne')+'&from=ALLEMAGNE" onclick="window.open(this.href,\'gsearch\',\'width=700,height=750,resizable=yes,scrollbars=yes\');return false;" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#ED2939\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+p.u+'\',\''+p.n+'\')},200);" style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#c9a84c;cursor:pointer;text-decoration:none;font-weight:700;">Wikipédia →</a>'
       +'</div>',
       {maxWidth:280}
     );
     mk.addTo(groups[cat]);
   });
-  if(activeGroups[cat]) groups[cat].addTo(map);
+  groups[cat].addTo(map);
 });
 
 function toggle(cat){
@@ -923,15 +822,6 @@ var fc = L.Control.extend({
 });
 var fc = new fc();
 fc.addTo(map);
-setTimeout(function(){
-  Object.keys(DATA).forEach(function(cat){
-    var el = document.getElementById('fb-'+cat);
-    if(el && cat !== 'cathedral'){
-      el.style.opacity='0.48';
-      el.style.color='#999';
-    }
-  });
-}, 150);
 
 // ── PANNEAU CARTES ──
 var currentTile = null;
@@ -948,7 +838,7 @@ var TILES = [
   },
   {
     id: 'political',
-    label: 'COULEURS',
+    label: 'Politique',
     desc: 'Pays europ\u00e9ens color\u00e9s',
     emoji: '🌍',
     url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
@@ -994,7 +884,7 @@ var COUNTRY_COLORS = {
   'Switzerland':    '#ff6b6b', 'Austria':        '#a8d8a8', 'Czech Republic': '#87ceeb',
   'Czechia':        '#87ceeb', 'Slovakia':       '#dda0dd', 'Hungary':        '#98fb98',
   'Romania':        '#f0c080', 'Bulgaria':       '#90ee90', 'Croatia':        '#87cefa',
-  'Slovenia':       '#ffb6c1', 'Serbia':         '#d2b48c', 'Republic of Serbia':'#d2b48c', 'Bosnia and Herz.':'#b0c4de',
+  'Slovenia':       '#ffb6c1', 'Serbia':         '#d2b48c', 'Bosnia and Herz.':'#b0c4de',
   'Bosnia and Herzegovina':'#b0c4de',
   'Montenegro':     '#98d8c8', 'Albania':        '#ffa07a', 'North Macedonia': '#c8b4e8',
   'Greece':         '#7ec8e3', 'Turkey':         '#e8c4a0', 'Ukraine':        '#b8d4a8',
@@ -1003,47 +893,6 @@ var COUNTRY_COLORS = {
   'Sweden':         '#f0d8a8', 'Norway':         '#d8c8f0', 'Denmark':        '#f0a8a8',
   'Iceland':        '#c8e0f0', 'Ireland':        '#a8d8b0', 'United Kingdom': '#d8a8c8',
   'Russia':         '#d4c8b8', 'Kosovo':         '#e8d8a8'
-};
-
-// Dictionnaire de traduction Anglais → Français
-var COUNTRY_FR = {
-  'Germany':'Allemagne',       'France':'France',           'Poland':'Pologne',
-  'Italy':'Italie',            'Spain':'Espagne',            'Portugal':'Portugal',
-  'Netherlands':'Pays-Bas',    'Belgium':'Belgique',         'Luxembourg':'Luxembourg',
-  'Switzerland':'Suisse',      'Austria':'Autriche',         'Czech Republic':'Tchéquie',
-  'Czechia':'Tchéquie',        'Slovakia':'Slovaquie',       'Hungary':'Hongrie',
-  'Romania':'Roumanie',        'Bulgaria':'Bulgarie',        'Croatia':'Croatie',
-  'Slovenia':'Slovénie',       'Serbia':'Serbie',            'Republic of Serbia':'Serbie',      'Bosnia and Herzegovina':'Bosnie-Herzégovine',
-  'Montenegro':'Monténégro',   'Albania':'Albanie',          'North Macedonia':'Macédoine du Nord',
-  'Greece':'Grèce',            'Turkey':'Turquie',           'Ukraine':'Ukraine',
-  'Moldova':'Moldavie',        'Belarus':'Biélorussie',      'Lithuania':'Lituanie',
-  'Latvia':'Lettonie',         'Estonia':'Estonie',          'Finland':'Finlande',
-  'Sweden':'Suède',            'Norway':'Norvège',            'Denmark':'Danemark',
-  'Iceland':'Islande',         'Ireland':'Irlande',          'United Kingdom':'Royaume-Uni',
-  'Russia':'Russie',           'Kosovo':'Kosovo',            'Andorra':'Andorre',
-  'Monaco':'Monaco',           'Liechtenstein':'Liechtenstein','San Marino':'Saint-Marin',
-  'Vatican City':'Vatican',    'Malta':'Malte',              'Cyprus':'Chypre'
-};
-
-// Dictionnaire des capitales européennes
-var COUNTRY_CAPITALS = {
-  'Germany':'Berlin',          'France':'Paris',            'Poland':'Varsovie',
-  'Italy':'Rome',              'Spain':'Madrid',            'Portugal':'Lisbonne',
-  'Netherlands':'Amsterdam',  'Belgium':'Bruxelles',       'Luxembourg':'Luxembourg',
-  'Switzerland':'Berne',      'Austria':'Vienne',          'Czech Republic':'Prague',
-  'Czechia':'Prague',         'Slovakia':'Bratislava',     'Hungary':'Budapest',
-  'Romania':'Bucarest',       'Bulgaria':'Sofia',          'Croatia':'Zagreb',
-  'Slovenia':'Ljubljana',     'Serbia':'Belgrade',         'Republic of Serbia':'Belgrade',
-  'Bosnia and Herzegovina':'Sarajevo','Montenegro':'Podgorica','Albania':'Tirana',
-  'North Macedonia':'Skopje', 'Greece':'Athènes',          'Turkey':'Ankara',
-  'Ukraine':'Kiev',           'Moldova':'Chișinău',        'Belarus':'Minsk',
-  'Lithuania':'Vilnius',      'Latvia':'Riga',             'Estonia':'Tallinn',
-  'Finland':'Helsinki',       'Sweden':'Stockholm',        'Norway':'Oslo',
-  'Denmark':'Copenhague',     'Iceland':'Reykjavik',       'Ireland':'Dublin',
-  'United Kingdom':'Londres', 'Russia':'Moscou',           'Kosovo':'Pristina',
-  'Andorra':'Andorre-la-Vieille','Monaco':'Monaco',        'Liechtenstein':'Vaduz',
-  'San Marino':'Saint-Marin', 'Vatican City':'Vatican',    'Malta':'La Valette',
-  'Cyprus':'Nicosie'
 };
 
 function getCountryColor(name) {
@@ -1068,7 +917,7 @@ function buildPoliticalLayer() {
         var europeanCountries = [
           'Germany','France','Poland','Italy','Spain','Portugal','Netherlands',
           'Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia',
-          'Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Republic of Serbia',
+          'Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia',
           'Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece',
           'Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia',
           'Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom',
@@ -1092,15 +941,9 @@ function buildPoliticalLayer() {
         },
         onEachFeature: function(feature, layer) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
-          var nameFr = COUNTRY_FR[name] || name;
-          var capital = COUNTRY_CAPITALS[name];
-          var tipContent = nameFr;
-          if (capital) {
-            tipContent += '<br><span class="cap-label">🏛️ ' + capital + '</span>';
-          }
-          layer.bindTooltip(tipContent, {
+          layer.bindTooltip(name, {
             permanent: false,
-            sticky: true,
+            direction: 'center',
             className: 'country-tooltip'
           });
           layer.on('mouseover', function(e) {
@@ -1183,15 +1026,18 @@ var mc = L.Control.extend({
       +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
 
     TILES.forEach(function(t, idx){
-      var isActive = idx === 1;
+      var isActive = idx === 0;
       html += '<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
-        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:40px;cursor:pointer;'
         +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
         +'transition:background .15s;border-left:3px solid '+(isActive ? '#ffce00' : 'transparent')+';'
         +'background:'+(isActive ? '#fff8e8' : 'transparent')+'"'
         +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="if(document.getElementById(\'tb-'+t.id+'\').style.borderLeft!==\'3px solid rgb(255, 206, 0)\')this.style.background=\'transparent\'">'
         +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
-        +'<span style="font-size:.82rem;font-weight:700;color:#222;flex:1;">'+t.label+'</span>'
+        +'<span style="flex:1;">'
+          +'<span style="display:block;font-size:.8rem;font-weight:700;color:#222;">'+t.label+'</span>'
+          +'<span style="display:block;font-size:.65rem;color:#999;font-weight:400;">'+t.desc+'</span>'
+        +'</span>'
         +'</div>';
     });
 
@@ -1221,7 +1067,6 @@ var mc = L.Control.extend({
 });
 var mc = new mc();
 mc.addTo(map);
-switchTile('political');
 
 // Remove the default tileLayer added earlier (we re-add via switchTile logic)
 // The first tile was already added in TILES init above

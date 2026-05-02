@@ -1,5 +1,4 @@
 const paysData = [
-    { nom: "Allemagne", code: "ALLEMAGNE",  emoji: "🇩🇪" },
     { nom: "Autriche",  code: "AUTRICHE",   emoji: "🇦🇹" },
     { nom: "Belgique",  code: "BELGIQUE",   emoji: "🇧🇪" },
     { nom: "Danemark",  code: "DANEMARK",   emoji: "🇩🇰" },
