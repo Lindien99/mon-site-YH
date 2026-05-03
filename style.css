@@ -59,8 +59,15 @@ h1 {
 }
 
 .drapeau {
-    font-size: 3rem;
     margin-bottom: 10px;
+}
+
+.drapeau img {
+    width: 80px;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
 }
 
 .nom-pays {
@@ -87,8 +94,8 @@ h1 {
         padding: 24px;
     }
 
-    .drapeau {
-        font-size: 2.4rem;
+    .drapeau img {
+        width: 64px;
     }
 
     .nom-pays {
@@ -117,8 +124,8 @@ h1 {
         padding: 14px 10px;
     }
 
-    .drapeau {
-        font-size: 2rem;
+    .drapeau img {
+        width: 52px;
     }
 
     .nom-pays {
