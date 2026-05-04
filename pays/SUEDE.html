@@ -804,6 +804,7 @@ function getCountryColor(name){
   var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
   return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
 }
+var FR_NAMES={"Germany":"Allemagne","France":"France","Poland":"Pologne","Italy":"Italie","Spain":"Espagne","Portugal":"Portugal","Netherlands":"Pays-Bas","Belgium":"Belgique","Luxembourg":"Luxembourg","Switzerland":"Suisse","Austria":"Autriche","Czech Republic":"Tch\u00e9quie","Czechia":"Tch\u00e9quie","Slovakia":"Slovaquie","Hungary":"Hongrie","Romania":"Roumanie","Bulgaria":"Bulgarie","Croatia":"Croatie","Slovenia":"Slov\u00e9nie","Serbia":"Serbie","Bosnia and Herzegovina":"Bosnie-Herz\u00e9govine","Montenegro":"Mont\u00e9n\u00e9gro","Albania":"Albanie","North Macedonia":"Mac\u00e9doine du Nord","Greece":"Gr\u00e8ce","Turkey":"Turquie","Ukraine":"Ukraine","Moldova":"Moldavie","Belarus":"Bi\u00e9lorussie","Lithuania":"Lituanie","Latvia":"Lettonie","Estonia":"Estonie","Finland":"Finlande","Sweden":"Su\u00e8de","Norway":"Norv\u00e8ge","Denmark":"Danemark","Iceland":"Islande","Ireland":"Irlande","United Kingdom":"Royaume-Uni","Russia":"Russie","Kosovo":"Kosovo","Andorra":"Andorre","Monaco":"Monaco","Liechtenstein":"Liechtenstein","San Marino":"Saint-Marin","Vatican City":"Vatican","Malta":"Malte","Cyprus":"Chypre"};
 function buildPoliticalLayer(){
   if(politicalLayer) return;
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
@@ -815,7 +816,7 @@ function buildPoliticalLayer(){
         style:function(feature){var col=getCountryColor(feature.properties.ADMIN||feature.properties.name||'');return{fillColor:col,fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
         onEachFeature:function(feature,layer){
           var name=feature.properties.ADMIN||feature.properties.name||'';
-          layer.bindTooltip(name,{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.bindTooltip(FR_NAMES[name]||name,{permanent:false,direction:'center',className:'country-tooltip'});
           layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
           layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
         }

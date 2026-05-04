@@ -943,7 +943,7 @@ function buildPoliticalLayer() {
         },
         onEachFeature: function(feature, layer) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
-          layer.bindTooltip(name, {
+          layer.bindTooltip(FR_NAMES[name]||name, {
             permanent: false,
             direction: 'center',
             className: 'country-tooltip'
