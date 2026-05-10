@@ -878,7 +878,7 @@ currentTile = L.tileLayer(TILES[0].url, TILES[0].opts).addTo(map);
 
 // ── COUCHE GEOJSON POLITIQUE ──
 var politicalLayer = null;
-var politicalActive = false;
+var _politicalPending = false;
 
 // Couleurs distinctes pour chaque pays européen
 var COUNTRY_COLORS = {
@@ -908,71 +908,47 @@ function getCountryColor(name) {
   return 'hsl(' + hue + ',55%,75%)';
 }
 
-function buildPoliticalLayer() {
-  if (politicalLayer) return; // already built
-  // Fetch Europe GeoJSON from public API
+function buildPoliticalLayer(callback) {
+  if (politicalLayer) { if (callback) callback(); return; }
+  if (_politicalPending) return;
+  _politicalPending = true;
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(function(r){ return r.json(); })
     .then(function(data) {
-      // Filter to Europe + nearby (lat 35-72, lon -25 to 45)
+      var europeanCountries = [
+        'Germany','France','Poland','Italy','Spain','Portugal','Netherlands',
+        'Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia',
+        'Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Republic of Serbia',
+        'Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Republic of North Macedonia','Greece',
+        'Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia',
+        'Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom',
+        'Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino',
+        'Vatican City','Malta','Cyprus'
+      ];
       var euroFeatures = data.features.filter(function(f) {
-        if (!f.geometry) return false;
-        var name = (f.properties.ADMIN || f.properties.name || '');
-        var europeanCountries = [
-          'Germany','France','Poland','Italy','Spain','Portugal','Netherlands',
-          'Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia',
-          'Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Republic of Serbia',
-          'Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Republic of North Macedonia','Greece',
-          'Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia',
-          'Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom',
-          'Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino',
-          'Vatican City','Malta','Cyprus'
-        ];
-        return europeanCountries.indexOf(name) !== -1;
+        return f.geometry && europeanCountries.indexOf(f.properties.ADMIN || f.properties.name || '') !== -1;
       });
-
       politicalLayer = L.geoJSON({type:'FeatureCollection', features: euroFeatures}, {
         style: function(feature) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
-          var col = getCountryColor(name);
-          return {
-            fillColor: col,
-            fillOpacity: 0.55,
-            color: '#444',
-            weight: 1.2,
-            opacity: 0.9
-          };
+          return { fillColor: getCountryColor(name), fillOpacity: 0.55, color: '#444', weight: 1.2, opacity: 0.9 };
         },
         onEachFeature: function(feature, layer) {
           var name = feature.properties.ADMIN || feature.properties.name || '';
-          layer.bindTooltip(FR_NAMES[name]||name, {
-            permanent: false,
-            direction: 'center',
-            className: 'country-tooltip'
-          });
-          layer.on('mouseover', function(e) {
-            e.target.setStyle({fillOpacity: 0.78, weight: 2.2, color: '#222'});
-          });
-          layer.on('mouseout', function(e) {
-            politicalLayer.resetStyle(e.target);
-          });
+          layer.bindTooltip(FR_NAMES[name]||name, {permanent:false, direction:'center', className:'country-tooltip'});
+          layer.on('mouseover', function(e) { e.target.setStyle({fillOpacity:0.78, weight:2.2, color:'#222'}); });
+          layer.on('mouseout',  function(e) { politicalLayer.resetStyle(e.target); });
         }
       });
-
-      // Add label layer on top
       var labelTile = L.tileLayer(
         'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
         {attribution:'© CartoDB', subdomains:'abcd', maxZoom:20, pane:'overlayPane'}
       );
       politicalLayer._labelLayer = labelTile;
-
-      // If political is currently active, add to map now
-      if (politicalActive) {
-        politicalLayer.addTo(map);
-        labelTile.addTo(map);
-      }
+      _politicalPending = false;
+      if (callback) callback();
     })
-    .catch(function(e){ console.warn('GeoJSON load failed:', e); });
+    .catch(function(e){ console.warn('GeoJSON load failed:', e); _politicalPending = false; });
 }
 
 function switchTile(id) {
@@ -990,16 +966,12 @@ function switchTile(id) {
   }
 
   if (id === 'political') {
-    politicalActive = true;
-    // Light base + GeoJSON colors + labels on top
     currentTile = L.tileLayer(t.url, t.opts).addTo(map);
-    buildPoliticalLayer();
-    if (politicalLayer) {
+    buildPoliticalLayer(function() {
       politicalLayer.addTo(map);
       if (politicalLayer._labelLayer) politicalLayer._labelLayer.addTo(map);
-    }
+    });
   } else {
-    politicalActive = false;
     currentTile = L.tileLayer(t.url, t.opts).addTo(map);
   }
 
