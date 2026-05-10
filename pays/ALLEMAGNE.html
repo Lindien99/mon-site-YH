@@ -908,6 +908,8 @@ function getCountryColor(name) {
   return 'hsl(' + hue + ',55%,75%)';
 }
 
+var FR_NAMES={"Germany":"Allemagne","France":"France","Poland":"Pologne","Italy":"Italie","Spain":"Espagne","Portugal":"Portugal","Netherlands":"Pays-Bas","Belgium":"Belgique","Luxembourg":"Luxembourg","Switzerland":"Suisse","Austria":"Autriche","Czech Republic":"Tchéquie","Czechia":"Tchéquie","Slovakia":"Slovaquie","Hungary":"Hongrie","Romania":"Roumanie","Bulgaria":"Bulgarie","Croatia":"Croatie","Slovenia":"Slovénie","Serbia":"Serbie","Republic of Serbia":"Serbie","Bosnia and Herzegovina":"Bosnie-Herzégovine","Montenegro":"Monténégro","Albania":"Albanie","North Macedonia":"Macédoine du Nord","Republic of North Macedonia":"Macédoine du Nord","Greece":"Grèce","Turkey":"Turquie","Ukraine":"Ukraine","Moldova":"Moldavie","Republic of Moldova":"Moldavie","Belarus":"Biélorussie","Lithuania":"Lituanie","Latvia":"Lettonie","Estonia":"Estonie","Finland":"Finlande","Sweden":"Suède","Norway":"Norvège","Denmark":"Danemark","Iceland":"Islande","Ireland":"Irlande","United Kingdom":"Royaume-Uni","Russia":"Russie","Kosovo":"Kosovo","Republic of Kosovo":"Kosovo","Andorra":"Andorre","Monaco":"Monaco","Liechtenstein":"Liechtenstein","San Marino":"Saint-Marin","Vatican City":"Vatican","Malta":"Malte","Cyprus":"Chypre"};
+
 function buildPoliticalLayer(callback) {
   if (politicalLayer) { if (callback) callback(); return; }
   if (_politicalPending) return;
