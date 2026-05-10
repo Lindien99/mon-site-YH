@@ -878,6 +878,7 @@ currentTile = L.tileLayer(TILES[0].url, TILES[0].opts).addTo(map);
 
 // ── COUCHE GEOJSON POLITIQUE ──
 var politicalLayer = null;
+var politicalActive = false;
 
 // Couleurs distinctes pour chaque pays européen
 var COUNTRY_COLORS = {
@@ -966,8 +967,7 @@ function buildPoliticalLayer() {
       politicalLayer._labelLayer = labelTile;
 
       // If political is currently active, add to map now
-      if (document.getElementById('tb-political') &&
-          document.getElementById('tb-political').style.borderLeft.indexOf('255, 206, 0') !== -1) {
+      if (politicalActive) {
         politicalLayer.addTo(map);
         labelTile.addTo(map);
       }
@@ -990,6 +990,7 @@ function switchTile(id) {
   }
 
   if (id === 'political') {
+    politicalActive = true;
     // Light base + GeoJSON colors + labels on top
     currentTile = L.tileLayer(t.url, t.opts).addTo(map);
     buildPoliticalLayer();
@@ -998,6 +999,7 @@ function switchTile(id) {
       if (politicalLayer._labelLayer) politicalLayer._labelLayer.addTo(map);
     }
   } else {
+    politicalActive = false;
     currentTile = L.tileLayer(t.url, t.opts).addTo(map);
   }
 
