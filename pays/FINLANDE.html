@@ -81,6 +81,7 @@
       font-size:.85rem;font-weight:700;letter-spacing:.08em;padding:4px 10px;
       box-shadow:0 2px 8px rgba(0,0,0,.4);white-space:nowrap;}
     .country-tooltip::before{display:none;}
+    .country-tooltip small{display:block;font-weight:400;font-size:.78rem;opacity:.82;}
 
     /* ── CARDS ── */
     .monuments-section{padding:0 20px 100px;}
@@ -877,7 +878,7 @@ function getCountryColor(name){
 }
 
 var FR_NAMES={"Germany":"Allemagne","France":"France","Poland":"Pologne","Italy":"Italie","Spain":"Espagne","Portugal":"Portugal","Netherlands":"Pays-Bas","Belgium":"Belgique","Luxembourg":"Luxembourg","Switzerland":"Suisse","Austria":"Autriche","Czech Republic":"Tch\u00e9quie","Czechia":"Tch\u00e9quie","Slovakia":"Slovaquie","Hungary":"Hongrie","Romania":"Roumanie","Bulgaria":"Bulgarie","Croatia":"Croatie","Slovenia":"Slov\u00e9nie","Serbia":"Serbie","Republic of Serbia":"Serbie","Bosnia and Herzegovina":"Bosnie-Herz\u00e9govine","Montenegro":"Mont\u00e9n\u00e9gro","Albania":"Albanie","North Macedonia":"Mac\u00e9doine du Nord","Republic of North Macedonia":"Mac\u00e9doine du Nord","Greece":"Gr\u00e8ce","Turkey":"Turquie","Ukraine":"Ukraine","Moldova":"Moldavie","Republic of Moldova":"Moldavie","Belarus":"Bi\u00e9lorussie","Lithuania":"Lituanie","Latvia":"Lettonie","Estonia":"Estonie","Finland":"Finlande","Sweden":"Su\u00e8de","Norway":"Norv\u00e8ge","Denmark":"Danemark","Iceland":"Islande","Ireland":"Irlande","United Kingdom":"Royaume-Uni","Russia":"Russie","Kosovo":"Kosovo","Republic of Kosovo":"Kosovo","Andorra":"Andorre","Monaco":"Monaco","Liechtenstein":"Liechtenstein","San Marino":"Saint-Marin","Vatican City":"Vatican","Malta":"Malte","Cyprus":"Chypre"};
-function buildPoliticalLayer(){
+var COUNTRY_INFO={'Germany':{cap:'Berlin',pop:'84 M hab.'},'France':{cap:'Paris',pop:'68 M hab.'},'Poland':{cap:'Varsovie',pop:'38 M hab.'},'Italy':{cap:'Rome',pop:'59 M hab.'},'Spain':{cap:'Madrid',pop:'47 M hab.'},'Portugal':{cap:'Lisbonne',pop:'10 M hab.'},'Netherlands':{cap:'Amsterdam',pop:'17 M hab.'},'Belgium':{cap:'Bruxelles',pop:'11 M hab.'},'Luxembourg':{cap:'Luxembourg',pop:'660 000 hab.'},'Switzerland':{cap:'Berne',pop:'8,7 M hab.'},'Austria':{cap:'Vienne',pop:'9 M hab.'},'Czech Republic':{cap:'Prague',pop:'10,9 M hab.'},'Czechia':{cap:'Prague',pop:'10,9 M hab.'},'Slovakia':{cap:'Bratislava',pop:'5,5 M hab.'},'Hungary':{cap:'Budapest',pop:'9,7 M hab.'},'Romania':{cap:'Bucarest',pop:'19 M hab.'},'Bulgaria':{cap:'Sofia',pop:'6,5 M hab.'},'Croatia':{cap:'Zagreb',pop:'3,9 M hab.'},'Slovenia':{cap:'Ljubljana',pop:'2,1 M hab.'},'Serbia':{cap:'Belgrade',pop:'6,8 M hab.'},'Republic of Serbia':{cap:'Belgrade',pop:'6,8 M hab.'},'Bosnia and Herzegovina':{cap:'Sarajevo',pop:'3,3 M hab.'},'Montenegro':{cap:'Podgorica',pop:'620 000 hab.'},'Albania':{cap:'Tirana',pop:'2,8 M hab.'},'North Macedonia':{cap:'Skopje',pop:'1,8 M hab.'},'Republic of North Macedonia':{cap:'Skopje',pop:'1,8 M hab.'},'Greece':{cap:'Athenes',pop:'10,4 M hab.'},'Turkey':{cap:'Ankara',pop:'85 M hab.'},'Ukraine':{cap:'Kyiv',pop:'43 M hab.'},'Moldova':{cap:'Chisinau',pop:'2,6 M hab.'},'Republic of Moldova':{cap:'Chisinau',pop:'2,6 M hab.'},'Belarus':{cap:'Minsk',pop:'9,4 M hab.'},'Lithuania':{cap:'Vilnius',pop:'2,8 M hab.'},'Latvia':{cap:'Riga',pop:'1,8 M hab.'},'Estonia':{cap:'Tallinn',pop:'1,4 M hab.'},'Finland':{cap:'Helsinki',pop:'5,6 M hab.'},'Sweden':{cap:'Stockholm',pop:'10,5 M hab.'},'Norway':{cap:'Oslo',pop:'5,5 M hab.'},'Denmark':{cap:'Copenhague',pop:'5,9 M hab.'},'Iceland':{cap:'Reykjavik',pop:'370 000 hab.'},'Ireland':{cap:'Dublin',pop:'5,1 M hab.'},'United Kingdom':{cap:'Londres',pop:'67 M hab.'},'Russia':{cap:'Moscou',pop:'144 M hab.'},'Kosovo':{cap:'Pristina',pop:'1,8 M hab.'},'Republic of Kosovo':{cap:'Pristina',pop:'1,8 M hab.'},'Andorra':{cap:'Andorre-la-Vieille',pop:'77 000 hab.'},'Monaco':{cap:'Monaco',pop:'36 000 hab.'},'Liechtenstein':{cap:'Vaduz',pop:'38 000 hab.'},'San Marino':{cap:'Saint-Marin',pop:'34 000 hab.'},'Vatican City':{cap:'Vatican',pop:'800 hab.'},'Malta':{cap:'La Valette',pop:'530 000 hab.'},'Cyprus':{cap:'Nicosie',pop:'1,2 M hab.'}};function buildPoliticalLayer(){
   if(politicalLayer) return;
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(function(r){ return r.json(); })
@@ -905,7 +906,7 @@ function buildPoliticalLayer(){
         },
         onEachFeature:function(feature,layer){
           var name=feature.properties.ADMIN||feature.properties.name||'';
-          layer.bindTooltip(FR_NAMES[name]||name,{permanent:false,direction:'center',className:'country-tooltip'});
+          var _ci=COUNTRY_INFO[name];var _tt=(FR_NAMES[name]||name)+(_ci?'<br><small>'+_ci.cap+' \u00b7 '+_ci.pop+'</small>':'');layer.bindTooltip(_tt,{permanent:false,direction:'auto',sticky:true,className:'country-tooltip'});
           layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
           layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
         }
