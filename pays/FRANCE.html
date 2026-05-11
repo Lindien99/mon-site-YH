@@ -704,7 +704,7 @@ function buildPoliticalLayer(callback){
       politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
         style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
         onEachFeature:function(feature,layer){
-          var _n=feature.properties.ADMIN||feature.properties.name||'';layer.bindTooltip(FR_NAMES[_n]||_n,{permanent:false,direction:'center',className:'country-tooltip'});
+          var _n=feature.properties.ADMIN||feature.properties.name||'';layer.bindTooltip(FR_NAMES[_n]||_n,{permanent:false,direction:'auto',sticky:true,className:'country-tooltip'});
           layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
           layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
         }
