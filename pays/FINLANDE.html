@@ -97,7 +97,7 @@
     .monument-card:hover{background:rgba(0,53,128,.05);border-color:rgba(184,212,240,.28);transform:translateY(-2px);}
     .monument-card:hover::after{transform:scaleX(1);}
     .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
-      color:rgba(0,53,128,.08);line-height:1;position:absolute;top:20px;right:24px;}
+      color:rgba(0,53,128,.22);line-height:1;position:absolute;top:20px;right:24px;}
     .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;
       color:var(--ice);margin-bottom:12px;}
     .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
@@ -186,7 +186,9 @@
       #wiki-modal-bar{justify-content:space-between;}
       #wiki-modal-actions{flex:1;justify-content:center;}
     }
-  </style>
+      @media(max-width:480px){
+      .card-number{font-size:2.8rem !important;right:12px !important;top:12px !important;opacity:.28 !important;}
+    }</style>
 </head>
 <body>
 
