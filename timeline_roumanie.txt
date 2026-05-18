@@ -1,0 +1,43 @@
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">~82 av. J.-C. — 106 ap. J.-C.</div>
+      <div class="timeline-event"><strong>Le Royaume Dace de Burebista.</strong> Burebista unifie les tribus daces et crée le premier grand État de l'actuelle Roumanie. Les Daces — peuple thrace réputé pour leur courage et leur spiritualité — édifient Sarmizegetusa Regia, capitale sacrée aux sanctuaires circulaires. L'or des Carpates attire la convoitise de Rome. Décimés en 106 par Trajan lors de deux guerres sanglantes.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">106 — 275</div>
+      <div class="timeline-event"><strong>Dacie Romaine.</strong> Trajan conquiert la Dacie en 106, après deux guerres épiques immortalisées sur la Colonne Trajane à Rome. La province Dacia Felix devient romaine — mines d'or d'Alburnus Maior, routes pavées, Ulpia Traiana Sarmizegetusa. Les Daces se romanisent, langue et culture se fusionnent pour créer le peuple roumain. Retrait romain en 275 sous Aurélien.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">XIVe — XVe s.</div>
+      <div class="timeline-event"><strong>Les Trois Principautés.</strong> Trois principautés roumaines émergent face aux empires voisins : Valachie (Mircea l'Ancien), Moldavie (Étienne le Grand — 47 batailles, 40 victoires, 44 monastères) et Transylvanie. Étienne le Grand (1457–1504) défend la chrétienté face aux Ottomans, reconnu saint par l'Église orthodoxe. Vlad l'Empaleur (Dracula), prince de Valachie, résiste aux Ottomans avec une brutalité légendaire.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1600</div>
+      <div class="timeline-event"><strong>Michel le Brave — Première Unification.</strong> Michel le Brave (Mihai Viteazul) réalise la première unification des trois principautés roumaines en 1600 — événement fondateur de la conscience nationale. Exploit éphémère mais symbolique fondamental. Assassiné en 1601. Son portrait orne les billets et sa statue domine les places de toutes les villes roumaines.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1859 — 1918</div>
+      <div class="timeline-event"><strong>Naissance de la Grande Roumanie.</strong> Union de la Valachie et de la Moldavie (1859) sous Alexandru Ioan Cuza — naissance de la Roumanie moderne. Indépendance (1877). Au lendemain de la Première Guerre mondiale, le 1er décembre 1918 à Alba Iulia, la Transylvanie, la Bucovine et la Bessarabie rejoignent la Roumanie — la Grande Roumanie (295 049 km²) est proclamée. Date nationale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1945 — 1989</div>
+      <div class="timeline-event"><strong>Régime Communiste et Ceaușescu.</strong> Occupation soviétique, abdication du roi Michel Ier (1947). Nicolae Ceaușescu au pouvoir (1965–1989) — dictature nationaliste, culte de la personnalité, Palais du Peuple (le plus grand bâtiment d'Europe). Rationnement alimentaire, securitate omniprésente. La démolition du quartier historique de Bucarest — crime urbanistique sans précédent.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1989 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Révolution et Renaissance.</strong> La Révolution de décembre 1989 commence à Timișoara — Ceaușescu exécuté le 25 décembre. Transition difficile vers la démocratie et l'économie de marché. Adhésion à l'OTAN (2004) et à l'Union Européenne (2007). Essor économique, retour des diaspora, renaissance culturelle. Bucarest — ville créative reconnue, cuisine roumaine redécouverte. La Roumanie réinvente son récit.</div>
+    </div>
+

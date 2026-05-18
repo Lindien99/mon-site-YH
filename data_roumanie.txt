@@ -1,0 +1,98 @@
+
+var iconMonastere=iconCathedrale;
+var iconVille=iconPalais;
+var iconMontagne=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,100,120,.9))"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#d4cfc8" stroke="#909890" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f0ece8"/><path d="M8 26 Q12 24 16 26 Q20 28 24 26 Q28 24 28 28" fill="#1a7ab5" opacity="0.7"/></svg>');
+var iconLac=iconPlage;
+var iconArtiste=iconArt;
+var iconGrotte=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(50,60,80,.9))"><path d="M4 34 L4 14 Q4 6 18 4 Q32 6 32 14 L32 34 Z" fill="#506070" stroke="#304050" stroke-width="0.7"/><path d="M4 14 Q4 6 18 4 Q32 6 32 14 Q26 12 18 14 Q10 12 4 14 Z" fill="#304050"/><line x1="10" y1="14" x2="10" y2="22" stroke="#c9a84c" stroke-width="1" stroke-linecap="round"/><line x1="16" y1="14" x2="16" y2="26" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/><line x1="22" y1="14" x2="22" y2="20" stroke="#c9a84c" stroke-width="0.9" stroke-linecap="round"/><line x1="26" y1="14" x2="26" y2="24" stroke="#c9a84c" stroke-width="0.7" stroke-linecap="round"/></svg>');
+var iconVillage=iconRomain;
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,20,40,.9))"><path d="M10 6 Q8 14 10 20 Q12 26 18 28 Q24 26 26 20 Q28 14 26 6 Z" fill="#882244" stroke="#5a1030" stroke-width="0.7"/><path d="M10 6 Q12 12 18 14 Q24 12 26 6 Z" fill="#aa3366" opacity="0.6"/><rect x="16" y="28" width="4" height="6" rx="0.5" fill="#5a1030"/><rect x="12" y="33" width="12" height="2" rx="0.5" fill="#5a1030"/><circle cx="14" cy="16" r="2" fill="#dd6688" opacity="0.5"/></svg>');
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(10,80,120,.8))"><path d="M4 24 Q8 18 14 20 Q18 22 22 20 Q28 18 32 24 L32 32 L4 32 Z" fill="#1a7ab5" opacity="0.85"/><path d="M4 24 Q8 20 14 22 Q18 24 22 22 Q28 20 32 24" fill="none" stroke="#60b0e0" stroke-width="1.2" opacity="0.7"/><path d="M12 16 Q12 12 14 10 Q14 14 16 12 Q16 16 18 14 Q18 18 20 16" fill="none" stroke="#1a7ab5" stroke-width="1.5" stroke-linecap="round"/><path d="M20 16 Q20 12 22 10 Q22 14 24 12 Q24 16 26 14" fill="none" stroke="#1a7ab5" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var DATA={
+  chateau:{icon:iconChateau,color:'#CE1126',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:45.5132,lng:25.3676,n:"Château de Bran",c:"Bran, Brașov",d:"Forteresse de Dracula (XIVe s.) — 500 000 visiteurs/an, symbole de la Transylvanie.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Bran?useskin=vector"},
+    {lat:45.3597,lng:25.5412,n:"Château de Peleș",c:"Sinaia, Prahova",d:"Joyau néo-Renaissance (1883) de Carol Ier — 160 pièces, vitraux flamands, armurerie royale.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Peleș?useskin=vector"},
+    {lat:45.7483,lng:22.8903,n:"Château de Corvin",c:"Hunedoara",d:"Forteresse gothique des Hunyadi (1446) — pont-levis, salle des Chevaliers, cachot de Vlad.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Corvin?useskin=vector"},
+    {lat:46.0673,lng:23.5800,n:"Citadelle d'Alba Iulia",c:"Alba Iulia, Alba",d:"Forteresse en étoile à 7 bastions (XVIIIe s.) — lieu de la Grande Union du 1er décembre 1918.",u:"https://fr.m.wikipedia.org/wiki/Alba_Iulia?useskin=vector"}
+  ]},
+  monastere:{icon:iconMonastere,color:'#604080',label:'⛪ Monastères Peints',pts:[
+    {lat:47.5201,lng:25.8719,n:"Monastère de Voroneț",c:"Gura Humorului, Suceava",d:"UNESCO 1993. La Sixtine de l'Est (1488) — fresques au bleu unique, Jugement Dernier magistral.",u:"https://fr.m.wikipedia.org/wiki/Église_de_Voroneț?useskin=vector"},
+    {lat:47.7811,lng:25.7394,n:"Monastère de Sucevița",c:"Sucevița, Suceava",d:"UNESCO 1993. Monastère-forteresse du XVIe s. — Échelle de la Vertu, fresques aux couleurs intactes.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Sucevița?useskin=vector"},
+    {lat:47.6661,lng:25.5439,n:"Monastère de Moldovița",c:"Vatra Moldoviței, Suceava",d:"UNESCO 1993. Fondé par Petru Rareș (1532) — fresques ocre-jaune, Siège de Vienne représenté.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Moldovița?useskin=vector"},
+    {lat:45.1711,lng:23.9889,n:"Monastère de Horezu",c:"Horezu, Vâlcea",d:"UNESCO 1993. Chef-d'œuvre brâncovenesc (1690), sculptures de pierre ciselée extraordinaires.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Horezu?useskin=vector"},
+    {lat:45.1394,lng:24.6714,n:"Monastère de Curtea de Argeș",c:"Curtea de Argeș, Argeș",d:"Art valaque du XVIe s. — légende de Manole, nécropole royale, clochers torsadés uniques.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Curtea_de_Argeș?useskin=vector"}
+  ]},
+  ville:{icon:iconVille,color:'#c8a020',label:'🏛️ Villes Historiques',pts:[
+    {lat:44.4268,lng:26.1025,n:"Bucarest",c:"Bucarest, Ilfov",d:"Capitale — Palais du Parlement (2e plus grand bâtiment du monde), Athénée Roumain, Art Nouveau.",u:"https://fr.m.wikipedia.org/wiki/Bucarest?useskin=vector"},
+    {lat:45.6427,lng:25.5887,n:"Brașov",c:"Brașov",d:"Cœur de Transylvanie — Église Noire (XIVe s.), Place du Conseil baroque, remparts saxons.",u:"https://fr.m.wikipedia.org/wiki/Brașov?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Sibiu",c:"Sibiu",d:"Capitale Européenne de la Culture 2007 — Grande Place, musée Brukenthal, toits à œil-de-bœuf.",u:"https://fr.m.wikipedia.org/wiki/Sibiu?useskin=vector"},
+    {lat:46.7712,lng:23.6236,n:"Cluj-Napoca",c:"Cluj",d:"Capitale de la Transylvanie — Cathédrale Saint-Michel gothique, TIFF festival de cinéma mondial.",u:"https://fr.m.wikipedia.org/wiki/Cluj-Napoca?useskin=vector"},
+    {lat:45.7489,lng:21.2087,n:"Timișoara",c:"Timiș",d:"Berceau de la Révolution de 1989 — Place de l'Union baroque, Capitale Européenne de la Culture 2023.",u:"https://fr.m.wikipedia.org/wiki/Timișoara?useskin=vector"},
+    {lat:47.1585,lng:27.6014,n:"Iași",c:"Moldavie",d:"Capitale culturelle — Palais de la Culture (298 salles), Université 1860, ville des 100 clochers.",u:"https://fr.m.wikipedia.org/wiki/Iași?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube",c:"Tulcea, Dobrogea",d:"UNESCO 1991 — 5 800 km², 300 espèces d'oiseaux, pélicans blancs, réserve de biosphère mondiale.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"},
+    {lat:46.2197,lng:24.7912,n:"Sighișoara",c:"Mureș",d:"UNESCO 1999 — cité médiévale saxonne habitée, Tour de l'Horloge, ville natale de Vlad l'Empaleur.",u:"https://fr.m.wikipedia.org/wiki/Sighișoara?useskin=vector"},
+    {lat:46.0700,lng:25.0656,n:"Viscri",c:"Brașov",d:"UNESCO 1993 — église fortifiée saxonne, village restauré par le Roi Charles III d'Angleterre.",u:"https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector"},
+    {lat:46.1356,lng:24.5275,n:"Biertan",c:"Sibiu",d:"UNESCO 1993 — village saxon fortifié, église à 3 enceintes concentriques, porte à 19 verrous.",u:"https://fr.m.wikipedia.org/wiki/Biertan?useskin=vector"},
+    {lat:45.6342,lng:23.3000,n:"Sarmizegetusa Regia",c:"Hunedoara",d:"UNESCO 1999 — capitale sacrée des Daces, sanctuaires circulaires, résistance héroïque face à Trajan.",u:"https://fr.m.wikipedia.org/wiki/Sarmizegetusa_Regia?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:45.3167,lng:22.8333,n:"Parc National du Retezat",c:"Hunedoara, Carpates du Sud",d:"Parc national depuis 1935 — 80 lacs glaciaires, chamois, ours bruns, loups, sommets à 2 500 m.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Retezat?useskin=vector"},
+    {lat:45.5044,lng:25.2297,n:"Piatra Craiului",c:"Zărnești, Brașov",d:"Crête de calcaire blanc sur 25 km — 2 238 m, flore endémique, randonnée au-dessus des nuages.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Piatra_Craiului?useskin=vector"},
+    {lat:46.7750,lng:25.9083,n:"Gorges de Bicaz",c:"Bicaz, Neamț",d:"Parois de 300 m sur 8 km — Cou de l'Enfer, Lac Rouge aux arbres pétrifiés depuis 1837.",u:"https://fr.m.wikipedia.org/wiki/Gorges_de_Bicaz?useskin=vector"},
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube — Faune",c:"Tulcea, Dobrogea",d:"Réserve de biosphère — 45 espèces de poissons, pélicans blancs, cormorans, 300 espèces d'oiseaux.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"}
+  ]},
+  montagne:{icon:iconMontagne,color:'#607080',label:'⛰️ Carpates & Alpinisme',pts:[
+    {lat:45.5973,lng:24.6215,n:"Transfăgărășan",c:"Argeș / Sibiu",d:"Route légendaire à 2 042 m — élue plus belle route du monde par Top Gear, lac de Bâlea.",u:"https://fr.m.wikipedia.org/wiki/Transfăgărășan?useskin=vector"},
+    {lat:45.6000,lng:24.6833,n:"Massif du Făgăraș",c:"Argeș / Sibiu",d:"Toit de la Roumanie — Moldoveanu (2 544 m), randonnées épiques sur la crête des Carpates.",u:"https://fr.m.wikipedia.org/wiki/Massif_du_Făgăraș?useskin=vector"},
+    {lat:45.3644,lng:25.4419,n:"Massif du Bucegi",c:"Prahova",d:"Plateau karstique à 2 500 m — Sphinx et Babele rochers, Crucea Eroilor, station de Sinaia.",u:"https://fr.m.wikipedia.org/wiki/Bucegi?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍲 Gastronomie Roumaine',pts:[
+    {lat:44.4268,lng:26.1025,n:"Cuisine Nationale — Bucarest",c:"Toute la Roumanie",d:"Mămăligă (polenta), Sarmale (choux farcis), Mici (croquettes épicées), Cozonac, Tuica.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Marchés de Sibiu",c:"Sibiu, Transylvanie",d:"Ciorbe (soupes aigres), toba (pâté de tête), fromage de brebis de Sibiu, produits artisanaux.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"},
+    {lat:47.1585,lng:27.6014,n:"Cuisine Moldave — Iași",c:"Iași, Moldavie",d:"Plăcinte (feuilletés aux fromages), bors au son de blé, piftie (gelée de porc), vin de Cotnari.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#2a5ab0',label:'🏛️ Musées & Collections',pts:[
+    {lat:44.4322,lng:26.0972,n:"Musée National d'Art — Bucarest",c:"Bucarest",d:"Galerie Nationale dans l'ancien Palais Royal (1937) — l'art roumain des origines à nos jours.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_d%27art_de_Roumanie?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Musée Brukenthal",c:"Sibiu",d:"L'un des plus anciens musées d'Europe (1817) — peintures flamandes, œuvres baroques remarquables.",u:"https://fr.m.wikipedia.org/wiki/Musée_Brukenthal?useskin=vector"},
+    {lat:45.7878,lng:24.1467,n:"Musée ASTRA — Ethnographie",c:"Sibiu",d:"Plus grand musée ethnographique en plein air d'Europe — 400 constructions traditionnelles roumaines.",u:"https://fr.m.wikipedia.org/wiki/Musée_ASTRA?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a7ab5',label:'🌊 Lacs & Rivières',pts:[
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube — Canaux",c:"Tulcea, Dobrogea",d:"Réseau de canaux, lagunes et lacs — 5 800 km² de zones humides aux paysages hors du monde.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"},
+    {lat:46.7811,lng:25.8281,n:"Lacul Rosu — Lac Rouge",c:"Bicaz, Neamț",d:"Lac formé en 1837 par glissement de terrain — arbres pétrifiés émergent des eaux couleur rouille.",u:"https://fr.m.wikipedia.org/wiki/Lacul_Ro%C8%99u?useskin=vector"},
+    {lat:46.2178,lng:25.8619,n:"Lac Sfânta Ana",c:"Harghita",d:"Seul lac volcanique de Roumanie — cratère du Mont Ciomatu, eaux cristallines, forêt de conifères.",u:"https://fr.m.wikipedia.org/wiki/Lacul_Sf%C3%A2nta_Ana?useskin=vector"}
+  ]},
+  artiste:{icon:iconArtiste,color:'#7040b0',label:'🎨 Artistes & Création',pts:[
+    {lat:45.0433,lng:23.2736,n:"Brâncuși — Târgu Jiu",c:"Târgu Jiu, Gorj",d:"Colonne sans Fin (29 m), Table du Silence, Porte du Baiser (1938) — révolution de la sculpture.",u:"https://fr.m.wikipedia.org/wiki/Constantin_Br%C3%A2ncu%C8%99i?useskin=vector"},
+    {lat:47.4778,lng:26.6167,n:"George Enescu — Liveni",c:"Liveni, Botoșani",d:"Maison natale (1881) du génie musical roumain — Rhapsodies Roumaines, Festival Enescu.",u:"https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector"},
+    {lat:44.4268,lng:26.1025,n:"Palais Cantacuzino — Musée Enescu",c:"Bucarest",d:"Palais Belle Époque (1901) abritant le Musée George Enescu — collections, archives, concerts.",u:"https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector"}
+  ]},
+  grotte:{icon:iconGrotte,color:'#506070',label:'Grottes & Karst',pts:[
+    {lat:46.4833,lng:22.8333,n:"Grotte de Scărisoara",c:"Arieșeni, Alba",d:"2e glacier souterrain du monde — 75 000 m³ de glace vieille de 3 500 ans, descente de 48 m.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Sc%C4%83ri%C8%99oara?useskin=vector"},
+    {lat:46.4878,lng:22.3806,n:"Grotte des Ours — Chișcău",c:"Bihor",d:"Formations de calcite uniques — stalactites en forme d'ours, cristaux d'aragonite spectaculaires.",u:"https://fr.m.wikipedia.org/wiki/Grotte_des_ours_(Roumanie)?useskin=vector"},
+    {lat:45.3067,lng:23.7578,n:"Pestera Muierilor",c:"Baia de Fier, Gorj",d:"Stalactites et stalagmites géants, ossements préhistoriques découverts, visite touristique aménagée.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Muierilor?useskin=vector"}
+  ]},
+  festival:{icon:iconFestival,color:'#ffc400',label:'Festivals & Événements',pts:[
+    {lat:46.7712,lng:23.6236,n:"TIFF — Festival du Film",c:"Cluj-Napoca, Cluj",d:"Festival International du Film de Transylvanie — plus grand festival de cinéma d'Europe de l'Est.",u:"https://fr.m.wikipedia.org/wiki/Festival_international_du_film_de_Transylvanie?useskin=vector"},
+    {lat:46.8794,lng:23.8789,n:"Electric Castle — Bontida",c:"Bontida, Cluj",d:"Festival de musique dans le château de Bontida (XVIe s.) — 250 000 visiteurs, ambiance unique.",u:"https://fr.m.wikipedia.org/wiki/Electric_Castle?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"FITS — Festival de Théâtre",c:"Sibiu",d:"Festival International de Théâtre de Sibiu — l'un des plus grands festivals de théâtre du monde.",u:"https://fr.m.wikipedia.org/wiki/Festival_international_de_th%C3%A9%C3%A2tre_de_Sibiu?useskin=vector"}
+  ]},
+  village:{icon:iconVillage,color:'#b47814',label:'Villages Traditionnels',pts:[
+    {lat:46.0700,lng:25.0656,n:"Viscri",c:"Brașov",d:"Village saxon du XIIe s. restauré par le Roi Charles — maisons colorées, ruelles pavées, artisans.",u:"https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector"},
+    {lat:46.4561,lng:23.5989,n:"Rimetea",c:"Alba",d:"Village hongrois de Transylvanie aux maisons blanches immaculées — cadre de montagne saisissant.",u:"https://fr.m.wikipedia.org/wiki/Rimetea?useskin=vector"},
+    {lat:47.9400,lng:23.8014,n:"Maramures — Villages en Bois",c:"Maramures",d:"Région ethnographique exceptionnelle — maisons en bois du XVIIe s., cimetière joyeux de Sapânta.",u:"https://fr.m.wikipedia.org/wiki/Maramure%C8%99?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#882244',label:'Vins & Vignobles',pts:[
+    {lat:45.1667,lng:26.7333,n:"Dealu Mare",c:"Prahova / Buzău",d:"1re région viticole de Roumanie — Feteasca Neagra, Cabernet, Merlot, vignobles pré-carpathiques.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_de_Dealu_Mare?useskin=vector"},
+    {lat:44.1731,lng:28.4056,n:"Murfatlar",c:"Constanta, Dobrogea",d:"Vignoble de la Mer Noire — Chardonnay, Pinot Noir, Muscat Ottonel, soleil dobrogéen.",u:"https://fr.m.wikipedia.org/wiki/Murfatlar?useskin=vector"},
+    {lat:47.5333,lng:26.9250,n:"Cotnari",c:"Iași, Moldavie",d:"Grasa de Cotnari — vin de dessert légendaire, cépage autochtone du XVe s., perle de Moldavie.",u:"https://fr.m.wikipedia.org/wiki/Cotnari?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1a9ab5',label:'Thermalisme & Mer Noire',pts:[
+    {lat:44.8742,lng:22.4117,n:"Băile Herculane",c:"Caraș-Severin",d:"Thermes romains (sources 38-60°C) — Kaiserbad néo-baroque de l'Empereur François-Joseph.",u:"https://fr.m.wikipedia.org/wiki/B%C4%83ile_Herculane?useskin=vector"},
+    {lat:44.0572,lng:28.6411,n:"Eforie Nord — Mer Noire",c:"Constanta, Dobrogea",d:"Station balnéaire — boues thérapeutiques de la lagune Techirghiol, thalassothérapie.",u:"https://fr.m.wikipedia.org/wiki/Eforie_Nord?useskin=vector"},
+    {lat:45.8478,lng:26.1842,n:"Covasna",c:"Covasna",d:"Pays des 1000 sources — eaux bicarbonatées cardioprotectrices, station climatique d'altitude.",u:"https://fr.m.wikipedia.org/wiki/Covasna?useskin=vector"}
+  ]}
+};
+

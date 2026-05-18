@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -11,57 +11,57 @@
     :root{
       --rosu:#CE1126;       /* rouge roumain */
       --galben:#FCD116;     /* jaune roumain */
-      --albastru:#002B7F;   /* bleu roumain */
       --gold:#c9a84c;--gold-light:#e8c97a;
       --parchment:#f5ead8;
-      --dark:#020408;
+      --negru:#020408;
+      --albastru:#002B7F;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#020408;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
 
     .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
     .hero::before{content:'';position:absolute;inset:0;
-      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(206,17,38,.12) 0%,transparent 70%),
-                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(0,43,127,.08) 0%,transparent 60%);}
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(206,17,38,.14) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(252,209,22,.07) 0%,transparent 60%);}
     .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
-      background:linear-gradient(90deg,var(--albastru) 0%,var(--albastru) 33%,var(--galben) 33%,var(--galben) 66%,var(--rosu) 66%,var(--rosu) 100%);opacity:.5;}
+      background:linear-gradient(90deg,var(--albastru) 0%,var(--albastru) 33.3%,var(--galben) 33.3%,var(--galben) 66.6%,var(--rosu) 66.6%,var(--rosu) 100%);opacity:.45;}
     .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,9vw,8rem);font-weight:300;
-      color:rgba(206,17,38,.04);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      color:rgba(206,17,38,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
       transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
     .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
-      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+      color:var(--galben);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
     .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
     .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
       line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
-    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-title em{font-style:italic;color:var(--galben);}
     .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
       color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
     .hero-divider{width:120px;height:1px;
-      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      background:linear-gradient(90deg,transparent,var(--galben),transparent);
       margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
     .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
       color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
     .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
       animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
     .stat{text-align:center;}
-    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--galben);line-height:1;}
     .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
     .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
 
     .section-header{text-align:center;padding:40px 20px 32px;}
-    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--galben);margin-bottom:12px;}
     .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
 
     .map-section{padding:0 20px 80px;}
-    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(206,17,38,.2);
-      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(206,17,38,.07);}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(206,17,38,.25);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(206,17,38,.1);}
     .leaflet-control-zoom{touch-action:none !important;}
     .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
     .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
     .leaflet-top.leaflet-right{display:flex !important;flex-direction:column !important;align-items:flex-end !important;}
     .leaflet-top.leaflet-right .leaflet-control-zoom{order:10 !important;}
     #leaflet-map{width:100%;height:710px;display:block;}
-    .country-tooltip{background:rgba(8,14,35,.95);border:1.5px solid rgba(255,196,0,.65);border-radius:6px;color:#fff;font-family:Arial,sans-serif;padding:8px 13px;box-shadow:0 4px 14px rgba(0,0,0,.6);white-space:nowrap;min-width:190px;}
+        .country-tooltip{background:rgba(8,14,35,.95);border:1.5px solid rgba(252,209,22,.65);border-radius:6px;color:#fff;font-family:Arial,sans-serif;padding:8px 13px;box-shadow:0 4px 14px rgba(0,0,0,.6);white-space:nowrap;min-width:190px;}
     .country-tooltip::before{display:none;}
     .country-tooltip .tt-row{display:flex;justify-content:space-between;align-items:baseline;gap:18px;}
     .country-tooltip .tt-name{font-weight:700;font-size:1.05rem;color:#fff;letter-spacing:.06em;}
@@ -73,39 +73,39 @@
     .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
       grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
     .monument-card{position:relative;background:rgba(245,234,216,.02);
-      border:1px solid rgba(206,17,38,.1);padding:36px 32px;
+      border:1px solid rgba(206,17,38,.12);padding:36px 32px;
       transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
     .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
       background:linear-gradient(90deg,var(--albastru),var(--galben),var(--rosu));
       transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
-    .monument-card:hover{background:rgba(206,17,38,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover{background:rgba(252,209,22,.03);border-color:rgba(252,209,22,.25);transform:translateY(-2px);}
     .monument-card:hover::after{transform:scaleX(1);}
     .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
-      color:rgba(206,17,38,.06);line-height:1;position:absolute;top:20px;right:24px;}
-    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+      color:rgba(206,17,38,.22);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--galben);margin-bottom:12px;}
     .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
       line-height:1.3;color:var(--parchment);margin-bottom:16px;}
     .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
     .card-footer{margin-top:24px;}
-    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--galben);
       text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
     .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
 
     .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
     .timeline{position:relative;padding-left:60px;}
     .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
-      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+      background:linear-gradient(to bottom,transparent,var(--galben) 10%,var(--galben) 90%,transparent);opacity:.3;}
     .timeline-item{position:relative;margin-bottom:48px;}
     .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
-      background:var(--gold);box-shadow:0 0 12px rgba(200,160,10,.4);}
-    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+      background:var(--galben);box-shadow:0 0 12px rgba(252,209,22,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--galben);margin-bottom:6px;}
     .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
     .timeline-event strong{color:var(--parchment);font-weight:600;}
 
-    footer{border-top:1px solid rgba(206,17,38,.15);padding:48px 20px;text-align:center;}
+    footer{border-top:1px solid rgba(206,17,38,.2);padding:48px 20px;text-align:center;}
     .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
     .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
-    .footer-text span{color:var(--gold-light);opacity:.6;}
+    .footer-text span{color:var(--galben);opacity:.6;}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -119,30 +119,30 @@
     #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
     #wiki-modal.open{display:flex;}
     #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
-      border:1px solid rgba(200,160,10,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      border:1px solid rgba(252,209,22,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
       display:flex;flex-direction:column;overflow:hidden;}
     #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
-      background:#020408;border-bottom:1px solid rgba(206,17,38,.25);flex-shrink:0;}
+      background:#020408;border-bottom:1px solid rgba(206,17,38,.3);flex-shrink:0;}
     #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
-      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+      color:var(--galben);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
     #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
-    #wiki-modal-hint{font-family:'Cormorant Garamond',serif;font-size:.75rem;font-style:italic;letter-spacing:.1em;color:#f5ead8;white-space:nowrap;align-self:center;font-weight:700;padding:0 6px;}
+        #wiki-modal-hint{font-family:'Cormorant Garamond',serif;font-size:.75rem;font-style:italic;letter-spacing:.1em;color:#f5ead8;white-space:nowrap;align-self:center;font-weight:700;padding:0 6px;}
     #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
       text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
       border-radius:3px;font-weight:700;transition:background .2s;}
     #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
-    #wiki-modal-close{background:var(--rosu);border:1px solid #8a0810;border-radius:3px;
+    #wiki-modal-close{background:var(--rosu);border:1px solid #8a0010;border-radius:3px;
       color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
       text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
       transition:background .2s,border-color .2s;}
-    #wiki-modal-close:hover{background:#a01020;border-color:#a01020;}
+    #wiki-modal-close:hover{background:#e01020;border-color:#e01020;}
     #wiki-modal-frame{flex:1;border:none;width:100%;}
     #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
-      background:rgba(206,17,38,.95);border-top:1px solid rgba(200,160,10,.3);
+      background:rgba(206,17,38,.95);border-top:1px solid rgba(252,209,22,.3);
       font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
       text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
     #wiki-error-banner.show{display:flex;}
-    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a{color:var(--galben);font-weight:700;text-decoration:underline;cursor:pointer;}
     #wiki-error-banner a:hover{color:#fff;}
     @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
     @media(max-width:640px){
@@ -150,10 +150,19 @@
       #wiki-modal-bar{justify-content:space-between;}
       #wiki-modal-actions{flex:1;justify-content:center;}
     }
-    @media(max-width:480px){
-      .card-number{font-size:2.8rem !important;right:12px !important;top:12px !important;color:rgba(252,209,22,.65) !important;}
+    @media(max-width:640px){
+      #wiki-modal-hint{display:none !important;}
+      #wiki-modal-bar{justify-content:space-between;}
+      #wiki-modal-actions{flex:1;justify-content:center;}
     }
-  </style>
+    @media(max-width:640px){
+      #wiki-modal-hint{display:none !important;}
+      #wiki-modal-bar{justify-content:space-between;}
+      #wiki-modal-actions{flex:1;justify-content:center;}
+    }
+      @media(max-width:480px){
+      .card-number{font-size:2.8rem !important;right:12px !important;top:12px !important;color:rgba(255,206,0,.65) !important;}
+    }</style>
 </head>
 <body>
 
@@ -162,7 +171,7 @@
     <div id="wiki-modal-bar">
       <span id="wiki-modal-title">Wikipédia</span>
       <div id="wiki-modal-actions">
-        <span id="wiki-modal-hint">[ &lt;= POUR EN SAVOIR + CLIQUER SUR =&gt;]</span>
+                <span id="wiki-modal-hint">[ &lt;= POUR EN SAVOIR + CLIQUER SUR =&gt;]</span>
         <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
       </div>
     </div>
@@ -173,86 +182,108 @@
     </div>
   </div>
 </div>
+<script>
+var _wikiCurrentTitle='';
+function openGoogle(title){var from=window.location.pathname.split('/').pop().replace('.html','');window.open('../Artefact/Google_Search.html?q='+encodeURIComponent(title)+'&from='+encodeURIComponent(from),'_blank');}
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Roumanie';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Roumanie');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-year">ROMÂNIA</div>
-  <p class="hero-eyebrow">Roumanie · Guide du Voyageur</p>
-  <h1 class="hero-title">Châteaux de <em>Dracula</em>,<br>Monastères & Danube</h1>
+  <div class="hero-eyebrow">Roumanie · Guide du Voyageur</div>
+  <h1 class="hero-title">Châteaux de <em>Dracula</em>,<br>Monastères &amp; Danube</h1>
   <p class="hero-subtitle">Bucarest la Belle · Transylvanie légendaire · Bucovine mystique · Delta du Danube</p>
 
+  <!-- AIGLE ROUMAIN — style Léonard de Vinci, plume sépia & or -->
   <div class="symbol-hero">
     <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
-         style="filter:drop-shadow(0 4px 14px rgba(206,17,38,.28))" shape-rendering="geometricPrecision">
-      <!-- Aigle roumain stylisé — Leonardo style -->
+         style="filter:drop-shadow(0 4px 14px rgba(206,17,38,.35))" shape-rendering="geometricPrecision">
       <!-- Aile gauche déployée -->
-      <path d="M56 84 Q36 76 18 62 Q6 50 4 38 Q8 34 14 38 Q10 44 18 52 Q34 66 52 76 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
-      <path d="M56 94 Q36 92 18 86 Q6 80 4 68 Q8 66 14 70 Q12 78 20 80 Q40 86 54 88 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
-      <path d="M56 104 Q38 106 20 108 Q8 106 6 98 Q10 96 16 100 Q20 104 32 104 Q48 102 56 104 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
-      <line x1="56" y1="84" x2="5" y2="40" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
-      <line x1="56" y1="94" x2="5" y2="70" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
-      <line x1="56" y1="104" x2="6" y2="99" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+      <path d="M80 80 Q60 60 30 50 Q15 46 8 52 Q14 58 28 60 Q44 64 58 72 Q70 78 80 84 Z"
+            fill="#CE1126" stroke="#8a000a" stroke-width="0.8"/>
+      <path d="M80 80 Q65 58 35 44 Q20 38 12 44 Q18 52 32 54 Q48 58 62 68 Z"
+            fill="#a00010" opacity="0.6"/>
       <!-- Aile droite déployée -->
-      <path d="M104 84 Q124 76 142 62 Q154 50 156 38 Q152 34 146 38 Q150 44 142 52 Q126 66 108 76 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
-      <path d="M104 94 Q124 92 142 86 Q154 80 156 68 Q152 66 146 70 Q148 78 140 80 Q120 86 106 88 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
-      <path d="M104 104 Q122 106 140 108 Q152 106 154 98 Q150 96 144 100 Q140 104 128 104 Q112 102 104 104 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
-      <line x1="104" y1="84" x2="155" y2="40" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
-      <line x1="104" y1="94" x2="155" y2="70" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
-      <line x1="104" y1="104" x2="154" y2="99" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
-      <!-- Corps -->
-      <path d="M55 92 Q52 78 57 66 Q65 54 78 50 Q92 47 104 57 Q115 68 112 83 Q108 98 93 104 Q75 110 63 101 Q57 98 55 92 Z" fill="#c8900a" stroke="#7a5008" stroke-width="0.8"/>
-      <path d="M62 78 Q72 73 80 74 Q90 73 100 78" fill="none" stroke="#7a5008" stroke-width="0.55"/>
-      <path d="M60 88 Q70 83 80 84 Q90 83 100 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
-      <!-- Tête -->
-      <ellipse cx="80" cy="46" rx="18" ry="15" fill="#c8900a" stroke="#7a5008" stroke-width="0.8"/>
-      <!-- Bec crochu -->
-      <path d="M63 50 Q59 54 57 60 Q61 56 65 52 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.6"/>
-      <path d="M57 60 Q55 64 59 66 Q61 62 57 60 Z" fill="#c9a84c"/>
-      <!-- Oeil -->
-      <circle cx="73" cy="42" r="5.5" fill="#1a0800" stroke="#c8900a" stroke-width="0.7"/>
-      <circle cx="73" cy="42" r="3" fill="#2a1000"/>
-      <circle cx="74.5" cy="40.5" r="1.2" fill="white" opacity="0.85"/>
-      <!-- Couronne -->
-      <path d="M64 32 L96 32 L94 36 L66 36 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
-      <path d="M67 32 Q67 27 70 25 Q72 29 72 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
-      <path d="M76 32 Q76 24 80 21 Q84 24 84 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
-      <path d="M90 32 Q90 27 93 25 Q95 29 95 32" fill="#c9a84c" stroke="#8a6010" stroke-width="0.4"/>
-      <circle cx="80" cy="22" r="2.5" fill="#CE1126" opacity="0.9"/>
-      <circle cx="70" cy="26" r="1.8" fill="#CE1126" opacity="0.8"/>
-      <circle cx="94" cy="26" r="1.8" fill="#002B7F" opacity="0.85"/>
-      <!-- Écu tricolore roumain sur la poitrine -->
-      <path d="M68 82 Q68 74 80 72 Q92 74 92 82 Q92 92 80 98 Q68 92 68 82 Z" fill="#CE1126" stroke="#8a0810" stroke-width="0.7"/>
-      <path d="M68 82 Q68 74 75 72 L75 98 Q68 92 68 82 Z" fill="#002B7F" opacity="0.9"/>
-      <path d="M75 72 L85 72 L85 98 L75 98 Z" fill="#FCD116" opacity="0.9"/>
-      <path d="M85 72 Q92 74 92 82 Q92 92 85 98 Z" fill="#CE1126" opacity="0.9"/>
-      <!-- Queue -->
-      <path d="M68 106 Q64 116 62 124 Q66 122 70 118 Q72 114 72 110 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
-      <path d="M76 108 Q74 118 74 126 Q78 124 80 118 Q80 112 78 108 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
-      <path d="M84 108 Q86 118 88 126 Q84 124 82 118 Q80 112 82 108 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
-      <path d="M92 106 Q96 116 98 124 Q94 122 90 118 Q88 114 88 110 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
-      <!-- Serres -->
-      <path d="M68 104 Q62 112 64 118 Q68 118 72 114 Q70 110 68 106 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
-      <path d="M92 104 Q98 112 96 118 Q92 118 88 114 Q90 110 92 106 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
-      <!-- Griffes -->
-      <line x1="66" y1="118" x2="62" y2="123" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
-      <line x1="68" y1="118" x2="66" y2="124" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
-      <line x1="71" y1="117" x2="71" y2="123" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
-      <line x1="90" y1="118" x2="86" y2="123" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
-      <line x1="92" y1="118" x2="94" y2="123" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
-      <line x1="95" y1="117" x2="98" y2="122" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+      <path d="M80 80 Q100 60 130 50 Q145 46 152 52 Q146 58 132 60 Q116 64 102 72 Q90 78 80 84 Z"
+            fill="#CE1126" stroke="#8a000a" stroke-width="0.8"/>
+      <path d="M80 80 Q95 58 125 44 Q140 38 148 44 Q142 52 128 54 Q112 58 98 68 Z"
+            fill="#a00010" opacity="0.6"/>
+      <!-- Hachures des plumes — style Léonard -->
+      <path d="M30 50 Q44 56 58 64" fill="none" stroke="#7a000a" stroke-width="0.5" opacity="0.7"/>
+      <path d="M20 52 Q36 58 50 66" fill="none" stroke="#7a000a" stroke-width="0.4" opacity="0.6"/>
+      <path d="M130 50 Q116 56 102 64" fill="none" stroke="#7a000a" stroke-width="0.5" opacity="0.7"/>
+      <path d="M140 52 Q124 58 110 66" fill="none" stroke="#7a000a" stroke-width="0.4" opacity="0.6"/>
+      <!-- Corps de l'aigle -->
+      <ellipse cx="80" cy="90" rx="18" ry="24" fill="#CE1126" stroke="#8a000a" stroke-width="0.8"/>
+      <path d="M66 82 Q80 78 94 82 Q90 88 80 90 Q70 88 66 82 Z" fill="#e83040" opacity="0.4"/>
+      <!-- Tête de l'aigle -->
+      <circle cx="80" cy="54" r="14" fill="#CE1126" stroke="#8a000a" stroke-width="0.8"/>
+      <path d="M68 50 Q80 46 92 50 Q88 56 80 57 Q72 56 68 50 Z" fill="#e83040" opacity="0.35"/>
+      <!-- Bec courbé doré -->
+      <path d="M80 60 Q88 58 90 64 Q88 68 82 67 Q78 64 80 60 Z"
+            fill="#FCD116" stroke="#c8a000" stroke-width="0.6"/>
+      <!-- Œil vif -->
+      <circle cx="75" cy="52" r="4" fill="#1a0800"/>
+      <circle cx="75" cy="52" r="2.5" fill="#2a1000"/>
+      <circle cx="76.2" cy="51" r="1" fill="white" opacity="0.9"/>
+      <!-- Couronne royale dorée -->
+      <path d="M68 42 L70 34 L75 40 L80 30 L85 40 L90 34 L92 42 Z"
+            fill="#FCD116" stroke="#c8a000" stroke-width="0.7"/>
+      <rect x="68" y="42" width="24" height="5" rx="1" fill="#FCD116" stroke="#c8a000" stroke-width="0.5"/>
+      <circle cx="75" cy="34" r="1.5" fill="#CE1126"/>
+      <circle cx="80" cy="30" r="1.5" fill="#CE1126"/>
+      <circle cx="85" cy="34" r="1.5" fill="#CE1126"/>
+      <!-- Écu tricolore sur poitrine -->
+      <rect x="72" y="82" width="16" height="18" rx="1" fill="#002B7F" stroke="#00186a" stroke-width="0.5"/>
+      <rect x="72" y="88" width="16" height="6" fill="#FCD116"/>
+      <rect x="72" y="94" width="16" height="6" rx="0 0 1 1" fill="#CE1126"/>
+      <!-- Griffes dorées -->
+      <path d="M68 114 Q60 118 56 124 Q60 124 64 120 Q62 126 66 126 Q68 120 68 114 Z" fill="#c9a84c"/>
+      <path d="M72 116 Q66 122 65 128 Q69 128 71 122 Q70 128 74 128 Q74 122 72 116 Z" fill="#c9a84c"/>
+      <path d="M92 114 Q100 118 104 124 Q100 124 96 120 Q98 126 94 126 Q92 120 92 114 Z" fill="#c9a84c"/>
+      <path d="M88 116 Q94 122 95 128 Q91 128 89 122 Q90 128 86 128 Q86 122 88 116 Z" fill="#c9a84c"/>
       <!-- Annotation Léonard -->
-      <text x="10" y="70" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Aquila</text>
-      <text x="10" y="78" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">romanica</text>
-      <line x1="29" y1="72" x2="54" y2="70" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
-      <!-- Étoiles déco -->
-      <circle cx="134" cy="26" r="1.3" fill="#FCD116" opacity="0.5"/>
-      <circle cx="144" cy="50" r="0.9" fill="#CE1126" opacity="0.4"/>
-      <circle cx="17" cy="132" r="1.1" fill="#002B7F" opacity="0.4"/>
+      <text x="104" y="60" font-family="'Cormorant Garamond',Georgia,serif" font-size="6" fill="#CE1126" opacity="0.45" font-style="italic">Aquila</text>
+      <text x="104" y="68" font-family="'Cormorant Garamond',Georgia,serif" font-size="6" fill="#CE1126" opacity="0.45" font-style="italic">Română</text>
+      <line x1="104" y1="62" x2="96" y2="68" stroke="#CE1126" stroke-width="0.4" opacity="0.4"/>
+      <!-- Étoiles tricolores -->
+      <circle cx="20" cy="40" r="1.2" fill="#FCD116" opacity="0.5"/>
+      <circle cx="140" cy="40" r="1.2" fill="#FCD116" opacity="0.5"/>
+      <circle cx="80" cy="148" r="1" fill="#c9a84c" opacity="0.4"/>
     </svg>
   </div>
 
   <div class="hero-divider"></div>
-  <p class="hero-intro">La Roumanie s'étire entre les Carpates enneigées et le delta du Danube, entre châteaux de légende et monastères à fresques millénaires. Pays de Dracula, de Brâncuși et d'Enescu, elle surprend par la richesse de son âme latine au cœur de l'Europe orientale.</p>
+  <p class="hero-intro">La Roumanie s'étire entre les Carpates enneigées et le delta du Danube, entre châteaux de légende et monastères à fresques millénaires. 15 catégories interactives — châteaux de Dracula, monastères peints de Bucovine, sites UNESCO, villes saxonnes de Transylvanie, delta du Danube, Carpates sauvages, vignobles, gastronomie, artistes mondiaux, grottes de glace, festivals &amp; thermalisme.</p>
   <div class="hero-stats">
     <div class="stat"><div class="stat-num">15</div><div class="stat-label">Catégories</div></div>
     <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
@@ -261,360 +292,144 @@
   </div>
 </section>
 
-<!-- MAP -->
-<section class="map-section reveal">
-  <div class="section-header">
-    <p class="section-tag">Carte Interactive</p>
-    <h2 class="section-title">Explorer la Roumanie</h2>
-  </div>
-  <div class="map-container">
-    <div id="leaflet-map"></div>
-  </div>
-</section>
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 15 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Roumanie</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
 
-<!-- MONUMENTS -->
-<section class="monuments-section">
-  <div class="section-header reveal">
-    <p class="section-tag">Trésors Nationaux</p>
-    <h2 class="section-title">35 Monuments Incontournables</h2>
-  </div>
+<div class="section-header reveal">
+  <div class="section-tag">Des Daces aux Carpates</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
   <div class="monuments-grid">
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bucarest?useskin=vector','Bucarest — Paris de l\'Est');return false;">
-      <div class="card-number">01</div>
-      <div class="card-city">Bucarest · Ilfov</div>
-      <div class="card-name">Bucarest — Paris de l'Est</div>
-      <div class="card-context">Capitale sur la Dâmbovița. Palais du Parlement (2e plus grand bâtiment du monde), Athénée Roumain, quartier Art Nouveau de Floreasca. Ville-musée de 2 millions d'habitants.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Bran?useskin=vector','Château de Bran')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Bran, Brașov</div><h3 class="card-name">Château de Bran</h3><p class="card-context">Forteresse médiévale (XIVe s.) perchée sur un rocher — symbole de la Transylvanie et demeure légendaire de Vlad l'Empaleur (Dracula). 500 000 visiteurs par an, musée de mobilier médiéval royal.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Bran?useskin=vector','Château de Bran — Dracula');return false;">
-      <div class="card-number">02</div>
-      <div class="card-city">Bran · Brașov</div>
-      <div class="card-name">Château de Bran — Dracula</div>
-      <div class="card-context">Forteresse médiévale du XIVe siècle sur un rocher stratégique. Associé à la légende de Vlad l'Empaleur. Plus de 500 000 visiteurs par an. Symbole absolu de la Transylvanie.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Peleș?useskin=vector','Château de Peleș')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Sinaia, Prahova</div><h3 class="card-name">Château de Peleș</h3><p class="card-context">Joyau néo-Renaissance (1883) commandé par le roi Carol Ier. 160 pièces ornées de vitraux flamands et d'armures médiévales, niché dans les Carpates de Prahova. Premier palais d'Europe à l'électricité.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Peleș?useskin=vector','Château de Peleș — Conte de Fées');return false;">
-      <div class="card-number">03</div>
-      <div class="card-city">Sinaia · Prahova</div>
-      <div class="card-name">Château de Peleș — Conte de Fées</div>
-      <div class="card-context">Joyau néo-Renaissance (1883) de Carol Ier dans les forêts des Carpates. 160 pièces décorées, armurerie légendaire, vitraux flamands. Le plus beau château de Roumanie.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Corvin?useskin=vector','Château de Corvin')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Hunedoara</div><h3 class="card-name">Château de Corvin</h3><p class="card-context">Forteresse gothique des Hunyadi (1446) — pont-levis, salle des Chevaliers, tours à bretèches. Vlad l'Empaleur y fut prisonnier 7 ans. L'un des plus grands châteaux médiévaux d'Europe centrale.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Église_de_Voroneț?useskin=vector','Monastère de Voroneț — Sixtine de l\'Est');return false;">
-      <div class="card-number">04</div>
-      <div class="card-city">Gura Humorului · Suceava</div>
-      <div class="card-name">Voroneț — La Sixtine de l'Est</div>
-      <div class="card-context">UNESCO 1993. Fresques extérieures bleu de Voroneț (1488) — pigment unique au monde. Jugement Dernier sur la façade ouest. Commandée par Étienne le Grand en 3 jours et 3 nuits.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alba_Iulia?useskin=vector','Citadelle d\'Alba Iulia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Alba Iulia, Alba</div><h3 class="card-name">Citadelle d'Alba Iulia</h3><p class="card-context">Forteresse en étoile à 7 bastions (XVIIIe s.) — lieu symbolique de la Grande Union du 1er décembre 1918, unification de la Transylvanie à la Roumanie. Cathédrale orthodoxe et romane remarquables.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector','Delta du Danube — UNESCO');return false;">
-      <div class="card-number">05</div>
-      <div class="card-city">Tulcea · Dobrogea</div>
-      <div class="card-name">Delta du Danube — UNESCO</div>
-      <div class="card-context">UNESCO 1991. Deuxième plus grand delta d'Europe (5 800 km²). 300 espèces d'oiseaux, 45 espèces de poissons. Pélicans blancs, aigrettes, cormorans. Réserve de biosphère mondiale.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Église_de_Voroneț?useskin=vector','Monastère de Voroneț')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Gura Humorului, Suceava</div><h3 class="card-name">Monastère de Voroneț</h3><p class="card-context">La Sixtine de l'Est (1488). UNESCO 1993. Fresques extérieures au bleu de Voroneț inimitable — ce bleu ultra-profond reste un mystère chimique. Le Jugement Dernier peint sur la façade ouest, magistral.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sighișoara?useskin=vector','Sighișoara — Cité Médiévale UNESCO');return false;">
-      <div class="card-number">06</div>
-      <div class="card-city">Sighișoara · Mureș</div>
-      <div class="card-name">Sighișoara — Cité Médiévale UNESCO</div>
-      <div class="card-context">UNESCO 1999. Ville natale de Vlad l'Empaleur (1431). Tour de l'Horloge du XIVe siècle, citadelle saxonne médiévale intacte. La plus belle ville médiévale habitée d'Europe.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Sucevița?useskin=vector','Monastère de Sucevița')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Sucevița, Suceava</div><h3 class="card-name">Monastère de Sucevița</h3><p class="card-context">UNESCO 1993. Monastère-forteresse du XVIe s. ceint de tours défensives. L'Échelle de la Vertu sur la façade nord — les âmes des purs montent vers le paradis, les impurs tombent en enfer. Couleurs intactes.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Château_de_Corvin?useskin=vector','Château de Corvin — Hunedoara');return false;">
-      <div class="card-number">07</div>
-      <div class="card-city">Hunedoara · Hunedoara</div>
-      <div class="card-name">Château de Corvin — Hunedoara</div>
-      <div class="card-context">Forteresse gothique du XVe siècle des Hunyadi (1446). Pont-levis, tours crénelées, salle des Chevaliers. Emprisonna Vlad l'Empaleur 7 ans. Parmi les plus beaux châteaux d'Europe.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Moldovița?useskin=vector','Monastère de Moldovița')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Vatra Moldoviței, Suceava</div><h3 class="card-name">Monastère de Moldovița</h3><p class="card-context">UNESCO 1993. Fondé par Petru Rareș (1532), fils naturel d'Étienne le Grand. Fresques ocre-jaune — le Siège de Constantinople représenté en détail. Mobilier d'époque préservé dans l'église.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Sucevița?useskin=vector','Monastère de Sucevița — UNESCO');return false;">
-      <div class="card-number">08</div>
-      <div class="card-city">Sucevița · Suceava</div>
-      <div class="card-name">Monastère de Sucevița — UNESCO</div>
-      <div class="card-context">UNESCO 1993 (élargi 2010). Monastère-forteresse du XVIe siècle. Fresques extérieures aux couleurs intactes, Échelle de la Vertu sur la façade nord. Joyau de la Bucovine.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Horezu?useskin=vector','Monastère de Horezu')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Horezu, Vâlcea</div><h3 class="card-name">Monastère de Horezu</h3><p class="card-context">UNESCO 1993. Chef-d'œuvre du style brâncovenesc (1690) — mélange d'art byzantin, valaque et baroque. Sculptures de pierre ciselée d'une finesse extraordinaire. Fondé par Constantin Brâncoveanu.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Transfăgărășan?useskin=vector','Transfăgărășan — Route Légendaire');return false;">
-      <div class="card-number">09</div>
-      <div class="card-city">Argeș / Sibiu</div>
-      <div class="card-name">Transfăgărășan — Route Légendaire</div>
-      <div class="card-context">La plus spectaculaire route d'Europe (2 042 m d'altitude). Construite par Ceaușescu 1970-74. Cols vertigineux, tunnels dans la roche, lac de Bâlea. Élue «plus belle route du monde» par Top Gear.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Curtea_de_Argeș?useskin=vector','Monastère de Curtea de Argeș')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Curtea de Argeș, Argeș</div><h3 class="card-name">Monastère de Curtea de Argeș</h3><p class="card-context">Nécropole royale de Roumanie (XVIe s.) — rois et reines y reposent. Clochers torsadés uniques, art valaque d'une grande richesse. Légende de Manole : le maître maçon mura sa femme dans les fondations.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sibiu?useskin=vector','Sibiu — Capitale Européenne de la Culture');return false;">
-      <div class="card-number">10</div>
-      <div class="card-city">Sibiu · Sibiu</div>
-      <div class="card-name">Sibiu — Capitale Européenne de la Culture</div>
-      <div class="card-context">Grande Place, Petite Place, Tour du Conseil. Capitale Européenne de la Culture 2007. Ville saxonne médiévale aux «yeux» d'œil-de-bœuf. Musée Brukenthal — trésors de l'ancienne Transylvanie.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bucarest?useskin=vector','Bucarest')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Bucarest, Ilfov</div><h3 class="card-name">Bucarest — La Belle</h3><p class="card-context">Capitale : Palais du Parlement (2e plus grand bâtiment du monde), Athénée Roumain Belle Époque, boulevard Unirii inspiré des Champs-Élysées, quartier Art Nouveau de Cotroceni. Ville des 100 musées.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Curtea_de_Argeș?useskin=vector','Monastère de Curtea de Argeș');return false;">
-      <div class="card-number">11</div>
-      <div class="card-city">Curtea de Argeș · Argeș</div>
-      <div class="card-name">Monastère de Curtea de Argeș</div>
-      <div class="card-context">Chef-d'œuvre de l'art valaque (XVIe s.). Légende du maître Manole, emmuré vivant. Nécropole royale des rois de Roumanie. Clochers torsadés uniques. Broderies de pierre extraordinaires.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Brașov?useskin=vector','Brașov')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Brașov</div><h3 class="card-name">Brașov — Cœur de Transylvanie</h3><p class="card-context">Cité saxonne médiévale — Église Noire (XIVe s., plus grande église gothique d'Europe de l'Est), Place du Conseil baroque, remparts du XIIIe s. Porte échevin. Station de ski de Poiana Brasov à 12 km.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Moldovița?useskin=vector','Monastère de Moldovița — UNESCO');return false;">
-      <div class="card-number">12</div>
-      <div class="card-city">Vatra Moldoviței · Suceava</div>
-      <div class="card-name">Monastère de Moldovița — UNESCO</div>
-      <div class="card-context">UNESCO 1993. Fondé par Petru Rareș (1532). Fresques extérieures ocre-jaune exceptionnelles. Siège de Vienne par les Turcs en 1453 représenté sur la façade. Trésor liturgique intact.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sibiu?useskin=vector','Sibiu')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Sibiu</div><h3 class="card-name">Sibiu — Capitale Culturelle</h3><p class="card-context">Capitale Européenne de la Culture 2007. Grande Place médiévale entourée de maisons à toits à œil-de-bœuf (Augenhaüser), pont des Mensonges, tour du Conseil. Musée Brukenthal, FITS, festival de jazz.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Brașov?useskin=vector','Brașov — Cœur de la Transylvanie Saxonne');return false;">
-      <div class="card-number">13</div>
-      <div class="card-city">Brașov · Brașov</div>
-      <div class="card-name">Brașov — Cœur de la Transylvanie Saxonne</div>
-      <div class="card-context">Église Noire (XIVe s.) — plus grande église gothique d'Europe de l'Est. Place du Conseil baroque. Murailles médiévales saxonnes. Porte de Schei. Porte vers le château de Bran.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cluj-Napoca?useskin=vector','Cluj-Napoca')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Cluj, Transylvanie</div><h3 class="card-name">Cluj-Napoca</h3><p class="card-context">Capitale culturelle et universitaire de Transylvanie. Cathédrale Saint-Michel gothique (1442), place Unirii. TIFF — l'un des plus grands festivals de cinéma d'Europe. Silicon Valley de l'Est depuis 2010.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cluj-Napoca?useskin=vector','Cluj-Napoca — Capitale de la Transylvanie');return false;">
-      <div class="card-number">14</div>
-      <div class="card-city">Cluj-Napoca · Cluj</div>
-      <div class="card-name">Cluj-Napoca — Capitale de la Transylvanie</div>
-      <div class="card-context">2e ville de Roumanie. Cathédrale Saint-Michel (gothique XIVe s.). Statue de Matthias Corvin. Ville universitaire animée — TIFF (Festival International du Film) de renommée mondiale.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Timișoara?useskin=vector','Timișoara')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Timiș, Banat</div><h3 class="card-name">Timișoara — Révolution 1989</h3><p class="card-context">Berceau de la Révolution roumaine (décembre 1989) — première ville libérée de Ceaușescu. Place de l'Union baroque splendide. Capitale Européenne de la Culture 2023. Première ville d'Europe à l'électricité (1884).</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sarmizegetusa_Regia?useskin=vector','Sarmizegetusa Regia — Capitale Dace UNESCO');return false;">
-      <div class="card-number">15</div>
-      <div class="card-city">Grădiștea de Munte · Hunedoara</div>
-      <div class="card-name">Sarmizegetusa Regia — Capitale Dace</div>
-      <div class="card-context">UNESCO 1999. Capitale sacrée des Daces (106 apr. J.-C.). Sanctuaires circulaires, temples en calcaire. Résistance héroïque de Décébale face à Trajan. Âme de la romanité des Carpates.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Iași?useskin=vector','Iași')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Iași, Moldavie</div><h3 class="card-name">Iași — Ville des 100 Clochers</h3><p class="card-context">Capitale culturelle de Moldavie — Palais de la Culture néo-gothique (298 salles), Université Alexandru Ioan Cuza (1860), Église des Trois Hiérarques aux arabesques taillées. Ville de George Enescu.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Horezu?useskin=vector','Monastère de Horezu — UNESCO');return false;">
-      <div class="card-number">16</div>
-      <div class="card-city">Horezu · Vâlcea</div>
-      <div class="card-name">Monastère de Horezu — UNESCO</div>
-      <div class="card-context">UNESCO 1993. Chef-d'œuvre du style brâncovenesc (1690). Fondé par Constantin Brâncoveanu. Sculptures en pierre ciselée, iconostase en bois sculpté. École de peinture murale fondatrice.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector','Delta du Danube')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Tulcea, Dobrogea</div><h3 class="card-name">Delta du Danube</h3><p class="card-context">UNESCO 1991 — 2e plus grand delta d'Europe (5 800 km²). 300 espèces d'oiseaux dont le pélican blanc, 45 espèces de poissons. Canaux labyrinthiques, lagunes et forêts immergées. Réserve de biosphère mondiale.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Timișoara?useskin=vector','Timișoara — La Révolution');return false;">
-      <div class="card-number">17</div>
-      <div class="card-city">Timișoara · Timiș</div>
-      <div class="card-name">Timișoara — Berceau de la Révolution</div>
-      <div class="card-context">La Révolution roumaine y éclata le 16 décembre 1989. «La Petite Vienne» — Place de l'Union baroque, Cathédrale orthodoxe. Capitale Européenne de la Culture 2023. Première ville d'Europe éclairée à l'électricité (1884).</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sighișoara?useskin=vector','Sighișoara')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Mureș, Transylvanie</div><h3 class="card-name">Sighișoara Médiévale</h3><p class="card-context">UNESCO 1999 — seule cité médiévale fortifiée encore habitée d'Europe. Tour de l'Horloge (XIVe s.), ruelles pavées de pierres rondes, église sur la Colline. Ville natale de Vlad Tepes (Dracula) en 1431.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_du_Retezat?useskin=vector','Retezat — Parc National des Carpates');return false;">
-      <div class="card-number">18</div>
-      <div class="card-city">Hunedoara · Carpates du Sud</div>
-      <div class="card-name">Retezat — Parc National des Carpates</div>
-      <div class="card-context">Parc national depuis 1935. Plus de 20 sommets dépassant 2 000 m. Plus de 80 lacs glaciaires. Chamois, ours bruns, loups. Réserve de biosphère UNESCO. Randonnées légendaires.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector','Viscri')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Brașov, Transylvanie</div><h3 class="card-name">Viscri — Village Restauré</h3><p class="card-context">UNESCO 1993. Village saxon fondé au XIIe s. — église fortifiée sur colline, maisons colorées à l'ancienne. Restauré par le Roi Charles III d'Angleterre qui y possède une maison. Artisans traditionnels actifs.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Piatra_Craiului?useskin=vector','Piatra Craiului — Crête de Calcaire');return false;">
-      <div class="card-number">19</div>
-      <div class="card-city">Zărnești · Brașov</div>
-      <div class="card-name">Piatra Craiului — Crête de Calcaire</div>
-      <div class="card-context">Crête de calcaire blanche sur 25 km. 2 238 m au sommet. Flore endémique unique. Randonnée mythique sur la crête étroite au-dessus des nuages. Ours et loups sauvages. Canyon Zărnești.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Biertan?useskin=vector','Biertan')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Sibiu, Transylvanie</div><h3 class="card-name">Biertan — Forteresse Saxonne</h3><p class="card-context">UNESCO 1993. Église fortifiée saxonne à 3 enceintes concentriques (XIVe–XVIe s.). La porte de sacristie possède 19 verrous actionnables par un seul mécanisme — chef-d'œuvre de la serrurerie médiévale.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gorges_de_Bicaz?useskin=vector','Gorges de Bicaz & Lac Rouge');return false;">
-      <div class="card-number">20</div>
-      <div class="card-city">Bicaz · Neamț</div>
-      <div class="card-name">Gorges de Bicaz & Lac Rouge</div>
-      <div class="card-context">Gorges spectaculaires (8 km) aux parois de 300 m. «Le Cou de l'Enfer» — passage le plus étroit. Lac Roșu formé en 1837 par un glissement de terrain — arbres pétrifiés émergent encore de l'eau.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sarmizegetusa_Regia?useskin=vector','Sarmizegetusa Regia')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Hunedoara, Orăștie</div><h3 class="card-name">Sarmizegetusa Regia</h3><p class="card-context">UNESCO 1999. Capitale sacrée des Daces au 1er s. av. J.-C. — sanctuaires circulaires en andésite taillée, calendrier astronomique. Détruite par Trajan en 106. Symbole de la résistance dacique au génie romain.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Iași?useskin=vector','Iași — Capitale Culturelle de Moldavie');return false;">
-      <div class="card-number">21</div>
-      <div class="card-city">Iași · Moldavie</div>
-      <div class="card-name">Iași — Capitale Culturelle de Moldavie</div>
-      <div class="card-context">Ancienne capitale princière. Palais de la Culture (1926) — 298 salles. Université Alexandru Ioan Cuza (1860). Union des Principautés proclamée ici en 1859. «La Ville des 100 clochers».</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Transfăgărășan?useskin=vector','Transfăgărășan')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Argeș / Sibiu</div><h3 class="card-name">Transfăgărășan</h3><p class="card-context">Route légendaire à 2 042 m d'altitude — élue plus belle route du monde par Top Gear (2009). Lac de glacier de Bâlea, tunnels et virages spectaculaires. Construite par Ceaușescu en 1974 pour des raisons militaires.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Constantin_Brâncuși?useskin=vector','Brâncuși — Le Sculpteur du Silence');return false;">
-      <div class="card-number">22</div>
-      <div class="card-city">Târgu Jiu · Gorj</div>
-      <div class="card-name">Brâncuși — Le Sculpteur du Silence</div>
-      <div class="card-context">Constantin Brâncuși (1876–1957) — père de la sculpture moderne. Ensemble monumental de Târgu Jiu : Colonne sans Fin, Table du Silence, Porte du Baiser. Révolution de la forme pure abstraite.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Bucegi?useskin=vector','Bucegi')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Prahova</div><h3 class="card-name">Massif du Bucegi</h3><p class="card-context">Plateau karstique à 2 500 m — formations rocheuses du Sphinx et de Babele sculptées par l'érosion. Croix des Héros (Crucea Eroilor) à 2 291 m. Station de ski de Sinaia et Bușteni à proximité.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector','Enescu — Génie Musical Roumain');return false;">
-      <div class="card-number">23</div>
-      <div class="card-city">Liveni / Bucarest</div>
-      <div class="card-name">Enescu — Génie Musical Roumain</div>
-      <div class="card-context">George Enescu (1881–1955) — violoniste, compositeur, chef d'orchestre. Rhapsodies Roumaines universelles. Musée Enescu à Bucarest (Palais Cantacuzino). Festival International George Enescu chaque automne.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_du_Retezat?useskin=vector','Parc du Retezat')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Hunedoara, Carpates</div><h3 class="card-name">Parc National du Retezat</h3><p class="card-context">Parc national depuis 1935 — pionnier en Roumanie. 80 lacs glaciaires dont Bucura (le plus grand). Chamois des Carpates, ours bruns, lynx, loups. Sommets à 2 509 m. Réserve de biosphère UNESCO.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector','Viscri — Le Village du Prince Charles');return false;">
-      <div class="card-number">24</div>
-      <div class="card-city">Viscri · Brașov</div>
-      <div class="card-name">Viscri — Le Village du Prince Charles</div>
-      <div class="card-context">UNESCO 1993 (église fortifiée saxonne). Village préservé que le Prince Charles (désormais roi) a contribué à restaurer. Maisons colorées du XIIe siècle. Artisans, chevaux dans les ruelles pavées.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gorges_de_Bicaz?useskin=vector','Gorges de Bicaz')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Bicaz, Neamț</div><h3 class="card-name">Gorges de Bicaz</h3><p class="card-context">Canyon de calcaire aux parois verticales de 300 m sur 8 km. Le Cou de l'Enfer — passage à couper le souffle. Lac Rouge formé en 1837 par glissement de terrain, avec des arbres pétrifiés émergents.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Alba_Iulia?useskin=vector','Alba Iulia — La Grande Union');return false;">
-      <div class="card-number">25</div>
-      <div class="card-city">Alba Iulia · Alba</div>
-      <div class="card-name">Alba Iulia — La Grande Union</div>
-      <div class="card-context">Citadelle en étoile à 7 bastions (XVIIIe s.). Le 1er décembre 1918, union de la Transylvanie à la Roumanie proclamée ici — Fête Nationale roumaine. Cathédrale du Couronnement (1922).</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_national_d%27art_de_Roumanie?useskin=vector','Musée National d\'Art')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Bucarest</div><h3 class="card-name">Musée National d'Art de Roumanie</h3><p class="card-context">Galerie Nationale abritée dans l'ancien Palais Royal (1937). Tableaux de Grigorescu, Andreescu, Luchian — l'âme de la peinture roumaine de 1500 à nos jours. Galerie d'art européen au second étage.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Biertan?useskin=vector','Biertan — Village Saxon Fortifié UNESCO');return false;">
-      <div class="card-number">26</div>
-      <div class="card-city">Biertan · Sibiu</div>
-      <div class="card-name">Biertan — Village Saxon Fortifié UNESCO</div>
-      <div class="card-context">UNESCO 1993. Siège épiscopal luthérien pendant 300 ans. Église fortifiée du XVe s. — 3 enceintes concentriques. Porte à serrure de 19 verrous. Village médiéval saxon le mieux conservé.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_Brukenthal?useskin=vector','Musée Brukenthal')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Sibiu</div><h3 class="card-name">Musée Brukenthal</h3><p class="card-context">L'un des plus anciens musées d'Europe (ouvert au public en 1817). Palais baroque du gouverneur Samuel von Brukenthal — peintures flamandes du XVIe s., Rubens, Van Dyck, Rembrandt. 1 300 peintures exposées.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grotte_de_Scărișoara?useskin=vector','Grotte de Scărișoara — Glacier Souterrain');return false;">
-      <div class="card-number">27</div>
-      <div class="card-city">Arieșeni · Alba</div>
-      <div class="card-name">Grotte de Scărișoara — Glacier Souterrain</div>
-      <div class="card-context">Le deuxième plus grand glacier souterrain du monde (75 000 m³). Bloc de glace vieux de 3 500 ans. Stalactites et stalagmites de glace dans l'obscurité totale. Descente par une corde de 48 m.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_ASTRA?useskin=vector','Musée ASTRA')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Sibiu</div><h3 class="card-name">Musée ASTRA en Plein Air</h3><p class="card-context">Plus grand musée ethnographique en plein air d'Europe (96 ha, 400 constructions). Moulins à eau, maisons paysannes, ateliers de potiers, ponts de bois — les civilisations rurales roumaines reconstituées in situ.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Băile_Herculane?useskin=vector','Băile Herculane — Thermes de l\'Antiquité');return false;">
-      <div class="card-number">28</div>
-      <div class="card-city">Băile Herculane · Caraș-Severin</div>
-      <div name="card-name" class="card-name">Băile Herculane — Thermes de l'Antiquité</div>
-      <div class="card-context">Station thermale depuis l'Antiquité romaine (sources 38–60°C). Kaiserbad néo-baroque construit pour l'Empereur François-Joseph. Gorges des Cernei, réserve naturelle. Eau guérissant selon la légende d'Hercule.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Constantin_Br%C3%A2ncu%C8%99i?useskin=vector','Brâncuși')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Târgu Jiu, Gorj</div><h3 class="card-name">Ensemble Brâncuși de Târgu Jiu</h3><p class="card-context">Révolution de la sculpture moderne — Colonne sans Fin (29 m, 1938), Table du Silence, Porte du Baiser. Trilogie monumentale en mémoire des soldats roumains. Brâncuși, le père de la sculpture abstraite moderne.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector','Mămăligă & Sarmale — Gastronomie Roumaine');return false;">
-      <div class="card-number">29</div>
-      <div class="card-city">Toute la Roumanie</div>
-      <div class="card-name">Mămăligă & Sarmale — Gastronomie</div>
-      <div class="card-context">Mămăligă (polenta de maïs) — pain du peuple roumain. Sarmale (feuilles de chou farcies) au bœuf et porc. Mici (croquettes épicées), Cozonac (brioche de Noël), Țuică (eau-de-vie de prune).</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector','George Enescu')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Bucarest — Liveni</div><h3 class="card-name">Musée George Enescu</h3><p class="card-context">Palais Cantacuzino Belle Époque (1901) dédié au génie musical roumain. Rhapsodies Roumaines, Sonate dans le caractère populaire roumain. Festival International Enescu — l'un des plus grands festivals classiques du monde.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vignoble_de_Dealu_Mare?useskin=vector','Dealu Mare — Vins de Valachie');return false;">
-      <div class="card-number">30</div>
-      <div class="card-city">Prahova / Buzău</div>
-      <div class="card-name">Dealu Mare — Vins de Valachie</div>
-      <div class="card-context">La plus réputée région viticole de Roumanie. Cabernet Sauvignon, Merlot, Fetească Neagră (cépage autochtone). Vignobles sur les collines pré-carpathiques. Production remontant aux Daces.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grotte_de_Sc%C4%83ri%C8%99oara?useskin=vector','Grotte de Scărișoara')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Arieșeni, Alba</div><h3 class="card-name">Grotte de Scărișoara</h3><p class="card-context">2e glacier souterrain du monde par volume — 75 000 m³ de glace vieille de 3 500 ans. Descente dans un puits vertical de 48 m pour atteindre la salle de glace. Stalactites de glace transparentes.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Histria_(site_archéologique)?useskin=vector','Histria — Cité Grecque sur la Mer Noire');return false;">
-      <div class="card-number">31</div>
-      <div class="card-city">Istria · Constanța</div>
-      <div class="card-name">Histria — Cité Grecque sur la Mer Noire</div>
-      <div class="card-context">La plus ancienne cité grecque sur le littoral roumain (657 av. J.-C.). Fondée par des colons de Milet. Ruines de temples, murailles, thermes romains. Musée archéologique sur site. Lagune du Sinoe.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Grotte_des_ours_(Roumanie)?useskin=vector','Grotte des Ours')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Chișcău, Bihor</div><h3 class="card-name">Grotte des Ours — Chișcău</h3><p class="card-context">Découverte en 1975 lors de travaux. Galeries ornées de stalactites en forme d'ours et de cristaux d'aragonite d'une blancheur absolue. Ossements d'ours des cavernes (Ursus spelaeus) préservés in situ.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_du_Parlement_(Roumanie)?useskin=vector','Palais du Parlement — Folie Ceaușescu');return false;">
-      <div class="card-number">32</div>
-      <div class="card-city">Bucarest · Ilfov</div>
-      <div class="card-name">Palais du Parlement — Folie Ceaușescu</div>
-      <div class="card-context">2e plus grand bâtiment administratif du monde (après le Pentagone). 1 100 salles, 12 étages, 480 000 t d'acier, 1 million m³ de marbre. Commencé 1984, jamais achevé. Siège actuel du Parlement roumain.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Băile_Herculane?useskin=vector','Băile Herculane')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Caraș-Severin</div><h3 class="card-name">Băile Herculane</h3><p class="card-context">Thermes romains aux sources chaudes (38–60°C) utilisés depuis l'Antiquité. Le Kaiserbad néo-baroque de l'Empereur François-Joseph (XIXe s.) — fastueux bâtiment de cure. Gorges de la Cerna à couper le souffle.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cimetière_joyeux?useskin=vector','Cimetière Joyeux de Săpânța');return false;">
-      <div class="card-number">33</div>
-      <div class="card-city">Săpânța · Maramureș</div>
-      <div class="card-name">Cimetière Joyeux de Săpânța</div>
-      <div class="card-context">Croix de bois peintes en bleu cobalt avec portraits naïfs et épitaphes humoristiques du défunt. Créé par Stan Ioan Pătraș (1935). Philosophie roumaine : la mort n'est qu'un passage joyeux. Unique au monde.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Maramure%C8%99?useskin=vector','Maramureș')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Maramureș</div><h3 class="card-name">Maramureș — Villages en Bois</h3><p class="card-context">Région ethnographique d'exception — maisons en bois du XVIIe s. aux portails sculptés, cimetière joyeux de Săpânța (épitaphes humoristiques colorées). Artisanat vivant : tissage, broderie, poterie noire.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Electric_Castle?useskin=vector','Electric Castle & TIFF — Festivals Cultes');return false;">
-      <div class="card-number">34</div>
-      <div class="card-city">Bonțida / Cluj-Napoca · Cluj</div>
-      <div class="card-name">Electric Castle & TIFF — Festivals Cultes</div>
-      <div class="card-context">Electric Castle — festival de musique électronique dans le château de Bonțida (XVIe s.) — 250 000 visiteurs. TIFF (Festival International du Film de Transylvanie) — le plus grand festival de cinéma d'Europe de l'Est.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vignoble_de_Dealu_Mare?useskin=vector','Vignoble Dealu Mare')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Prahova / Buzău</div><h3 class="card-name">Vignobles de Dealu Mare</h3><p class="card-context">Première région viticole de Roumanie — Feteasca Neagra, cépage autochtone rouge, Cabernet-Sauvignon et Merlot. Collines pré-carpathiques baignées de soleil. Caves troglodytes et domaines nobles à visiter.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
-    <a class="monument-card reveal" href="#" onclick="openWiki('https://fr.m.wikipedia.org/wiki/Monastère_de_Cozia?useskin=vector','Monastère de Cozia — Mircea l\'Ancien');return false;">
-      <div class="card-number">35</div>
-      <div class="card-city">Călimănești · Vâlcea</div>
-      <div class="card-name">Monastère de Cozia — Mircea l'Ancien</div>
-      <div class="card-context">Fondé par Mircea l'Ancien (1388). Style byzantino-valaque aux motifs entrelacés. Tombeau du fondateur, premier grand prince de Valachie. Gorges de l'Olt et forêts centenaires. Perle médiévale roumaine.</div>
-      <div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
-    </a>
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Festival_international_du_film_de_Transylvanie?useskin=vector','TIFF Cluj')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Cluj-Napoca</div><h3 class="card-name">TIFF — Festival de Transylvanie</h3><p class="card-context">Festival International du Film de Transylvanie — plus grand festival de cinéma d'Europe de l'Est. Projections en plein air sur la Place Unirii, rétrospectives, premières mondiales. L'âme culturelle de Cluj.</p><div class="card-footer"><span class="card-link">Wikipedia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
 
   </div>
-</section>
 
-<!-- TIMELINE -->
-<section class="timeline-section">
-  <div class="section-header reveal">
-    <p class="section-tag">Histoire & Chronologie</p>
-    <h2 class="section-title">La Grande Histoire Roumaine</h2>
-  </div>
+<div class="section-header reveal">
+  <div class="section-tag">Des Daces aux Carpates</div>
+  <h2 class="section-title">Histoire de la Roumanie</h2>
+</div>
+<div class="timeline-section">
   <div class="timeline">
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">~82 av. J.-C. — Burebista & les Daces</div>
-      <div class="timeline-event"><strong>Burebista unifie les tribus daces</strong> en un puissant royaume des Carpates, rival de Rome. Les Daces, héritiers des Thraces, bâtissent Sarmizegetusa Regia, leur capitale sacrée sur les hauteurs des Carpates occidentales. En 106 apr. J.-C., l'Empereur <strong>Trajan</strong> conquiert la Dacie après deux guerres acharnées — Décébale, le dernier roi dace, choisit la mort plutôt que la captivité.</div>
+      <div class="timeline-year">~82 av. J.-C. — 106 ap. J.-C.</div>
+      <div class="timeline-event"><strong>Le Royaume Dace de Burebista.</strong> Burebista unifie les tribus daces et crée le premier grand État de l'actuelle Roumanie. Les Daces — peuple thrace réputé pour leur courage et leur spiritualité — édifient Sarmizegetusa Regia, capitale sacrée aux sanctuaires circulaires. L'or des Carpates attire la convoitise de Rome. Décimés en 106 par Trajan lors de deux guerres sanglantes.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">106 — 275 · Dacia Romana — Naissance d'un Peuple</div>
-      <div class="timeline-event">La province romaine de Dacie dure 165 ans. Romanisation intense : <strong>latin populaire, villes, routes, amphithéâtres</strong>. Naissance du peuple roumain par métissage daco-romain. L'abandon romain en 275 ne brise pas la latinité — le roumain est la seule langue latine survivante d'Europe orientale.</div>
+      <div class="timeline-year">106 — 275</div>
+      <div class="timeline-event"><strong>Dacie Romaine.</strong> Trajan conquiert la Dacie en 106, après deux guerres épiques immortalisées sur la Colonne Trajane à Rome. La province Dacia Felix devient romaine — mines d'or d'Alburnus Maior, routes pavées, Ulpia Traiana Sarmizegetusa. Les Daces se romanisent, langue et culture se fusionnent pour créer le peuple roumain. Retrait romain en 275 sous Aurélien.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">XIVe — XVIe s. · Princes Médiévaux & Ottomans</div>
-      <div class="timeline-event"><strong>Mircea l'Ancien</strong> (Valachie), <strong>Étienne le Grand</strong> (Moldavie) et <strong>Iancu de Hunedoara</strong> (Transylvanie) repoussent les Ottomans. <strong>Vlad III l'Empaleur</strong> (1456–1462) terrorise les armées turques par ses méthodes brutales, inspirant le mythe de Dracula à Bram Stoker quatre siècles plus tard. Étienne le Grand construit 44 monastères — un pour chaque victoire.</div>
+      <div class="timeline-year">XIVe — XVe s.</div>
+      <div class="timeline-event"><strong>Les Trois Principautés.</strong> Trois principautés roumaines émergent face aux empires voisins : Valachie (Mircea l'Ancien), Moldavie (Étienne le Grand — 47 batailles, 40 victoires, 44 monastères) et Transylvanie. Étienne le Grand (1457–1504) défend la chrétienté face aux Ottomans, reconnu saint par l'Église orthodoxe. Vlad l'Empaleur (Dracula), prince de Valachie, résiste aux Ottomans avec une brutalité légendaire.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">1600 · Michel le Brave — Première Union</div>
-      <div class="timeline-event"><strong>Michel le Brave</strong> (Mihai Viteazul) réunit pour la première fois Valachie, Moldavie et Transylvanie en un seul État roumain en 1600 — une union qui ne dure qu'un an mais reste le symbole fondateur de l'unité nationale. Assassiné en 1601, il devient héros national immortel.</div>
+      <div class="timeline-year">1600</div>
+      <div class="timeline-event"><strong>Michel le Brave — Première Unification.</strong> Michel le Brave (Mihai Viteazul) réalise la première unification des trois principautés roumaines en 1600 — événement fondateur de la conscience nationale. Exploit éphémère mais symbolique fondamental. Assassiné en 1601. Son portrait orne les billets et sa statue domine les places de toutes les villes roumaines.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">1859 — 1918 · Indépendance & Grande Roumanie</div>
-      <div class="timeline-event"><strong>Alexandru Ioan Cuza</strong> unit Valachie et Moldavie en 1859. Indépendance proclamée en 1877. Le <strong>1er décembre 1918</strong>, à Alba Iulia, la Transylvanie, la Bucovine et la Bessarabie rejoignent la Roumanie — la <strong>Grande Roumanie</strong> est née, doublant la superficie du pays. Fête Nationale roumaine depuis lors.</div>
+      <div class="timeline-year">1859 — 1918</div>
+      <div class="timeline-event"><strong>Naissance de la Grande Roumanie.</strong> Union de la Valachie et de la Moldavie (1859) sous Alexandru Ioan Cuza — naissance de la Roumanie moderne. Indépendance (1877). Au lendemain de la Première Guerre mondiale, le 1er décembre 1918 à Alba Iulia, la Transylvanie, la Bucovine et la Bessarabie rejoignent la Roumanie — la Grande Roumanie (295 049 km²) est proclamée. Date nationale.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">1945 — 1989 · Communisme & Ceaușescu</div>
-      <div class="timeline-event">République populaire instaurée en 1947. <strong>Nicolae Ceaușescu</strong> au pouvoir de 1965 à 1989 — régime parmi les plus répressifs du bloc soviétique. Démolition de 40 % du vieux Bucarest pour le «Centre Civique». Rationnement alimentaire malgré les exportations forcées. Détenu secret de la Securitate pour chaque citoyen.</div>
+      <div class="timeline-year">1945 — 1989</div>
+      <div class="timeline-event"><strong>Régime Communiste et Ceaușescu.</strong> Occupation soviétique, abdication du roi Michel Ier (1947). Nicolae Ceaușescu au pouvoir (1965–1989) — dictature nationaliste, culte de la personnalité, Palais du Peuple (le plus grand bâtiment d'Europe). Rationnement alimentaire, securitate omniprésente. La démolition du quartier historique de Bucarest — crime urbanistique sans précédent.</div>
     </div>
 
     <div class="timeline-item reveal">
       <div class="timeline-dot"></div>
-      <div class="timeline-year">1989 — Aujourd'hui · Révolution & Europe</div>
-      <div class="timeline-event">La <strong>Révolution de décembre 1989</strong> éclate à Timișoara puis Bucarest — la seule révolution violente du bloc de l'Est (1 104 morts). Ceaușescu exécuté le 25 décembre 1989. Adhésion à <strong>l'OTAN en 2004</strong> et à <strong>l'Union Européenne en 2007</strong>. Timișoara, Capitale Européenne de la Culture 2023. La Roumanie retrouve son âme latine.</div>
+      <div class="timeline-year">1989 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Révolution et Renaissance.</strong> La Révolution de décembre 1989 commence à Timișoara — Ceaușescu exécuté le 25 décembre. Transition difficile vers la démocratie et l'économie de marché. Adhésion à l'OTAN (2004) et à l'Union Européenne (2007). Essor économique, retour des diaspora, renaissance culturelle. Bucarest — ville créative reconnue, cuisine roumaine redécouverte. La Roumanie réinvente son récit.</div>
     </div>
 
   </div>
-</section>
+</div>
 
 <footer>
   <div class="footer-crest">🇷🇴</div>
@@ -624,246 +439,362 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-/* ============================
-   CARTE INTERACTIVE — ROUMANIE
-   ============================ */
-(function(){
-  /* --- Tuiles --- */
-  const TILES = {
-    dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}),
-    topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap',maxZoom:17}),
-    sat:  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19})
-  };
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([45.94,24.97],7);
+L.control.zoom({position:'topright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
 
-  const map = L.map('leaflet-map',{center:[45.94,24.97],zoom:7,layers:[TILES.dark],zoomControl:false});
-  L.control.zoom({position:'topright'}).addTo(map);
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
 
-  /* --- Icônes SVG --- */
-  function mkIcon(svg,sz){
-    sz=sz||34;
-    return L.divIcon({html:svg,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2]});
-  }
+var iconChateau=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(206,17,38,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#8a0010"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#CE1126" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d42030" stroke="#8a0010" stroke-width="0.5"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d42030" stroke="#8a0010" stroke-width="0.5"/><rect x="6" y="8" width="2" height="4" fill="#d42030"/><rect x="9" y="8" width="2" height="4" fill="#d42030"/><rect x="24" y="8" width="2" height="4" fill="#d42030"/><rect x="27" y="8" width="2" height="4" fill="#d42030"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#6a0008"/><line x1="9.5" y1="8" x2="9.5" y2="3" stroke="#ffc400" stroke-width="0.8"/><path d="M9.5 3 L16 5 L9.5 7 Z" fill="#CE1126"/></svg>');
 
-  const iconVille    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#CE1126" fill-opacity=".18" stroke="#CE1126" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#CE1126">🏛</text></svg>');
-  const iconChateau  = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#c9a84c" fill-opacity=".18" stroke="#c9a84c" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#c9a84c">🏰</text></svg>');
-  const iconMonastere= mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#e8c97a" fill-opacity=".18" stroke="#e8c97a" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#e8c97a">⛪</text></svg>');
-  const iconUnesco   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#FCD116" fill-opacity=".22" stroke="#FCD116" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#FCD116">⭐</text></svg>');
-  const iconNature   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#4a9e5c" fill-opacity=".18" stroke="#4a9e5c" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#4a9e5c">🌿</text></svg>');
-  const iconMontagne = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#a0b8d0" fill-opacity=".18" stroke="#a0b8d0" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#a0b8d0">⛰</text></svg>');
-  const iconGastro   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#e07050" fill-opacity=".18" stroke="#e07050" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#e07050">🍲</text></svg>');
-  const iconMusee    = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#9b88cc" fill-opacity=".18" stroke="#9b88cc" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#9b88cc">🖼</text></svg>');
-  const iconLac      = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#4499cc" fill-opacity=".18" stroke="#4499cc" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#4499cc">🌊</text></svg>');
-  const iconArtiste  = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#cc88aa" fill-opacity=".18" stroke="#cc88aa" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#cc88aa">🎨</text></svg>');
-  const iconGrotte   = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#8899aa" fill-opacity=".18" stroke="#8899aa" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#8899aa">🦇</text></svg>');
-  const iconFestival = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#ff9944" fill-opacity=".18" stroke="#ff9944" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#ff9944">🎪</text></svg>');
-  const iconVillage  = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#b8a070" fill-opacity=".18" stroke="#b8a070" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#b8a070">🏡</text></svg>');
-  const iconVin      = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#882255" fill-opacity=".22" stroke="#aa3366" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#cc6688">🍷</text></svg>');
-  const iconSpa      = mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#44aacc" fill-opacity=".18" stroke="#44aacc" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="14" fill="#44aacc">♨</text></svg>');
+var iconCathedrale=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="10" y="24" width="16" height="4" rx="1" fill="#6040a0"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/><rect x="12" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/><rect x="20" y="15" width="4" height="8" rx="0.5" fill="#2a1040"/></svg>');
 
-  /* --- Données des marqueurs par catégorie --- */
-  const DATA = {
-    ville:[
-      {ll:[44.4268,26.1025],n:"Bucarest",d:"Capitale sur la Dâmbovița — Palais du Parlement, Athénée Roumain, quartier Art Nouveau",w:"Bucarest"},
-      {ll:[45.6427,25.5887],n:"Brașov",d:"Cœur médiéval de Transylvanie — Église Noire, Place du Conseil, remparts saxons",w:"Brașov"},
-      {ll:[45.7983,24.1256],n:"Sibiu",d:"Capitale Européenne de la Culture 2007 — Grande Place, musée Brukenthal, toits à œil-de-bœuf",w:"Sibiu"},
-      {ll:[46.7712,23.6236],n:"Cluj-Napoca",d:"Capitale de la Transylvanie — Cathédrale Saint-Michel gothique, statue de Matthias Corvin, TIFF",w:"Cluj-Napoca"},
-      {ll:[45.7489,21.2087],n:"Timișoara",d:"Berceau de la Révolution de 1989 — Place de l'Union baroque, Capitale Européenne de la Culture 2023",w:"Timișoara"},
-      {ll:[47.1585,27.6014],n:"Iași",d:"Capitale culturelle de Moldavie — Palais de la Culture, 100 clochers, Université 1860",w:"Iași"}
-    ],
-    chateau:[
-      {ll:[45.5132,25.3676],n:"Château de Bran",d:"Forteresse de Dracula (XIVe s.) — 500 000 visiteurs/an, symbole de la Transylvanie",w:"Château de Bran"},
-      {ll:[45.3597,25.5412],n:"Château de Peleș",d:"Joyau néo-Renaissance (1883) de Carol Ier — 160 pièces, vitraux flamands, armurerie royale",w:"Château de Peleș"},
-      {ll:[45.7483,22.8903],n:"Château de Corvin",d:"Forteresse gothique des Hunyadi (1446) — Pont-levis, salle des Chevaliers, cachot de Vlad",w:"Château de Corvin"},
-      {ll:[46.0673,23.5800],n:"Citadelle d'Alba Iulia",d:"Forteresse en étoile à 7 bastions (XVIIIe s.) — Lieu de la Grande Union du 1er décembre 1918",w:"Alba Iulia"}
-    ],
-    monastere:[
-      {ll:[47.5201,25.8719],n:"Monastère de Voroneț",d:"Sixtine de l'Est (1488) — fresques extérieures au bleu unique, Jugement Dernier magistral",w:"Église de Voroneț"},
-      {ll:[47.7811,25.7394],n:"Monastère de Sucevița",d:"Monastère-forteresse du XVIe s. — Échelle de la Vertu, fresques aux couleurs intactes",w:"Monastère de Sucevița"},
-      {ll:[47.6661,25.5439],n:"Monastère de Moldovița",d:"Fondé par Petru Rareș (1532) — fresques ocre-jaune, Siège de Vienne représenté",w:"Monastère de Moldovița"},
-      {ll:[45.1711,23.9889],n:"Monastère de Horezu",d:"UNESCO 1993 — chef-d'œuvre brâncovenesc (1690), sculptures de pierre ciselée",w:"Monastère de Horezu"},
-      {ll:[45.1394,24.6714],n:"Monastère de Curtea de Argeș",d:"Art valaque du XVIe s. — légende de Manole, nécropole royale, clochers torsadés",w:"Monastère de Curtea de Argeș"}
-    ],
-    unesco:[
-      {ll:[45.0878,29.3867],n:"Delta du Danube",d:"UNESCO 1991 — 5 800 km², 300 espèces d'oiseaux, pélicans, réserve de biosphère",w:"Delta du Danube"},
-      {ll:[46.2197,24.7912],n:"Sighișoara",d:"UNESCO 1999 — cité médiévale saxonne habitée, Tour de l'Horloge, ville natale de Vlad",w:"Sighișoara"},
-      {ll:[46.0700,25.0656],n:"Viscri",d:"UNESCO 1993 — église fortifiée saxonne, village restauré par le Prince Charles",w:"Viscri"},
-      {ll:[46.1356,24.5275],n:"Biertan",d:"UNESCO 1993 — village saxon fortifié, église à 3 enceintes, porte à 19 verrous",w:"Biertan"},
-      {ll:[45.6342,23.3000],n:"Forteresses daces",d:"UNESCO 1999 — Sarmizegetusa Regia, capitale sacrée des Daces, sanctuaires circulaires",w:"Sarmizegetusa Regia"}
-    ],
-    nature:[
-      {ll:[45.0878,29.3867],n:"Delta du Danube",d:"Réserve de biosphère — 45 espèces de poissons, pélicans blancs, cormorans, aigrettes",w:"Delta du Danube"},
-      {ll:[45.3167,22.8333],n:"Parc du Retezat",d:"Parc national depuis 1935 — 80 lacs glaciaires, chamois, ours bruns, loups, 2 500 m",w:"Parc national du Retezat"},
-      {ll:[45.5044,25.2297],n:"Piatra Craiului",d:"Crête de calcaire blanc 25 km — 2 238 m, flore endémique, randonnée au-dessus des nuages",w:"Parc national de Piatra Craiului"},
-      {ll:[46.7750,25.9083],n:"Gorges de Bicaz",d:"Parois de 300 m sur 8 km — «Cou de l'Enfer», Lac Rouge aux arbres pétrifiés (1837)",w:"Gorges de Bicaz"}
-    ],
-    montagne:[
-      {ll:[45.5973,24.6215],n:"Transfăgărășan",d:"Route légendaire à 2 042 m — élue «plus belle route du monde» par Top Gear, lac de Bâlea",w:"Transfăgărășan"},
-      {ll:[45.6000,24.6833],n:"Massif du Făgăraș",d:"Toit de la Roumanie — Moldoveanu (2 544 m), randonnées sur la crête des Carpates méridionales",w:"Massif du Făgăraș"},
-      {ll:[45.3644,25.4419],n:"Massif du Bucegi",d:"Plateau karstique à 2 500 m — Sphinx et Babele rochers, Crucea Eroilor, stations de Sinaia",w:"Massif du Bucegi"}
-    ],
-    gastro:[
-      {ll:[44.4268,26.1025],n:"Gastronomie — Bucarest",d:"Mămăligă (polenta), Sarmale (choux farcis), Mici (croquettes épicées), Cozonac, Țuică",w:"Gastronomie roumaine"},
-      {ll:[45.7983,24.1256],n:"Gastronomie — Sibiu",d:"Marchés traditionnels, ciorbe (soupes aigres), tobă (pâté de tête), fromage de Sibiu",w:"Gastronomie roumaine"},
-      {ll:[47.1585,27.6014],n:"Gastronomie — Iași",d:"Plăcinte moldaves (feuilletés), borș (soupe au son), piftie (gelée de porc), vin de Cotnari",w:"Gastronomie roumaine"}
-    ],
-    musee:[
-      {ll:[44.4322,26.0972],n:"MNAR — Bucarest",d:"Musée National d'Art de Roumanie — Galerie Nationale dans l'ancien Palais Royal (1937)",w:"Musée national d'art de Roumanie"},
-      {ll:[45.7983,24.1256],n:"Musée Brukenthal",d:"Sibiu — l'un des plus anciens musées d'Europe (1817), peintures flamandes et baroques",w:"Musée Brukenthal"},
-      {ll:[45.7833,24.1000],n:"Musée ASTRA",d:"Sibiu — plus grand musée ethnographique en plein air d'Europe, 400 constructions traditionnelles",w:"Musée ASTRA"}
-    ],
-    lac:[
-      {ll:[45.0878,29.3867],n:"Delta du Danube",d:"Réseau de canaux, lagunes et lacs — 5 800 km² de zones humides, paysages de l'autre monde",w:"Delta du Danube"},
-      {ll:[46.7811,25.8281],n:"Lacul Roșu — Lac Rouge",d:"Lac formé en 1837 par glissement de terrain — arbres pétrifiés émergent, couleur ferrugineuse",w:"Lacul Roșu"},
-      {ll:[46.2178,25.8619],n:"Lacul Sfânta Ana",d:"Seul lac volcanique en Roumanie — cratère du Mont Ciomatu, eaux cristallines, forêt de conifères",w:"Lacul Sfânta Ana"}
-    ],
-    artiste:[
-      {ll:[45.0433,23.2736],n:"Brâncuși — Târgu Jiu",d:"Ensemble monumental : Colonne sans Fin (29 m), Table du Silence, Porte du Baiser (1938)",w:"Constantin Brâncuși"},
-      {ll:[47.4778,26.6167],n:"Enescu — Liveni",d:"Maison natale de George Enescu (1881) — violoniste et compositeur génial, Rhapsodies Roumaines",w:"George Enescu"},
-      {ll:[45.9500,25.0000],n:"Tristan Tzara & Ionesco",d:"Terre natale du dadaïsme (Tzara, 1896) et de l'absurde (Ionesco) — avant-garde mondiale",w:"Tristan Tzara"}
-    ],
-    grotte:[
-      {ll:[46.4833,22.8333],n:"Grotte de Scărișoara",d:"2e glacier souterrain du monde — 75 000 m³ de glace vieille de 3 500 ans, descente de 48 m",w:"Grotte de Scărișoara"},
-      {ll:[46.4878,22.3806],n:"Grotte des Ours — Chișcău",d:"Décorée de formations de calcite uniques — stalactites en forme d'ours, cristaux aragonite",w:"Grotte des Ours (Roumanie)"},
-      {ll:[45.3067,23.7578],n:"Grotte de la Femme",d:"Peștera Muierilor — stalactites et stalagmites géants, ossements préhistoriques, visite touristique",w:"Grotte de Muierilor"}
-    ],
-    festival:[
-      {ll:[46.7712,23.6236],n:"TIFF — Cluj-Napoca",d:"Festival International du Film de Transylvanie — plus grand festival de cinéma d'Europe de l'Est",w:"Festival international du film de Transylvanie"},
-      {ll:[46.8794,23.8789],n:"Electric Castle — Bonțida",d:"Festival de musique électronique dans le château de Bonțida (XVIe s.) — 250 000 visiteurs",w:"Electric Castle"},
-      {ll:[45.7983,24.1256],n:"FITS — Sibiu",d:"Festival International de Théâtre de Sibiu — l'un des plus grands festivals de théâtre du monde",w:"Festival international de théâtre de Sibiu"}
-    ],
-    village:[
-      {ll:[46.0700,25.0656],n:"Viscri",d:"Village saxon du XIIe s. restauré par le Prince Charles — maisons colorées, ruelles pavées, artisans",w:"Viscri"},
-      {ll:[46.4561,23.5989],n:"Rimetea",d:"Village hongrois de Transylvanie aux maisons blanches immaculées — cadre de montagne saisissant",w:"Rimetea"},
-      {ll:[46.1356,24.5275],n:"Biertan",d:"Village saxon fortifié UNESCO — église à 3 enceintes, porte à 19 verrous, XVe siècle",w:"Biertan"}
-    ],
-    vin:[
-      {ll:[45.1667,26.7333],n:"Dealu Mare",d:"1re région viticole — Fetească Neagră, Cabernet, Merlot, vignobles pré-carpathiques",w:"Vignoble de Dealu Mare"},
-      {ll:[44.1731,28.4056],n:"Murfatlar",d:"Vignoble de la Mer Noire — Chardonnay, Pinot Noir, Muscat Ottonel, soleil dobrogéen",w:"Murfatlar"},
-      {ll:[47.5333,26.9250],n:"Cotnari",d:"Vignoble de Moldavie — Grasa de Cotnari (vin de dessert légendaire), cépage autochtone XVe s.",w:"Cotnari"}
-    ],
-    spa:[
-      {ll:[44.0572,28.6411],n:"Eforie Nord",d:"Station balnéaire de la Mer Noire — boues thérapeutiques de la lagune Techirghiol, thalassothérapie",w:"Eforie Nord"},
-      {ll:[44.8742,22.4117],n:"Băile Herculane",d:"Thermes romains (Hercule) — sources 38-60°C, Kaiserbad néo-baroque, gorges des Cernei",w:"Băile Herculane"},
-      {ll:[45.8478,26.1842],n:"Covasna",d:"«Pays des 1000 sources» — eaux bicarbonatées-sodiques, cardioprotectrices, station climatique",w:"Covasna"}
-    ]
-  };
+var iconPalais=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060" stroke="#8a6010" stroke-width="0.4"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030" stroke="#7a5010" stroke-width="0.5"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020" stroke="#7a5010" stroke-width="0.6"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
 
-  /* --- Couches Leaflet --- */
-  const LAYERS = {};
-  Object.keys(DATA).forEach(k=>{
-    const icons = {
-      ville:iconVille,chateau:iconChateau,monastere:iconMonastere,unesco:iconUnesco,
-      nature:iconNature,montagne:iconMontagne,gastro:iconGastro,musee:iconMusee,
-      lac:iconLac,artiste:iconArtiste,grotte:iconGrotte,festival:iconFestival,
-      village:iconVillage,vin:iconVin,spa:iconSpa
-    };
-    LAYERS[k] = L.layerGroup(DATA[k].map(p=>{
-      const wUrl = 'https://fr.m.wikipedia.org/wiki/'+encodeURIComponent(p.w)+'?useskin=vector';
-      return L.marker(p.ll,{icon:icons[k]}).bindPopup(
-        `<div style="font-family:'Cormorant Garamond',serif;min-width:200px;max-width:260px">
-          <div style="font-weight:700;font-size:1.05rem;color:#002B7F;margin-bottom:4px">${p.n}</div>
-          <div style="font-size:.88rem;color:#444;line-height:1.5;margin-bottom:10px">${p.d}</div>
-          <a href="#" onclick="openWiki('${wUrl}','${p.n.replace(/'/g,"\\'")}');return false;"
-             style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#CE1126;text-decoration:none;font-weight:700">
-            📖 Wikipedia →
-          </a>
-        </div>`,{maxWidth:280}
-      );
-    }));
-    LAYERS[k].addTo(map);
+var iconGaudi=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(206,17,38,.85))"><path d="M4 34 L8 20 L12 10 L16 4 L18 2 L20 4 L24 10 L28 20 L32 34 Z" fill="#CE1126" stroke="#8a0010" stroke-width="0.6"/><path d="M8 20 L12 10 L16 4 L18 2 L20 4 L24 10 L28 20" fill="none" stroke="#ffc400" stroke-width="1" opacity="0.8"/><circle cx="18" cy="16" r="4" fill="#ffc400" opacity="0.8"/><path d="M4 34 Q8 28 12 30 Q16 32 18 30 Q20 32 24 30 Q28 28 32 34" fill="none" stroke="#ffc400" stroke-width="1.2" opacity="0.7"/><circle cx="10" cy="26" r="2" fill="#ffc400" opacity="0.6"/><circle cx="26" cy="26" r="2" fill="#ffc400" opacity="0.6"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#ffc400" opacity="0.5"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,80,160,.8))"><rect x="4" y="30" width="28" height="3" fill="#1a3870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="4" y="10" width="28" height="3" fill="#1a3870"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/><circle cx="18" cy="22" r="3" fill="#ffc400" opacity="0.7"/></svg>');
+
+var iconFlamenco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(206,17,38,.9))"><path d="M18 4 Q14 8 12 14 Q10 20 12 26 Q14 32 18 34 Q22 32 24 26 Q26 20 24 14 Q22 8 18 4 Z" fill="#CE1126" stroke="#8a0010" stroke-width="0.7"/><path d="M12 14 Q8 12 6 16 Q8 20 12 20" fill="#e02030" opacity="0.7"/><path d="M24 14 Q28 12 30 16 Q28 20 24 20" fill="#e02030" opacity="0.7"/><path d="M14 26 Q10 28 8 26 Q10 24 14 24" fill="#e02030" opacity="0.6"/><path d="M22 26 Q26 28 28 26 Q26 24 22 24" fill="#e02030" opacity="0.6"/><circle cx="18" cy="10" r="3" fill="#ffc400" opacity="0.9"/><path d="M16 10 Q14 6 16 4" fill="none" stroke="#ffc400" stroke-width="0.8" stroke-linecap="round"/><path d="M20 10 Q22 6 20 4" fill="none" stroke="#ffc400" stroke-width="0.8" stroke-linecap="round"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconPlage=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,160,10,.9))"><path d="M2 26 Q6 20 12 22 Q18 24 24 20 Q30 16 34 20 L34 30 Q28 26 22 28 Q16 30 10 28 Q6 30 2 28 Z" fill="#1a7ab5" stroke="#0a5a95" stroke-width="0.6"/><path d="M2 26 Q8 22 14 24 Q20 26 26 22 Q30 20 34 22" fill="none" stroke="#60b0e0" stroke-width="1.2" opacity="0.7"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M14 18 L20 10" stroke="#e8a020" stroke-width="1.5" stroke-linecap="round"/><path d="M10 20 L14 20 L14 12 L10 14 Z" fill="#e8c060" opacity="0.7"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(180,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="5" rx="0.5" fill="#c9a84c"/><line x1="10" y1="6" x2="10" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="18" y1="4" x2="18" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><line x1="26" y1="6" x2="26" y2="10" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>');
+
+var iconFestival=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(252,209,22,.9))"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#ffc400" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#CE1126" opacity="0.8"/><path d="M8 30 Q12 26 18 28 Q24 26 28 30" fill="none" stroke="#ffc400" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="4" x2="8" y2="8" stroke="#CE1126" stroke-width="1" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="4" x2="28" y2="8" stroke="#CE1126" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a7ab5" opacity="0.8"/><path d="M10 28 Q14 22 18 20 Q22 22 26 28 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="16" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="6" width="8" height="4" rx="0.5" fill="#CE1126"/><path d="M14 6 L18 2 L22 6 Z" fill="#8a0010"/><line x1="18" y1="4" x2="10" y2="0" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/><line x1="18" y1="4" x2="26" y2="0" stroke="#f5ead8" stroke-width="0.8" opacity="0.7"/></svg>');
+
+var iconVolcan=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(200,60,10,.9))"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#e8d8c0" stroke="#c0a880" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f8f0e0"/><path d="M14 4 Q16 2 18 0 Q20 2 22 4" fill="#CE1126" opacity="0.8"/><path d="M14 6 Q16 4 18 3 Q20 4 22 6" fill="none" stroke="#ff4020" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/><path d="M8 26 Q12 24 16 26 Q20 28 24 26 Q28 24 28 28" fill="#1a7ab5" opacity="0.7"/></svg>');
+
+var iconMoschee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(10,80,10,.85))"><path d="M10 18 Q10 12 18 10 Q26 12 26 18 L26 32 L10 32 Z" fill="#2a8a30" stroke="#1a5a20" stroke-width="0.6"/><path d="M14 12 Q14 8 18 6 Q22 8 22 12" fill="#3aaa40" opacity="0.6"/><ellipse cx="18" cy="8" rx="6" ry="8" fill="none" stroke="#2a8a30" stroke-width="1.2"/><line x1="18" y1="1" x2="18" y2="4" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/><path d="M16 2 Q18 0 20 2" fill="#c9a84c" opacity="0.8"/><rect x="14" y="24" width="8" height="8" fill="#1a5a20"/></svg>');
+
+var iconArt=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,40,160,.8))"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0" stroke="#4a2080" stroke-width="0.7"/><rect x="8" y="8" width="20" height="16" rx="0.5" fill="#8050c0" opacity="0.6"/><circle cx="13" cy="14" r="3" fill="#ffc400" opacity="0.8"/><path d="M18 10 Q22 12 24 16 Q22 20 18 20 Q14 20 12 16 Q14 12 18 10" fill="none" stroke="#ffc400" stroke-width="0.8" opacity="0.6"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#4a2080"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#CE1126" stroke="#8a0010" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var iconRomain=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(160,120,20,.8))"><rect x="6" y="28" width="24" height="4" rx="0.5" fill="#8a6010"/><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080" stroke="#b09040" stroke-width="0.4"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>');
+
+
+
+
+var iconMonastere=iconCathedrale;
+var iconVille=iconPalais;
+var iconMontagne=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(80,100,120,.9))"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#d4cfc8" stroke="#909890" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f0ece8"/><path d="M8 26 Q12 24 16 26 Q20 28 24 26 Q28 24 28 28" fill="#1a7ab5" opacity="0.7"/></svg>');
+var iconLac=iconPlage;
+var iconArtiste=iconArt;
+var iconGrotte=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(50,60,80,.9))"><path d="M4 34 L4 14 Q4 6 18 4 Q32 6 32 14 L32 34 Z" fill="#506070" stroke="#304050" stroke-width="0.7"/><path d="M4 14 Q4 6 18 4 Q32 6 32 14 Q26 12 18 14 Q10 12 4 14 Z" fill="#304050"/><line x1="10" y1="14" x2="10" y2="22" stroke="#c9a84c" stroke-width="1" stroke-linecap="round"/><line x1="16" y1="14" x2="16" y2="26" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/><line x1="22" y1="14" x2="22" y2="20" stroke="#c9a84c" stroke-width="0.9" stroke-linecap="round"/><line x1="26" y1="14" x2="26" y2="24" stroke="#c9a84c" stroke-width="0.7" stroke-linecap="round"/></svg>');
+var iconVillage=iconRomain;
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(100,20,40,.9))"><path d="M10 6 Q8 14 10 20 Q12 26 18 28 Q24 26 26 20 Q28 14 26 6 Z" fill="#882244" stroke="#5a1030" stroke-width="0.7"/><path d="M10 6 Q12 12 18 14 Q24 12 26 6 Z" fill="#aa3366" opacity="0.6"/><rect x="16" y="28" width="4" height="6" rx="0.5" fill="#5a1030"/><rect x="12" y="33" width="12" height="2" rx="0.5" fill="#5a1030"/><circle cx="14" cy="16" r="2" fill="#dd6688" opacity="0.5"/></svg>');
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(10,80,120,.8))"><path d="M4 24 Q8 18 14 20 Q18 22 22 20 Q28 18 32 24 L32 32 L4 32 Z" fill="#1a7ab5" opacity="0.85"/><path d="M4 24 Q8 20 14 22 Q18 24 22 22 Q28 20 32 24" fill="none" stroke="#60b0e0" stroke-width="1.2" opacity="0.7"/><path d="M12 16 Q12 12 14 10 Q14 14 16 12 Q16 16 18 14 Q18 18 20 16" fill="none" stroke="#1a7ab5" stroke-width="1.5" stroke-linecap="round"/><path d="M20 16 Q20 12 22 10 Q22 14 24 12 Q24 16 26 14" fill="none" stroke="#1a7ab5" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var DATA={
+  chateau:{icon:iconChateau,color:'#CE1126',label:'🏰 Châteaux & Forteresses',pts:[
+    {lat:45.5132,lng:25.3676,n:"Château de Bran",c:"Bran, Brașov",d:"Forteresse de Dracula (XIVe s.) — 500 000 visiteurs/an, symbole de la Transylvanie.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Bran?useskin=vector"},
+    {lat:45.3597,lng:25.5412,n:"Château de Peleș",c:"Sinaia, Prahova",d:"Joyau néo-Renaissance (1883) de Carol Ier — 160 pièces, vitraux flamands, armurerie royale.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Peleș?useskin=vector"},
+    {lat:45.7483,lng:22.8903,n:"Château de Corvin",c:"Hunedoara",d:"Forteresse gothique des Hunyadi (1446) — pont-levis, salle des Chevaliers, cachot de Vlad.",u:"https://fr.m.wikipedia.org/wiki/Château_de_Corvin?useskin=vector"},
+    {lat:46.0673,lng:23.5800,n:"Citadelle d'Alba Iulia",c:"Alba Iulia, Alba",d:"Forteresse en étoile à 7 bastions (XVIIIe s.) — lieu de la Grande Union du 1er décembre 1918.",u:"https://fr.m.wikipedia.org/wiki/Alba_Iulia?useskin=vector"}
+  ]},
+  monastere:{icon:iconMonastere,color:'#604080',label:'⛪ Monastères Peints',pts:[
+    {lat:47.5201,lng:25.8719,n:"Monastère de Voroneț",c:"Gura Humorului, Suceava",d:"UNESCO 1993. La Sixtine de l'Est (1488) — fresques au bleu unique, Jugement Dernier magistral.",u:"https://fr.m.wikipedia.org/wiki/Église_de_Voroneț?useskin=vector"},
+    {lat:47.7811,lng:25.7394,n:"Monastère de Sucevița",c:"Sucevița, Suceava",d:"UNESCO 1993. Monastère-forteresse du XVIe s. — Échelle de la Vertu, fresques aux couleurs intactes.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Sucevița?useskin=vector"},
+    {lat:47.6661,lng:25.5439,n:"Monastère de Moldovița",c:"Vatra Moldoviței, Suceava",d:"UNESCO 1993. Fondé par Petru Rareș (1532) — fresques ocre-jaune, Siège de Vienne représenté.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Moldovița?useskin=vector"},
+    {lat:45.1711,lng:23.9889,n:"Monastère de Horezu",c:"Horezu, Vâlcea",d:"UNESCO 1993. Chef-d'œuvre brâncovenesc (1690), sculptures de pierre ciselée extraordinaires.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Horezu?useskin=vector"},
+    {lat:45.1394,lng:24.6714,n:"Monastère de Curtea de Argeș",c:"Curtea de Argeș, Argeș",d:"Art valaque du XVIe s. — légende de Manole, nécropole royale, clochers torsadés uniques.",u:"https://fr.m.wikipedia.org/wiki/Monastère_de_Curtea_de_Argeș?useskin=vector"}
+  ]},
+  ville:{icon:iconVille,color:'#c8a020',label:'🏛️ Villes Historiques',pts:[
+    {lat:44.4268,lng:26.1025,n:"Bucarest",c:"Bucarest, Ilfov",d:"Capitale — Palais du Parlement (2e plus grand bâtiment du monde), Athénée Roumain, Art Nouveau.",u:"https://fr.m.wikipedia.org/wiki/Bucarest?useskin=vector"},
+    {lat:45.6427,lng:25.5887,n:"Brașov",c:"Brașov",d:"Cœur de Transylvanie — Église Noire (XIVe s.), Place du Conseil baroque, remparts saxons.",u:"https://fr.m.wikipedia.org/wiki/Brașov?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Sibiu",c:"Sibiu",d:"Capitale Européenne de la Culture 2007 — Grande Place, musée Brukenthal, toits à œil-de-bœuf.",u:"https://fr.m.wikipedia.org/wiki/Sibiu?useskin=vector"},
+    {lat:46.7712,lng:23.6236,n:"Cluj-Napoca",c:"Cluj",d:"Capitale de la Transylvanie — Cathédrale Saint-Michel gothique, TIFF festival de cinéma mondial.",u:"https://fr.m.wikipedia.org/wiki/Cluj-Napoca?useskin=vector"},
+    {lat:45.7489,lng:21.2087,n:"Timișoara",c:"Timiș",d:"Berceau de la Révolution de 1989 — Place de l'Union baroque, Capitale Européenne de la Culture 2023.",u:"https://fr.m.wikipedia.org/wiki/Timișoara?useskin=vector"},
+    {lat:47.1585,lng:27.6014,n:"Iași",c:"Moldavie",d:"Capitale culturelle — Palais de la Culture (298 salles), Université 1860, ville des 100 clochers.",u:"https://fr.m.wikipedia.org/wiki/Iași?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube",c:"Tulcea, Dobrogea",d:"UNESCO 1991 — 5 800 km², 300 espèces d'oiseaux, pélicans blancs, réserve de biosphère mondiale.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"},
+    {lat:46.2197,lng:24.7912,n:"Sighișoara",c:"Mureș",d:"UNESCO 1999 — cité médiévale saxonne habitée, Tour de l'Horloge, ville natale de Vlad l'Empaleur.",u:"https://fr.m.wikipedia.org/wiki/Sighișoara?useskin=vector"},
+    {lat:46.0700,lng:25.0656,n:"Viscri",c:"Brașov",d:"UNESCO 1993 — église fortifiée saxonne, village restauré par le Roi Charles III d'Angleterre.",u:"https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector"},
+    {lat:46.1356,lng:24.5275,n:"Biertan",c:"Sibiu",d:"UNESCO 1993 — village saxon fortifié, église à 3 enceintes concentriques, porte à 19 verrous.",u:"https://fr.m.wikipedia.org/wiki/Biertan?useskin=vector"},
+    {lat:45.6342,lng:23.3000,n:"Sarmizegetusa Regia",c:"Hunedoara",d:"UNESCO 1999 — capitale sacrée des Daces, sanctuaires circulaires, résistance héroïque face à Trajan.",u:"https://fr.m.wikipedia.org/wiki/Sarmizegetusa_Regia?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:45.3167,lng:22.8333,n:"Parc National du Retezat",c:"Hunedoara, Carpates du Sud",d:"Parc national depuis 1935 — 80 lacs glaciaires, chamois, ours bruns, loups, sommets à 2 500 m.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_du_Retezat?useskin=vector"},
+    {lat:45.5044,lng:25.2297,n:"Piatra Craiului",c:"Zărnești, Brașov",d:"Crête de calcaire blanc sur 25 km — 2 238 m, flore endémique, randonnée au-dessus des nuages.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Piatra_Craiului?useskin=vector"},
+    {lat:46.7750,lng:25.9083,n:"Gorges de Bicaz",c:"Bicaz, Neamț",d:"Parois de 300 m sur 8 km — Cou de l'Enfer, Lac Rouge aux arbres pétrifiés depuis 1837.",u:"https://fr.m.wikipedia.org/wiki/Gorges_de_Bicaz?useskin=vector"},
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube — Faune",c:"Tulcea, Dobrogea",d:"Réserve de biosphère — 45 espèces de poissons, pélicans blancs, cormorans, 300 espèces d'oiseaux.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"}
+  ]},
+  montagne:{icon:iconMontagne,color:'#607080',label:'⛰️ Carpates & Alpinisme',pts:[
+    {lat:45.5973,lng:24.6215,n:"Transfăgărășan",c:"Argeș / Sibiu",d:"Route légendaire à 2 042 m — élue plus belle route du monde par Top Gear, lac de Bâlea.",u:"https://fr.m.wikipedia.org/wiki/Transfăgărășan?useskin=vector"},
+    {lat:45.6000,lng:24.6833,n:"Massif du Făgăraș",c:"Argeș / Sibiu",d:"Toit de la Roumanie — Moldoveanu (2 544 m), randonnées épiques sur la crête des Carpates.",u:"https://fr.m.wikipedia.org/wiki/Massif_du_Făgăraș?useskin=vector"},
+    {lat:45.3644,lng:25.4419,n:"Massif du Bucegi",c:"Prahova",d:"Plateau karstique à 2 500 m — Sphinx et Babele rochers, Crucea Eroilor, station de Sinaia.",u:"https://fr.m.wikipedia.org/wiki/Bucegi?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🍲 Gastronomie Roumaine',pts:[
+    {lat:44.4268,lng:26.1025,n:"Cuisine Nationale — Bucarest",c:"Toute la Roumanie",d:"Mămăligă (polenta), Sarmale (choux farcis), Mici (croquettes épicées), Cozonac, Tuica.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Marchés de Sibiu",c:"Sibiu, Transylvanie",d:"Ciorbe (soupes aigres), toba (pâté de tête), fromage de brebis de Sibiu, produits artisanaux.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"},
+    {lat:47.1585,lng:27.6014,n:"Cuisine Moldave — Iași",c:"Iași, Moldavie",d:"Plăcinte (feuilletés aux fromages), bors au son de blé, piftie (gelée de porc), vin de Cotnari.",u:"https://fr.m.wikipedia.org/wiki/Gastronomie_roumaine?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#2a5ab0',label:'🏛️ Musées & Collections',pts:[
+    {lat:44.4322,lng:26.0972,n:"Musée National d'Art — Bucarest",c:"Bucarest",d:"Galerie Nationale dans l'ancien Palais Royal (1937) — l'art roumain des origines à nos jours.",u:"https://fr.m.wikipedia.org/wiki/Musée_national_d%27art_de_Roumanie?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"Musée Brukenthal",c:"Sibiu",d:"L'un des plus anciens musées d'Europe (1817) — peintures flamandes, œuvres baroques remarquables.",u:"https://fr.m.wikipedia.org/wiki/Musée_Brukenthal?useskin=vector"},
+    {lat:45.7878,lng:24.1467,n:"Musée ASTRA — Ethnographie",c:"Sibiu",d:"Plus grand musée ethnographique en plein air d'Europe — 400 constructions traditionnelles roumaines.",u:"https://fr.m.wikipedia.org/wiki/Musée_ASTRA?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a7ab5',label:'🌊 Lacs & Rivières',pts:[
+    {lat:45.0878,lng:29.3867,n:"Delta du Danube — Canaux",c:"Tulcea, Dobrogea",d:"Réseau de canaux, lagunes et lacs — 5 800 km² de zones humides aux paysages hors du monde.",u:"https://fr.m.wikipedia.org/wiki/Delta_du_Danube?useskin=vector"},
+    {lat:46.7811,lng:25.8281,n:"Lacul Rosu — Lac Rouge",c:"Bicaz, Neamț",d:"Lac formé en 1837 par glissement de terrain — arbres pétrifiés émergent des eaux couleur rouille.",u:"https://fr.m.wikipedia.org/wiki/Lacul_Ro%C8%99u?useskin=vector"},
+    {lat:46.2178,lng:25.8619,n:"Lac Sfânta Ana",c:"Harghita",d:"Seul lac volcanique de Roumanie — cratère du Mont Ciomatu, eaux cristallines, forêt de conifères.",u:"https://fr.m.wikipedia.org/wiki/Lacul_Sf%C3%A2nta_Ana?useskin=vector"}
+  ]},
+  artiste:{icon:iconArtiste,color:'#7040b0',label:'🎨 Artistes & Création',pts:[
+    {lat:45.0433,lng:23.2736,n:"Brâncuși — Târgu Jiu",c:"Târgu Jiu, Gorj",d:"Colonne sans Fin (29 m), Table du Silence, Porte du Baiser (1938) — révolution de la sculpture.",u:"https://fr.m.wikipedia.org/wiki/Constantin_Br%C3%A2ncu%C8%99i?useskin=vector"},
+    {lat:47.4778,lng:26.6167,n:"George Enescu — Liveni",c:"Liveni, Botoșani",d:"Maison natale (1881) du génie musical roumain — Rhapsodies Roumaines, Festival Enescu.",u:"https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector"},
+    {lat:44.4268,lng:26.1025,n:"Palais Cantacuzino — Musée Enescu",c:"Bucarest",d:"Palais Belle Époque (1901) abritant le Musée George Enescu — collections, archives, concerts.",u:"https://fr.m.wikipedia.org/wiki/George_Enescu?useskin=vector"}
+  ]},
+  grotte:{icon:iconGrotte,color:'#506070',label:'Grottes & Karst',pts:[
+    {lat:46.4833,lng:22.8333,n:"Grotte de Scărisoara",c:"Arieșeni, Alba",d:"2e glacier souterrain du monde — 75 000 m³ de glace vieille de 3 500 ans, descente de 48 m.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Sc%C4%83ri%C8%99oara?useskin=vector"},
+    {lat:46.4878,lng:22.3806,n:"Grotte des Ours — Chișcău",c:"Bihor",d:"Formations de calcite uniques — stalactites en forme d'ours, cristaux d'aragonite spectaculaires.",u:"https://fr.m.wikipedia.org/wiki/Grotte_des_ours_(Roumanie)?useskin=vector"},
+    {lat:45.3067,lng:23.7578,n:"Pestera Muierilor",c:"Baia de Fier, Gorj",d:"Stalactites et stalagmites géants, ossements préhistoriques découverts, visite touristique aménagée.",u:"https://fr.m.wikipedia.org/wiki/Grotte_de_Muierilor?useskin=vector"}
+  ]},
+  festival:{icon:iconFestival,color:'#ffc400',label:'Festivals & Événements',pts:[
+    {lat:46.7712,lng:23.6236,n:"TIFF — Festival du Film",c:"Cluj-Napoca, Cluj",d:"Festival International du Film de Transylvanie — plus grand festival de cinéma d'Europe de l'Est.",u:"https://fr.m.wikipedia.org/wiki/Festival_international_du_film_de_Transylvanie?useskin=vector"},
+    {lat:46.8794,lng:23.8789,n:"Electric Castle — Bontida",c:"Bontida, Cluj",d:"Festival de musique dans le château de Bontida (XVIe s.) — 250 000 visiteurs, ambiance unique.",u:"https://fr.m.wikipedia.org/wiki/Electric_Castle?useskin=vector"},
+    {lat:45.7983,lng:24.1256,n:"FITS — Festival de Théâtre",c:"Sibiu",d:"Festival International de Théâtre de Sibiu — l'un des plus grands festivals de théâtre du monde.",u:"https://fr.m.wikipedia.org/wiki/Festival_international_de_th%C3%A9%C3%A2tre_de_Sibiu?useskin=vector"}
+  ]},
+  village:{icon:iconVillage,color:'#b47814',label:'Villages Traditionnels',pts:[
+    {lat:46.0700,lng:25.0656,n:"Viscri",c:"Brașov",d:"Village saxon du XIIe s. restauré par le Roi Charles — maisons colorées, ruelles pavées, artisans.",u:"https://fr.m.wikipedia.org/wiki/Viscri?useskin=vector"},
+    {lat:46.4561,lng:23.5989,n:"Rimetea",c:"Alba",d:"Village hongrois de Transylvanie aux maisons blanches immaculées — cadre de montagne saisissant.",u:"https://fr.m.wikipedia.org/wiki/Rimetea?useskin=vector"},
+    {lat:47.9400,lng:23.8014,n:"Maramures — Villages en Bois",c:"Maramures",d:"Région ethnographique exceptionnelle — maisons en bois du XVIIe s., cimetière joyeux de Sapânta.",u:"https://fr.m.wikipedia.org/wiki/Maramure%C8%99?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#882244',label:'Vins & Vignobles',pts:[
+    {lat:45.1667,lng:26.7333,n:"Dealu Mare",c:"Prahova / Buzău",d:"1re région viticole de Roumanie — Feteasca Neagra, Cabernet, Merlot, vignobles pré-carpathiques.",u:"https://fr.m.wikipedia.org/wiki/Vignoble_de_Dealu_Mare?useskin=vector"},
+    {lat:44.1731,lng:28.4056,n:"Murfatlar",c:"Constanta, Dobrogea",d:"Vignoble de la Mer Noire — Chardonnay, Pinot Noir, Muscat Ottonel, soleil dobrogéen.",u:"https://fr.m.wikipedia.org/wiki/Murfatlar?useskin=vector"},
+    {lat:47.5333,lng:26.9250,n:"Cotnari",c:"Iași, Moldavie",d:"Grasa de Cotnari — vin de dessert légendaire, cépage autochtone du XVe s., perle de Moldavie.",u:"https://fr.m.wikipedia.org/wiki/Cotnari?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1a9ab5',label:'Thermalisme & Mer Noire',pts:[
+    {lat:44.8742,lng:22.4117,n:"Băile Herculane",c:"Caraș-Severin",d:"Thermes romains (sources 38-60°C) — Kaiserbad néo-baroque de l'Empereur François-Joseph.",u:"https://fr.m.wikipedia.org/wiki/B%C4%83ile_Herculane?useskin=vector"},
+    {lat:44.0572,lng:28.6411,n:"Eforie Nord — Mer Noire",c:"Constanta, Dobrogea",d:"Station balnéaire — boues thérapeutiques de la lagune Techirghiol, thalassothérapie.",u:"https://fr.m.wikipedia.org/wiki/Eforie_Nord?useskin=vector"},
+    {lat:45.8478,lng:26.1842,n:"Covasna",c:"Covasna",d:"Pays des 1000 sources — eaux bicarbonatées cardioprotectrices, station climatique d'altitude.",u:"https://fr.m.wikipedia.org/wiki/Covasna?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#CE1126\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
   });
+  groups[cat].addTo(map);
+});
 
-  /* --- Panneau filtres --- */
-  const ROWS = [
-    {k:'ville',    emoji:'🏛', label:'Villes Historiques', count:6},
-    {k:'chateau',  emoji:'🏰', label:'Châteaux & Forteresses', count:4},
-    {k:'monastere',emoji:'⛪', label:'Monastères Peints', count:5},
-    {k:'unesco',   emoji:'⭐', label:'Sites UNESCO', count:5},
-    {k:'nature',   emoji:'🌿', label:'Parcs & Nature', count:4},
-    {k:'montagne', emoji:'⛰', label:'Carpates & Alpinisme', count:3},
-    {k:'gastro',   emoji:'🍲', label:'Gastronomie', count:3},
-    {k:'musee',    emoji:'🖼', label:'Musées & Collections', count:3},
-    {k:'lac',      emoji:'🌊', label:'Lacs & Rivières', count:3},
-    {k:'artiste',  emoji:'🎨', label:'Artistes & Création', count:3},
-    {k:'grotte',   emoji:'🦇', label:'Grottes & Karst', count:3},
-    {k:'festival', emoji:'🎪', label:'Festivals & Événements', count:3},
-    {k:'village',  emoji:'🏡', label:'Villages Traditionnels', count:3},
-    {k:'vin',      emoji:'🍷', label:'Vins & Vignobles', count:3},
-    {k:'spa',      emoji:'♨', label:'Thermalisme & Mer Noire', count:3}
-  ];
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
 
-  const panel = L.control({position:'topright'});
-  panel.onAdd = function(){
-    const d = L.DomUtil.create('div');
-    d.style.cssText='background:rgba(2,4,8,.92);border:1px solid rgba(206,17,38,.35);border-radius:4px;padding:10px 12px;min-width:220px;max-height:82vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,.6);';
-    d.innerHTML=`<div style="font-family:'Cormorant Garamond',serif;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:#e8c97a;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-      <span>📍 Filtres · 15 catégories</span>
-      <button onclick="toggleAll(this)" style="background:rgba(206,17,38,.2);border:1px solid rgba(206,17,38,.4);color:#e8c97a;font-size:.6rem;letter-spacing:.1em;cursor:pointer;padding:2px 7px;border-radius:2px;">TOUT</button>
-    </div>`+
-    ROWS.map(r=>`
-      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:4px 0;font-family:'Cormorant Garamond',serif;font-size:.82rem;color:#f5ead8;border-bottom:1px solid rgba(206,17,38,.08);">
-        <input type="checkbox" checked data-k="${r.k}" style="accent-color:#CE1126;width:13px;height:13px;" onchange="toggleLayer('${r.k}',this.checked)">
-        <span style="font-size:.95rem">${r.emoji}</span>
-        <span style="flex:1">${r.label}</span>
-        <span style="font-size:.7rem;color:#e8c97a;opacity:.7">${r.count}</span>
-      </label>`).join('');
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'chateau',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#CE1126"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#d42030"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#d42030"/><rect x="6" y="8" width="2" height="4" fill="#d42030"/><rect x="9" y="8" width="2" height="4" fill="#d42030"/></svg>',  label:'Châteaux &amp; Forteresses',  count:4},
+      {cat:'monastere',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="16" y="1" width="4" height="22" rx="1" fill="#6040a0"/><rect x="8" y="10" width="20" height="5" rx="1" fill="#8060c0"/><path d="M18 1 L14 10 L22 10 Z" fill="#4a2880"/><rect x="7" y="28" width="22" height="5" rx="1" fill="#4a2880"/></svg>',  label:'Monastères Peints',            count:5},
+      {cat:'ville',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>',  label:'Villes Historiques',           count:6},
+      {cat:'unesco',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>',  label:'Sites UNESCO',                 count:5},
+      {cat:'nature',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>',  label:'Parcs &amp; Nature',           count:4},
+      {cat:'montagne',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 32 Q6 24 12 20 L18 8 L24 20 Q30 24 34 32 Z" fill="#d4cfc8" stroke="#909890" stroke-width="0.6"/><path d="M14 18 L18 8 L22 18 Q20 16 18 15 Q16 16 14 18 Z" fill="#f0ece8"/></svg>',  label:'Carpates &amp; Alpinisme',     count:3},
+      {cat:'gastro',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>',  label:'Gastronomie Roumaine',         count:3},
+      {cat:'musee',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#2a5ab0"/><path d="M18 3 L4 10 L32 10 Z" fill="#0a2060"/></svg>',  label:'Musées &amp; Collections',     count:3},
+      {cat:'lac',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a7ab5"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/></svg>',  label:'Lacs &amp; Rivières',          count:3},
+      {cat:'artiste',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="20" rx="1" fill="#7040b0"/><circle cx="13" cy="14" r="3" fill="#ffc400" opacity="0.8"/><rect x="8" y="26" width="20" height="4" rx="0.5" fill="#4a2080"/></svg>',  label:'Artistes &amp; Création',      count:3},
+      {cat:'grotte',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 34 L4 14 Q4 6 18 4 Q32 6 32 14 L32 34 Z" fill="#506070" stroke="#304050" stroke-width="0.7"/><path d="M4 14 Q4 6 18 4 Q32 6 32 14 Q26 12 18 14 Q10 12 4 14 Z" fill="#304050"/></svg>',  label:'Grottes &amp; Karst',          count:3},
+      {cat:'festival',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M18 4 L20 12 L28 12 L22 18 L24 26 L18 22 L12 26 L14 18 L8 12 L16 12 Z" fill="#ffc400" stroke="#c8a000" stroke-width="0.7"/><circle cx="18" cy="16" r="4" fill="#CE1126" opacity="0.8"/></svg>',  label:'Festivals &amp; Événements',   count:3},
+      {cat:'village',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>',  label:'Villages Traditionnels',       count:3},
+      {cat:'vin',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M10 6 Q8 14 10 20 Q12 26 18 28 Q24 26 26 20 Q28 14 26 6 Z" fill="#882244" stroke="#5a1030" stroke-width="0.7"/><path d="M10 6 Q12 12 18 14 Q24 12 26 6 Z" fill="#aa3366" opacity="0.6"/><rect x="16" y="28" width="4" height="6" rx="0.5" fill="#5a1030"/></svg>',  label:'Vins &amp; Vignobles',         count:3},
+      {cat:'spa',        svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M4 24 Q8 18 14 20 Q18 22 22 20 Q28 18 32 24 L32 32 L4 32 Z" fill="#1a7ab5" opacity="0.85"/><path d="M12 16 Q12 12 14 10 Q14 14 16 12 Q16 16 18 14 Q18 18 20 16" fill="none" stroke="#1a7ab5" stroke-width="1.5" stroke-linecap="round"/></svg>',  label:'Thermalisme &amp; Mer Noire',  count:3}
+    ];
+
+
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 15 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#CE1126 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#CE1126;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#020408;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#CE1126;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
     L.DomEvent.disableClickPropagation(d);
     L.DomEvent.disableScrollPropagation(d);
     return d;
-  };
-  panel.addTo(map);
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
 
-  /* --- Sélecteur de tuiles --- */
-  const tileSel = L.control({position:'topright'});
-  tileSel.onAdd=function(){
-    const d=L.DomUtil.create('div');
-    d.style.cssText='display:flex;gap:4px;margin-bottom:6px;';
-    [['🌑 Nuit','dark'],['🗻 Topo','topo'],['🛰 Satellite','sat']].forEach(([lbl,key])=>{
-      const b=document.createElement('button');
-      b.textContent=lbl;
-      b.style.cssText='background:rgba(2,4,8,.9);border:1px solid rgba(206,17,38,.4);color:#e8c97a;font-size:.65rem;cursor:pointer;padding:4px 8px;border-radius:2px;white-space:nowrap;font-family:"Cormorant Garamond",serif;';
-      b.onclick=function(){map.removeLayer(TILES.dark);map.removeLayer(TILES.topo);map.removeLayer(TILES.sat);map.addLayer(TILES[key]);};
-      d.appendChild(b);
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'COULEURS', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#e8a0a0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#ff8c42','Belgium':'#ffd966',
+  'Luxembourg':'#c9a0dc','Switzerland':'#ff6b6b','Austria':'#a8d8a8','Czech Republic':'#87ceeb',
+  'Czechia':'#87ceeb','Slovakia':'#dda0dd','Hungary':'#98fb98','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#87cefa','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f0c8c8','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+var FR_NAMES={"Germany":"Allemagne","France":"France","Poland":"Pologne","Italy":"Italie","Spain":"Espagne","Portugal":"Portugal","Netherlands":"Pays-Bas","Belgium":"Belgique","Luxembourg":"Luxembourg","Switzerland":"Suisse","Austria":"Autriche","Czech Republic":"Tch\u00e9quie","Czechia":"Tch\u00e9quie","Slovakia":"Slovaquie","Hungary":"Hongrie","Romania":"Roumanie","Bulgaria":"Bulgarie","Croatia":"Croatie","Slovenia":"Slov\u00e9nie","Serbia":"Serbie","Republic of Serbia":"Serbie","Bosnia and Herzegovina":"Bosnie-Herz\u00e9govine","Montenegro":"Mont\u00e9n\u00e9gro","Albania":"Albanie","North Macedonia":"Mac\u00e9doine du Nord","Republic of North Macedonia":"Mac\u00e9doine du Nord","Greece":"Gr\u00e8ce","Turkey":"Turquie","Ukraine":"Ukraine","Moldova":"Moldavie","Republic of Moldova":"Moldavie","Belarus":"Bi\u00e9lorussie","Lithuania":"Lituanie","Latvia":"Lettonie","Estonia":"Estonie","Finland":"Finlande","Sweden":"Su\u00e8de","Norway":"Norv\u00e8ge","Denmark":"Danemark","Iceland":"Islande","Ireland":"Irlande","United Kingdom":"Royaume-Uni","Russia":"Russie","Kosovo":"Kosovo","Republic of Kosovo":"Kosovo","Andorra":"Andorre","Monaco":"Monaco","Liechtenstein":"Liechtenstein","San Marino":"Saint-Marin","Vatican City":"Vatican","Malta":"Malte","Cyprus":"Chypre"};
+var COUNTRY_INFO={'Germany':{cap:'Berlin',pop:'84 M hab.',popCap:'3,7 M hab.'},'France':{cap:'Paris',pop:'68 M hab.',popCap:'2,1 M hab.'},'Poland':{cap:'Varsovie',pop:'38 M hab.',popCap:'1,8 M hab.'},'Italy':{cap:'Rome',pop:'59 M hab.',popCap:'2,8 M hab.'},'Spain':{cap:'Madrid',pop:'47 M hab.',popCap:'3,3 M hab.'},'Portugal':{cap:'Lisbonne',pop:'10 M hab.',popCap:'505 000 hab.'},'Netherlands':{cap:'Amsterdam',pop:'17 M hab.',popCap:'930 000 hab.'},'Belgium':{cap:'Bruxelles',pop:'11 M hab.',popCap:'1,2 M hab.'},'Luxembourg':{cap:'Luxembourg',pop:'660 000 hab.',popCap:'128 000 hab.'},'Switzerland':{cap:'Berne',pop:'8,7 M hab.',popCap:'134 000 hab.'},'Austria':{cap:'Vienne',pop:'9 M hab.',popCap:'1,9 M hab.'},'Czech Republic':{cap:'Prague',pop:'10,9 M hab.',popCap:'1,3 M hab.'},'Czechia':{cap:'Prague',pop:'10,9 M hab.',popCap:'1,3 M hab.'},'Slovakia':{cap:'Bratislava',pop:'5,5 M hab.',popCap:'480 000 hab.'},'Hungary':{cap:'Budapest',pop:'9,7 M hab.',popCap:'1,7 M hab.'},'Romania':{cap:'Bucarest',pop:'19 M hab.',popCap:'1,8 M hab.'},'Bulgaria':{cap:'Sofia',pop:'6,5 M hab.',popCap:'1,2 M hab.'},'Croatia':{cap:'Zagreb',pop:'3,9 M hab.',popCap:'810 000 hab.'},'Slovenia':{cap:'Ljubljana',pop:'2,1 M hab.',popCap:'295 000 hab.'},'Serbia':{cap:'Belgrade',pop:'6,8 M hab.',popCap:'1,7 M hab.'},'Republic of Serbia':{cap:'Belgrade',pop:'6,8 M hab.',popCap:'1,7 M hab.'},'Bosnia and Herzegovina':{cap:'Sarajevo',pop:'3,3 M hab.',popCap:'275 000 hab.'},'Montenegro':{cap:'Podgorica',pop:'620 000 hab.',popCap:'157 000 hab.'},'Albania':{cap:'Tirana',pop:'2,8 M hab.',popCap:'900 000 hab.'},'North Macedonia':{cap:'Skopje',pop:'1,8 M hab.',popCap:'540 000 hab.'},'Republic of North Macedonia':{cap:'Skopje',pop:'1,8 M hab.',popCap:'540 000 hab.'},'Greece':{cap:'Ath\u00e8nes',pop:'10,4 M hab.',popCap:'660 000 hab.'},'Turkey':{cap:'Ankara',pop:'85 M hab.',popCap:'5,6 M hab.'},'Ukraine':{cap:'Kyiv',pop:'43 M hab.',popCap:'2,9 M hab.'},'Moldova':{cap:'Chisinau',pop:'2,6 M hab.',popCap:'490 000 hab.'},'Republic of Moldova':{cap:'Chisinau',pop:'2,6 M hab.',popCap:'490 000 hab.'},'Belarus':{cap:'Minsk',pop:'9,4 M hab.',popCap:'1,9 M hab.'},'Lithuania':{cap:'Vilnius',pop:'2,8 M hab.',popCap:'580 000 hab.'},'Latvia':{cap:'Riga',pop:'1,8 M hab.',popCap:'600 000 hab.'},'Estonia':{cap:'Tallinn',pop:'1,4 M hab.',popCap:'455 000 hab.'},'Finland':{cap:'Helsinki',pop:'5,6 M hab.',popCap:'660 000 hab.'},'Sweden':{cap:'Stockholm',pop:'10,5 M hab.',popCap:'975 000 hab.'},'Norway':{cap:'Oslo',pop:'5,5 M hab.',popCap:'700 000 hab.'},'Denmark':{cap:'Copenhague',pop:'5,9 M hab.',popCap:'794 000 hab.'},'Iceland':{cap:'Reykjavik',pop:'370 000 hab.',popCap:'135 000 hab.'},'Ireland':{cap:'Dublin',pop:'5,1 M hab.',popCap:'1,2 M hab.'},'United Kingdom':{cap:'Londres',pop:'67 M hab.',popCap:'9,0 M hab.'},'Russia':{cap:'Moscou',pop:'144 M hab.',popCap:'12,5 M hab.'},'Kosovo':{cap:'Pristina',pop:'1,8 M hab.',popCap:'210 000 hab.'},'Republic of Kosovo':{cap:'Pristina',pop:'1,8 M hab.',popCap:'210 000 hab.'},'Andorra':{cap:'Andorre-la-Vieille',pop:'77 000 hab.',popCap:'22 000 hab.'},'Monaco':{cap:'Monaco',pop:'36 000 hab.',popCap:'36 000 hab.'},'Liechtenstein':{cap:'Vaduz',pop:'38 000 hab.',popCap:'5 500 hab.'},'San Marino':{cap:'Saint-Marin',pop:'34 000 hab.',popCap:'4 500 hab.'},'Vatican City':{cap:'Vatican',pop:'800 hab.',popCap:'800 hab.'},'Malta':{cap:'La Valette',pop:'530 000 hab.',popCap:'6 000 hab.'},'Cyprus':{cap:'Nicosie',pop:'1,2 M hab.',popCap:'310 000 hab.'}};function buildPoliticalLayer(){
+  if(politicalLayer) return;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Republic of Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Republic of North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          var _n=feature.properties.ADMIN||feature.properties.name||'';var _ci=COUNTRY_INFO[_n];var _fr=FR_NAMES[_n]||_n;var _tt='<div class="tt-row"><span class="tt-name">'+_fr+'</span><span class="tt-pop">'+(_ci?_ci.pop:'')+'</span></div>'+(_ci?'<div class="tt-row"><span class="tt-cap">'+_ci.cap+'</span><span class="tt-popcap">'+_ci.popCap+'</span></div>':'');layer.bindTooltip(_tt,{permanent:false,direction:'auto',sticky:true,className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+    }).catch(function(e){console.warn('GeoJSON:',e);});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){currentTile=L.tileLayer(t.url,t.opts).addTo(map);buildPoliticalLayer();if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}}
+  else{currentTile=L.tileLayer(t.url,t.opts).addTo(map);}
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #CE1126';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#ffce00':'transparent')+';'
+        +'background:'+(isActive?'#fff8e8':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fdf5e6\'" onmouseout="if(document.getElementById(\'tb-'+t.id+'\').style.borderLeft!==\'3px solid rgb(255, 206, 0)\')this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="font-size:.82rem;font-weight:700;color:#222;flex:1;">'+t.label+'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
     });
     L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
     return d;
-  };
-  tileSel.addTo(map);
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
 
-  /* --- Fonctions globales --- */
-  window.toggleLayer=function(k,on){on?LAYERS[k].addTo(map):map.removeLayer(LAYERS[k]);};
-  window.toggleAll=function(btn){
-    const cbs=document.querySelectorAll('[data-k]');
-    const anyOff=[...cbs].some(c=>!c.checked);
-    cbs.forEach(c=>{c.checked=anyOff;toggleLayer(c.dataset.k,anyOff);});
-  };
-})();
-
-/* ============================
-   WIKI MODAL
-   ============================ */
-function openWiki(url,title){
-  document.getElementById('wiki-modal-title').textContent=title||'Roumanie';
-  document.getElementById('wiki-modal-frame').src=url;
-  document.getElementById('wiki-modal-google').href='https://www.google.com/search?q='+encodeURIComponent((title||'Roumanie')+' Roumanie');
-  document.getElementById('wiki-banner-google').href='https://www.google.com/search?q='+encodeURIComponent((title||'Roumanie')+' Roumanie');
-  document.getElementById('wiki-modal').classList.add('open');
-  document.getElementById('wiki-error-banner').classList.remove('show');
-  document.getElementById('wiki-modal-frame').onerror=function(){document.getElementById('wiki-error-banner').classList.add('show');};
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
 }
-function closeWiki(){
-  document.getElementById('wiki-modal').classList.remove('open');
-  document.getElementById('wiki-modal-frame').src='';
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWiki();});
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
 
-/* ============================
-   SCROLL REVEAL
-   ============================ */
-(function(){
-  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-})();
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
 </script>
 </body>
 </html>
+
+
+
+
+
