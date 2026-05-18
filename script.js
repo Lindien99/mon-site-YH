@@ -14,6 +14,7 @@ const paysData = [
     { nom: "Pays-Bas",   code: "PAYS-BAS",   iso: "nl" },
     { nom: "Pologne",    code: "POLOGNE",    iso: "pl" },
     { nom: "Portugal",   code: "PORTUGAL",   iso: "pt" },
+    { nom: "Roumanie",   code: "ROUMANIE",   iso: "ro" },
     { nom: "Suède",      code: "SUEDE",      iso: "se" },
     { nom: "Suisse",     code: "SUISSE",     iso: "ch" },
     { nom: "Tchéquie",   code: "TCHEQUIE",   iso: "cz" },
