@@ -2,6 +2,7 @@ const paysData = [
     { nom: "Allemagne",  code: "ALLEMAGNE",  iso: "de" },
     { nom: "Autriche",   code: "AUTRICHE",   iso: "at" },
     { nom: "Belgique",   code: "BELGIQUE",   iso: "be" },
+    { nom: "Croatie",    code: "CROATIE",    iso: "hr" },
     { nom: "Danemark",   code: "DANEMARK",   iso: "dk" },
     { nom: "Espagne",    code: "ESPAGNE",    iso: "es" },
     { nom: "Finlande",   code: "FINLANDE",   iso: "fi" },

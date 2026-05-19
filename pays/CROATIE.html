@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Croatie — Guide du Voyageur</title>
+  <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels de la Croatie.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --rouge:#FF0000;      /* rouge croate */
+      --blanc:#f8f8f8;
+      --bleu:#0035A0;       /* bleu croate */
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --parchment:#f5ead8;
+      --adriatique:#0a2a4a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#04030a;color:var(--parchment);font-family:'Cormorant Garamond',serif;overflow-x:hidden;}
+
+    .hero{position:relative;min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(255,0,0,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 20% 80%,rgba(0,53,160,.08) 0%,transparent 60%);}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--rouge) 0%,var(--rouge) 33%,var(--blanc) 33%,var(--blanc) 66%,var(--bleu) 66%,var(--bleu) 100%);opacity:.45;}
+    .hero-year{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,9vw,8rem);font-weight:300;
+      color:rgba(255,0,0,.05);letter-spacing:.1em;position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;}
+    .hero-eyebrow{font-size:clamp(.65rem,2vw,.85rem);letter-spacing:.35em;text-transform:uppercase;
+      color:var(--gold-light);margin-bottom:28px;position:relative;animation:fadeUp 1s ease both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'✦';margin:0 16px;opacity:.6;font-size:.6em;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,5rem);font-weight:900;
+      line-height:1.05;color:var(--parchment);position:relative;animation:fadeUp 1s .15s ease both;max-width:800px;}
+    .hero-title em{font-style:italic;color:var(--gold-light);}
+    .hero-subtitle{margin-top:24px;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;
+      color:rgba(245,234,216,.6);letter-spacing:.05em;position:relative;animation:fadeUp 1s .3s ease both;}
+    .hero-divider{width:120px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:36px auto;position:relative;animation:fadeIn 1.5s .5s ease both;}
+    .hero-intro{max-width:600px;font-size:clamp(.95rem,2vw,1.15rem);line-height:1.9;
+      color:rgba(245,234,216,.75);position:relative;animation:fadeUp 1s .45s ease both;}
+    .hero-stats{display:flex;gap:48px;margin-top:48px;position:relative;
+      animation:fadeUp 1s .6s ease both;flex-wrap:wrap;justify-content:center;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,216,.45);margin-top:6px;}
+    .symbol-hero{display:flex;justify-content:center;margin:32px 0 8px;animation:fadeIn 2s .8s ease both;opacity:0;}
+
+    .section-header{text-align:center;padding:40px 20px 32px;}
+    .section-tag{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--parchment);}
+
+    .map-section{padding:0 20px 80px;}
+    .map-container{max-width:1100px;margin:0 auto;border:1px solid rgba(255,0,0,.25);
+      border-radius:4px;overflow:visible;box-shadow:0 0 80px rgba(255,0,0,.08);}
+    .leaflet-control-zoom{touch-action:none !important;}
+    .leaflet-control-zoom a{touch-action:none !important;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+    .leaflet-touch .leaflet-control-zoom a{width:38px !important;height:38px !important;line-height:38px !important;font-size:20px !important;}
+    .leaflet-top.leaflet-right{display:flex !important;flex-direction:column !important;align-items:flex-end !important;}
+    .leaflet-top.leaflet-right .leaflet-control-zoom{order:10 !important;}
+    #leaflet-map{width:100%;height:710px;display:block;}
+    .country-tooltip{background:rgba(8,14,35,.95);border:1.5px solid rgba(255,0,0,.5);border-radius:6px;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;padding:8px 13px;box-shadow:0 4px 14px rgba(0,0,0,.6);white-space:nowrap;}
+    .country-tooltip::before{display:none;}
+
+    .monuments-section{padding:0 20px 100px;}
+    .monuments-grid{max-width:1100px;margin:0 auto;display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+    .monument-card{position:relative;background:rgba(245,234,216,.02);
+      border:1px solid rgba(255,0,0,.12);padding:36px 32px;
+      transition:all .35s ease;overflow:hidden;text-decoration:none;color:inherit;display:block;}
+    .monument-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--rouge),var(--gold),var(--bleu));
+      transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .monument-card:hover{background:rgba(255,0,0,.03);border-color:rgba(200,160,10,.22);transform:translateY(-2px);}
+    .monument-card:hover::after{transform:scaleX(1);}
+    .card-number{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;
+      color:rgba(255,0,0,.08);line-height:1;position:absolute;top:20px;right:24px;}
+    .card-city{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;
+      line-height:1.3;color:var(--parchment);margin-bottom:16px;}
+    .card-context{font-size:.9rem;line-height:1.75;color:rgba(245,234,216,.55);font-style:italic;}
+    .card-footer{margin-top:24px;}
+    .card-link{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);
+      text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .card-link svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+
+    .timeline-section{padding:0 20px 100px;max-width:900px;margin:0 auto;}
+    .timeline{position:relative;padding-left:60px;}
+    .timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;
+      background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);opacity:.3;}
+    .timeline-item{position:relative;margin-bottom:48px;}
+    .timeline-dot{position:absolute;left:-48px;top:4px;width:10px;height:10px;border-radius:50%;
+      background:var(--rouge);box-shadow:0 0 12px rgba(255,0,0,.4);}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+    .timeline-event{font-size:1rem;line-height:1.8;color:rgba(245,234,216,.7);}
+    .timeline-event strong{color:var(--parchment);font-weight:600;}
+
+    footer{border-top:1px solid rgba(255,0,0,.2);padding:48px 20px;text-align:center;}
+    .footer-crest{font-size:2.5rem;margin-bottom:16px;opacity:.4;}
+    .footer-text{font-size:.8rem;letter-spacing:.2em;color:rgba(245,234,216,.3);text-transform:uppercase;}
+    .footer-text span{color:var(--gold-light);opacity:.6;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    @media(max-width:640px){
+      .hero-stats{gap:28px}.monuments-grid{grid-template-columns:1fr}
+      #leaflet-map{height:550px}.timeline{padding-left:40px}.timeline-dot{left:-30px}
+    }
+    #wiki-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center;}
+    #wiki-modal.open{display:flex;}
+    #wiki-modal-box{position:relative;width:min(94vw,960px);height:min(90vh,800px);background:#fff;
+      border:1px solid rgba(255,0,0,.3);border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.7);
+      display:flex;flex-direction:column;overflow:hidden;}
+    #wiki-modal-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+      background:#04030a;border-bottom:1px solid rgba(255,0,0,.3);flex-shrink:0;}
+    #wiki-modal-title{font-family:'Cormorant Garamond',serif;font-size:.85rem;letter-spacing:.1em;
+      color:var(--gold-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;}
+    #wiki-modal-actions{display:flex;gap:8px;flex-shrink:0;}
+    #wiki-modal-google{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#fff;
+      text-decoration:none;padding:5px 14px;background:#4285f4;border:1px solid #4285f4;
+      border-radius:3px;font-weight:700;transition:background .2s;}
+    #wiki-modal-google:hover{background:#2b6fdc;border-color:#2b6fdc;}
+    #wiki-modal-close{background:var(--rouge);border:1px solid #aa0000;border-radius:3px;
+      color:#fff;font-family:'Cormorant Garamond',serif;font-size:.75rem;letter-spacing:.15em;
+      text-transform:uppercase;font-weight:800;line-height:1;cursor:pointer;padding:6px 14px;
+      transition:background .2s,border-color .2s;}
+    #wiki-modal-close:hover{background:#cc0000;border-color:#cc0000;}
+    #wiki-modal-frame{flex:1;border:none;width:100%;}
+    #wiki-error-banner{display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 18px;
+      background:rgba(255,0,0,.95);border-top:1px solid rgba(200,160,10,.3);
+      font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--parchment);
+      text-align:center;z-index:10;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+    #wiki-error-banner.show{display:flex;}
+    #wiki-error-banner a{color:var(--gold-light);font-weight:700;text-decoration:underline;cursor:pointer;}
+    #wiki-error-banner a:hover{color:#fff;}
+    @media(max-width:640px){#wiki-modal-box{width:100vw;height:100dvh;border-radius:0;}}
+  </style>
+</head>
+<body>
+
+<div id="wiki-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeWiki()">
+  <div id="wiki-modal-box">
+    <div id="wiki-modal-bar">
+      <span id="wiki-modal-title">Wikipédia</span>
+      <div id="wiki-modal-actions">
+        <a id="wiki-modal-google" href="#" target="_blank" rel="noopener">🔍 Google</a>
+        <button id="wiki-modal-close" onclick="closeWiki()">← RETOUR À LA CARTE</button>
+      </div>
+    </div>
+    <iframe id="wiki-modal-frame" src="" allowfullscreen title="Contenu Wikipédia"></iframe>
+    <div id="wiki-error-banner">
+      ⚠️ Wikipedia ne trouve pas cette page.
+      &nbsp;<a id="wiki-banner-google" href="#" target="_blank" rel="noopener">🔍 Chercher sur Google</a>
+    </div>
+  </div>
+</div>
+<script>
+var _wikiCurrentTitle='';
+function openWiki(url,title){
+  _wikiCurrentTitle=title||'Croatie';
+  var u=url.replace('fr.wikipedia.org','fr.m.wikipedia.org');
+  if(u.indexOf('useskin=')===-1&&u.indexOf('fr.m.wikipedia.org')!==-1)
+    u+=(u.indexOf('?')!==-1?'&':'?')+'useskin=vector';
+  var g='https://www.google.com/search?q='+encodeURIComponent(_wikiCurrentTitle+' Croatie');
+  document.getElementById('wiki-modal-frame').src=u;
+  document.getElementById('wiki-modal-title').textContent=_wikiCurrentTitle;
+  document.getElementById('wiki-modal-google').href=g;
+  document.getElementById('wiki-banner-google').href=g;
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.getElementById('wiki-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  var frame=document.getElementById('wiki-modal-frame');
+  frame.onload=function(){
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var t=doc.title||'';
+      if(t.indexOf('Recherche')!==-1||t.indexOf('non trouvée')!==-1||t.indexOf('Search results')!==-1||t.indexOf('not found')!==-1)
+        document.getElementById('wiki-error-banner').classList.add('show');
+    }catch(e){}
+  };
+}
+function closeWiki(){
+  document.getElementById('wiki-modal').classList.remove('open');
+  document.getElementById('wiki-modal-frame').src='';
+  document.getElementById('wiki-error-banner').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeWiki();});
+</script>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-year">HRVATSKA</div>
+  <div class="hero-eyebrow">Croatie · Guide du Voyageur</div>
+  <h1 class="hero-title">Côte Adriatique,<br>&amp; <em>Perles de Dalmatie</em></h1>
+  <p class="hero-subtitle">Dubrovnik la Perle, lacs de Plitvice, îles dalmates, vieilles villes médiévales &amp; Game of Thrones</p>
+
+  <!-- AIGLE CROATE — damier rouge & blanc, style Léonard de Vinci -->
+  <div class="symbol-hero">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"
+         style="filter:drop-shadow(0 4px 14px rgba(255,0,0,.28))" shape-rendering="geometricPrecision">
+
+      <!-- Corps de l'aigle croate -->
+      <path d="M58 92 Q54 78 58 66 Q64 54 78 50 Q92 48 102 56 Q114 66 112 82 Q108 96 92 102 Q74 108 62 100 Q58 98 58 92 Z"
+            fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <path d="M62 68 Q70 58 80 56 Q92 58 100 68 Q90 62 80 61 Q70 62 62 68 Z" fill="#f0d040" opacity="0.25"/>
+      <path d="M62 78 Q72 73 80 74 Q90 73 98 78" fill="none" stroke="#7a5008" stroke-width="0.55"/>
+      <path d="M60 88 Q70 83 80 84 Q90 83 100 88" fill="none" stroke="#7a5008" stroke-width="0.5"/>
+
+      <!-- Aile gauche -->
+      <path d="M58 78 Q42 72 22 58 Q10 48 6 36 Q10 32 16 36 Q12 42 20 50 Q34 62 52 70 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M58 88 Q38 84 20 78 Q8 72 6 62 Q10 60 16 64 Q14 70 22 74 Q38 80 56 84 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M58 98 Q40 100 22 100 Q10 98 8 90 Q12 88 18 92 Q22 96 34 96 Q48 96 58 96 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <line x1="58" y1="78" x2="8" y2="38" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="58" y1="88" x2="7" y2="63" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="58" y1="98" x2="8" y2="91" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Aile droite -->
+      <path d="M102 78 Q118 72 138 58 Q150 48 154 36 Q150 32 144 36 Q148 42 140 50 Q126 62 108 70 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.7"/>
+      <path d="M102 88 Q122 84 140 78 Q152 72 154 62 Q150 60 144 64 Q146 70 138 74 Q122 80 104 84 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <path d="M102 98 Q120 100 138 100 Q150 98 152 90 Q148 88 142 92 Q138 96 126 96 Q112 96 102 96 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.6"/>
+      <line x1="102" y1="78" x2="152" y2="38" stroke="#6a4008" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="102" y1="88" x2="153" y2="63" stroke="#6a4008" stroke-width="0.45" stroke-linecap="round"/>
+      <line x1="102" y1="98" x2="152" y2="91" stroke="#6a4008" stroke-width="0.4" stroke-linecap="round"/>
+
+      <!-- Tête de l'aigle -->
+      <ellipse cx="80" cy="46" rx="18" ry="14" fill="#c8960a" stroke="#7a5008" stroke-width="0.8"/>
+      <!-- Bec -->
+      <path d="M64 50 Q60 54 58 58 Q62 55 66 52 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <!-- Oeil -->
+      <circle cx="74" cy="42" r="5" fill="#1a0800" stroke="#c8960a" stroke-width="0.7"/>
+      <circle cx="74" cy="42" r="3" fill="#2a1000"/>
+      <circle cx="75.5" cy="40.5" r="1.1" fill="white" opacity="0.8"/>
+
+      <!-- Couronne croate -->
+      <path d="M66 34 L94 34 L92 38 L68 38 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M69 34 Q69 28 72 26 Q74 30 74 34" fill="#c9a84c"/>
+      <path d="M78 34 Q78 26 80 23 Q82 26 82 34" fill="#c9a84c"/>
+      <path d="M87 34 Q87 28 90 26 Q92 30 92 34" fill="#c9a84c"/>
+      <circle cx="80" cy="24" r="2.5" fill="#FF0000" opacity="0.9"/>
+      <circle cx="72" cy="28" r="1.8" fill="#0035A0" opacity="0.85"/>
+      <circle cx="88" cy="28" r="1.8" fill="#0035A0" opacity="0.85"/>
+
+      <!-- Ecu — damier rouge et blanc croate (šahovnica) -->
+      <path d="M68 82 Q68 74 80 72 Q92 74 92 82 Q92 92 80 98 Q68 92 68 82 Z" fill="#ffffff" stroke="#aa0000" stroke-width="0.8"/>
+      <!-- Damier 5x5 croate -->
+      <rect x="68" y="74" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="73" y="74" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="78" y="74" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="83" y="74" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="68" y="78" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="73" y="78" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="78" y="78" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="83" y="78" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="68" y="82" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="73" y="82" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="78" y="82" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="83" y="82" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="68" y="86" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="73" y="86" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+      <rect x="78" y="86" width="5" height="4" fill="#ffffff" stroke="#ddd" stroke-width="0.2"/>
+      <rect x="83" y="86" width="5" height="4" fill="#FF0000" opacity="0.9"/>
+
+      <!-- Serres -->
+      <path d="M66 102 Q60 110 62 116 Q66 116 70 112 Q68 108 66 104 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+      <path d="M94 102 Q100 110 98 116 Q94 116 90 112 Q92 108 94 104 Z" fill="#c9a84c" stroke="#8a6010" stroke-width="0.5"/>
+
+      <!-- Queue -->
+      <path d="M70 106 Q66 116 64 124 Q68 122 72 118 Q74 114 74 110 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M78 108 Q76 118 76 126 Q80 124 80 118 Q80 112 78 108 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+      <path d="M86 106 Q90 116 92 124 Q88 122 84 118 Q82 114 82 110 Z" fill="#b07010" stroke="#7a5008" stroke-width="0.5"/>
+
+      <!-- Annotation Léonard -->
+      <text x="112" y="68" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">Aquila</text>
+      <text x="112" y="76" font-family="'Cormorant Garamond',Georgia,serif" font-size="6.5" fill="#c8960a" opacity="0.5" font-style="italic">croatica</text>
+      <line x1="110" y1="70" x2="106" y2="68" stroke="#c8960a" stroke-width="0.4" opacity="0.4"/>
+
+      <!-- Etoiles -->
+      <circle cx="132" cy="30" r="1.3" fill="#c9a84c" opacity="0.5"/>
+      <circle cx="142" cy="52" r="0.9" fill="#FF0000" opacity="0.4"/>
+      <circle cx="20" cy="122" r="1.1" fill="#0035A0" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="hero-divider"></div>
+  <p class="hero-intro">17 catégories interactives — Dubrovnik la Perle de l'Adriatique, lacs de Plitvice, Split et Dioclétien, îles de Hvar et Brač, vieilles villes médiévales, Šibenik et Trogir UNESCO, gastronomie dalmate, parc national des Kornati, Game of Thrones, vignobles et truffe d'Istrie.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">17</div><div class="stat-label">Catégories</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-label">Monuments</div></div>
+    <div class="stat"><div class="stat-num">10</div><div class="stat-label">Sites UNESCO</div></div>
+    <div class="stat"><div class="stat-num">1 246</div><div class="stat-label">Îles &amp; Îlots</div></div>
+  </div>
+</section>
+
+<div class="section-header reveal">
+  <div class="section-tag">Carte interactive — 17 catégories filtrables</div>
+  <h2 class="section-title">Explorez la Croatie</h2>
+</div>
+<div class="map-section">
+  <div class="map-container"><div id="leaflet-map"></div></div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Romains à l'Indépendance</div>
+  <h2 class="section-title">Les 35 Monuments Historiques</h2>
+</div>
+<div class="monuments-section">
+  <div class="monuments-grid">
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Dubrovnik','Dubrovnik — La Perle de l\'Adriatique')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">01</div><div class="card-city">Dubrovnik, Dalmatie du Sud</div><h3 class="card-name">Dubrovnik — La Perle de l'Adriatique</h3><p class="card-context">UNESCO 1979 — la plus belle ville fortifiée de la Méditerranée. Remparts du XIIIe s. (1 940 m) longeant la mer. "La Liberté n'a pas de prix" — devise de la République de Raguse. Décor de King's Landing dans Game of Thrones. La plus visitée de Croatie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Lacs_de_Plitvice','Lacs de Plitvice')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">02</div><div class="card-city">Plitvice, Lika</div><h3 class="card-name">Lacs de Plitvice</h3><p class="card-context">UNESCO 1979 — le premier site UNESCO de Croatie. 16 lacs en cascade reliés par 92 cascades dans une forêt de hêtres et de sapins. Eau turquoise aux minéraux de calcite. Planches de bois sur l'eau. Le parc naturel le plus visité des Balkans.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Palais_de_Dioclétien','Palais de Dioclétien — Split')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">03</div><div class="card-city">Split, Dalmatie</div><h3 class="card-name">Split &amp; Palais de Dioclétien</h3><p class="card-context">UNESCO 1979 — 3 000 personnes vivent dans un palais romain du IVe s. Le Palais de Dioclétien (305 apr. J.-C.) est le monument romain le mieux préservé du monde après le Colisée. La cathédrale est l'ancien mausolée de l'Empereur romain persécuteur des chrétiens.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Hvar','Île de Hvar')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">04</div><div class="card-city">Hvar, Dalmatie</div><h3 class="card-name">Hvar — L'Île du Soleil</h3><p class="card-context">L'île la plus ensoleillée de Croatie (2 724 h de soleil/an). Vieille ville médiévale — première place publique de Dalmatie (1292). Champs de lavande et de romarin. Vignobles en terrasses. Forteresse espagnole du XVIe s. L'île des célébrités et des yachts.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vieille_ville_de_Šibenik','Cathédrale de Šibenik')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">05</div><div class="card-city">Šibenik, Dalmatie</div><h3 class="card-name">Šibenik — Cathédrale Saint-Jacques</h3><p class="card-context">UNESCO 2000 — la cathédrale gothique-Renaissance de Saint-Jacques (1431–1555), première cathédrale construite entièrement en pierre de taille (sans briques ni mortier). Maître d'oeuvre Giorgio da Sebenico. Décor de Game of Thrones (Braavos).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Trogir','Trogir — Ville Médiévale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">06</div><div class="card-city">Trogir, Dalmatie</div><h3 class="card-name">Trogir — Le Joyau Roman</h3><p class="card-context">UNESCO 1997 — île-ville de 2 300 ans d'histoire continue. Centre médiéval parfaitement préservé — cathédrale romane de Saint-Laurent (XIIIe s.), château Kamerlengo, château Vitturi. L'une des villes les mieux conservées d'Europe. Accessible à pied sec depuis Split.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zagreb','Zagreb — La Capitale')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">07</div><div class="card-city">Zagreb</div><h3 class="card-name">Zagreb — La Capitale Médiévale</h3><p class="card-context">Capitale de la Croatie — ville double de Gradec et Kaptol. Cathédrale de l'Assomption (XIIe s.), ban Jelačić, Musée des relations rompues (unique au monde). Marché Dolac — le plus animé de Croatie. Funiculaire le plus court d'Europe (66 m).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_des_Kornati','Kornati — Archipel Désert')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">08</div><div class="card-city">Kornati, Dalmatie</div><h3 class="card-name">Kornati — L'Archipel des 89 Îles</h3><p class="card-context">Le parc national maritime le plus dense de la Méditerranée — 89 îles, îlots et récifs dans 300 km². "Les dieux ont créé les Kornati le dernier jour et sans eau, terre, verdure et hommes." George Bernard Shaw. Plongée, voile, silence absolu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rovinj','Rovinj — La Perle de l\'Istrie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">09</div><div class="card-city">Rovinj, Istrie</div><h3 class="card-name">Rovinj — La Venise Istrienne</h3><p class="card-context">La ville la plus romantique de l'Istrie — maisons colorées en nid d'abeilles sur une presqu'île. Clocher baroque de Sainte-Euphémie (60 m). Ruelles médiévales labyrinthiques. Ateliers d'artistes. Plongée dans les eaux cristallines. Poulpes séchant aux fenêtres.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Brač','Île de Brač — Zlatni Rat')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">10</div><div class="card-city">Brač, Dalmatie</div><h3 class="card-name">Brač — Zlatni Rat, la Plage en Flèche</h3><p class="card-context">Zlatni Rat (Corne d'Or) — la plus belle plage de Croatie. Flèche de galets blancs qui change de direction selon les vents et les courants. Carrières de pierre blanche de Brač — utilisée pour la Maison Blanche de Washington. Pierre translucide unique au monde.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Krka','Parc National de Krka')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">11</div><div class="card-city">Krka, Dalmatie</div><h3 class="card-name">Krka — Cascades et Baignade</h3><p class="card-context">Parc national de la rivière Krka — 7 cascades dont la spectaculaire Skradinski Buk (800 m de large). Baignade autorisée dans les bassins naturels. Monastère franciscain de Visovac sur une île. Moulin médiéval fonctionnel. La nature dalmate à l'état pur.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Pula','Pula — L\'Amphithéâtre Romain')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">12</div><div class="card-city">Pula, Istrie</div><h3 class="card-name">Pula — L'Arène Romaine</h3><p class="card-context">L'amphithéâtre romain de Pula — l'un des six plus grands du monde (27 000 places, Ier s. apr. J.-C.). Le mieux conservé d'Europe après le Colisée. Concerts de rock en plein air sous les étoiles — Sting, Pavarotti, Morricone. Arc de Triomphe de Serge. Ville romaine à ciel ouvert.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Korčula','Korčula — Île de Marco Polo')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">13</div><div class="card-city">Korčula, Dalmatie</div><h3 class="card-name">Korčula — L'Île de Marco Polo</h3><p class="card-context">Ville médiévale fortifiée sur une presqu'île en forme d'arête de poisson — pour canaliser la brise. Marco Polo y serait né (1254). Maison de Marco Polo. Danses traditionnelles Moreška (spectacle d'épées). Vignobles de Pošip — l'un des meilleurs blancs de Croatie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_des_Brijuni','Brijuni — Les Îles de Tito')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">14</div><div class="card-city">Brijuni, Istrie</div><h3 class="card-name">Brijuni — Le Paradis de Tito</h3><p class="card-context">14 îles parc national — résidence estivale du maréchal Tito. Animaux exotiques offerts par des chefs d'État. Dinosaures fossilisés sur la plage. Safari en voiturette. Vignes et oliviers centenaires. Kaïros — le lieu hors du temps des yachts et des luxes discrets.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Nin_(Croatie)','Nin — Berceau de la Croatie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">15</div><div class="card-city">Nin, Dalmatie du Nord</div><h3 class="card-name">Nin — Le Plus Petit Baptistère du Monde</h3><p class="card-context">La plus petite cathédrale du monde — Église de la Sainte-Croix (IXe s., 10 m²). Couronnement des rois croates. Lagune de sel aux propriétés thérapeutiques (fango). Statue dorée du Bienheureux Jean de Trau. La "Rome croate" de 3 000 ans d'histoire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Zadar','Zadar — Orgue de Mer')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">16</div><div class="card-city">Zadar, Dalmatie du Nord</div><h3 class="card-name">Zadar — L'Orgue de la Mer</h3><p class="card-context">L'Orgue de Mer (Morske Orgulje, 2005) — instrument de musique joué par les vagues. Salutation au Soleil — disque LED alimenté par le soleil. Alfred Hitchcock : "Le plus beau coucher de soleil du monde est à Zadar." Ville romaine entourée de remparts vénitiens.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Vis','Île de Vis — La Plus Reculée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">17</div><div class="card-city">Vis, Dalmatie</div><h3 class="card-name">Vis — L'Île Secrète</h3><p class="card-context">L'île dalmate la plus éloignée — 60 km de Split. Base militaire yougoslave jusqu'en 1989, préservée du tourisme de masse. Grotte Bleue de Biševo. Vins de Vugava (le plus vieux cépage de Croatie). Décor de Mamma Mia 2 (2018). L'île la plus authentique.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Istrie','Truffe d\'Istrie — La Reine')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">18</div><div class="card-city">Motovun, Istrie</div><h3 class="card-name">Istrie — Truffe, Vin et Cuisine</h3><p class="card-context">L'Istrie — la truffe blanche la plus précieuse du monde (jusqu'à 3 000 €/kg). La plus grande truffe blanche jamais trouvée pesait 1,31 kg (Guinness). Vin Malvazija et Teran. Motovun — festival du film dans un village médiéval perché. Huile d'olive primée mondialement.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Paklenica','Paklenica — Escalade et Canyons')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">19</div><div class="card-city">Paklenica, Dalmatie du Nord</div><h3 class="card-name">Paklenica — Canyons des Velebit</h3><p class="card-context">Parc national dans les Alpes Dináriques — deux gorges spectaculaires (Velika et Mala Paklenica) creusées dans les falaises de 400 m. La mecque de l'escalade en Croatie. Tunnel secret de Tito dans la roche. Vue sur la mer depuis le sommet du Vaganski Vrh (1 757 m).</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cavtat','Cavtat — Beauté Cachée')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">20</div><div class="card-city">Cavtat, Dalmatie du Sud</div><h3 class="card-name">Cavtat — La Petite Dubrovnik</h3><p class="card-context">Village médiéval charmant à 20 km de Dubrovnik — sans la foule. Mausolée Račić de l'architecte Ivan Meštrović (1921). Baie protégée aux eaux cristallines. Lieu de naissance du peintre Vlaho Bukovac. Plages cachées accessibles à la nage.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Sinj','Solin — Salona, Rome de la Dalmatie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">21</div><div class="card-city">Solin, Dalmatie</div><h3 class="card-name">Salona — La Rome de Dalmatie</h3><p class="card-context">Salona (Solin) — ancienne capitale romaine de la Dalmatie (60 000 habitants au IIIe s., plus que Split aujourd'hui). Ruines du forum, amphithéâtre, thermes, basiliques. Lieu de naissance de l'Empereur Dioclétien. Les plus grandes ruines romaines de Croatie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Mljet','Mljet — Île du Paradis')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">22</div><div class="card-city">Mljet, Dalmatie du Sud</div><h3 class="card-name">Mljet — L'Île d'Ulysse</h3><p class="card-context">Selon la légende, Ulysse passa 7 ans sur cette île avec la nymphe Calypso. Parc national avec deux lacs salés au coeur de la forêt la plus dense de Croatie. Monastère bénédictin du XIIIe s. sur un îlot. Mangoustes sauvages. Farniente absolu.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Gastronomie_croate','Gastronomie Croate')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">23</div><div class="card-city">Croatie entière</div><h3 class="card-name">Gastronomie — Peka &amp; Crni Rižot</h3><p class="card-context">Peka — viande et légumes cuits sous la cloche en braises. Crni rižot — risotto noir à l'encre de seiche. Prstaci (palourdes) à Vis. Gregada (poisson à l'huile d'olive). Rakija aux herbes. Vin de Plavac Mali (Dingač — meilleur rouge croate). Côté istrienne : fuži aux truffes.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Rivière_Cetina','Cetina — Rafting et Canyons')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">24</div><div class="card-city">Omiš, Dalmatie centrale</div><h3 class="card-name">Omiš — Pirates et Rafting</h3><p class="card-context">La rivière Cetina se jette dans la mer au pied des falaises d'Omiš — ancienne capitale des pirates dalmates redoutés (XIIe-XIVe s.). Rafting dans les gorges. Escalade sur les falaises. Festival de klapa (chant a cappella dalmate). L'aventure au bord de la mer.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Cravate','Cravate — Invention Croate')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">25</div><div class="card-city">Zagreb &amp; le Monde</div><h3 class="card-name">La Cravate — Invention Croate</h3><p class="card-context">La cravate (kravata) est une invention croate — les soldats croates portaient un foulard de soie au XVIIe s. à la bataille de Rocroy (1643). Louis XIV adopta ce foulard, appelé "à la croate" (cravate). Zagreb possède un monument à la cravate. La Croatie a offert la cravate au monde entier.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Varaždin','Varaždin — Baroque du Nord')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">26</div><div class="card-city">Varaždin, Croatie du Nord</div><h3 class="card-name">Varaždin — La Petite Vienne</h3><p class="card-context">L'ancienne capitale de Croatie — baroque du XVIIIe s. parfaitement préservé. Château Stari Grad, palais baroques, rues piétonnes. Festival de musique baroque (Špancirfest). Festival des crânes (Varaždin Dance Week). La ville "oubliée" la plus charmante du nord croate.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Game_of_Thrones','Game of Thrones — Les Décors Croates')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">27</div><div class="card-city">Dubrovnik — Split — Šibenik</div><h3 class="card-name">Game of Thrones — La Croatie de Westeros</h3><p class="card-context">La Croatie accueillit 8 saisons de Game of Thrones. Dubrovnik = King's Landing (remparts, Fort Lovrijenac = Fort de la Main du Roi). Šibenik = Braavos. Split = les Catacombes de Meereen. Klis = Meereen. Lokrum = Qarth. Le tourisme GoT a augmenté de 40% en Croatie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Île_de_Rab','Rab — La Première Plage Naturiste')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">28</div><div class="card-city">Rab, Kvarner</div><h3 class="card-name">Rab — L'Île des Quatre Clochers</h3><p class="card-context">Vieille ville médiévale aux 4 clochers romans. Première plage naturiste officielle du monde (1936) — le roi Edward VIII et Wallis Simpson s'y baignèrent nus avec la bénédiction du maire. Festival de la Lutte de Rab (Rapska fjera). Agneau de Rab — la spécialité nationale.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Parc_national_de_Risnjak','Risnjak — Forêts Primaires')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">29</div><div class="card-city">Risnjak, Primorje-Gorski Kotar</div><h3 class="card-name">Risnjak — Le Toit de Croatie</h3><p class="card-context">Parc national de la montagne Risnjak (1 528 m) — forêts primaires d'épicéas et de hêtres centenaires. Lynx (risnjak = montagne du lynx), ours brun, loup. Neige 8 mois par an. Randonnée dans une nature intacte entre mer et montagne. Le poumon vert de la Croatie.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Osijek','Osijek — La Slavonie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">30</div><div class="card-city">Osijek, Slavonie</div><h3 class="card-name">Osijek — La Perle de Slavonie</h3><p class="card-context">Capitale de la Slavonie sur la Drave — forteresse baroque Tvrđa (XVIIIe s.) parfaitement préservée. Les plaines de Slavonie — le "grenier" de la Croatie. Réserve naturelle de Kopački Rit — l'une des plus grandes zones humides d'Europe. Kulen de Slavonie — saucisse pimentée légendaire.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Vignoble_de_Croatie','Vins de Croatie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">31</div><div class="card-city">Dalmatie &amp; Istrie</div><h3 class="card-name">Vins Croates — Plavac &amp; Malvazija</h3><p class="card-context">La Croatie possède 130 cépages autochtones. Plavac Mali (parent du Zinfandel américain) — Dingač, Postup. Malvazija istriana — blanc minéral. Pošip de Korčula. Plavina, Babić. Des vignes cultivées depuis 2 500 ans par les Grecs anciens. Oenotourisme en plein essor.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Musée_des_relations_rompues','Musée des Relations Rompues')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">32</div><div class="card-city">Zagreb</div><h3 class="card-name">Musée des Relations Rompues</h3><p class="card-context">Le musée le plus original au monde — objets donnés par des gens du monde entier après une rupture amoureuse. "Lettre de toaster", "hache d'ex-mari", "prothèse de jambe". Fondé en 2006 à Zagreb, maintenant à Los Angeles aussi. Prix Kenneth Hudson du musée européen le plus innovant 2011.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Klapa','Klapa — Chant Dalmate')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">33</div><div class="card-city">Dalmatie entière</div><h3 class="card-name">Klapa — Le Chant a Cappella Dalmate</h3><p class="card-context">UNESCO 2012 — la klapa, chant polyphonique dalmate a cappella. Groupes d'hommes (ou de femmes) chantant des chansons d'amour, de mer et de nostalgie. Festival de klapa d'Omiš — le plus grand du monde. L'âme musicale de la Dalmatie depuis le Moyen Age.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Spa_en_Croatie','Thermes de Varaždinske Toplice')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">34</div><div class="card-city">Varaždinske Toplice, Croatie du Nord</div><h3 class="card-name">Varaždinske Toplice — Aquae Iasae</h3><p class="card-context">Station thermale romaine (Aquae Iasae) — sources chaudes utilisées depuis 2 000 ans. Ruines romaines du IIe s. sur le site actuel. Sources à 58°C riches en magnésium. Marcus Aurelius y séjourna. La plus ancienne station thermale de Croatie encore en activité.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+    <div onclick="openWiki('https://fr.m.wikipedia.org/wiki/Golf_en_Croatie','Golf &amp; Resorts en Croatie')" class="monument-card reveal" style="cursor:pointer;"><div class="card-number">35</div><div class="card-city">Dubrovnik — Split — Istrie</div><h3 class="card-name">Golf &amp; Luxe Adriatique</h3><p class="card-context">Golf de Dubrovnik (Kupari) — parcours avec vue sur la mer. Golf Royal Brač sur l'île. Golf d'Istrie — Riviera Golf & Resort. Yachting de luxe dans les îles dalmates. Hôtels 5 étoiles sur les falaises au-dessus de l'Adriatique. Le tourisme de luxe en plein essor.</p><div class="card-footer"><span class="card-link">Wikipédia <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+
+  </div>
+</div>
+
+<div class="section-header reveal">
+  <div class="section-tag">Des Slaves à l'Indépendance</div>
+  <h2 class="section-title">Histoire de la Croatie</h2>
+</div>
+<div class="timeline-section">
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">7e s. — 925</div>
+      <div class="timeline-event"><strong>Arrivée des Croates et Premier Royaume.</strong> Les Croates slaves s'installent dans la région au VIIe s. après les Romains et les Avars. Baptême des Croates et christianisation. Tomislav — premier roi couronné de Croatie (925). Le premier État croate couvre la Dalmatie et la Pannonie. Les remparts et clochers romans naissent.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1102 — 1527</div>
+      <div class="timeline-event"><strong>Union avec la Hongrie et Venise.</strong> Pacte de Klis (1102) — la Croatie s'unit à la Hongrie sous une même couronne. Venise domine graduellement la côte dalmate (1420). Deux siècles de confrontation entre Hongrois (intérieur) et Vénitiens (côte). L'architecture gothique et Renaissance fleurit à Dubrovnik, Trogir, Šibenik.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1527 — 1918</div>
+      <div class="timeline-event"><strong>Habsbourg et Résistance aux Ottomans.</strong> La Croatie choisit les Habsbourg (1527) pour résister à l'expansion ottomane. Siège de Szigetvár (1566) — Nicolas Zrinski meurt en héros. La Croatie — "Rempart de la Chrétienté". Tout au long du XIXe s., le mouvement national illyrien (Gaj, Jelačić) forge l'identité croate moderne.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1918 — 1945</div>
+      <div class="timeline-event"><strong>Yougoslavie et Guerre.</strong> Après la Première Guerre mondiale — création du Royaume des Serbes, Croates et Slovènes (1918). Dictature d'Alexandre Ier. Oustachis au pouvoir sous occupation nazie (1941–1945). Crimes de guerre. Libération par les partisans de Tito (croate-slovène). La Croatie entre dans la Yougoslavie communiste.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1945 — 1991</div>
+      <div class="timeline-event"><strong>La Yougoslavie de Tito.</strong> Josip Broz Tito — dictateur yougoslave né en Croatie. Non-alignement entre Est et Ouest — modèle de la Guerre Froide. Tourisme de masse sur la côte adriatique dès les années 1960. La Croatie — locomotive économique de la Yougoslavie. Mort de Tito (1980) — le pays commence à se fragmenter.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1991 — 1995</div>
+      <div class="timeline-event"><strong>Guerre d'Indépendance.</strong> Déclaration d'indépendance (25 juin 1991). Guerre de Croatie — l'Armée Populaire Yougoslave et les Serbes de Croatie attaquent. Dubrovnik assiégée (1991–1992). Vukovar détruite. Opération Tempête (1995) — libération des territoires occupés. 20 000 morts. Reconnaissance internationale.</div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">1995 — aujourd'hui</div>
+      <div class="timeline-event"><strong>Reconstruction et Europe.</strong> Adhésion à l'OTAN (2009) et à l'Union Européenne (2013 — dernier membre à ce jour). Adoption de l'euro (2023). Coupe du Monde 2018 — la Croatie finaliste avec 4 millions d'habitants (miracle sportif). Tourisme record — 20 millions de visiteurs par an. Dubrovnik surnommée "Disneyland" — problème de surtourisme.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-crest">🇭🇷</div>
+  <p class="footer-text">Guide du Voyageur · Croatie · <span>17 Catégories</span></p>
+  <p class="footer-text" style="margin-top:8px;opacity:.5;">Réalisé avec Claude · Anthropic — Style Léonard de Vinci</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('leaflet-map',{scrollWheelZoom:true,tap:false,zoomControl:false}).setView([45.1,16.4],7);
+L.control.zoom({position:'topright'}).addTo(map);
+setTimeout(function(){map.invalidateSize(true);},300);
+window.addEventListener('resize',function(){map.invalidateSize();});
+
+function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+
+var iconVille=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(255,0,0,.8))"><rect x="6" y="30" width="24" height="4" rx="0.5" fill="#880000"/><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#FF0000" stroke="#880000" stroke-width="0.5"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#cc0000"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#cc0000"/><rect x="6" y="8" width="2" height="4" fill="#cc0000"/><rect x="9" y="8" width="2" height="4" fill="#cc0000"/><path d="M14 30 Q14 22 18 22 Q22 22 22 30" fill="#660000"/><line x1="9.5" y1="8" x2="9.5" y2="2" stroke="#c9a84c" stroke-width="0.9"/><path d="M9.5 2 L16 4 L9.5 6 Z" fill="#FF0000"/></svg>');
+
+var iconRemparts=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,134,10,.9))"><rect x="4" y="30" width="28" height="3" rx="0.5" fill="#6a4a08"/><rect x="6" y="19" width="24" height="12" fill="#c8a050" stroke="#7a5010" stroke-width="0.6"/><rect x="7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="11.5" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="16.1" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="20.7" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="25.4" y="18" width="2.2" height="13" rx="0.6" fill="#e8c060"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>');
+
+var iconNature=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(20,100,40,.8))"><rect x="17" y="28" width="2" height="7" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28" stroke="#0e3a18" stroke-width="0.6"/><path d="M18 3 L12 14 L18 12 Z" fill="#28803c" opacity="0.4"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>');
+
+var iconIle=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,80,160,.85))"><path d="M2 28 Q6 22 12 24 Q18 26 24 22 Q30 18 34 22 L34 32 Q28 28 22 30 Q16 32 10 30 Q6 32 2 30 Z" fill="#1a60b8" opacity="0.8"/><path d="M10 28 Q14 22 18 20 Q22 22 26 28 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="16" rx="0.5" fill="#f5ead8" stroke="#c8a860" stroke-width="0.4"/><rect x="14" y="6" width="8" height="4" rx="0.5" fill="#FF0000"/></svg>');
+
+var iconUnesco=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(200,160,20,.8))"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#7a6010" stroke-width="0.8"/><polygon points="18,6 20.5,13 28,13 22,17.5 24.5,24.5 18,20 11.5,24.5 14,17.5 8,13 15.5,13" fill="#e8c840" opacity="0.5"/></svg>');
+
+var iconRomain=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(180,140,20,.8))"><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/><rect x="6" y="29" width="24" height="4" rx="0.5" fill="#8a6010"/></svg>');
+
+var iconLac=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,100,180,.9))"><path d="M2 24 Q6 18 12 20 Q18 22 24 18 Q30 14 34 18 L34 28 Q28 24 22 26 Q16 28 10 26 Q6 28 2 26 Z" fill="#1a60b8"/><path d="M4 24 Q8 20 12 22 Q16 24 18 22 Q22 20 26 22 Q30 24 32 22" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/></svg>');
+
+var iconGastro=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(160,80,10,.85))"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a" stroke="#8a5008" stroke-width="0.7"/><path d="M10 18 Q12 14 18 12 Q24 14 26 18" fill="none" stroke="#e8a030" stroke-width="1.2" opacity="0.6"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/><rect x="16" y="30" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconMusee=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 5px rgba(80,40,140,.8))"><rect x="4" y="30" width="28" height="3" fill="#4a1870"/><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="4" y="10" width="28" height="3" fill="#4a1870"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/><circle cx="18" cy="22" r="3" fill="#c9a84c" opacity="0.7"/></svg>');
+
+var iconVin=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(100,20,60,.9))"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840" stroke="#5a0820" stroke-width="0.7"/><path d="M8 12 Q8 8 18 8 Q28 8 28 12" fill="#c8306080" opacity="0.5"/><rect x="14" y="22" width="8" height="12" rx="0" fill="#6a1030"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>');
+
+var iconPlage=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(30,120,200,.9))"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a7ab5"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M10 18 L14 18 L14 10 L10 12 Z" fill="#e8c060" opacity="0.7"/></svg>');
+
+var iconMusique=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(255,0,0,.9))"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#FF0000" stroke="#880000" stroke-width="0.6"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#cc0000"/><line x1="20" y1="10" x2="28" y2="6" stroke="#FF0000" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="27" cy="8" rx="4" ry="2.5" transform="rotate(-25,27,8)" fill="#cc0000"/><ellipse cx="27" cy="12" rx="4" ry="2.5" transform="rotate(-25,27,12)" fill="#cc0000"/></svg>');
+
+var iconSpa=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(0,100,180,.85))"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><ellipse cx="18" cy="27" rx="12" ry="4" fill="#2080c8" opacity="0.7"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M24 22 Q23 18 25 15 Q27 12 25 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>');
+
+var iconGolf=mkIcon('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" style="filter:drop-shadow(0 2px 6px rgba(20,80,30,.85))"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><path d="M2 30 Q6 25.5 11 27 Q16 28.5 18 26 Q22 22.5 27 25 Q31 27 34 30 Z" fill="#2a7a2a" opacity="0.7"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1" stroke-linecap="round"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#FF0000" stroke="#880000" stroke-width="0.7"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0" stroke="#b09050" stroke-width="0.6"/></svg>');
+
+var DATA={
+  ville:{icon:iconVille,color:'#FF0000',label:'🏙️ Villes Historiques',pts:[
+    {lat:43.5081,lng:16.4402,n:"Split — Palais de Dioclétien",c:"Split, Dalmatie",d:"UNESCO 1979. 3 000 habitants dans un palais romain du IVe s. La cathédrale est le mausolée de l'Empereur.",u:"https://fr.m.wikipedia.org/wiki/Split?useskin=vector"},
+    {lat:45.8150,lng:15.9819,n:"Zagreb — La Capitale",c:"Zagreb",d:"Capitale croate. Cathédrale XII s., ban Jelačić, Musée des Relations Rompues. Funiculaire le plus court.",u:"https://fr.m.wikipedia.org/wiki/Zagreb?useskin=vector"},
+    {lat:43.5088,lng:16.4402,n:"Zadar — Orgue de Mer",c:"Zadar, Dalmatie du Nord",d:"Orgue de Mer joué par les vagues. Coucher de soleil légendaire (Hitchcock). Remparts vénitiens.",u:"https://fr.m.wikipedia.org/wiki/Zadar?useskin=vector"},
+    {lat:43.7350,lng:15.8892,n:"Šibenik — Cathédrale Saint-Jacques",c:"Šibenik, Dalmatie",d:"UNESCO 2000. Cathédrale entièrement en pierre de taille (1431–1555). Décor GoT de Braavos.",u:"https://fr.m.wikipedia.org/wiki/Šibenik?useskin=vector"},
+    {lat:45.3276,lng:14.4422,n:"Rijeka — Carnaval et Kvarner",c:"Rijeka, Primorje-Gorski Kotar",d:"3e ville de Croatie. Carnaval le plus grand des Balkans. Porte du Kvarner et des îles.",u:"https://fr.m.wikipedia.org/wiki/Rijeka?useskin=vector"}
+  ]},
+  remparts:{icon:iconRemparts,color:'#c8a020',label:'🏰 Villes Fortifiées',pts:[
+    {lat:42.6507,lng:18.0944,n:"Dubrovnik — Remparts UNESCO",c:"Dubrovnik, Dalmatie du Sud",d:"UNESCO 1979. Remparts du XIIIe s. (1 940 m). King's Landing de Game of Thrones.",u:"https://fr.m.wikipedia.org/wiki/Dubrovnik?useskin=vector"},
+    {lat:43.5168,lng:16.2954,n:"Trogir — Île-Ville UNESCO",c:"Trogir, Dalmatie",d:"UNESCO 1997. 2 300 ans d'histoire. Cathédrale romane Saint-Laurent. Château Kamerlengo.",u:"https://fr.m.wikipedia.org/wiki/Trogir?useskin=vector"},
+    {lat:43.9365,lng:15.2289,n:"Nin — Plus Petite Cathédrale",c:"Nin, Dalmatie du Nord",d:"Église Sainte-Croix (IXe s., 10 m²). Couronnement des rois croates. Lagune thérapeutique.",u:"https://fr.m.wikipedia.org/wiki/Nin_(Croatie)?useskin=vector"},
+    {lat:46.3044,lng:16.3378,n:"Varaždin — La Petite Vienne",c:"Varaždin, Croatie du Nord",d:"Ancienne capitale baroque. Château Stari Grad. Baroque XVIIIe s. Špancirfest.",u:"https://fr.m.wikipedia.org/wiki/Varaždin?useskin=vector"},
+    {lat:43.1344,lng:17.2161,n:"Korčula — Île de Marco Polo",c:"Korčula, Dalmatie",d:"Ville médiévale en arête de poisson. Marco Polo né ici (1254). Danse Moreška. Pošip blanc.",u:"https://fr.m.wikipedia.org/wiki/Korčula?useskin=vector"}
+  ]},
+  nature:{icon:iconNature,color:'#1a5a28',label:'🌿 Parcs & Nature',pts:[
+    {lat:44.8804,lng:15.6167,n:"Lacs de Plitvice",c:"Plitvice, Lika",d:"UNESCO 1979. 16 lacs en cascade, 92 chutes. Eau turquoise à la calcite. Parc le plus visité.",u:"https://fr.m.wikipedia.org/wiki/Lacs_de_Plitvice?useskin=vector"},
+    {lat:43.7200,lng:15.9500,n:"Parc National de Krka",c:"Krka, Dalmatie",d:"7 cascades, Skradinski Buk. Baignade dans les bassins naturels. Monastère sur île.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Krka?useskin=vector"},
+    {lat:44.0167,lng:14.9000,n:"Parc National des Kornati",c:"Kornati, Dalmatie",d:"89 îles désertiques. L'archipel le plus dense de Méditerranée. Plongée, voile, silence.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_des_Kornati?useskin=vector"},
+    {lat:45.4167,lng:14.5833,n:"Parc National de Risnjak",c:"Gorski Kotar",d:"Forêts primaires. Lynx, ours, loup. Neige 8 mois. Entre mer et montagne.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Risnjak?useskin=vector"},
+    {lat:44.4667,lng:17.1000,n:"Parc National de Paklenica",c:"Dalmatie du Nord",d:"Gorges des Velebit (400 m). Escalade en Croatie. Tunnel secret de Tito.",u:"https://fr.m.wikipedia.org/wiki/Parc_national_de_Paklenica?useskin=vector"}
+  ]},
+  ile:{icon:iconIle,color:'#1a60b8',label:'🏝️ Îles Dalmates',pts:[
+    {lat:43.1714,lng:16.4411,n:"Île de Hvar",c:"Hvar, Dalmatie",d:"La plus ensoleillée (2 724 h/an). Lavande, vignes, plage de Pakleni. Ile des célébrités.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Hvar?useskin=vector"},
+    {lat:43.3008,lng:16.6553,n:"Île de Brač — Zlatni Rat",c:"Brač, Dalmatie",d:"Zlatni Rat — plage en flèche qui change de direction. Pierre de Brač = Maison Blanche.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Brač?useskin=vector"},
+    {lat:43.0617,lng:16.1711,n:"Île de Vis",c:"Vis, Dalmatie",d:"Île la plus reculée. Base militaire jusqu\'en 1989. Grotte Bleue. Vugava le plus ancien cépage. Mamma Mia 2.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Vis?useskin=vector"},
+    {lat:42.7617,lng:17.5267,n:"Île de Mljet",c:"Mljet, Dalmatie du Sud",d:"Île d\'Ulysse. Lacs salés dans la forêt la plus dense. Monastère XIIIe s. Mangoustes.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Mljet?useskin=vector"},
+    {lat:44.7558,lng:14.7639,n:"Île de Rab",c:"Rab, Kvarner",d:"4 clochers romans. Première plage naturiste officielle du monde (1936). Agneau de Rab.",u:"https://fr.m.wikipedia.org/wiki/Rab?useskin=vector"}
+  ]},
+  unesco:{icon:iconUnesco,color:'#c8a020',label:'⭐ Sites UNESCO',pts:[
+    {lat:42.6507,lng:18.0944,n:"Dubrovnik — Vieille Ville",c:"Dubrovnik",d:"UNESCO 1979. Remparts médiévaux (1 940 m). La Perle de l\'Adriatique.",u:"https://fr.m.wikipedia.org/wiki/Dubrovnik?useskin=vector"},
+    {lat:44.8804,lng:15.6167,n:"Lacs de Plitvice",c:"Lika",d:"UNESCO 1979. 16 lacs turquoise en cascade dans la forêt.",u:"https://fr.m.wikipedia.org/wiki/Lacs_de_Plitvice?useskin=vector"},
+    {lat:43.5081,lng:16.4402,n:"Split — Palais de Dioclétien",c:"Split",d:"UNESCO 1979. Palais romain (305 apr. J.-C.) habité par 3 000 personnes.",u:"https://fr.m.wikipedia.org/wiki/Split?useskin=vector"},
+    {lat:43.5168,lng:16.2954,n:"Trogir — Centre Historique",c:"Trogir",d:"UNESCO 1997. Île-ville de 2 300 ans. Cathédrale romane Saint-Laurent.",u:"https://fr.m.wikipedia.org/wiki/Trogir?useskin=vector"},
+    {lat:43.7350,lng:15.8892,n:"Šibenik — Cathédrale Saint-Jacques",c:"Šibenik",d:"UNESCO 2000. Première cathédrale entièrement en pierre de taille.",u:"https://fr.m.wikipedia.org/wiki/Cathédrale_Saint-Jacques_de_Šibenik?useskin=vector"}
+  ]},
+  romain:{icon:iconRomain,color:'#c8a020',label:'🏛️ Patrimoine Romain',pts:[
+    {lat:44.8683,lng:13.8486,n:"Pula — Arène Romaine",c:"Pula, Istrie",d:"Amphithéâtre romain (27 000 places, Ier s.). Le mieux conservé après le Colisée. Concerts rock.",u:"https://fr.m.wikipedia.org/wiki/Amphithéâtre_de_Pula?useskin=vector"},
+    {lat:43.5081,lng:16.4402,n:"Palais de Dioclétien — Split",c:"Split",d:"Palais de l\'Empereur Dioclétien (305 apr. J.-C.). La cathédrale est son mausolée.",u:"https://fr.m.wikipedia.org/wiki/Palais_de_Dioclétien?useskin=vector"},
+    {lat:43.5400,lng:16.4800,n:"Solin — Salona Romaine",c:"Solin, près de Split",d:"Ancienne capitale romaine (60 000 hab. au IIIe s.). Forum, amphithéâtre, thermes.",u:"https://fr.m.wikipedia.org/wiki/Salona?useskin=vector"},
+    {lat:44.8683,lng:13.8486,n:"Pula — Arc de Triomphe et Temple",c:"Pula, Istrie",d:"Arc de Triomphe de Serge (29 av. J.-C.) et Temple d\'Auguste (2 av. J.-C.). Ville romaine.",u:"https://fr.m.wikipedia.org/wiki/Pula?useskin=vector"}
+  ]},
+  lac:{icon:iconLac,color:'#1a60b8',label:'💧 Lacs & Cascades',pts:[
+    {lat:44.8804,lng:15.6167,n:"Lacs de Plitvice",c:"Lika",d:"16 lacs turquoise et 92 cascades. UNESCO. Promenades sur planches de bois au-dessus de l\'eau.",u:"https://fr.m.wikipedia.org/wiki/Lacs_de_Plitvice?useskin=vector"},
+    {lat:43.7200,lng:15.9500,n:"Skradinski Buk — Krka",c:"Krka, Dalmatie",d:"La cascade la plus large de Croatie (800 m). Baignade autorisée. La plus belle de la Méditerranée.",u:"https://fr.m.wikipedia.org/wiki/Skradinski_buk?useskin=vector"},
+    {lat:42.7617,lng:17.5267,n:"Lacs de Mljet",c:"Île de Mljet",d:"Deux lacs salés dans une forêt dense. Eau turquoise. Monastère sur l\'île centrale.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Mljet?useskin=vector"}
+  ]},
+  gastro:{icon:iconGastro,color:'#c8780a',label:'🐟 Gastronomie Dalmate',pts:[
+    {lat:42.6507,lng:18.0944,n:"Cuisine Dalmate — Peka",c:"Dalmatie entière",d:"Peka — viande et légumes sous cloche. Crni rižot à l\'encre de seiche. Prstaci de Vis.",u:"https://fr.m.wikipedia.org/wiki/Cuisine_croate?useskin=vector"},
+    {lat:45.3442,lng:13.9269,n:"Truffe d\'Istrie — Motovun",c:"Motovun, Istrie",d:"Plus grande truffe blanche (1,31 kg, record Guinness). Malvazija, huile d\'olive mondialement primée.",u:"https://fr.m.wikipedia.org/wiki/Truffe_blanche?useskin=vector"},
+    {lat:45.5511,lng:18.6939,n:"Kulen de Slavonie — Osijek",c:"Osijek, Slavonie",d:"Kulen — saucisse de porc fortement pimentée de Slavonie. IGP protégée. Spécialité nationale.",u:"https://fr.m.wikipedia.org/wiki/Kulen?useskin=vector"}
+  ]},
+  musee:{icon:iconMusee,color:'#7a40c0',label:'🖼️ Musées & Culture',pts:[
+    {lat:45.8150,lng:15.9700,n:"Musée des Relations Rompues",c:"Zagreb",d:"Le musée le plus original au monde. Prix Museum Européen 2011. Objets de ruptures amoureuses.",u:"https://fr.m.wikipedia.org/wiki/Musée_des_relations_rompues?useskin=vector"},
+    {lat:45.8150,lng:15.9819,n:"Galerie Meštrović — Zagreb",c:"Zagreb",d:"Ivan Meštrović — le plus grand sculpteur croate. Collections monumentales. Atelier-musée.",u:"https://fr.m.wikipedia.org/wiki/Ivan_Meštrović?useskin=vector"},
+    {lat:43.5081,lng:16.4402,n:"Galerie Meštrović — Split",c:"Split",d:"Villa Meštrović — sculptures monumentales dans un jardin au bord de la mer.",u:"https://fr.m.wikipedia.org/wiki/Galerie_Meštrović?useskin=vector"},
+    {lat:45.8150,lng:15.9819,n:"Musée Mimara — Zagreb",c:"Zagreb",d:"Collection encyclopédique unique — de l\'Égypte ancienne à Renoir et Rubens. 3 750 oeuvres.",u:"https://fr.m.wikipedia.org/wiki/Musée_Mimara?useskin=vector"}
+  ]},
+  vin:{icon:iconVin,color:'#7a1840',label:'🍷 Vins & Vignobles',pts:[
+    {lat:43.1344,lng:17.2161,n:"Dingač — Plavac Mali",c:"Pelješac, Dalmatie du Sud",d:"Le meilleur vin rouge de Croatie — pente à 45° face à la mer. Le Zinfandel est son cousin.",u:"https://fr.m.wikipedia.org/wiki/Dingač?useskin=vector"},
+    {lat:45.3442,lng:13.9269,n:"Malvazija d\'Istrie",c:"Istrie",d:"Cépage autochtone istriens — blanc minéral aux arômes floraux. Le vin blanc le plus produit.",u:"https://fr.m.wikipedia.org/wiki/Malvoisie?useskin=vector"},
+    {lat:43.9500,lng:17.1200,n:"Pošip de Korčula",c:"Korčula",d:"Cépage blanc autochtone de Korčula — aromatique et fruité. Un des meilleurs blancs croates.",u:"https://fr.m.wikipedia.org/wiki/Pošip?useskin=vector"}
+  ]},
+  plage:{icon:iconPlage,color:'#1a7ab5',label:'🏖️ Plages & Côtes',pts:[
+    {lat:43.3589,lng:16.6381,n:"Zlatni Rat — Brač",c:"Bol, Île de Brač",d:"La plus belle plage de Croatie. Flèche de galets blancs qui change de direction selon les vents.",u:"https://fr.m.wikipedia.org/wiki/Zlatni_Rat?useskin=vector"},
+    {lat:43.1714,lng:16.4411,n:"Pakleni — Hvar",c:"Hvar, Dalmatie",d:"Archipel de 21 petites îles devant Hvar. Criques nudistes, eaux cristallines, pins parasols.",u:"https://fr.m.wikipedia.org/wiki/Paklinski_otoci?useskin=vector"},
+    {lat:43.4011,lng:16.0319,n:"Makarska Riviera",c:"Makarska, Dalmatie",d:"34 km de plages de galets entre les falaises du Biokovo (1 762 m) et l\'Adriatique cristalline.",u:"https://fr.m.wikipedia.org/wiki/Makarska?useskin=vector"},
+    {lat:45.2000,lng:13.6000,n:"Medulin — Istrie",c:"Medulin, Istrie",d:"La riviera istrienne — plages de Kamenjak, cap Kamenjak protégé. Kite-surf, vélo, nature.",u:"https://fr.m.wikipedia.org/wiki/Medulin?useskin=vector"}
+  ]},
+  musique:{icon:iconMusique,color:'#FF0000',label:'🎶 Musique & Traditions',pts:[
+    {lat:43.4650,lng:16.9144,n:"Festival de Klapa — Omiš",c:"Omiš, Dalmatie",d:"UNESCO 2012. Chant polyphonique dalmate a cappella. Festival international annuel.",u:"https://fr.m.wikipedia.org/wiki/Klapa?useskin=vector"},
+    {lat:43.1344,lng:17.2161,n:"Moreška — Korčula",c:"Korčula",d:"Danse traditionnelle de l\'épée (XIVe s.). Spectacle de chevaliers en costume. Combat chorégraphié.",u:"https://fr.m.wikipedia.org/wiki/Moreška?useskin=vector"},
+    {lat:45.1667,lng:14.8167,n:"Sinjska Alka — Sinj",c:"Sinj, Dalmatie",d:"UNESCO 2010. Joûte équestre depuis 1715 — victoire sur les Ottomans commémorée chaque août.",u:"https://fr.m.wikipedia.org/wiki/Sinjska_alka?useskin=vector"}
+  ]},
+  spa:{icon:iconSpa,color:'#1464a8',label:'💆 Thermes & Bien-Être',pts:[
+    {lat:46.2056,lng:16.3917,n:"Varaždinske Toplice — Aquae Iasae",c:"Varaždinske Toplice",d:"Thermes romains (IIe s.). Sources à 58°C. Marc Aurèle y séjourna. La plus ancienne station.",u:"https://fr.m.wikipedia.org/wiki/Varaždinske_Toplice?useskin=vector"},
+    {lat:45.7500,lng:15.9000,n:"Terme Tuhelj — Zagreb",c:"Tuhelj, Krapina-Zagorje",d:"Plus grand spa de Croatie près de Zagreb. Piscines couvertes et extérieures. Wellness resort.",u:"https://fr.m.wikipedia.org/wiki/Tuhelj?useskin=vector"},
+    {lat:43.9167,lng:15.2167,n:"Nin — Fango Thérapeutique",c:"Nin, Dalmatie du Nord",d:"Lagune de sel aux propriétés curatives. Boue marine millénaire. Cure naturelle unique.",u:"https://fr.m.wikipedia.org/wiki/Nin_(Croatie)?useskin=vector"}
+  ]},
+  golf:{icon:iconGolf,color:'#1a5a1a',label:'⛳ Golf & Resorts',pts:[
+    {lat:43.3089,lng:16.4211,n:"Golf Royal Brač",c:"Brač, Dalmatie",d:"Golf sur l\'île de Brač avec vue sur l\'Adriatique. Terrain 18 trous. Luxe insulaire croate.",u:"https://fr.m.wikipedia.org/wiki/Île_de_Brač?useskin=vector"},
+    {lat:42.6507,lng:18.0944,n:"Golf de Dubrovnik",c:"Dubrovnik",d:"Golf avec vue panoramique sur la mer Adriatique et les îles Élaphites. Cadre exceptionnel.",u:"https://fr.m.wikipedia.org/wiki/Dubrovnik?useskin=vector"},
+    {lat:45.2603,lng:13.7167,n:"Golf d\'Istrie — Riviera",c:"Poreč, Istrie",d:"Riviera Golf & Resort — parcours 18 trous en Istrie. Vignes, truffes et mer Adriatique.",u:"https://fr.m.wikipedia.org/wiki/Poreč?useskin=vector"}
+  ]}
+};
+
+var groups={};
+var activeGroups={};
+Object.keys(DATA).forEach(function(cat){
+  groups[cat]=L.layerGroup();
+  activeGroups[cat]=true;
+  DATA[cat].pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:DATA[cat].icon});
+    var safeU=p.u.replace(/'/g,"\\'");
+    var safeN=p.n.replace(/'/g,"\\'");
+    mk.bindPopup(
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;min-width:220px;">'
+      +'<div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">'+p.c+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:#1a0e00;margin-bottom:8px;line-height:1.3;">'+p.n+'</div>'
+      +'<div style="font-size:.82rem;color:#444;line-height:1.6;margin-bottom:10px;">'+p.d+'</div>'
+      +'<a onclick="closeWiki();setTimeout(function(){openWiki(\''+safeU+'\',\''+safeN+'\')},200);" style="display:inline-block;margin-top:2px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:#c9a84c;color:#1a0e00;cursor:pointer;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:2px;border:none;transition:background .2s;" onmouseover="this.style.background=\'#FF0000\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#c9a84c\';this.style.color=\'#1a0e00\'">▶ CLIQUER ICI</a>'
+      +'</div>',
+      {maxWidth:280}
+    );
+    mk.addTo(groups[cat]);
+  });
+  groups[cat].addTo(map);
+});
+
+function toggle(cat){
+  var el=document.getElementById('fb-'+cat);
+  if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  else{groups[cat].addTo(map);activeGroups[cat]=true;if(el){el.style.opacity='1';el.style.color='#222';}}
+}
+
+var FcControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;';
+    var ROWS=[
+      {cat:'ville',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="14" width="20" height="16" rx="0.5" fill="#FF0000"/><rect x="6" y="10" width="6" height="22" rx="0.5" fill="#cc0000"/><rect x="24" y="10" width="6" height="22" rx="0.5" fill="#cc0000"/><rect x="6" y="8" width="2" height="4" fill="#cc0000"/></svg>', label:'Villes Historiques', count:5},
+      {cat:'remparts', svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="6" y="19" width="24" height="12" fill="#c8a050"/><rect x="5" y="15.5" width="26" height="2" rx="0.4" fill="#d4a030"/><polygon points="18,8.5 9,15.5 27,15.5" fill="#c89020"/><rect x="15.5" y="24" width="5" height="7" rx="0.8" fill="#4a2e08"/></svg>', label:'Villes Fortifiées', count:5},
+      {cat:'nature',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="17" y="28" width="2" height="6" fill="#3a1808"/><path d="M18 3 L8 18 L12 18 L6 30 L30 30 L24 18 L28 18 Z" fill="#1a5a28"/><circle cx="9" cy="12" r="5" fill="#1a6a30"/><circle cx="27" cy="14" r="4" fill="#1a5a28"/></svg>', label:'Parcs &amp; Nature', count:5},
+      {cat:'ile',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 26 Q10 22 18 24 Q26 22 34 26 L34 32 L2 32 Z" fill="#1a60b8"/><path d="M10 26 Q14 20 18 18 Q22 20 26 26 Z" fill="#2a6a20"/><rect x="16" y="8" width="4" height="14" fill="#f5ead8"/><rect x="14" y="6" width="8" height="4" fill="#FF0000"/></svg>', label:'Îles Dalmates', count:5},
+      {cat:'unesco',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><polygon points="18,2 21.5,12.5 33,12.5 23.5,19 27,29.5 18,23 9,29.5 12.5,19 3,12.5 14.5,12.5" fill="#c8a020" stroke="#8a6010" stroke-width="1"/></svg>', label:'Sites UNESCO', count:5},
+      {cat:'romain',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="8" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="16" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="24" y="10" width="4" height="19" rx="0.6" fill="#e8d080"/><rect x="6" y="8" width="24" height="3" rx="0.5" fill="#c8a840"/><path d="M18 2 L6 8 L30 8 Z" fill="#a08020"/></svg>', label:'Patrimoine Romain', count:4},
+      {cat:'lac',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 22 Q10 18 18 20 Q26 18 34 22 L34 28 L2 28 Z" fill="#1a60b8"/><path d="M4 22 Q8 18 12 20 Q16 22 18 20 Q22 18 26 20 Q30 22 32 20" fill="none" stroke="#60a0e8" stroke-width="1.2" opacity="0.7"/></svg>', label:'Lacs &amp; Cascades', count:3},
+      {cat:'gastro',   svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M6 22 Q8 12 18 10 Q28 12 30 22 Q28 28 18 30 Q8 28 6 22 Z" fill="#c8780a"/><circle cx="18" cy="22" r="4" fill="#d49020" opacity="0.5"/></svg>', label:'Gastronomie Dalmate', count:3},
+      {cat:'musee',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><rect x="7" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="13" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="20" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><rect x="26" y="12" width="3" height="18" rx="0.5" fill="#7a40c0"/><path d="M18 3 L4 10 L32 10 Z" fill="#2a1060"/></svg>', label:'Musées &amp; Culture', count:4},
+      {cat:'vin',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M14 34 L14 22 Q8 18 8 12 Q8 6 18 6 Q28 6 28 12 Q28 18 22 22 L22 34 Z" fill="#7a1840"/><rect x="16" y="3" width="4" height="4" rx="0.5" fill="#c9a84c"/></svg>', label:'Vins &amp; Vignobles', count:3},
+      {cat:'plage',    svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 24 Q10 20 18 22 Q26 20 34 24 L34 30 L2 30 Z" fill="#1a7ab5"/><circle cx="24" cy="8" r="7" fill="#ffce00" opacity="0.9"/><path d="M10 18 L14 18 L14 10 L10 12 Z" fill="#e8c060" opacity="0.7"/></svg>', label:'Plages &amp; Côtes', count:4},
+      {cat:'musique',  svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M8 28 Q8 20 12 14 Q16 8 22 10 L20 14 Q16 12 14 16 Q12 20 12 28 Z" fill="#FF0000"/><ellipse cx="10" cy="30" rx="5" ry="3" fill="#cc0000"/></svg>', label:'Musique &amp; Traditions', count:3},
+      {cat:'spa',      svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><ellipse cx="18" cy="28" rx="13" ry="5" fill="#1464a8"/><path d="M12 22 Q11 18 13 15 Q15 12 13 9" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><path d="M18 21 Q17 17 19 14 Q21 11 19 8" fill="none" stroke="#b0d8f0" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>', label:'Thermes &amp; Bien-Être', count:3},
+      {cat:'golf',     svg:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 36 36"><path d="M2 30 Q6 24 11 26 Q16 28 18 25 Q22 21 27 24 Q31 26 34 30 Z" fill="#1a5a1a" opacity="0.92"/><circle cx="12" cy="29" r="1.8" fill="#0a2808"/><line x1="12" y1="29" x2="16" y2="5" stroke="#6a4a10" stroke-width="1.1"/><path d="M16 5 L28 9.5 L16 14.5 Z" fill="#FF0000"/><circle cx="20" cy="28" r="3.2" fill="#f5f0e0"/></svg>', label:'Golf &amp; Resorts', count:3}
+    ];
+
+    var html=
+      '<div id="fc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">📍 Filtres · 17 catégories</span>'
+        +'<span id="filter-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="filter-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:400px;opacity:1;">'
+        +'<div id="listebox" style="overflow-y:auto;height:272px;border-bottom:1px solid #ede4d4;scrollbar-width:thin;scrollbar-color:#FF0000 #f5ead8;">';
+    ROWS.forEach(function(r){
+      html+='<div id="fb-'+r.cat+'" onclick="toggle(\''+r.cat+'\')" '
+        +'style="display:flex;align-items:center;gap:8px;padding:0 11px;height:34px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;transition:background .15s;"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="this.style.background=\'transparent\'">'
+        +'<span style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+r.svg+'</span>'
+        +'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.label+'</span>'
+        +'<span style="font-size:.65rem;color:#bbb;font-weight:400;min-width:24px;text-align:right;">('+r.count+')</span>'
+        +'</div>';
+    });
+    html+=
+        '</div>'
+        +'<div style="display:flex;gap:0;">'
+          +'<button onclick="toggleAll(true)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#FF0000;color:white;border:none;border-right:1px solid rgba(255,255,255,.3);padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✔ Tout afficher</button>'
+          +'<button onclick="toggleAll(false)" style="flex:1;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#0035A0;color:white;border:none;padding:7px 4px;cursor:pointer;font-family:Georgia,serif;font-weight:700;">✖ Tout masquer</button>'
+        +'</div>'
+      +'</div>';
+    d.innerHTML=html;
+    var st=document.createElement('style');
+    st.textContent='#listebox::-webkit-scrollbar{width:5px;}#listebox::-webkit-scrollbar-track{background:#f5ead8;}#listebox::-webkit-scrollbar-thumb{background:#FF0000;border-radius:3px;}';
+    d.appendChild(st);
+    d.querySelector('#fc-header').addEventListener('click',function(){togglePanel();});
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var fc=new FcControl();
+fc.addTo(map);
+
+var currentTile=null;
+var TILES=[
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
+  {id:'political', label:'Politique', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
+  {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
+  {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
+];
+currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+
+var politicalLayer=null;
+var COUNTRY_COLORS={
+  'Germany':'#ffce00','France':'#4e91d6','Poland':'#f8a0b0','Italy':'#90c97a',
+  'Spain':'#f8d060','Portugal':'#90d090','Netherlands':'#f8d0a8','Belgium':'#ffd966',
+  'Luxembourg':'#f8d0a0','Switzerland':'#f8a0a0','Austria':'#f0a0a0','Czech Republic':'#f8a8a8',
+  'Czechia':'#f8a8a8','Slovakia':'#dda0dd','Hungary':'#f8c0a0','Romania':'#f0c080',
+  'Bulgaria':'#90ee90','Croatia':'#f8a0a8','Slovenia':'#ffb6c1','Serbia':'#d2b48c',
+  'Bosnia and Herzegovina':'#b0c4de','Montenegro':'#98d8c8','Albania':'#ffa07a',
+  'North Macedonia':'#c8b4e8','Greece':'#7ec8e3','Turkey':'#e8c4a0','Ukraine':'#b8d4a8',
+  'Moldova':'#d4c0a8','Belarus':'#a8c8d8','Lithuania':'#c8e8a0','Latvia':'#d8b8a8',
+  'Estonia':'#a8d8c8','Finland':'#b8d8f8','Sweden':'#FECC02','Norway':'#f0a8a8',
+  'Denmark':'#f8d0d0','Iceland':'#c8e0f0','Ireland':'#a8d8b0','United Kingdom':'#d8a8c8',
+  'Russia':'#d4c8b8','Kosovo':'#e8d8a8'
+};
+function getCountryColor(name){
+  if(COUNTRY_COLORS[name]) return COUNTRY_COLORS[name];
+  var hash=0; for(var i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',55%,75%)';
+}
+
+var _politicalPending=false;
+function buildPoliticalLayer(callback){
+  if(politicalLayer){if(callback)callback();return;}
+  if(_politicalPending) return;
+  _politicalPending=true;
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var ec=['Germany','France','Poland','Italy','Spain','Portugal','Netherlands','Belgium','Luxembourg','Switzerland','Austria','Czech Republic','Czechia','Slovakia','Hungary','Romania','Bulgaria','Croatia','Slovenia','Serbia','Bosnia and Herzegovina','Montenegro','Albania','North Macedonia','Greece','Turkey','Ukraine','Moldova','Belarus','Lithuania','Latvia','Estonia','Finland','Sweden','Norway','Denmark','Iceland','Ireland','United Kingdom','Russia','Kosovo','Andorra','Monaco','Liechtenstein','San Marino','Vatican City','Malta','Cyprus'];
+      var ef=data.features.filter(function(f){return f.geometry&&ec.indexOf(f.properties.ADMIN||f.properties.name||'')!==-1;});
+      politicalLayer=L.geoJSON({type:'FeatureCollection',features:ef},{
+        style:function(feature){return{fillColor:getCountryColor(feature.properties.ADMIN||feature.properties.name||''),fillOpacity:0.55,color:'#444',weight:1.2,opacity:0.9};},
+        onEachFeature:function(feature,layer){
+          layer.bindTooltip(feature.properties.ADMIN||feature.properties.name||'',{permanent:false,direction:'center',className:'country-tooltip'});
+          layer.on('mouseover',function(e){e.target.setStyle({fillOpacity:0.78,weight:2.2,color:'#222'});});
+          layer.on('mouseout',function(e){politicalLayer.resetStyle(e.target);});
+        }
+      });
+      var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
+      politicalLayer._labelLayer=lt;
+      _politicalPending=false;
+      if(callback)callback();
+    }).catch(function(e){console.warn('GeoJSON:',e);_politicalPending=false;});
+}
+function switchTile(id){
+  var t=TILES.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(currentTile) map.removeLayer(currentTile);
+  if(politicalLayer){if(map.hasLayer(politicalLayer))map.removeLayer(politicalLayer);if(politicalLayer._labelLayer&&map.hasLayer(politicalLayer._labelLayer))map.removeLayer(politicalLayer._labelLayer);}
+  if(id==='political'){
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+    buildPoliticalLayer(function(){
+      politicalLayer.addTo(map);
+      if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);
+    });
+  } else {
+    currentTile=L.tileLayer(t.url,t.opts).addTo(map);
+  }
+  TILES.forEach(function(x){var el=document.getElementById('tb-'+x.id);if(!el)return;if(x.id===id){el.style.background='#fff4f4';el.style.borderLeft='3px solid #FF0000';}else{el.style.background='transparent';el.style.borderLeft='3px solid transparent';}});
+}
+
+var McControl=L.Control.extend({
+  options:{position:'topright'},
+  onAdd:function(){
+    var d=L.DomUtil.create('div');
+    d.style.cssText='background:#faf6f0;border:1px solid #e8dcc8;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.18);font-family:Georgia,serif;min-width:210px;max-width:230px;margin-top:6px;';
+    var html=
+      '<div id="mc-header" style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#faf6f0;border-bottom:1px solid #e8dcc8;cursor:pointer;user-select:none;">'
+        +'<span style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#666;">🗺️ Style de Carte · 5</span>'
+        +'<span id="map-arrow" style="font-size:.8rem;color:#999;transition:transform .25s;line-height:1;">▼</span>'
+      +'</div>'
+      +'<div id="map-body" style="overflow:hidden;transition:max-height .35s ease,opacity .25s ease;max-height:0;opacity:0;">';
+    TILES.forEach(function(t,idx){
+      var isActive=idx===0;
+      html+='<div id="tb-'+t.id+'" onclick="switchTile(\''+t.id+'\')" '
+        +'style="display:flex;align-items:center;gap:10px;padding:0 11px;height:32px;cursor:pointer;'
+        +'border-bottom:1px solid #f5eed8;font-size:.84rem;color:#222;font-weight:600;'
+        +'transition:background .15s;border-left:3px solid '+(isActive?'#FF0000':'transparent')+';'
+        +'background:'+(isActive?'#fff4f4':'transparent')+'"'
+        +' onmouseover="this.style.background=\'#fff4f4\'" onmouseout="if(document.getElementById(\'tb-'+t.id+'\').style.borderLeft!==\'3px solid rgb(255, 0, 0)\')this.style.background=\'transparent\'">'
+        +'<span style="font-size:1.1rem;flex-shrink:0;">'+t.emoji+'</span>'
+        +'<span style="font-size:.82rem;font-weight:700;color:#222;flex:1;">'+t.label+'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    d.innerHTML=html;
+    var open=false;
+    d.querySelector('#mc-header').addEventListener('click',function(){
+      open=!open;
+      var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+      if(open){body.style.maxHeight='220px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+      else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+    });
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  }
+});
+var mc=new McControl();
+mc.addTo(map);
+
+function toggleAll(show){
+  Object.keys(DATA).forEach(function(cat){
+    var el=document.getElementById('fb-'+cat);
+    if(show){if(!activeGroups[cat]){groups[cat].addTo(map);activeGroups[cat]=true;}if(el){el.style.opacity='1';el.style.color='#222';}}
+    else{if(activeGroups[cat]){map.removeLayer(groups[cat]);activeGroups[cat]=false;}if(el){el.style.opacity='0.48';el.style.color='#999';}}
+  });
+}
+var panelOpen=window.innerWidth>600;
+function applyPanelState(){
+  var body=document.getElementById('filter-body'),arrow=document.getElementById('filter-arrow');
+  if(!body||!arrow) return;
+  if(panelOpen){body.style.maxHeight='400px';body.style.opacity='1';arrow.style.transform='rotate(0deg)';}
+  else{body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';}
+}
+function togglePanel(){panelOpen=!panelOpen;applyPanelState();}
+setTimeout(function(){if(window.innerWidth<=600){panelOpen=false;}applyPanelState();},100);
+map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;applyPanelState();}});
+
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
+</script>
+</body>
+</html>
