@@ -1062,6 +1062,13 @@ var mc = L.Control.extend({
 
     L.DomEvent.disableClickPropagation(d);
     L.DomEvent.disableScrollPropagation(d);
+    map.on('click',function(){
+      if(open){
+        open=false;
+        var body=d.querySelector('#map-body'),arrow=d.querySelector('#map-arrow');
+        body.style.maxHeight='0';body.style.opacity='0';arrow.style.transform='rotate(-90deg)';
+      }
+    });
     return d;
   }
 });
