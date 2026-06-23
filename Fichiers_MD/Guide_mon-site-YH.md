@@ -39,24 +39,29 @@ mon-site-YH/
 
 ## Étapes de mise en ligne
 
-### Étape 1 — Création du compte Netlify
-- Aller sur [netlify.com](https://netlify.com)
-- Cliquer sur **Sign up** → créer un compte gratuit (plan Starter)
+### Étape 1 — Activation de GitHub Pages
+- Aller sur **[github.com/Lindien99/mon-site-YH](https://github.com/Lindien99/mon-site-YH)**
+- Onglet **Settings** → section **Pages**
+- Source : branche `main`, dossier `/ (root)`
+- Cliquer **Save**
 
 ### Étape 2 — Mise en ligne du site
-- Sur la page de démarrage Netlify, section **"Upload your project files"**
-- Cliquer sur **"choose a folder"**
-- Sélectionner le dossier `mon-site-YH` sur l'ordinateur
-- Netlify uploade tous les fichiers automatiquement
+Dans le terminal VS Code :
+```
+git add -A
+git commit -m "mise en ligne initiale"
+git push
+```
+GitHub Pages déploie automatiquement.
 
 ### Étape 3 — Site publié
-- Netlify génère une adresse web automatiquement
+- GitHub génère l'adresse automatiquement
 - Le site est immédiatement accessible depuis n'importe quel appareil
 
 ### Étape 4 — Test sur tablette Android
 - Ouvrir le navigateur sur la tablette
 - Taper l'adresse du site dans la barre d'adresse
-- Les 18 pays apparaissent exactement comme sur le PC
+- Les 20 pays apparaissent exactement comme sur le PC
 
 ---
 
@@ -65,10 +70,9 @@ mon-site-YH/
 - Le site est **public** : tout le monde peut le consulter
 - Le site contient uniquement des guides de voyage — **aucune donnée personnelle**
 - Google Drive, photos et documents personnels sont **totalement séparés** du site
-- Netlify n'a accès qu'aux fichiers uploadés, rien d'autre
 
 ---
 
 ## Adresse du site
 
-🌍 **https://taupe-starburst-97f87d.netlify.app**
+🌍 **https://lindien99.github.io/mon-site-YH**

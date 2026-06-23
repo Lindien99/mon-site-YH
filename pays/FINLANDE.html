@@ -837,12 +837,12 @@ fc.addTo(map);
 var currentTile = null;
 
 var TILES = [
-  {id:'standard', label:'Standard', desc:'OpenStreetMap classique', emoji:'🗺️',
-    url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}, active:true},
   {id:'political', label:'COULEURS', desc:'Pays européens colorés', emoji:'🌍',
     url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
     opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'standard', label:'Standard', desc:'OpenStreetMap classique', emoji:'🗺️',
+    url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}, active:true},
   {id:'topo', label:'Relief', desc:'Carte topographique', emoji:'🏔️',
     url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     opts:{attribution:'© OpenTopoMap',maxZoom:17}},
@@ -855,6 +855,7 @@ var TILES = [
 ];
 
 currentTile = L.tileLayer(TILES[0].url, TILES[0].opts).addTo(map);
+buildPoliticalLayer();
 
 // ── COUCHE GÉOJSON POLITIQUE ──
 var politicalLayer = null;
@@ -918,8 +919,7 @@ var COUNTRY_INFO={'Germany':{cap:'Berlin',pop:'84 M hab.',popCap:'3,7 M hab.'},'
       var labelTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
         {attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
       politicalLayer._labelLayer=labelTile;
-      if(document.getElementById('tb-political')&&
-         document.getElementById('tb-political').style.borderLeft.indexOf('0, 53, 128')!==-1){
+      if(currentTile&&currentTile._url&&currentTile._url.indexOf('light_nolabels')!==-1){
         politicalLayer.addTo(map);
         labelTile.addTo(map);
       }

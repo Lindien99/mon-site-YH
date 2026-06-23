@@ -1,63 +1,35 @@
-# Correction & Mise à jour du site — GitHub + Netlify
+# Correction & Mise à jour du site — GitHub Pages
 
 ---
 
-## Méthode actuelle (upload manuel)
+## Flux de travail au quotidien
 
 Pour corriger un fichier (ex. `pays/ALLEMAGNE.html`) et voir la correction en ligne :
 
 1. **Modifier le fichier** dans VS Code et sauvegarder (`Ctrl+S`)
-2. Aller sur **[app.netlify.com](https://app.netlify.com)**
-3. Cliquer sur votre site (`taupe-starburst-97f87d`)
-4. Aller dans l'onglet **"Deploys"**
-5. Faire glisser le dossier **entier** `mon-site-YH` dans la zone *"drag and drop your site output folder here"*
-6. Netlify redéploie automatiquement — la correction est en ligne en quelques secondes
-
-> **Important** : Toujours re-uploader le dossier **complet**, pas seulement le fichier modifié.
-
----
-
-## Méthode recommandée — Connecter GitHub à Netlify
-
-### GitHub : aucun abonnement nécessaire
-
-Un compte **GitHub gratuit** est largement suffisant pour ce projet. Il inclut :
-- Dépôts privés et publics illimités
-- Intégration complète avec Netlify
-- GitHub Pages (hébergement gratuit optionnel)
-
-Créer un compte gratuit sur **[github.com](https://github.com)**.
-
----
-
-### Le principe
+2. Ouvrir le **terminal VS Code** (`Ctrl + ù`)
+3. Exécuter les 3 commandes :
 
 ```
-Votre PC (VS Code)  →  GitHub (sauvegarde)  →  Netlify (mise en ligne auto)
+git add -A
+git commit -m "description du changement"
+git push
 ```
 
-Au lieu de re-uploader le dossier manuellement à chaque fois, vous faites une seule action et tout se met à jour automatiquement.
+4. GitHub Pages **détecte automatiquement** le changement
+5. Le site est **mis à jour en ligne** en ~1 minute — sans rien faire de plus
 
 ---
 
-### Le flux de travail au quotidien (une fois configuré)
+## Le principe
 
-1. Vous **corrigez** un fichier dans VS Code
-2. Vous **« poussez »** la correction vers GitHub (3 commandes ou 2 clics dans VS Code)
-3. Netlify **détecte automatiquement** le changement
-4. Le site est **mis à jour en ligne** en ~30 secondes — sans rien faire de plus
-
----
-
-### La mise en place (une seule fois)
-
-1. Créer un compte gratuit sur **[github.com](https://github.com)**
-2. Créer un dépôt (« repository ») et y uploader le dossier `mon-site-YH`
-3. Sur Netlify : connecter le site à ce dépôt GitHub au lieu du dépôt manuel
-4. C'est terminé — la connexion est permanente
+```
+Votre PC (VS Code)  →  GitHub (sauvegarde)  →  GitHub Pages (mise en ligne auto)
+```
 
 ---
 
-## Adresse du site actuel
+## Adresse du site
 
-🌍 **https://taupe-starburst-97f87d.netlify.app**
+🌍 **https://lindien99.github.io/mon-site-YH**
+

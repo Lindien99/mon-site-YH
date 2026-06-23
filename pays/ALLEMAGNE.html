@@ -854,6 +854,14 @@ var currentTile = null;
 
 var TILES = [
   {
+    id: 'political',
+    label: 'Couleurs',
+    desc: 'Pays europ\u00e9ens color\u00e9s',
+    emoji: '🌍',
+    url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    opts: {attribution:'© CartoDB', subdomains:'abcd', maxZoom:20}
+  },
+  {
     id: 'standard',
     label: 'Standard',
     desc: 'OpenStreetMap classique',
@@ -861,14 +869,6 @@ var TILES = [
     url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
     opts: {attribution:'© OpenStreetMap', subdomains:'abc', maxZoom:20},
     active: true
-  },
-  {
-    id: 'political',
-    label: 'Couleurs',
-    desc: 'Pays europ\u00e9ens color\u00e9s',
-    emoji: '🌍',
-    url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-    opts: {attribution:'© CartoDB', subdomains:'abcd', maxZoom:20}
   },
   {
     id: 'topo',
@@ -898,6 +898,7 @@ var TILES = [
 
 // Init default tile layer
 currentTile = L.tileLayer(TILES[0].url, TILES[0].opts).addTo(map);
+buildPoliticalLayer(function(){if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}});
 
 // ── COUCHE GEOJSON POLITIQUE ──
 var politicalLayer = null;

@@ -253,13 +253,13 @@ body {
 }
 .cmd-desc { color: #b0bec5; font-style: italic; }
 
-/* Connexion Netlify */
-.netlify-box {
+/* Déploiement GitHub Pages */
+.ghpages-box {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
 }
-.netlify-title {
+.ghpages-title {
   background: linear-gradient(90deg, #00695c, #00897b);
   padding: 9px 14px;
   font-size: 0.85rem;
@@ -269,8 +269,8 @@ body {
   align-items: center;
   gap: 8px;
 }
-.netlify-steps { padding: 12px 14px; }
-.netlify-step {
+.ghpages-steps { padding: 12px 14px; }
+.ghpages-step {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -279,7 +279,7 @@ body {
   font-size: 0.81rem;
   color: #263238;
 }
-.netlify-step:last-child { border-bottom: none; }
+.ghpages-step:last-child { border-bottom: none; }
 .step-num {
   background: #00897b;
   color: #fff;
@@ -293,7 +293,7 @@ body {
   font-size: 0.78rem;
   flex-shrink: 0;
 }
-.netlify-step span { line-height: 1.4; }
+.ghpages-step span { line-height: 1.4; }
 
 /* ─── MÉMO EXPRESS ─── */
 .memo-bar {
@@ -358,7 +358,7 @@ body {
 
   <!-- SECTION 1 BANNER -->
   <div class="section-banner banner-blue" style="margin-top:12px; margin: 12px 14px 0; border-radius:10px 10px 0 0;">
-    📱 Github Mobile &nbsp;+&nbsp; 🚀 Flux VS Code → GitHub → Netlify 🌍✨
+    📱 Github Mobile &nbsp;+&nbsp; 🚀 Flux VS Code → GitHub → GitHub Pages 🌍✨
   </div>
 
   <!-- TABLE SECTION 1 -->
@@ -439,7 +439,7 @@ body {
 
   <!-- SECTION 2 BANNER -->
   <div class="section-banner banner-yellow" style="margin: 0 14px; border-radius:10px 10px 0 0;">
-    ⚡ SECTION 2 — FLUX VS CODE → GITHUB → NETLIFY 🎯
+    ⚡ SECTION 2 — FLUX VS CODE → GITHUB → GITHUB PAGES 🎯
   </div>
 
   <!-- PIPELINE -->
@@ -463,7 +463,7 @@ body {
       <div class="pipe-arrow">→</div>
       <div class="pipe-step step-4">
         <div class="pipe-icon">⚡</div>
-        <div>Netlify</div>
+        <div>GitHub<br>Pages</div>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step step-5">
@@ -513,25 +513,25 @@ body {
       </table>
     </div>
 
-    <!-- CONNEXION NETLIFY -->
-    <div class="netlify-box">
-      <div class="netlify-title">🔗 Connexion Netlify</div>
-      <div class="netlify-steps">
-        <div class="netlify-step">
+    <!-- DÉPLOIEMENT GITHUB PAGES -->
+    <div class="ghpages-box">
+      <div class="ghpages-title">🔗 Déploiement GitHub Pages</div>
+      <div class="ghpages-steps">
+        <div class="ghpages-step">
           <div class="step-num">1</div>
-          <span>Log in with GitHub</span>
+          <span>Settings → Pages → Source : main</span>
         </div>
-        <div class="netlify-step">
+        <div class="ghpages-step">
           <div class="step-num">2</div>
-          <span>Add new site &gt; Import</span>
+          <span>Cliquer Save</span>
         </div>
-        <div class="netlify-step">
+        <div class="ghpages-step">
           <div class="step-num">3</div>
-          <span>Sélectionne ton repo</span>
+          <span>git add -A &amp;&amp; git commit</span>
         </div>
-        <div class="netlify-step">
+        <div class="ghpages-step">
           <div class="step-num">4</div>
-          <span>Clique sur Deploy site 🚀</span>
+          <span>git push → déploiement auto 🚀</span>
         </div>
       </div>
     </div>

@@ -18,14 +18,12 @@
 
 ---
 
-### 🔗 Connexion Netlify — Étapes Rapides
+### 🔗 Déploiement GitHub Pages — Étapes Rapides
 
-> 1. Va sur [netlify.com](https://netlify.com) → **Log in with GitHub**
-> 2. Clique sur **Sites** → **Add new site** → **Import from GitHub**
-> 3. Sélectionne ton **repo** 📁
-> 4. Configure le build : `npm run build` (ou laisse vide pour HTML statique)
-> 5. Clique sur **Deploy site** 🚀
-> 6. Chaque `git push` déclenchera un **déploiement automatique** ! 🎉
+> 1. Va sur ton dépôt GitHub → onglet **Settings**
+> 2. Section **Pages** → Source → branche `main`
+> 3. Clique sur **Save**
+> 4. Chaque `git push` déclenchera un **déploiement automatique** ! 🎉
 
 ---
 

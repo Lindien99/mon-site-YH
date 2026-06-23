@@ -322,7 +322,8 @@ var map = L.map('leaflet-map', {
 L.control.zoom({position:'topright'}).addTo(map);
 setTimeout(function(){ map.invalidateSize(true); }, 300);
 window.addEventListener('resize', function(){ map.invalidateSize(); });
-var currentTile=L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}).addTo(map);
+var currentTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}).addTo(map);
+buildPoliticalLayer(function(){if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}});
 
 function mkIcon(svg){return L.divIcon({className:'',html:svg,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
 
@@ -673,8 +674,8 @@ fc.addTo(map);
 
 // MAP STYLE CONTROL — 5 tuiles
 var TILES=[
-  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}},
   {id:'political', label:'COULEURS', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20}},
   {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
   {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
   {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}

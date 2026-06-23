@@ -725,6 +725,7 @@ var TILES=[
   {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
 ];
 currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+buildPoliticalLayer();
 
 var politicalLayer=null;
 var COUNTRY_COLORS={
@@ -763,10 +764,8 @@ var COUNTRY_INFO={'Germany':{cap:'Berlin',pop:'84 M hab.',popCap:'3,7 M hab.'},'
       });
       var lt=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20,pane:'overlayPane'});
       politicalLayer._labelLayer=lt;
-      // Si "Politique" est encore actif quand le chargement se termine, on ajoute la couche
-      var el=document.getElementById('tb-political');
-      if(el&&el.style.borderLeft.indexOf('255, 206, 0')!==-1){politicalLayer.addTo(map);lt.addTo(map);}
-    }).catch(function(e){console.warn('GeoJSON:',e);});
+      if(currentTile&&currentTile._url&&currentTile._url.indexOf('light_nolabels')!==-1){politicalLayer.addTo(map);lt.addTo(map);}
+    }).catch(function(e){console.warn('GeoJSON:',e);}); 
 }
 function switchTile(id){
   var t=TILES.find(function(x){return x.id===id;});

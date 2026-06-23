@@ -2,8 +2,8 @@
 
 ## Contexte
 Site web statique de guides interactifs sur les pays d'Europe.
-- **Déploiement** : GitHub (`Lindien99/mon-site-YH`) → Netlify automatique
-- **URL** : https://taupe-starburst-97f87d.netlify.app
+- **Déploiement** : GitHub Pages (`Lindien99/mon-site-YH`)
+- **URL** : https://lindien99.github.io/mon-site-YH
 - **Langue** : tout le code et les réponses sont en français
 
 ## Structure
@@ -28,8 +28,8 @@ Pages pays : fond `#04060e`, or `#c9a84c`, police `Playfair Display` + `Cormoran
 - Tout le CSS est inline dans `<style>` dans chaque page pays
 
 ## Git & Déploiement
-- Commandes habituelles : `git add .`, `git commit -m "..."`, `git push`
-- Chaque push sur `main` déclenche un déploiement automatique Netlify
+- Commandes habituelles : `git add -A`, `git commit -m "..."`, `git push`
+- Chaque push sur `main` déclenche un déploiement automatique GitHub Pages
 - Ne jamais faire de `git push --force` sans confirmation
 
 ## Règles de codage

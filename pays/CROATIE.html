@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -660,13 +660,14 @@ fc.addTo(map);
 
 var currentTile=null;
 var TILES=[
-  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
   {id:'political', label:'Couleurs', desc:'Pays européens colorés',    emoji:'🌍', url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', opts:{attribution:'© CartoDB',subdomains:'abcd',maxZoom:20}},
+  {id:'standard',  label:'Standard',  desc:'OpenStreetMap classique',   emoji:'🗺️', url:'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts:{attribution:'© OpenStreetMap',subdomains:'abc',maxZoom:20},active:true},
   {id:'topo',      label:'Relief',    desc:'Carte topographique',       emoji:'🏔️', url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts:{attribution:'© OpenTopoMap',maxZoom:17}},
   {id:'watercolor',label:'Aquarelle', desc:'Style peinture artistique', emoji:'🎨', url:'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg', opts:{attribution:'© Stamen / Cooper Hewitt',maxZoom:18}},
   {id:'satellite', label:'Satellite', desc:'Vue aérienne ESRI',         emoji:'🛰️', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', opts:{attribution:'© Esri',maxZoom:19}}
 ];
 currentTile=L.tileLayer(TILES[0].url,TILES[0].opts).addTo(map);
+buildPoliticalLayer(function(){if(politicalLayer){politicalLayer.addTo(map);if(politicalLayer._labelLayer)politicalLayer._labelLayer.addTo(map);}});
 
 var politicalLayer=null;
 var COUNTRY_COLORS={

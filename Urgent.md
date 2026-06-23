@@ -1,30 +1,22 @@
-# À dire à Copilot demain
+# Infos essentielles — Collection Européenne Yvon H.
 
-Je veux connecter mon site Netlify à mon dépôt GitHub `Lindien99/mon-site-YH`.
+## Déploiement actuel
 
-## Ce qui est déjà fait
-- Dépôt GitHub créé et rempli : **github.com/Lindien99/mon-site-YH**
-- Site actuel en ligne : **https://taupe-starburst-97f87d.netlify.app**
-- Compte Netlify existant (créé avant GitHub) — me connecter avec email/mot de passe ou Google, **pas avec GitHub**
+- **Dépôt GitHub :** github.com/Lindien99/mon-site-YH
+- **Site en ligne :** https://lindien99.github.io/mon-site-YH
+- **Hébergement :** GitHub Pages (déploiement automatique à chaque push)
 
-## Ce qu'il reste à faire
-- Se connecter à **app.netlify.com** avec l'ancien compte
-- Lier le site au dépôt GitHub `Lindien99/mon-site-YH`
-- Tester un déploiement automatique
+## Pour mettre à jour le site
 
----
-
-## ✅ FAIT le 23 avril 2026 — Netlify connecté à GitHub !
-
-**Pour mettre à jour le site**, dans le terminal VS Code :
+Dans le terminal VS Code :
 
 ```
-git add .
+git add -A
 git commit -m "description du changement"
 git push
 ```
 
-Netlify déploie automatiquement après chaque `git push`.
+GitHub Pages déploie automatiquement après chaque `git push`.
 Non Yvon, tu n'as plus besoin de te présenter ! Voici pourquoi :
 
 Ta mémoire est maintenant corrigée — j'ai mis à jour mes notes avec GitHub Pages et ta vraie URL. Ces notes persistent entre toutes nos conversations.
