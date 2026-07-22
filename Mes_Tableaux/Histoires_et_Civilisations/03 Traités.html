@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Traités et Accords qui ont façonné la Paix</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+
+  .name-cell {
+    font-family: 'Cinzel', serif;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--sepia-dark);
+    min-width: 190px;
+  }
+  .date-cell   { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .parties-cell { color: var(--red-accent); font-size: 0.86rem; min-width: 160px; }
+  .lieu-cell   { font-size: 0.88rem; color: #4a3520; white-space: nowrap; }
+  .effet-cell  { font-size: 0.85rem; color: #1a3a1a; font-style: italic; min-width: 160px; }
+
+  /* BADGES THÈME */
+  .theme-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .theme-guerre      { color: #6e1a1a; background: #fde8e8; border-color: #f5a0a0; }
+  .theme-frontieres  { color: #1a4a1a; background: #e0f5e0; border-color: #80c880; }
+  .theme-commerce    { color: #6e5000; background: #fdf5d8; border-color: #d8b840; }
+  .theme-nucleaire   { color: #3a1a6e; background: #ece0ff; border-color: #b090e0; }
+  .theme-humanitaire { color: #006060; background: #d0f0f0; border-color: #60c0c0; }
+  .theme-colonial    { color: #5a3a00; background: #fdf0d8; border-color: #d0a060; }
+  .theme-regional    { color: #1a3a6e; background: #ddeeff; border-color: #90b8e8; }
+  .theme-environnement { color: #005a00; background: #d8f0d0; border-color: #60a860; }
+  .theme-droits      { color: #6e006e; background: #f8e0f8; border-color: #c870c8; }
+  .theme-securite    { color: #2a2a6e; background: #e0e0ff; border-color: #9090d8; }
+
+  /* ÉTOILES IMPACT */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-parties {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-parties:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="subtitle">— Codex Pacis Mundi —</p>
+  <h1><span class="ornament">🕊</span> 50 Traités & Accords qui ont façonné la Paix <span class="ornament">🕊</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des parchemins scellés aux conventions modernes — l'art millénaire de la diplomatie</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="guerre">⚔️ Fin de guerre</button>
+  <button class="filter-btn" data-cat="frontieres">🗺️ Frontières</button>
+  <button class="filter-btn" data-cat="commerce">🤝 Commerce</button>
+  <button class="filter-btn" data-cat="nucleaire">☢️ Nucléaire</button>
+  <button class="filter-btn" data-cat="humanitaire">🏥 Humanitaire</button>
+  <button class="filter-btn" data-cat="colonial">🌍 Colonial</button>
+  <button class="filter-btn" data-cat="regional">🇪🇺 Régional</button>
+  <button class="filter-btn" data-cat="environnement">🌿 Environnement</button>
+  <button class="filter-btn" data-cat="droits">⚖️ Droits</button>
+  <button class="filter-btn" data-cat="securite">🛡️ Sécurité</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Traité / Accord <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Date <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Parties signataires <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Lieu <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Thème <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Effet durable</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"📜", name:"Traité de Kadesh",                       date:"1259 av. J.-C.", parties:"Ramsès II / Hattousili III",     lieu:"Égypte / Hatti",        cat:"guerre",       impact:5, effet:"Premier traité de paix écrit de l'histoire — gravé en hiéroglyphes et en cunéiforme." },
+  { icon:"🏛️", name:"Paix de Nicias",                         date:"421 av. J.-C.", parties:"Athènes / Sparte",                lieu:"Athènes, Grèce",        cat:"guerre",       impact:3, effet:"Trêve de 50 ans pendant la Guerre du Péloponnèse, rapidement rompue après 6 ans." },
+  { icon:"🦅", name:"Paix d'Apamée",                          date:"188 av. J.-C.", parties:"Rome / Antiochos III",            lieu:"Apamée, Syrie",         cat:"guerre",       impact:4, effet:"Consolide la domination romaine en Méditerranée orientale, recule l'Empire séleucide." },
+  { icon:"✝️", name:"Édit de Milan",                          date:"313",           parties:"Constantin / Licinius",           lieu:"Milan, Italie",         cat:"droits",       impact:5, effet:"Liberté de culte dans l'Empire romain — première loi de tolérance religieuse de l'histoire." },
+  { icon:"📖", name:"Paix d'Augsbourg",                       date:"1555",          parties:"Charles Quint / Princes protestants",lieu:"Augsbourg, Allemagne",cat:"droits",       impact:4, effet:"Cuius regio, eius religio — chaque prince choisit la religion de ses sujets, fin des guerres de religion en Allemagne." },
+  { icon:"🌍", name:"Traité de Tordesillas",                  date:"1494",          parties:"Espagne / Portugal",              lieu:"Tordesillas, Espagne",  cat:"colonial",     impact:5, effet:"Divise le monde non chrétien entre Espagne et Portugal — première partition planétaire." },
+  { icon:"⚖️", name:"Traité de Westphalie",                   date:"1648",          parties:"Puissances européennes",          lieu:"Osnabrück / Münster",   cat:"guerre",       impact:5, effet:"Fin de la Guerre de Trente Ans, naissance de la souveraineté nationale et du droit international moderne." },
+  { icon:"🌊", name:"Traité d'Utrecht",                       date:"1713",          parties:"France / Grande-Bretagne et alliés",lieu:"Utrecht, Pays-Bas",    cat:"guerre",       impact:4, effet:"Fin de la Guerre de Succession d'Espagne, nouvel équilibre des puissances européennes." },
+  { icon:"🇺🇸", name:"Traité de Paris (indépendance USA)",    date:"1783",          parties:"Grande-Bretagne / États-Unis",    lieu:"Paris, France",         cat:"guerre",       impact:5, effet:"Reconnaissance de l'indépendance américaine — premier État républicain moderne au monde." },
+  { icon:"🗺️", name:"Traité de Lunéville",                    date:"1801",          parties:"France / Autriche",               lieu:"Lunéville, France",     cat:"frontieres",   impact:3, effet:"Consacre les conquêtes napoléoniennes, redessine les frontières de l'Europe centrale." },
+  { icon:"🕊️", name:"Congrès de Vienne",                      date:"1815",          parties:"Grandes puissances européennes",  lieu:"Vienne, Autriche",      cat:"securite",     impact:5, effet:"Redessine l'Europe après Napoléon, instaure la Sainte-Alliance et 40 ans de paix relative." },
+  { icon:"🏥", name:"Convention de Genève (1ʳᵉ)",             date:"1864",          parties:"16 États européens",              lieu:"Genève, Suisse",        cat:"humanitaire",  impact:5, effet:"Protège les blessés de guerre et le personnel médical — naissance du droit international humanitaire." },
+  { icon:"🌐", name:"Acte général de Berlin",                 date:"1885",          parties:"Puissances coloniales européennes",lieu:"Berlin, Allemagne",    cat:"colonial",     impact:4, effet:"Partage de l'Afrique entre puissances européennes — conséquences géopolitiques durables jusqu'aujourd'hui." },
+  { icon:"⚖️", name:"Convention de La Haye",                  date:"1899",          parties:"26 États",                        lieu:"La Haye, Pays-Bas",     cat:"humanitaire",  impact:4, effet:"Premières règles de la guerre terrestre, interdit certaines armes, crée la Cour permanente d'arbitrage." },
+  { icon:"🕊️", name:"Traité de Portsmouth",                   date:"1905",          parties:"Japon / Russie",                  lieu:"Portsmouth, USA",       cat:"guerre",       impact:4, effet:"Fin de la Guerre russo-japonaise, première paix négociée par un pays extra-européen. Prix Nobel pour T. Roosevelt." },
+  { icon:"🌍", name:"Traité de Versailles",                   date:"1919",          parties:"Alliés / Allemagne",              lieu:"Versailles, France",    cat:"guerre",       impact:5, effet:"Fin de la 1ʳᵉ Guerre mondiale, mais conditions humiliantes qui alimentent la montée du nazisme." },
+  { icon:"🏛️", name:"Pacte Briand-Kellogg",                   date:"1928",          parties:"15 nations (puis 62)",            lieu:"Paris, France",         cat:"securite",     impact:3, effet:"Mise hors-la-loi de la guerre comme instrument de politique nationale — idéaliste mais précurseur de l'ONU." },
+  { icon:"🌐", name:"Charte de l'Atlantique",                 date:"1941",          parties:"Roosevelt / Churchill",           lieu:"Océan Atlantique",      cat:"securite",     impact:4, effet:"Principes fondateurs de l'ordre mondial d'après-guerre, autodétermination des peuples, liberté des mers." },
+  { icon:"🏛️", name:"Charte des Nations Unies",               date:"1945",          parties:"51 États fondateurs",             lieu:"San Francisco, USA",    cat:"securite",     impact:5, effet:"Fonde l'ONU pour maintenir la paix mondiale — architecture diplomatique encore en vigueur aujourd'hui." },
+  { icon:"☢️", name:"Traité sur la Non-Prolifération nucléaire (TNP)",date:"1968",  parties:"États-Unis / URSS / Royaume-Uni + 190 États",lieu:"Londres / Moscou / Washington",cat:"nucleaire", impact:5, effet:"Freine la prolifération des armes nucléaires, établit le désarmement comme objectif mondial." },
+  { icon:"🇩🇪", name:"Accords d'Helsinki",                    date:"1975",          parties:"35 États (OSCE)",                 lieu:"Helsinki, Finlande",    cat:"securite",     impact:4, effet:"Reconnaît les frontières post-WWII, engage les droits humains dans le bloc soviétique — levier pour les dissidents." },
+  { icon:"🇪🇬", name:"Accords de Camp David",                  date:"1978",          parties:"Égypte / Israël (Carter médiateur)",lieu:"Camp David, USA",     cat:"guerre",       impact:5, effet:"Première paix entre Israël et un État arabe — Sadate et Begin reçoivent le Prix Nobel de la paix." },
+  { icon:"☢️", name:"Traité INF (forces nucléaires à portée intermédiaire)",date:"1987",parties:"Reagan / Gorbatchev",         lieu:"Washington D.C., USA",  cat:"nucleaire",    impact:4, effet:"Élimination de toute une catégorie d'armes nucléaires — symbole majeur de la fin de la Guerre froide." },
+  { icon:"🕊️", name:"Accords d'Oslo",                         date:"1993",          parties:"Israël / OLP (Rabin / Arafat)",   lieu:"Oslo, Norvège",         cat:"guerre",       impact:4, effet:"Première reconnaissance mutuelle entre Israël et l'OLP, création de l'Autorité palestinienne." },
+  { icon:"🇰🇷", name:"Armistice de Panmunjeom (Corée)",        date:"1953",          parties:"ONU / Corée du Nord / Chine",     lieu:"Panmunjeom, Corée",     cat:"guerre",       impact:4, effet:"Gèle le conflit coréen le long du 38ᵉ parallèle — toujours en vigueur, aucun traité de paix officiel." },
+  { icon:"🇪🇺", name:"Traité de Rome",                         date:"1957",          parties:"6 États fondateurs (CEE)",        lieu:"Rome, Italie",          cat:"regional",     impact:5, effet:"Fonde la Communauté Économique Européenne — premier pas vers l'Union Européenne actuelle." },
+  { icon:"🌿", name:"Protocole de Montréal",                   date:"1987",          parties:"197 États",                       lieu:"Montréal, Canada",      cat:"environnement",impact:5, effet:"Protège la couche d'ozone en éliminant les CFC — seul traité ratifié par tous les États du monde." },
+  { icon:"🌍", name:"Convention-cadre de l'ONU sur les changements climatiques",date:"1992",parties:"154 États",               lieu:"Rio de Janeiro, Brésil",cat:"environnement",impact:4, effet:"Premier cadre mondial sur le climat — prépare le terrain pour Kyoto et Paris." },
+  { icon:"🇿🇦", name:"Accord de Pretoria / Fin de l'Apartheid",date:"1994",         parties:"ANC / Gouvernement sud-africain", lieu:"Pretoria, Afrique du Sud",cat:"droits",     impact:5, effet:"Transition pacifique vers la démocratie, modèle mondial de réconciliation nationale avec Mandela." },
+  { icon:"🇮🇪", name:"Accord du Vendredi Saint",               date:"1998",          parties:"Irlande / Royaume-Uni / partis NI",lieu:"Belfast, Irlande du Nord",cat:"guerre",    impact:5, effet:"Met fin aux Troubles en Irlande du Nord après 30 ans de violence, modèle de résolution de conflit." },
+  { icon:"☢️", name:"Traité START I",                          date:"1991",          parties:"États-Unis / URSS",               lieu:"Moscou, Russie",        cat:"nucleaire",    impact:4, effet:"Première réduction bilatérale vérifiable des arsenaux nucléaires stratégiques." },
+  { icon:"🌿", name:"Protocole de Kyoto",                      date:"1997",          parties:"84 États signataires",            lieu:"Kyoto, Japon",          cat:"environnement",impact:4, effet:"Premier accord contraignant de réduction des gaz à effet de serre — précurseur de l'Accord de Paris." },
+  { icon:"⚖️", name:"Statut de Rome (CPI)",                    date:"1998",          parties:"120 États fondateurs",            lieu:"Rome, Italie",          cat:"droits",       impact:5, effet:"Crée la Cour Pénale Internationale — première juridiction permanente pour crimes de guerre et génocides." },
+  { icon:"💣", name:"Convention d'Ottawa (Mines antipersonnel)",date:"1997",         parties:"122 États",                       lieu:"Ottawa, Canada",        cat:"humanitaire",  impact:4, effet:"Interdit les mines antipersonnel — sauve des milliers de vies civiles chaque année depuis." },
+  { icon:"🌊", name:"Convention de Montego Bay (UNCLOS)",      date:"1982",          parties:"157 États",                       lieu:"Montego Bay, Jamaïque", cat:"frontieres",   impact:4, effet:"Droit de la mer : zones économiques exclusives (200 milles), fond marin, patrimoine commun de l'humanité." },
+  { icon:"🌍", name:"Accords d'Arusha",                        date:"1993",          parties:"Rwanda / FPR",                    lieu:"Arusha, Tanzanie",      cat:"guerre",       impact:2, effet:"Tentative de paix au Rwanda avant le génocide — échoue tragiquement en 1994, leçon douloureuse." },
+  { icon:"🇪🇺", name:"Traité de Maastricht",                   date:"1992",          parties:"12 États membres CE",             lieu:"Maastricht, Pays-Bas",  cat:"regional",     impact:5, effet:"Fonde officiellement l'Union Européenne, crée la citoyenneté européenne et prépare l'euro." },
+  { icon:"🌿", name:"Accord de Paris sur le climat",           date:"2015",          parties:"196 États",                       lieu:"Paris, France",         cat:"environnement",impact:5, effet:"Limite le réchauffement à 1,5 – 2°C — accord climatique universel le plus ambitieux de l'histoire." },
+  { icon:"🤝", name:"Accords d'Abraham",                       date:"2020",          parties:"Israël / Émirats / Bahreïn / Maroc",lieu:"Washington D.C., USA", cat:"regional",    impact:4, effet:"Normalisation des relations entre Israël et quatre États arabes — recomposition géopolitique du Proche-Orient." },
+  { icon:"☢️", name:"Traité sur l'interdiction des armes nucléaires (TIAN)",date:"2017",parties:"122 États",                   lieu:"Nations Unies, New York",cat:"nucleaire",   impact:3, effet:"Premier traité interdisant totalement les armes nucléaires — boycotté par les puissances nucléaires." },
+  { icon:"🇺🇳", name:"Déclaration universelle des droits de l'homme",date:"1948",    parties:"48 États (ONU)",                  lieu:"Paris, France",         cat:"droits",       impact:5, effet:"Texte fondateur des droits humains universels — inspirera des centaines de constitutions nationales." },
+  { icon:"🏥", name:"Convention de Genève (révision 1949)",    date:"1949",          parties:"194 États",                       lieu:"Genève, Suisse",        cat:"humanitaire",  impact:5, effet:"Protège prisonniers de guerre et civils — pilier du droit international humanitaire actuel." },
+  { icon:"🚀", name:"Traité sur l'espace extra-atmosphérique", date:"1967",          parties:"107 États",                       lieu:"Washington / Londres / Moscou",cat:"securite",impact:4, effet:"L'espace est patrimoine commun de l'humanité, interdit toute arme nucléaire en orbite." },
+  { icon:"💣", name:"Convention sur les armes chimiques (CAC)",date:"1993",          parties:"193 États",                       lieu:"Paris / La Haye",       cat:"humanitaire",  impact:4, effet:"Interdit la production et l'usage des armes chimiques — destruction vérifiée de 98% des stocks déclarés." },
+  { icon:"🇺🇳", name:"Accord de Dayton",                       date:"1995",          parties:"Bosnie / Croatie / Serbie",        lieu:"Dayton, Ohio, USA",     cat:"guerre",       impact:4, effet:"Met fin à la guerre de Bosnie après 4 ans — gèle le conflit ethnique mais divise durablement le pays." },
+  { icon:"🌍", name:"Accord de Lusaka",                        date:"1999",          parties:"États de la région des Grands Lacs",lieu:"Lusaka, Zambie",       cat:"guerre",       impact:3, effet:"Tentative de cessez-le-feu pendant la Deuxième Guerre du Congo — partiellement respecté." },
+  { icon:"🤝", name:"Traité de Lisbonne",                      date:"2007",          parties:"27 États membres UE",             lieu:"Lisbonne, Portugal",    cat:"regional",     impact:4, effet:"Réforme institutionnelle de l'UE, crée le poste de Président du Conseil européen et la politique étrangère commune." },
+  { icon:"🌿", name:"Accord de Kunming-Montréal (biodiversité)",date:"2022",         parties:"188 États (COP15)",               lieu:"Montréal, Canada",      cat:"environnement",impact:4, effet:"Protéger 30% des terres et mers d'ici 2030 — accord le plus ambitieux pour la biodiversité mondiale." },
+  { icon:"⚖️", name:"Traité sur le commerce des armes (TCA)", date:"2014",          parties:"130 États",                       lieu:"New York, USA",         cat:"securite",     impact:3, effet:"Premier cadre mondial régulant le commerce international des armes conventionnelles." },
+  { icon:"🕊️", name:"Accord de paix de Colombie",             date:"2016",          parties:"Gouvernement colombien / FARC",   lieu:"Bogotá, Colombie",      cat:"guerre",       impact:4, effet:"Met fin à 52 ans de guérilla, le plus long conflit armé d'Amérique latine. Prix Nobel pour J.M. Santos." },
+];
+
+const themeLabels = {
+  "guerre":"⚔️ Fin de guerre",
+  "frontieres":"🗺️ Frontières",
+  "commerce":"🤝 Commerce",
+  "nucleaire":"☢️ Nucléaire",
+  "humanitaire":"🏥 Humanitaire",
+  "colonial":"🌍 Colonial",
+  "regional":"🇪🇺 Régional",
+  "environnement":"🌿 Environnement",
+  "droits":"⚖️ Droits",
+  "securite":"🛡️ Sécurité"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function themeBadge(cat) {
+  return `<span class="theme-badge theme-${cat}">${themeLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.date; vb = b.date; break;
+      case 4: va = a.parties; vb = b.parties; break;
+      case 5: va = a.lieu; vb = b.lieu; break;
+      case 6: va = a.cat; vb = b.cat; break;
+      case 7: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.date}</td>
+      <td class="parties-cell"><a class="g-parties" href="${G}${q(d.parties)}" target="_blank">${d.parties}<sup class="arr"> ↗</sup></a></td>
+      <td class="lieu-cell">${d.lieu}</td>
+      <td>${themeBadge(d.cat)}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="effet-cell">${d.effet}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.impact===5).length;
+  const oldest = rows.reduce((a,b) => a.date < b.date ? a : b, rows[0]);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Traités affichés : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Plus ancien : <span>${oldest ? oldest.name + ' (' + oldest.date + ')' : '—'}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Révolutions et Soulèvements Populaires</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell  { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell  { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .date-cell  { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .figure-cell { color: var(--red-accent); font-size: 0.86rem; min-width: 150px; }
+  .pays-cell  { font-size: 0.88rem; color: #4a3520; white-space: nowrap; }
+  .issue-cell { font-size: 0.85rem; color: #1a3a1a; font-style: italic; min-width: 170px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .type-republicaine  { color: #6e1a1a; background: #fde8e8; border-color: #f5a0a0; }
+  .type-communiste    { color: #6e0000; background: #ffe0e0; border-color: #e08080; }
+  .type-liberale      { color: #1a3a6e; background: #ddeeff; border-color: #90b8e8; }
+  .type-nationale     { color: #4a3a00; background: #fdf5d0; border-color: #c8a840; }
+  .type-anticoloniale { color: #1a5a1a; background: #e0f5e0; border-color: #70c070; }
+  .type-islamique     { color: #1a4a3a; background: #d8f5ee; border-color: #60b8a0; }
+  .type-democratique  { color: #3a1a6e; background: #ece0ff; border-color: #b090e0; }
+  .type-sociale       { color: #5a3a00; background: #fdf0d8; border-color: #d0a060; }
+  .type-paysanne      { color: #2a4a1a; background: #e8f5d8; border-color: #90c870; }
+  .type-numerique     { color: #003a6e; background: #d8eeff; border-color: #70a8e0; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-figure {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-figure:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="subtitle">— Codex Rebellionum Mundi —</p>
+  <h1><span class="ornament">✊</span> 50 Révolutions & Soulèvements Populaires <span class="ornament">✊</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des insurrections qui ont renversé des trônes et redessiné le destin des peuples</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="republicaine">🏛️ Républicaine</button>
+  <button class="filter-btn" data-cat="communiste">☭ Communiste</button>
+  <button class="filter-btn" data-cat="liberale">🗽 Libérale</button>
+  <button class="filter-btn" data-cat="nationale">🚩 Nationale</button>
+  <button class="filter-btn" data-cat="anticoloniale">🌍 Anticoloniale</button>
+  <button class="filter-btn" data-cat="islamique">🌙 Islamique</button>
+  <button class="filter-btn" data-cat="democratique">🗳️ Démocratique</button>
+  <button class="filter-btn" data-cat="sociale">⚒️ Sociale</button>
+  <button class="filter-btn" data-cat="paysanne">🌾 Paysanne</button>
+  <button class="filter-btn" data-cat="numerique">📱 Ère numérique</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Révolution / Soulèvement <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Date <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Figure emblématique <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Pays / Région <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Issue & Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"🏺", name:"Révolution des esclaves de Sparte (Hilotes)",  date:"464 av. J.-C.",  figure:"Hilotes de Messénie",          pays:"Sparte, Grèce",          cat:"sociale",       impact:3, issue:"Soulèvement brutal écrasé après des années — marque la fragilité du système spartiate." },
+  { icon:"⚔️", name:"Révolte de Spartacus",                         date:"73–71 av. J.-C.",figure:"Spartacus",                    pays:"Italie, Empire romain",   cat:"sociale",       impact:4, issue:"Vaincu par Crassus, crucifié avec 6 000 esclaves — symbole éternel de résistance à l'oppression." },
+  { icon:"📖", name:"Réforme protestante (soulèvement religieux)",   date:"1517",           figure:"Martin Luther",                pays:"Allemagne, Europe",       cat:"liberale",      impact:5, issue:"Fracture définitive de la chrétienté occidentale, liberté de conscience, guerres de religion." },
+  { icon:"🌾", name:"Guerre des Paysans allemands",                  date:"1524–1525",      figure:"Thomas Müntzer",              pays:"Saint-Empire germanique", cat:"paysanne",      impact:3, issue:"Écrasée dans le sang par les princes. 100 000 paysans tués, mais semence des revendications sociales." },
+  { icon:"🏴", name:"Révolution anglaise (Guerre civile)",           date:"1642–1651",      figure:"Oliver Cromwell",             pays:"Angleterre",              cat:"republicaine",  impact:5, issue:"Exécution de Charles Iᵉʳ, première République anglaise — jalonne la démocratie parlementaire." },
+  { icon:"🌷", name:"Révolution Glorieuse (Angleterre)",             date:"1688",           figure:"Guillaume III d'Orange",      pays:"Angleterre",              cat:"liberale",      impact:5, issue:"Monarchie constitutionnelle, Bill of Rights — modèle fondateur du libéralisme politique moderne." },
+  { icon:"🇺🇸", name:"Révolution américaine",                        date:"1775–1783",      figure:"George Washington / T. Jefferson",pays:"Treize colonies, USA",  cat:"republicaine",  impact:5, issue:"Premier État républicain moderne, Déclaration d'Indépendance — modèle pour toutes les révolutions suivantes." },
+  { icon:"🇫🇷", name:"Révolution française",                         date:"1789–1799",      figure:"Robespierre / Danton",        pays:"France",                  cat:"republicaine",  impact:5, issue:"Fin de la monarchie absolue, Droits de l'Homme, guillotine — onde de choc mondiale durable." },
+  { icon:"🇭🇹", name:"Révolution haïtienne",                         date:"1791–1804",      figure:"Toussaint Louverture",        pays:"Haïti (Saint-Domingue)",  cat:"anticoloniale", impact:5, issue:"Première révolution d'esclaves victorieuse, première République noire indépendante du monde." },
+  { icon:"🌎", name:"Indépendances latino-américaines",              date:"1810–1825",      figure:"Simón Bolívar / San Martín",  pays:"Amérique du Sud",         cat:"nationale",     impact:5, issue:"Libération de l'Amérique du Sud du joug espagnol — naissance de nombreuses républiques." },
+  { icon:"🌹", name:"Révolutions de 1848 (Printemps des peuples)",   date:"1848",           figure:"Louis Blanc / Mazzini",       pays:"Europe entière",          cat:"liberale",      impact:4, issue:"Vague révolutionnaire balayant 50 États — échoue mais impose les idées libérales et nationales en Europe." },
+  { icon:"🏯", name:"Révolte des Cipayes (Inde)",                    date:"1857",           figure:"Mangal Pandey / Rani Lakshmibai",pays:"Inde britannique",      cat:"anticoloniale", impact:4, issue:"Première grande révolte contre la domination britannique — matrice du mouvement d'indépendance indien." },
+  { icon:"🇨🇳", name:"Révolte des Taiping",                          date:"1850–1864",      figure:"Hong Xiuquan",                pays:"Chine",                   cat:"sociale",       impact:3, issue:"L'une des guerres civiles les plus meurtrières de l'histoire — 20 à 30 millions de morts." },
+  { icon:"🇷🇺", name:"Révolution russe de 1905",                     date:"1905",           figure:"Tsar Nicolas II (contraint)", pays:"Russie",                  cat:"liberale",      impact:3, issue:"Dimanche sanglant, premier Soviet — réprimée mais préfigure 1917, obtient un parlement (Douma)." },
+  { icon:"🇲🇽", name:"Révolution mexicaine",                         date:"1910–1920",      figure:"Pancho Villa / Emiliano Zapata",pays:"Mexique",               cat:"paysanne",      impact:4, issue:"Renverse Porfirio Díaz, réforme agraire, Constitution de 1917 — modèle de révolution sociale paysanne." },
+  { icon:"☭",  name:"Révolution russe (Octobre 1917)",               date:"1917",           figure:"Vladimir Lénine / Trotski",   pays:"Russie",                  cat:"communiste",    impact:5, issue:"Naissance de l'URSS, premier État communiste — reconfigure la géopolitique mondiale pour 70 ans." },
+  { icon:"🇹🇷", name:"Révolution kémaliste (Turquie)",               date:"1919–1923",      figure:"Mustafa Kemal Atatürk",       pays:"Turquie",                 cat:"nationale",     impact:4, issue:"Abolit le sultanat et le califat, crée la République laïque turque moderne." },
+  { icon:"🇨🇳", name:"Révolution communiste chinoise",               date:"1945–1949",      figure:"Mao Zedong",                  pays:"Chine",                   cat:"communiste",    impact:5, issue:"Proclamation de la RPC le 1ᵉʳ octobre 1949 — transforme le pays le plus peuplé du monde." },
+  { icon:"🇮🇳", name:"Indépendance de l'Inde (non-violence)",        date:"1930–1947",      figure:"Mahatma Gandhi",              pays:"Inde",                    cat:"anticoloniale", impact:5, issue:"Première indépendance par résistance non-violente — modèle mondial pour les mouvements civiques." },
+  { icon:"🇨🇺", name:"Révolution cubaine",                           date:"1953–1959",      figure:"Fidel Castro / Che Guevara",  pays:"Cuba",                    cat:"communiste",    impact:4, issue:"Renverse Batista, instaure le socialisme à 150 km des USA — inspire les guérillas d'Amérique latine." },
+  { icon:"🇩🇿", name:"Guerre d'indépendance algérienne",             date:"1954–1962",      figure:"Ahmed Ben Bella / Boumediene",pays:"Algérie",                 cat:"anticoloniale", impact:4, issue:"Indépendance après 132 ans de colonisation française — symbole des décolonisations africaines." },
+  { icon:"🇻🇳", name:"Révolution vietnamienne / Guerre d'indépendance",date:"1945–1975",   figure:"Hô Chi Minh",                 pays:"Vietnam",                 cat:"anticoloniale", impact:4, issue:"Défaite de la France puis des USA — réunification du Vietnam communiste en 1975." },
+  { icon:"🇮🇷", name:"Révolution islamique d'Iran",                  date:"1979",           figure:"Ayatollah Khomeini",          pays:"Iran",                    cat:"islamique",     impact:5, issue:"Renverse le Shah, instaure la République islamique — reconfigure tout le Moyen-Orient." },
+  { icon:"🇳🇮", name:"Révolution sandiniste (Nicaragua)",            date:"1979",           figure:"Daniel Ortega",               pays:"Nicaragua",               cat:"communiste",    impact:3, issue:"Renverse Somoza, mais guerre des Contras financée par les USA — reste controversée." },
+  { icon:"🇵🇱", name:"Révolution Solidarnosc (Pologne)",             date:"1980–1989",      figure:"Lech Walesa",                 pays:"Pologne",                 cat:"democratique",  impact:5, issue:"Premier syndicat libre du bloc communiste — amorce la chute du communisme en Europe de l'Est." },
+  { icon:"🕯️", name:"Révolution pacifique (RDA / Chute du Mur)",     date:"1989",           figure:"Manifestants de Leipzig",     pays:"Allemagne de l'Est",      cat:"democratique",  impact:5, issue:"Chute du mur de Berlin — réunification allemande, effondrement du bloc soviétique." },
+  { icon:"🇿🇦", name:"Fin de l'Apartheid / Révolution pacifique",    date:"1990–1994",      figure:"Nelson Mandela",              pays:"Afrique du Sud",          cat:"democratique",  impact:5, issue:"Mandela libéré après 27 ans, premières élections libres — modèle de réconciliation nationale." },
+  { icon:"🇵🇭", name:"Révolution du Peuple (Philippines)",           date:"1986",           figure:"Corazon Aquino",              pays:"Philippines",             cat:"democratique",  impact:4, issue:"Renverse Marcos sans violence — premier exemple de révolution par résistance civile en Asie." },
+  { icon:"🇷🇴", name:"Révolution roumaine",                          date:"1989",           figure:"Ion Iliescu",                 pays:"Roumanie",                cat:"democratique",  impact:3, issue:"Seule révolution violente de 1989 en Europe — exécution de Ceaușescu en direct à la TV." },
+  { icon:"🇷🇺", name:"Dissolution de l'URSS",                        date:"1991",           figure:"Mikhaïl Gorbatchev / Eltsine",pays:"URSS",                    cat:"democratique",  impact:5, issue:"Fin de la Guerre froide, naissance de 15 États indépendants — bouleversement géopolitique mondial." },
+  { icon:"🇿🇦", name:"Révolution zapatiste (Mexique)",               date:"1994",           figure:"Sous-commandant Marcos",      pays:"Chiapas, Mexique",        cat:"paysanne",      impact:3, issue:"Soulèvement des Mayas le jour de l'entrée en vigueur de l'ALENA — obtient une autonomie partielle." },
+  { icon:"🌹", name:"Révolution des Roses (Géorgie)",                 date:"2003",           figure:"Mikheïl Saakachvili",         pays:"Géorgie",                 cat:"democratique",  impact:3, issue:"Renverse Chevardnadze sans violence — première révolution colorée de l'ex-bloc soviétique." },
+  { icon:"🌷", name:"Révolution de la Tulipe (Kirghizstan)",          date:"2005",           figure:"Kourmanbek Bakiev",           pays:"Kirghizstan",             cat:"democratique",  impact:2, issue:"Renverse Akaev — instabilité politique persistante, deuxième révolution en 2010." },
+  { icon:"🇺🇦", name:"Révolution Orange (Ukraine)",                   date:"2004",           figure:"Viktor Iouchtchenko",         pays:"Ukraine",                 cat:"democratique",  impact:4, issue:"Annule des élections frauduleuses — oriente l'Ukraine vers l'Europe, prélude à la crise de 2014." },
+  { icon:"🌸", name:"Printemps arabe — Tunisie",                      date:"2010–2011",      figure:"Mohamed Bouazizi",            pays:"Tunisie",                 cat:"democratique",  impact:5, issue:"Chute de Ben Ali après 23 ans — seule transition réussie du Printemps arabe, modèle de démocratie." },
+  { icon:"🌸", name:"Printemps arabe — Égypte",                       date:"2011",           figure:"Mohamed ElBaradei / jeunesse",pays:"Égypte",                  cat:"democratique",  impact:4, issue:"Chute de Moubarak après 30 ans — coup militaire de Sissi en 2013, illusion démocratique." },
+  { icon:"🌸", name:"Printemps arabe — Syrie",                        date:"2011–présent",   figure:"Mouvement civil syrien",      pays:"Syrie",                   cat:"democratique",  impact:3, issue:"Répression sanglante par Assad, guerre civile dévastatrice, 500 000 morts, exode massif." },
+  { icon:"🌸", name:"Printemps arabe — Libye",                        date:"2011",           figure:"Insurgés / OTAN",             pays:"Libye",                   cat:"nationale",     impact:3, issue:"Chute et mort de Kadhafi — chaos durable, État faillit, conflits tribaux persistants." },
+  { icon:"📱", name:"Mouvement Occupy Wall Street",                   date:"2011",           figure:"Naomi Klein / Anonymous",     pays:"États-Unis",              cat:"numerique",     impact:3, issue:"Popularise «le 1% contre les 99%» — sans victoire concrète mais change le discours économique mondial." },
+  { icon:"🇺🇦", name:"Euromaïdan / Révolution de la Dignité",         date:"2013–2014",      figure:"Vitali Klitschko / Tymochenko",pays:"Ukraine",                cat:"democratique",  impact:4, issue:"Renverse Ianoukovitch — annexion de la Crimée par Poutine, début du conflit ukrainien." },
+  { icon:"☂️", name:"Révolution des Parapluies (Hong Kong)",          date:"2014",           figure:"Joshua Wong",                 pays:"Hong Kong, Chine",        cat:"democratique",  impact:3, issue:"Revendique le suffrage universel — écrasée, prélude aux protestations de 2019 et loi sécurité." },
+  { icon:"📱", name:"Révolution de 2019 (Hong Kong)",                 date:"2019",           figure:"Joshua Wong / Agnes Chow",    pays:"Hong Kong, Chine",        cat:"numerique",     impact:3, issue:"5 millions de manifestants — loi de sécurité nationale imposée par Pékin, libertés réduites." },
+  { icon:"🌾", name:"Révolution soudanaise",                          date:"2018–2019",      figure:"Alaa Salah",                  pays:"Soudan",                  cat:"democratique",  impact:4, issue:"Chute d'Al-Bachir après 30 ans — gouvernement de transition, puis nouveau coup militaire en 2021." },
+  { icon:"🇧🇾", name:"Soulèvement biélorusse",                        date:"2020",           figure:"Sviatlana Tsikhanouskaya",    pays:"Biélorussie",             cat:"democratique",  impact:3, issue:"Élections contestées, manifestations massives — réprimées par Loukachenko soutenu par Poutine." },
+  { icon:"🇮🇷", name:"Révolution Femme Vie Liberté (Iran)",           date:"2022–2023",      figure:"Mahsa Amini / étudiantes",    pays:"Iran",                    cat:"islamique",     impact:4, issue:"Soulèvement après la mort de Mahsa Amini — réprimé mais ébranle durablement la République islamique." },
+  { icon:"🇮🇶", name:"Révolution d'Octobre irakienne",                date:"2019–2020",      figure:"Jeunesse irakienne",          pays:"Irak",                    cat:"democratique",  impact:3, issue:"600 morts, 25 000 blessés — exige la fin de la corruption et de l'ingérence iranienne." },
+  { icon:"🇱🇧", name:"Révolution du Liban (Thawra)",                  date:"2019",           figure:"Societé civile libanaise",    pays:"Liban",                   cat:"democratique",  impact:3, issue:"Soulèvement contre la classe politique corrompue — explosion de Beyrouth 2020, impasse politique." },
+  { icon:"🇲🇲", name:"Résistance au coup d'État birman",              date:"2021–présent",   figure:"Aung San Suu Kyi / PDF",      pays:"Myanmar (Birmanie)",      cat:"democratique",  impact:3, issue:"Coup militaire renverse la démocratie — résistance armée persistante, guerre civile ouverte." },
+  { icon:"🇧🇩", name:"Révolution étudiante du Bangladesh",            date:"2024",           figure:"Étudiants / Muhammad Yunus",  pays:"Bangladesh",              cat:"democratique",  impact:4, issue:"Chute de la Première ministre Hasina après 15 ans — gouvernement intérimaire de Muhammad Yunus." },
+  { icon:"🇸🇾", name:"Chute d'Assad (Syrie)",                         date:"2024",           figure:"HTS / Ahmed al-Charaa",       pays:"Syrie",                   cat:"nationale",     impact:4, issue:"Effondrement du régime Assad après 50 ans — transition incertaine vers un nouveau gouvernement." },
+];
+
+const typeLabels = {
+  "republicaine":"🏛️ Républicaine",
+  "communiste":"☭ Communiste",
+  "liberale":"🗽 Libérale",
+  "nationale":"🚩 Nationale",
+  "anticoloniale":"🌍 Anticoloniale",
+  "islamique":"🌙 Islamique",
+  "democratique":"🗳️ Démocratique",
+  "sociale":"⚒️ Sociale",
+  "paysanne":"🌾 Paysanne",
+  "numerique":"📱 Ère numérique"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${typeLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.date; vb = b.date; break;
+      case 4: va = a.figure; vb = b.figure; break;
+      case 5: va = a.pays; vb = b.pays; break;
+      case 6: va = a.cat; vb = b.cat; break;
+      case 7: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.date}</td>
+      <td class="figure-cell"><a class="g-figure" href="${G}${q(d.figure)}" target="_blank">${d.figure}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="issue-cell">${d.issue}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.impact===5).length;
+  const recentYear = rows.map(d=>d.date).sort().reverse()[0];
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Révolutions affichées : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>73 av. J.-C. → 2024</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

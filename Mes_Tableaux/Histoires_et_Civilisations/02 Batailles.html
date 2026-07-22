@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Batailles qui ont changé l'Histoire</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+
+  .name-cell {
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--sepia-dark);
+    min-width: 180px;
+  }
+  .date-cell { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .leader-cell { color: var(--red-accent); font-size: 0.86rem; min-width: 160px; }
+  .place-cell { font-size: 0.88rem; color: #4a3520; }
+  .outcome-cell { font-size: 0.85rem; color: #2a4a20; font-style: italic; }
+
+  /* BADGES RÉGION */
+  .reg-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .reg-europe    { color: #1a3a6e; background: #ddeeff; border-color: #aac4f0; }
+  .reg-asie      { color: #6e2a00; background: #fde8d8; border-color: #f5b090; }
+  .reg-amerique  { color: #1a5a2a; background: #d8f5e0; border-color: #90d0a0; }
+  .reg-afrique   { color: #6e5a00; background: #fff8d8; border-color: #e0c860; }
+  .reg-moyen-orient { color: #5a1a6e; background: #f0deff; border-color: #c890e8; }
+  .reg-mondial   { color: #2e2e2e; background: #ececec; border-color: #aaaaaa; }
+
+  /* ÉTOILES IMPACT */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-leader {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-leader:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  @media (max-width: 750px) {
+    .date-cell { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="subtitle">— Codex Bellorum Historiae —</p>
+  <h1><span class="ornament">⚔</span> 50 Batailles qui ont changé l'Histoire <span class="ornament">⚔</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des affrontements décisifs qui ont redessiné le destin des civilisations</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="europe">🏰 Europe</button>
+  <button class="filter-btn" data-cat="asie">🏯 Asie</button>
+  <button class="filter-btn" data-cat="moyen-orient">🕌 Moyen-Orient</button>
+  <button class="filter-btn" data-cat="afrique">🌍 Afrique</button>
+  <button class="filter-btn" data-cat="amerique">🌎 Amériques</button>
+  <button class="filter-btn" data-cat="mondial">🌐 Mondiale</button>
+</div>
+
+<div class="table-wrap">
+<table id="battleTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Bataille <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Date <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Commandant(s) <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Lieu <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Région <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Issue</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"🏺", name:"Bataille de Marathon",            date:"490 av. J.-C.",         leader:"Miltiade",                    place:"Marathon, Grèce",         cat:"europe",      impact:5, outcome:"Victoire grecque",  desc:"Stoppe la première invasion perse, sauve la démocratie athénienne naissante." },
+  { icon:"⚔️", name:"Bataille des Thermopyles",        date:"480 av. J.-C.",         leader:"Léonidas Iᵉʳ",               place:"Thermopyles, Grèce",      cat:"europe",      impact:4, outcome:"Défaite héroïque grecque",desc:"Sacrifice légendaire des 300 Spartiates, symbole de résistance face à l'oppression." },
+  { icon:"🌊", name:"Bataille de Salamine",             date:"480 av. J.-C.",         leader:"Thémistocle",                 place:"Détroit de Salamine, Grèce",cat:"europe",      impact:5, outcome:"Victoire grecque",  desc:"Anéantit la flotte perse, préserve la civilisation grecque et sa philosophie." },
+  { icon:"🐘", name:"Bataille de Gaugamèles",           date:"331 av. J.-C.",         leader:"Alexandre le Grand",          place:"Gaugamèles, Mésopotamie", cat:"moyen-orient", impact:5, outcome:"Victoire macédonienne",desc:"Effondre l'Empire perse achéménide, ouvre l'Asie à l'hellénisation." },
+  { icon:"🦅", name:"Bataille de Cannes",               date:"216 av. J.-C.",         leader:"Hannibal Barca",               place:"Cannes, Italie",           cat:"europe",      impact:4, outcome:"Victoire carthaginoise",desc:"Pire défaite militaire de Rome, chef-d'œuvre tactique encore étudié aujourd'hui." },
+  { icon:"🏛️", name:"Bataille d'Actium",               date:"31 av. J.-C.",          leader:"Octave / Marc Antoine",        place:"Actium, Grèce",            cat:"europe",      impact:5, outcome:"Victoire d'Octave",  desc:"Fin de la République romaine, naissance de l'Empire romain sous Auguste." },
+  { icon:"🛡️", name:"Bataille de Teutobourg",          date:"9",                      leader:"Arminius",                     place:"Forêt de Teutobourg, Germanie",cat:"europe",   impact:4, outcome:"Victoire germanique", desc:"Stoppe l'expansion romaine en Germanie, fixe durablement la frontière du Rhin." },
+  { icon:"🏺", name:"Bataille du Pont Milvius",        date:"312",                    leader:"Constantin Iᵉʳ",              place:"Rome, Italie",             cat:"europe",      impact:5, outcome:"Victoire de Constantin",desc:"Ouvre la voie à la christianisation de l'Empire romain et de l'Occident." },
+  { icon:"⚔️", name:"Bataille des Champs Catalauniques",date:"451",                  leader:"Aetius / Théodoric",           place:"Champagne, Gaule",         cat:"europe",      impact:4, outcome:"Coalition victorieuse",desc:"Stoppe Attila et les Huns, sauve l'Europe occidentale d'une invasion totale." },
+  { icon:"🌙", name:"Bataille de Poitiers",             date:"732",                    leader:"Charles Martel",               place:"Poitiers, France",         cat:"europe",      impact:5, outcome:"Victoire franque",   desc:"Stoppe l'expansion musulmane en Europe occidentale, tournant de l'histoire continentale." },
+  { icon:"🏰", name:"Bataille de Hastings",             date:"1066",                   leader:"Guillaume le Conquérant",      place:"Hastings, Angleterre",     cat:"europe",      impact:5, outcome:"Victoire normande",  desc:"Conquête normande de l'Angleterre, fusion des cultures anglo-saxonne et française." },
+  { icon:"🌙", name:"Bataille de Hattin",               date:"1187",                   leader:"Saladin",                      place:"Hattin, Terre Sainte",     cat:"moyen-orient", impact:4, outcome:"Victoire musulmane", desc:"Reconquête de Jérusalem, déclin durable des États croisés au Levant." },
+  { icon:"🏹", name:"Bataille de Liegnitz",             date:"1241",                   leader:"Batu Khan",                    place:"Légnica, Pologne",         cat:"europe",      impact:3, outcome:"Victoire mongole",   desc:"Démonstration de la puissance mongole en Europe, panique dans toute la chrétienté." },
+  { icon:"🦅", name:"Bataille d'Ain Jalout",            date:"1260",                   leader:"Baibars",                       place:"Galilée, Levant",          cat:"moyen-orient", impact:4, outcome:"Victoire mamelouke",  desc:"Première défaite majeure des Mongols, stoppe leur expansion vers l'Égypte." },
+  { icon:"🏴‍☠️", name:"Bataille de Crécy",              date:"1346",                   leader:"Édouard III",                  place:"Crécy, France",            cat:"europe",      impact:4, outcome:"Victoire anglaise",  desc:"Révolution militaire de l'arc long, début de la Guerre de Cent Ans." },
+  { icon:"⚔️", name:"Bataille d'Agincourt",            date:"1415",                   leader:"Henri V d'Angleterre",         place:"Azincourt, France",        cat:"europe",      impact:4, outcome:"Victoire anglaise",  desc:"Triomphe de l'infanterie sur la chevalerie française, légende anglaise durable." },
+  { icon:"🌙", name:"Chute de Constantinople",          date:"1453",                   leader:"Mehmed II",                     place:"Constantinople",           cat:"moyen-orient", impact:5, outcome:"Victoire ottomane",   desc:"Fin de l'Empire byzantin, début de l'expansion ottomane, fin du Moyen Âge en Europe." },
+  { icon:"🌊", name:"Bataille de Lépante",              date:"1571",                   leader:"Don Juan d'Autriche",          place:"Golfe de Patras, Grèce",   cat:"moyen-orient", impact:4, outcome:"Victoire de la Sainte Ligue",desc:"Stoppe l'expansion navale ottomane en Méditerranée occidentale." },
+  { icon:"⛵", name:"Défaite de l'Invincible Armada",   date:"1588",                   leader:"Francis Drake",                 place:"Manche, Angleterre",       cat:"europe",      impact:5, outcome:"Victoire anglaise",   desc:"Fin de la suprématie navale espagnole, essor de la puissance maritime britannique." },
+  { icon:"🐘", name:"Bataille de Panipat (3ᵉ)",         date:"1761",                   leader:"Ahmad Shah Durrani",            place:"Panipat, Inde",            cat:"asie",        impact:3, outcome:"Victoire afghane",    desc:"Affaiblit durablement l'empire Marathe, ouvre la voie à la domination britannique en Inde." },
+  { icon:"🇺🇸", name:"Bataille de Saratoga",            date:"1777",                   leader:"Horatio Gates",                 place:"New York, États-Unis",     cat:"amerique",    impact:4, outcome:"Victoire américaine", desc:"Convainc la France de soutenir les insurgents, tournant de la Révolution américaine." },
+  { icon:"🇫🇷", name:"Bataille de Valmy",                date:"1792",                   leader:"Dumouriez / Kellermann",       place:"Valmy, France",            cat:"europe",      impact:4, outcome:"Victoire française",  desc:"Sauve la Révolution française naissante, «Vive la Nation!» retentit pour la première fois." },
+  { icon:"⚓", name:"Bataille de Trafalgar",            date:"1805",                   leader:"Horatio Nelson",                place:"Cap Trafalgar, Espagne",   cat:"europe",      impact:5, outcome:"Victoire britannique",desc:"Suprématie navale britannique pour un siècle, ruine les plans d'invasion de Napoléon." },
+  { icon:"❄️", name:"Bataille de la Moskova (Borodino)",date:"1812",                   leader:"Napoléon Bonaparte",            place:"Borodino, Russie",         cat:"europe",      impact:4, outcome:"Victoire française coûteuse",desc:"Prélude au désastre de la retraite de Russie, début du déclin napoléonien." },
+  { icon:"⚜️", name:"Bataille de Waterloo",             date:"1815",                   leader:"Wellington / Blücher",         place:"Waterloo, Belgique",       cat:"europe",      impact:5, outcome:"Victoire alliée",     desc:"Fin définitive de l'ère napoléonienne, redessine la carte politique de l'Europe." },
+  { icon:"🇺🇸", name:"Bataille de Gettysburg",          date:"1863",                   leader:"George Meade / Robert E. Lee", place:"Pennsylvanie, États-Unis", cat:"amerique",    impact:5, outcome:"Victoire de l'Union", desc:"Tournant de la guerre de Sécession, vers l'abolition de l'esclavage et l'unité américaine." },
+  { icon:"🦅", name:"Bataille de Sedan",                date:"1870",                   leader:"Helmuth von Moltke",            place:"Sedan, France",            cat:"europe",      impact:4, outcome:"Victoire prussienne", desc:"Capture de Napoléon III, accélère l'unification allemande et la chute du Second Empire." },
+  { icon:"🌊", name:"Bataille de Tsushima",             date:"1905",                   leader:"Tōgō Heihachirō",              place:"Détroit de Tsushima",      cat:"asie",        impact:4, outcome:"Victoire japonaise",  desc:"Première victoire navale asiatique sur une puissance européenne, essor du Japon impérial." },
+  { icon:"💥", name:"Bataille de la Marne",             date:"1914",                   leader:"Joseph Joffre",                 place:"Marne, France",            cat:"europe",      impact:5, outcome:"Victoire franco-britannique",desc:"Stoppe l'invasion allemande éclair, transforme la guerre en conflit de tranchées prolongé." },
+  { icon:"☠️", name:"Bataille de Verdun",               date:"1916",                   leader:"Philippe Pétain / Erich von Falkenhayn",place:"Verdun, France", cat:"europe",      impact:5, outcome:"Victoire française",  desc:"Symbole absolu de l'hécatombe de la Première Guerre mondiale, 300 000 morts." },
+  { icon:"🌹", name:"Bataille de la Somme",             date:"1916",                   leader:"Douglas Haig",                  place:"Somme, France",            cat:"europe",      impact:4, outcome:"Victoire alliée coûteuse",desc:"Journée la plus meurtrière de l'histoire britannique, première utilisation massive du char." },
+  { icon:"🚢", name:"Bataille du Jutland",              date:"1916",                   leader:"John Jellicoe",                 place:"Mer du Nord",              cat:"europe",      impact:3, outcome:"Indécise (Britanniques avantagés)",desc:"Plus grande bataille navale de la 1ʳᵉ Guerre mondiale, maintient le blocus naval allemand." },
+  { icon:"🇷🇺", name:"Révolution d'Octobre (prise de pouvoir)",date:"1917",            leader:"Vladimir Lénine",                place:"Petrograd, Russie",        cat:"mondial",     impact:5, outcome:"Victoire bolchévique",desc:"Naissance de l'URSS, début du communisme d'État qui façonnera tout le XXᵉ siècle." },
+  { icon:"⛓️", name:"Bataille de Stalingrad",          date:"1942–1943",              leader:"Vassili Tchouïkov / Friedrich Paulus",place:"Stalingrad, URSS", cat:"europe",      impact:5, outcome:"Victoire soviétique", desc:"Tournant décisif de la 2ᵉ Guerre mondiale sur le front de l'Est, début du recul allemand." },
+  { icon:"🌊", name:"Débarquement de Normandie",        date:"1944",                   leader:"Dwight D. Eisenhower",          place:"Normandie, France",        cat:"europe",      impact:5, outcome:"Victoire alliée",    desc:"Ouverture du second front à l'Ouest, début de la libération de l'Europe occupée." },
+  { icon:"🛩️", name:"Bataille d'Angleterre",            date:"1940",                   leader:"Winston Churchill / Hugh Dowding",place:"Ciel britannique",        cat:"europe",      impact:5, outcome:"Victoire britannique",desc:"Première défaite stratégique d'Hitler, sauve le Royaume-Uni d'une invasion." },
+  { icon:"🌊", name:"Bataille de Midway",               date:"1942",                   leader:"Chester Nimitz",                place:"Atoll de Midway, Pacifique",cat:"asie",       impact:5, outcome:"Victoire américaine",desc:"Tournant décisif du Pacifique, fin de la suprématie navale japonaise." },
+  { icon:"☢️", name:"Bombardements d'Hiroshima et Nagasaki",date:"1945",                leader:"Harry Truman",                  place:"Japon",                    cat:"asie",        impact:5, outcome:"Capitulation japonaise",desc:"Entrée dans l'ère nucléaire, fin de la 2ᵉ Guerre mondiale, début de la dissuasion atomique." },
+  { icon:"🐉", name:"Bataille de Dien Bien Phu",        date:"1954",                   leader:"Võ Nguyên Giáp",                 place:"Diên Biên Phu, Vietnam",   cat:"asie",        impact:5, outcome:"Victoire vietnamienne",desc:"Fin de la présence coloniale française en Indochine, symbole des décolonisations." },
+  { icon:"🏜️", name:"Guerre des Six Jours",             date:"1967",                   leader:"Moshe Dayan",                   place:"Israël / pays voisins",    cat:"moyen-orient", impact:5, outcome:"Victoire israélienne", desc:"Redessine durablement les frontières du Proche-Orient, occupation des territoires." },
+  { icon:"🌴", name:"Offensive du Têt",                 date:"1968",                   leader:"Võ Nguyên Giáp",                 place:"Vietnam",                  cat:"asie",        impact:4, outcome:"Victoire militaire US, défaite politique",desc:"Bascule l'opinion publique américaine contre la guerre du Vietnam." },
+  { icon:"🪖", name:"Bataille de Khe Sanh",             date:"1968",                   leader:"William Westmoreland",          place:"Khe Sanh, Vietnam",        cat:"asie",        impact:3, outcome:"Victoire américaine",desc:"Symbole de l'enlisement américain au Vietnam malgré la victoire tactique." },
+  { icon:"❄️", name:"Bataille des Ardennes",            date:"1944–1945",              leader:"Dwight D. Eisenhower",          place:"Ardennes, Belgique",       cat:"europe",      impact:4, outcome:"Victoire alliée",    desc:"Dernière offensive allemande majeure, épuise les réserves militaires du Troisième Reich." },
+  { icon:"🏯", name:"Bataille de Sekigahara",           date:"1600",                   leader:"Tokugawa Ieyasu",               place:"Sekigahara, Japon",        cat:"asie",        impact:4, outcome:"Victoire de Tokugawa",desc:"Unifie le Japon, débute le shogunat Tokugawa et 250 ans de paix isolationniste." },
+  { icon:"🐎", name:"Bataille de Kalka",                date:"1223",                   leader:"Subötaï",                       place:"Rivière Kalka, Ukraine",   cat:"europe",      impact:3, outcome:"Victoire mongole",    desc:"Première confrontation entre Mongols et principautés russes, prélude à l'invasion future." },
+  { icon:"🏔️", name:"Bataille de Talas",               date:"751",                    leader:"Ziyad ibn Salih",               place:"Rivière Talas, Asie centrale",cat:"asie",      impact:4, outcome:"Victoire abbasside", desc:"Transmission du papier de la Chine au monde islamique, puis à l'Europe — révolution culturelle." },
+  { icon:"⚔️", name:"Bataille de Yarmouk",              date:"636",                    leader:"Khalid ibn al-Walid",            place:"Rivière Yarmouk, Syrie",   cat:"moyen-orient", impact:5, outcome:"Victoire musulmane",  desc:"Fin de la domination byzantine au Levant, ouvre la voie à l'expansion islamique rapide." },
+  { icon:"🏺", name:"Bataille de Kadesh",               date:"~1274 av. J.-C.",        leader:"Ramsès II / Muwatalli II",      place:"Kadesh, Syrie",            cat:"moyen-orient", impact:3, outcome:"Indécise",            desc:"Premier traité de paix de l'histoire signé entre Égyptiens et Hittites en 1259 av. J.-C." },
+  { icon:"🌍", name:"Bataille d'Omdurman",              date:"1898",                   leader:"Herbert Kitchener",             place:"Omdurman, Soudan",         cat:"afrique",     impact:3, outcome:"Victoire britannique",desc:"Consolide le contrôle colonial britannique sur le Soudan et la vallée du Nil." },
+  { icon:"🦁", name:"Bataille d'Adoua",                 date:"1896",                   leader:"Ménélik II",                    place:"Adoua, Éthiopie",          cat:"afrique",     impact:4, outcome:"Victoire éthiopienne",desc:"Seule victoire africaine décisive contre une puissance coloniale européenne au XIXᵉ siècle." },
+];
+
+const catLabels = {
+  "europe":"🏰 Europe", "asie":"🏯 Asie", "moyen-orient":"🕌 Moyen-Orient",
+  "afrique":"🌍 Afrique", "amerique":"🌎 Amériques", "mondial":"🌐 Mondiale"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function regBadge(cat) {
+  return `<span class="reg-badge reg-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.date; vb = b.date; break;
+      case 4: va = a.leader; vb = b.leader; break;
+      case 5: va = a.place; vb = b.place; break;
+      case 6: va = a.cat; vb = b.cat; break;
+      case 7: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' histoire')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.date}</td>
+      <td class="leader-cell"><a class="g-leader" href="${G}${q(d.leader)}" target="_blank">${d.leader}<sup class="arr"> ↗</sup></a></td>
+      <td class="place-cell">${d.place}</td>
+      <td>${regBadge(d.cat)}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="outcome-cell">${d.outcome}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.impact===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Batailles affichées : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>1274 av. J.-C. → 1968</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

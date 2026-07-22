@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventions qui ont changé le monde</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #2c1a0e;
+    --sepia-mid:    #7a4f2d;
+    --sepia-light:  #c9a97a;
+    --parch-bg:     #f5ead3;
+    --parch-card:   #fdf6e3;
+    --ink:          #1e0f05;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --red-accent:   #8b2500;
+    --shadow:       rgba(44,26,14,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 2.8rem;
+    position: relative;
+  }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.5rem, 4vw, 2.6rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.4em; }
+
+  /* ── FILTRES ── */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--parch-card);
+    font-size: 0.95rem;
+  }
+
+  /* ── THEAD ── */
+  thead tr {
+    background: var(--sepia-dark);
+  }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold-light); }
+
+  /* ── TBODY ── */
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.4s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    line-height: 1.45;
+  }
+
+  /* Colonne N° */
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 3rem;
+  }
+
+  /* Colonne Icône */
+  .icon-cell { text-align: center; font-size: 1.4rem; width: 3rem; }
+
+  /* Colonne Invention */
+  .name-cell {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--sepia-dark);
+    min-width: 160px;
+  }
+
+  /* Colonne Époque */
+  .era-cell {
+    font-style: italic;
+    color: var(--sepia-mid);
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  /* Colonne Inventeur */
+  .inventor-cell { color: var(--red-accent); font-size: 0.9rem; }
+
+  /* Colonne Catégorie */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-science    { color: #1a5276; background: #d6eaf8; border-color: #aed6f1; }
+  .cat-medecine   { color: #6e2222; background: #fde8e8; border-color: #f5b7b1; }
+  .cat-energie    { color: #7d6608; background: #fef9e7; border-color: #f9e79f; }
+  .cat-transport  { color: #145a32; background: #d5f5e3; border-color: #a9dfbf; }
+  .cat-info       { color: #4a235a; background: #f4ecf7; border-color: #d7bde2; }
+  .cat-comm       { color: #6e4c00; background: #fdf2e9; border-color: #f0b27a; }
+  .cat-industrie  { color: #2e4053; background: #eaf2ff; border-color: #aab7b8; }
+  .cat-agri       { color: #1d5f1a; background: #e9f7ef; border-color: #a9dfbf; }
+  .cat-militaire  { color: #512e1c; background: #fdebd0; border-color: #f0c891; }
+  .cat-social     { color: #2e2e7a; background: #eaf0fb; border-color: #b0bde8; }
+
+  /* Colonne Impact */
+  .stars { color: var(--gold); letter-spacing: 0.05em; font-size: 1rem; }
+
+  /* Description */
+  .desc-cell { font-size: 0.88rem; color: #4a3520; min-width: 220px; max-width: 340px; }
+
+  /* Liens Wikipédia */
+  a.wiki-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.wiki-link:hover {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+  a.wiki-inv {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.wiki-inv:hover {
+    color: #c0392b;
+    border-bottom-color: #c0392b;
+  }
+
+  /* ── STATS ── */
+  .stats-bar {
+    max-width: 1200px;
+    margin: 1.4rem auto 0;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .stat {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.07em;
+  }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  /* ── ANIMATION ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--sepia-light);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+  /* Toutes les colonnes restent visibles sur mobile, scroll horizontal si besoin */
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="subtitle">— Codex Historiae Technologicae —</p>
+  <h1><span class="ornament">✦</span> Inventions qui ont changé la face du monde <span class="ornament">✦</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">50 découvertes fondatrices de la civilisation humaine</p>
+</header>
+
+<!-- FILTRES -->
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="science">⚗️ Sciences</button>
+  <button class="filter-btn" data-cat="medecine">🩺 Médecine</button>
+  <button class="filter-btn" data-cat="energie">⚡ Énergie</button>
+  <button class="filter-btn" data-cat="transport">🚂 Transport</button>
+  <button class="filter-btn" data-cat="info">💻 Informatique</button>
+  <button class="filter-btn" data-cat="comm">📡 Communication</button>
+  <button class="filter-btn" data-cat="industrie">⚙️ Industrie</button>
+  <button class="filter-btn" data-cat="agri">🌾 Agriculture</button>
+  <button class="filter-btn" data-cat="militaire">⚔️ Militaire</button>
+  <button class="filter-btn" data-cat="social">📜 Social</button>
+</div>
+
+<div class="table-wrap">
+<table id="inventTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Invention <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Inventeur(s) <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Catégorie <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const DATA = [
+  { icon:"🔥", name:"Maîtrise du feu",         wikiName:"Maîtrise_du_feu_par_les_hominidés", era:"~400 000 av. J.-C.", inventor:"Homo erectus",                wikiInv:"Homo_erectus",                  cat:"science",   impact:5, desc:"Cuisson, chaleur, protection — fondement de la civilisation humaine." },
+  { icon:"🗿", name:"Outil en pierre taillée",  wikiName:"Taille_de_la_pierre",               era:"~2,6 M av. J.-C.",  inventor:"Homo habilis",                wikiInv:"Homo_habilis",                  cat:"industrie", impact:5, desc:"Premier outil fabriqué, amorce de la technologie humaine." },
+  { icon:"🌾", name:"Agriculture",              wikiName:"Agriculture",                        era:"~10 000 av. J.-C.", inventor:"Mésopotamie / Croissant fertile",wikiInv:"Croissant_fertile",            cat:"agri",      impact:5, desc:"Sédentarisation, surplus alimentaire, naissance des civilisations." },
+  { icon:"🎡", name:"La Roue",                  wikiName:"Roue",                               era:"~3 500 av. J.-C.",  inventor:"Mésopotamie",                 wikiInv:"Mésopotamie",                   cat:"transport", impact:5, desc:"Transport, poterie, mécanismes — révolution mécanique fondamentale." },
+  { icon:"✍️", name:"L'Écriture",               wikiName:"Écriture",                           era:"~3 200 av. J.-C.",  inventor:"Sumériens",                   wikiInv:"Sumériens",                     cat:"social",    impact:5, desc:"Transmission du savoir, administration, histoire — mémoire collective." },
+  { icon:"🔢", name:"Les Mathématiques",        wikiName:"Mathématiques",                      era:"~3 000 av. J.-C.",  inventor:"Babyloniens / Égyptiens",     wikiInv:"Mathématiques_babyloniennes",   cat:"science",   impact:5, desc:"Langage universel de la science et de l'ingénierie." },
+  { icon:"⚓", name:"Navigation maritime",      wikiName:"Navigation",                         era:"~3 000 av. J.-C.",  inventor:"Phéniciens",                  wikiInv:"Phéniciens",                    cat:"transport", impact:4, desc:"Commerce mondial, exploration des continents, échanges culturels." },
+  { icon:"🔩", name:"La Métallurgie (bronze/fer)",wikiName:"Métallurgie",                      era:"~3 000 av. J.-C.",  inventor:"Proche-Orient",               wikiInv:"Âge_du_bronze",                 cat:"industrie", impact:5, desc:"Outils, armes, bâtiments — infrastructure de toute civilisation." },
+  { icon:"💧", name:"Irrigation",               wikiName:"Irrigation",                         era:"~2 500 av. J.-C.",  inventor:"Mésopotamie",                 wikiInv:"Mésopotamie",                   cat:"agri",      impact:4, desc:"Agriculture intensive, alimentation de populations denses." },
+  { icon:"📜", name:"Le Papyrus / Parchemin",   wikiName:"Papyrus",                            era:"~2 400 av. J.-C.",  inventor:"Égyptiens",                   wikiInv:"Égypte_antique",                cat:"comm",      impact:4, desc:"Support d'écriture portable, diffusion du savoir." },
+  { icon:"🏛️", name:"Architecture en arc",      wikiName:"Arc_(architecture)",                era:"~2 000 av. J.-C.",  inventor:"Mésopotamie / Rome",          wikiInv:"Architecture_romaine",          cat:"industrie", impact:4, desc:"Ponts, aqueducs, cathédrales — constructions monumentales durables." },
+  { icon:"🧭", name:"La Boussole",              wikiName:"Boussole",                           era:"~200 av. J.-C.",    inventor:"Chine",                       wikiInv:"Inventions_chinoises",          cat:"transport", impact:5, desc:"Navigation précise, explorations mondiales, âge des découvertes." },
+  { icon:"📖", name:"Imprimerie à caractères",  wikiName:"Imprimerie",                         era:"1440",              inventor:"Johannes Gutenberg",          wikiInv:"Johannes_Gutenberg",            cat:"comm",      impact:5, desc:"Démocratisation du savoir, Réforme, Lumières — révolution culturelle." },
+  { icon:"🔭", name:"Télescope",                wikiName:"Télescope",                          era:"1608",              inventor:"Hans Lippershey / Galilée",   wikiInv:"Galilée_(savant)",              cat:"science",   impact:5, desc:"Révolution copernicienne, astronomie moderne, vision de l'univers." },
+  { icon:"🦠", name:"Microscope",               wikiName:"Microscope",                         era:"1590",              inventor:"Zacharias Janssen",           wikiInv:"Zacharias_Janssen",             cat:"medecine",  impact:5, desc:"Découverte des microbes, révolution médicale et biologique." },
+  { icon:"⚙️", name:"Machine à vapeur",         wikiName:"Machine_à_vapeur",                  era:"1769",              inventor:"James Watt",                  wikiInv:"James_Watt",                    cat:"energie",   impact:5, desc:"Révolution industrielle, mécanisation du travail, industrie moderne." },
+  { icon:"💉", name:"Vaccination",              wikiName:"Vaccination",                        era:"1796",              inventor:"Edward Jenner",               wikiInv:"Edward_Jenner",                 cat:"medecine",  impact:5, desc:"Éradication de maladies mortelles, santé publique mondiale." },
+  { icon:"⚡", name:"Électricité (usage pratique)",wikiName:"Électricité",                     era:"1831",              inventor:"Michael Faraday",             wikiInv:"Michael_Faraday",               cat:"energie",   impact:5, desc:"Moteurs, éclairage, toute l'industrie et la société modernes." },
+  { icon:"🚂", name:"Locomotive à vapeur",      wikiName:"Locomotive_à_vapeur",               era:"1804",              inventor:"Richard Trevithick",          wikiInv:"Richard_Trevithick",            cat:"transport", impact:5, desc:"Réseau ferroviaire mondial, industrialisation, unification territoriale." },
+  { icon:"📷", name:"Photographie",             wikiName:"Photographie",                       era:"1826",              inventor:"Nicéphore Niépce",            wikiInv:"Nicéphore_Niépce",              cat:"comm",      impact:4, desc:"Mémoire visuelle de l'humanité, art, journalisme, sciences." },
+  { icon:"📞", name:"Téléphone",                wikiName:"Téléphone",                          era:"1876",              inventor:"Alexander Graham Bell",       wikiInv:"Alexander_Graham_Bell",         cat:"comm",      impact:5, desc:"Communication vocale à distance — connectivité humaine mondiale." },
+  { icon:"💡", name:"Ampoule électrique",       wikiName:"Ampoule_électrique",                era:"1879",              inventor:"Thomas Edison",               wikiInv:"Thomas_Edison",                 cat:"energie",   impact:5, desc:"Éclairage artificiel, fin de la contrainte diurne, productivité." },
+  { icon:"🚗", name:"Automobile",               wikiName:"Automobile",                         era:"1885",              inventor:"Karl Benz",                   wikiInv:"Karl_Benz",                     cat:"transport", impact:5, desc:"Mobilité individuelle, urbanisme, économie mondiale du pétrole." },
+  { icon:"📻", name:"Radio / Ondes hertziennes",wikiName:"Radio_(communication)",              era:"1895",              inventor:"Guglielmo Marconi",           wikiInv:"Guglielmo_Marconi",             cat:"comm",      impact:5, desc:"Communication sans fil, information de masse, militaire." },
+  { icon:"✈️", name:"Avion",                    wikiName:"Avion",                              era:"1903",              inventor:"Frères Wright",               wikiInv:"Frères_Wright",                 cat:"transport", impact:5, desc:"Transport intercontinental, mondialisation, guerres aériennes." },
+  { icon:"☢️", name:"Théorie de la relativité", wikiName:"Théorie_de_la_relativité",          era:"1905",              inventor:"Albert Einstein",             wikiInv:"Albert_Einstein",               cat:"science",   impact:5, desc:"Physique moderne, nucléaire, GPS, cosmologie — paradigme scientifique." },
+  { icon:"🧬", name:"Pénicilline / Antibiotiques",wikiName:"Pénicilline",                     era:"1928",              inventor:"Alexander Fleming",           wikiInv:"Alexander_Fleming",             cat:"medecine",  impact:5, desc:"Traitement des infections, millions de vies sauvées." },
+  { icon:"🖥️", name:"Ordinateur électronique",  wikiName:"Histoire_de_l'informatique",        era:"1945",              inventor:"Eckert & Mauchly (ENIAC)",    wikiInv:"ENIAC",                         cat:"info",      impact:5, desc:"Calcul automatisé, intelligence artificielle, révolution numérique." },
+  { icon:"🧬", name:"Structure de l'ADN",        wikiName:"Acide_désoxyribonucléique",         era:"1953",              inventor:"Watson, Crick, Franklin",    wikiInv:"James_Watson",                  cat:"medecine",  impact:5, desc:"Génétique, médecine personnalisée, biotechnologies." },
+  { icon:"🛰️", name:"Satellite artificiel",      wikiName:"Satellite_artificiel",              era:"1957",              inventor:"URSS (Spoutnik)",             wikiInv:"Spoutnik_1",                    cat:"comm",      impact:5, desc:"GPS, météo, télécommunications, surveillance globale." },
+  { icon:"🌐", name:"Internet",                  wikiName:"Internet",                           era:"1969",              inventor:"ARPA (J.C.R. Licklider)",    wikiInv:"J._C._R._Licklider",            cat:"info",      impact:5, desc:"Réseau mondial d'information — transformation totale de la société." },
+  { icon:"💻", name:"Microprocesseur",           wikiName:"Microprocesseur",                    era:"1971",              inventor:"Intel (Ted Hoff)",            wikiInv:"Intel_4004",                    cat:"info",      impact:5, desc:"Miniaturisation, ordinateurs personnels, smartphones." },
+  { icon:"🧪", name:"Génie génétique (ADN rec.)",wikiName:"Génie_génétique",                   era:"1973",              inventor:"Cohen & Boyer",               wikiInv:"Stanley_Norman_Cohen",          cat:"medecine",  impact:5, desc:"OGM, insuline synthétique, thérapies géniques, CRISPR." },
+  { icon:"☀️", name:"Énergie solaire photovolt.", wikiName:"Cellule_photovoltaïque",           era:"1954",              inventor:"Bell Labs",                   wikiInv:"Bell_Labs",                     cat:"energie",   impact:4, desc:"Énergie renouvelable, transition écologique, électrification rurale." },
+  { icon:"📱", name:"Téléphone mobile",          wikiName:"Téléphone_mobile",                  era:"1973",              inventor:"Martin Cooper (Motorola)",    wikiInv:"Martin_Cooper_(inventeur)",     cat:"comm",      impact:5, desc:"Connexion permanente, ubiquité informatique, économie numérique." },
+  { icon:"🔬", name:"Séquençage du génome",      wikiName:"Séquençage_de_l'ADN",               era:"1977–2003",         inventor:"Sanger / Projet génome hum.", wikiInv:"Frederick_Sanger",              cat:"medecine",  impact:5, desc:"Médecine de précision, diagnostics génétiques, oncologie." },
+  { icon:"🌍", name:"GPS (navigation par sat.)", wikiName:"Système_de_positionnement_par_satellites",era:"1978",       inventor:"U.S. Department of Defense",  wikiInv:"Système_de_positionnement_par_satellites", cat:"transport", impact:5, desc:"Navigation universelle, logistique, cartographie, sécurité." },
+  { icon:"🖨️", name:"Imprimante 3D",             wikiName:"Impression_3D",                     era:"1983",              inventor:"Chuck Hull",                  wikiInv:"Chuck_Hull",                    cat:"industrie", impact:4, desc:"Prototypage rapide, médecine (prothèses), construction, aérospatial." },
+  { icon:"🌐", name:"World Wide Web",            wikiName:"World_Wide_Web",                     era:"1989",              inventor:"Tim Berners-Lee",             wikiInv:"Tim_Berners-Lee",               cat:"info",      impact:5, desc:"Hypertexte, démocratisation de l'information, e-commerce, réseaux sociaux." },
+  { icon:"🔋", name:"Batterie lithium-ion",      wikiName:"Accumulateur_lithium-ion",          era:"1991",              inventor:"Sony / Goodenough",           wikiInv:"John_Goodenough",               cat:"energie",   impact:5, desc:"Smartphones, véhicules électriques, stockage d'énergie renouvelable." },
+  { icon:"💊", name:"Thérapies antivirales (VIH)",wikiName:"Traitement_antirétroviral",        era:"1996",              inventor:"Ho, Montaner et al.",         wikiInv:"David_Ho_(scientifique)",       cat:"medecine",  impact:4, desc:"Transformation du VIH en maladie chronique, espoir pour des millions." },
+  { icon:"🤖", name:"Robotique industrielle avancée",wikiName:"Robotique_industrielle",       era:"années 1990",       inventor:"KUKA, Fanuc, ABB",            wikiInv:"Robotique_industrielle",        cat:"industrie", impact:4, desc:"Automatisation, productivité, chirurgie assistée, exploration spatiale." },
+  { icon:"☁️", name:"Informatique en nuage",     wikiName:"Informatique_en_nuage",             era:"2006",              inventor:"Amazon (AWS)",                wikiInv:"Amazon_Web_Services",           cat:"info",      impact:4, desc:"Démocratisation de la puissance de calcul, SaaS, big data." },
+  { icon:"🧬", name:"Édition génomique CRISPR",  wikiName:"CRISPR-Cas9",                       era:"2012",              inventor:"Doudna & Charpentier",        wikiInv:"Jennifer_Doudna",               cat:"medecine",  impact:5, desc:"Correction des gènes, traitement des maladies génétiques, révolution biomédicale." },
+  { icon:"🚗", name:"Véhicule électrique de masse",wikiName:"Véhicule_électrique",             era:"2012",              inventor:"Tesla / Elon Musk",           wikiInv:"Tesla,_Inc.",                   cat:"transport", impact:4, desc:"Transition énergétique, réduction des émissions, mobilité durable." },
+  { icon:"🧠", name:"Intelligence artificielle", wikiName:"Intelligence_artificielle",          era:"2010–2020s",        inventor:"Hinton, LeCun, Bengio...",    wikiInv:"Geoffrey_Hinton",               cat:"info",      impact:5, desc:"Automatisation cognitive, diagnostic médical, création, décision." },
+  { icon:"💉", name:"Vaccins ARNm",              wikiName:"Vaccin_à_ARN_messager",             era:"2020",              inventor:"Karikó, Weissman / BioNTech", wikiInv:"Katalin_Karikó",                cat:"medecine",  impact:5, desc:"COVID-19, cancer, grippe — nouvelle plateforme vaccinale universelle." },
+  { icon:"🔭", name:"Télescope James Webb",      wikiName:"Télescope_spatial_James-Webb",      era:"2021",              inventor:"NASA / ESA / CSA",            wikiInv:"Télescope_spatial_James-Webb",  cat:"science",   impact:4, desc:"Observation de l'univers primordial, exoplanètes, cosmologie de précision." },
+  { icon:"⚛️", name:"Fusion nucléaire (ignition)",wikiName:"Fusion_nucléaire",                era:"2022",              inventor:"NIF / Lawrence Livermore",    wikiInv:"National_Ignition_Facility",    cat:"energie",   impact:5, desc:"Énergie illimitée propre à l'horizon — changement de paradigme énergétique." },
+  { icon:"🤖", name:"IA générative (LLM)",       wikiName:"Grand_modèle_de_langage",           era:"2022–2025",         inventor:"OpenAI, Anthropic, Google",   wikiInv:"ChatGPT",                       cat:"info",      impact:5, desc:"Révolution du travail intellectuel, créativité augmentée, nouveaux risques." },
+];
+
+const catLabels = {
+  science:"science", medecine:"medecine", energie:"energie",
+  transport:"transport", info:"info", comm:"comm",
+  industrie:"industrie", agri:"agri", militaire:"militaire", social:"social"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) {
+  return "★".repeat(n) + "☆".repeat(5-n);
+}
+
+function catBadge(cat) {
+  const labels = {
+    science:"⚗️ Sciences", medecine:"🩺 Médecine", energie:"⚡ Énergie",
+    transport:"🚂 Transport", info:"💻 Informatique", comm:"📡 Communication",
+    industrie:"⚙️ Industrie", agri:"🌾 Agriculture",
+    militaire:"⚔️ Militaire", social:"📜 Social"
+  };
+  return `<span class="cat-badge cat-${cat}">${labels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+
+  // tri
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.era; vb = b.era; break;
+      case 4: va = a.inventor; vb = b.inventor; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = rows.map((d,i) => {
+    const googleBase = "https://www.google.com/search?q=";
+    const nameLink = `<a class="wiki-link" href="${googleBase}${encodeURIComponent(d.name)}" target="_blank" title="Rechercher sur Google">${d.name} <sup style="font-size:0.6em;opacity:0.6">↗</sup></a>`;
+    const invLink = `<a class="wiki-inv" href="${googleBase}${encodeURIComponent(d.inventor)}" target="_blank" title="Rechercher sur Google">${d.inventor} <sup style="font-size:0.6em;opacity:0.6">↗</sup></a>`;
+    return `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell">${nameLink}</td>
+      <td class="era-cell">${d.era}</td>
+      <td class="inventor-cell">${invLink}</td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`;
+  }).join('');
+
+  // stats
+  const bar = document.getElementById('statsBar');
+  const maxImpact = rows.filter(d=>d.impact===5).length;
+  bar.innerHTML = `
+    <span class="stat">Entrées affichées : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${maxImpact}</span></span>
+    <span class="stat">Période : <span>${rows[0]?.era||'—'} → ${rows[rows.length-1]?.era||'—'}</span></span>
+  `;
+}
+
+// Filtres
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+// Tri colonnes
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
