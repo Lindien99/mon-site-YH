@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Tableaux — Yvon H.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold:         #c9a84c;
+            --gold-dim:     rgba(201,168,76,0.3);
+            --parchment:    #f5ead8;
+            --parchment-dim:rgba(245,234,216,0.5);
+            --bg:           #07090f;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--parchment);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            min-height: 100vh;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 40% at 50% 25%, rgba(201,168,76,0.04) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── EN-TÊTE ── */
+        .page-header {
+            text-align: center;
+            padding: 64px 40px 44px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 32px;
+            font-size: 0.65rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--gold);
+            text-decoration: none;
+            opacity: 0.65;
+            transition: opacity 0.25s;
+        }
+        .btn-back:hover { opacity: 1; }
+
+        .eyebrow {
+            font-size: 0.68rem;
+            letter-spacing: 0.45em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.8;
+            margin-bottom: 16px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            font-weight: 900;
+            color: var(--parchment);
+            line-height: 1.05;
+        }
+
+        .page-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 22px auto;
+        }
+
+        .page-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-style: italic;
+            color: var(--parchment-dim);
+        }
+
+        /* ── GRILLE CATÉGORIES ── */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 40px 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 22px;
+        }
+
+        .cat-carte {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 34px 26px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            text-decoration: none;
+            color: var(--parchment);
+            background: rgba(255,255,255,0.015);
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .cat-carte.active {
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            cursor: pointer;
+        }
+
+        .cat-carte.active:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.45);
+            border-color: var(--gold);
+        }
+
+        .cat-carte.inactive {
+            opacity: 0.42;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .cat-num {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2rem;
+            font-style: italic;
+            font-weight: 400;
+            color: var(--gold);
+            opacity: 0.35;
+            line-height: 1;
+            margin-bottom: 14px;
+        }
+
+        .cat-carte.active:hover .cat-num { opacity: 0.6; }
+
+        .cat-nom {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1rem, 1.8vw, 1.2rem);
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .cat-desc {
+            font-size: 0.92rem;
+            font-style: italic;
+            color: var(--parchment-dim);
+            line-height: 1.7;
+            flex: 1;
+        }
+
+        .badge-avenir {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.58rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(201,168,76,0.45);
+            border: 1px solid rgba(201,168,76,0.18);
+            padding: 4px 10px;
+            border-radius: 2px;
+            align-self: flex-start;
+        }
+
+        .badge-entrer {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.58rem;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border-bottom: 1px solid rgba(201,168,76,0.4);
+            padding-bottom: 2px;
+            align-self: flex-start;
+            transition: letter-spacing 0.3s;
+        }
+
+        .cat-carte.active:hover .badge-entrer { letter-spacing: 0.52em; }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 24px 40px 40px;
+            font-size: 0.68rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(245,234,216,0.16);
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .page-header { padding: 48px 20px 32px; }
+            main { padding: 10px 18px 60px; grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <header class="page-header">
+        <a href="../index.html" class="btn-back">← Accueil</a>
+        <p class="eyebrow">✦ &nbsp; Collections Thématiques &nbsp; ✦</p>
+        <h1 class="page-title">Mes <em>Tableaux</em></h1>
+        <div class="divider"></div>
+        <p class="page-subtitle">Huit grandes thématiques à explorer et à compléter</p>
+    </header>
+
+    <main>
+        <!-- I – Histoires & Civilisations (actif) -->
+        <a href="Histoires_et_Civilisations/index.html" class="cat-carte active">
+            <div class="cat-num">I</div>
+            <div class="cat-nom">Histoires &amp; Civilisations</div>
+            <p class="cat-desc">Empires, batailles, traités, révolutions et inventions qui ont façonné le monde</p>
+            <span class="badge-entrer">Explorer →</span>
+        </a>
+
+        <!-- II – Sciences & Savoirs -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">II</div>
+            <div class="cat-nom">Sciences &amp; Savoirs</div>
+            <p class="cat-desc">Découvertes, inventeurs, théories et grandes avancées de l'humanité</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- III – Arts & Culture -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">III</div>
+            <div class="cat-nom">Arts &amp; Culture</div>
+            <p class="cat-desc">Musique, peinture, architecture et littérature à travers les siècles</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- IV – Nature & Environnement -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">IV</div>
+            <div class="cat-nom">Nature &amp; Environnement</div>
+            <p class="cat-desc">Faune, flore, géologie, phénomènes naturels et enjeux écologiques</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- V – Philosophie & Société -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">V</div>
+            <div class="cat-nom">Philosophie &amp; Société</div>
+            <p class="cat-desc">Grands penseurs, courants philosophiques, civilisations et idéaux humains</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- VI – Futur & Technologies -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">VI</div>
+            <div class="cat-nom">Futur &amp; Technologies</div>
+            <p class="cat-desc">Innovations, intelligence artificielle, espace et sciences de demain</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- VII – Géographie & Voyages -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">VII</div>
+            <div class="cat-nom">Géographie &amp; Voyages</div>
+            <p class="cat-desc">Pays, capitales, cultures, paysages et destinations du monde entier</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+
+        <!-- VIII – Gastronomie & Culture -->
+        <div class="cat-carte inactive">
+            <div class="cat-num">VIII</div>
+            <div class="cat-nom">Gastronomie &amp; Culture</div>
+            <p class="cat-desc">Cuisines du monde, recettes traditionnelles et arts de la table</p>
+            <span class="badge-avenir">À venir</span>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
+    </footer>
+</body>
+</html>

@@ -4,23 +4,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collection Européenne - Yvon H.</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Collection Yvon H.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold:          #c9a84c;
+            --gold-dim:      rgba(201,168,76,0.32);
+            --parchment:     #f5ead8;
+            --parchment-dim: rgba(245,234,216,0.5);
+            --bg:            #07090f;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--parchment);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 45% at 30% 60%, rgba(201,168,76,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 35% at 70% 40%, rgba(40,60,120,0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            font-size: 0.68rem;
+            letter-spacing: 0.46em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.8;
+            margin-bottom: 22px;
+            animation: fadeUp 0.8s ease both;
+        }
+
+        .site-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.0;
+            color: var(--parchment);
+            letter-spacing: 0.02em;
+            animation: fadeUp 0.8s 0.1s ease both;
+        }
+
+        .site-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .divider {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 30px auto;
+            animation: fadeIn 1.5s 0.3s ease both;
+        }
+
+        .site-subtitle {
+            font-size: clamp(1rem, 2.2vw, 1.25rem);
+            font-style: italic;
+            color: var(--parchment-dim);
+            letter-spacing: 0.05em;
+            margin-bottom: 68px;
+            animation: fadeUp 0.8s 0.2s ease both;
+        }
+
+        /* ── CARTES DE CHOIX ── */
+        .choix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            animation: fadeUp 0.9s 0.35s ease both;
+        }
+
+        .choix-carte {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 58px 36px;
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            text-decoration: none;
+            color: var(--parchment);
+            background: rgba(255,255,255,0.015);
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .choix-carte::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 70% at 50% 110%, rgba(201,168,76,0.09) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .choix-carte:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.45);
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.02);
+        }
+
+        .choix-carte:hover::after { opacity: 1; }
+
+        .carte-num {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 4rem;
+            font-weight: 400;
+            font-style: italic;
+            color: var(--gold);
+            opacity: 0.22;
+            line-height: 1;
+            margin-bottom: 20px;
+            transition: opacity 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .choix-carte:hover .carte-num { opacity: 0.5; }
+
+        .carte-titre {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+            font-weight: 700;
+            color: var(--parchment);
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .carte-desc {
+            font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+            font-style: italic;
+            color: var(--parchment-dim);
+            line-height: 1.75;
+            max-width: 340px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .carte-cta {
+            display: inline-block;
+            margin-top: 32px;
+            font-size: 0.62rem;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: var(--gold);
+            padding-bottom: 3px;
+            border-bottom: 1px solid rgba(201,168,76,0.35);
+            transition: letter-spacing 0.35s ease, border-color 0.35s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .choix-carte:hover .carte-cta {
+            letter-spacing: 0.56em;
+            border-color: var(--gold);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            margin-top: 80px;
+            font-size: 0.68rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(245,234,216,0.16);
+            animation: fadeIn 1.5s 0.7s ease both;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .container { padding: 60px 22px; }
+            .choix-grid { grid-template-columns: 1fr; gap: 18px; }
+            .choix-carte { min-height: 230px; padding: 44px 26px; }
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
 
-    <header>
-        <h1>Exploration Européenne</h1>
-        <p class="subtitle">Une collection de guides interactifs — Inspirée par l'esprit de Yvon Harvey</p>
-    </header>
+    <div class="container">
+        <p class="eyebrow">✦ &nbsp; Collection Personnelle &nbsp; ✦</p>
+        <h1 class="site-title">Yvon <em>Harvey</em></h1>
+        <div class="divider"></div>
+        <p class="site-subtitle">Explorez un monde de découvertes — Europe, Histoire &amp; Culture</p>
 
-    <main id="grid-pays">
-        </main>
+        <div class="choix-grid">
 
-    <footer>
-        <p>&copy; 2026 - Collection Personnelle Yvon H.</p>
-    </footer>
+            <a href="exploration.html" class="choix-carte">
+                <div class="carte-num">I</div>
+                <div class="carte-titre">Exploration Européenne</div>
+                <p class="carte-desc">Guides interactifs de 20&nbsp;pays — monuments, cartes, UNESCO et culture locale</p>
+                <span class="carte-cta">Explorer</span>
+            </a>
 
-    <script src="script.js"></script>
+            <a href="Mes_Tableaux/index.html" class="choix-carte">
+                <div class="carte-num">II</div>
+                <div class="carte-titre">Mes Tableaux</div>
+                <p class="carte-desc">Collections thématiques — Empires, sciences, arts, gastronomie et bien plus</p>
+                <span class="carte-cta">Consulter</span>
+            </a>
+
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
+        </footer>
+    </div>
 </body>
 </html>
