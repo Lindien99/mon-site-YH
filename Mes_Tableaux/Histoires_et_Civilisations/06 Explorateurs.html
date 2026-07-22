@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Explorateurs et leurs Découvertes</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 180px; }
+  .date-cell    { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .nat-cell     { color: var(--red-accent); font-size: 0.86rem; min-width: 120px; font-weight: 500; }
+  .zone-cell    { font-size: 0.86rem; color: #4a3520; min-width: 140px; }
+  .decouv-cell  { font-size: 0.84rem; color: #1a1a4a; font-style: italic; min-width: 190px; }
+  .heritage-cell{ font-size: 0.85rem; color: #1a3a1a; font-style: italic; min-width: 180px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .type-maritime   { color: #003a6e; background: #d8eeff; border-color: #70b0e8; }
+  .type-terrestre  { color: #3a2000; background: #fdf0d8; border-color: #c89050; }
+  .type-arctique   { color: #003a5a; background: #d8f0ff; border-color: #60b0d8; }
+  .type-antarctique{ color: #1a1a6e; background: #e0e0ff; border-color: #8888d8; }
+  .type-fluvial    { color: #005a3a; background: #d8f5ec; border-color: #60c0a0; }
+  .type-montagne   { color: #3a1a00; background: #fde8d0; border-color: #c07840; }
+  .type-souterrain { color: #2a002a; background: #f5d8f5; border-color: #a860a8; }
+  .type-spatial    { color: #000060; background: #d8d8ff; border-color: #6060c8; }
+  .type-scientifique{ color: #003a3a; background: #d8f5f5; border-color: #60b8b8; }
+  .type-subaquatique{ color: #00406e; background: #d0eeff; border-color: #50a8e0; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-nat {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-nat:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+  /* BOUTON RETOUR */
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="btn-back">← Retour à Histoires &amp; Civilisations</a>
+
+<header>
+  <p class="subtitle">— Codex Exploratorum Mundi —</p>
+  <h1><span class="ornament">🧭</span> 50 Explorateurs et leurs Découvertes <span class="ornament">🗺️</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des hommes et des femmes qui ont repoussé les limites du monde connu — de l'Antiquité à l'ère spatiale</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="maritime">⛵ Maritime</button>
+  <button class="filter-btn" data-cat="terrestre">🏕️ Terrestre</button>
+  <button class="filter-btn" data-cat="arctique">🧊 Arctique</button>
+  <button class="filter-btn" data-cat="antarctique">❄️ Antarctique</button>
+  <button class="filter-btn" data-cat="fluvial">🌊 Fluvial</button>
+  <button class="filter-btn" data-cat="montagne">⛰️ Montagne</button>
+  <button class="filter-btn" data-cat="souterrain">🕳️ Souterrain</button>
+  <button class="filter-btn" data-cat="spatial">🚀 Spatial</button>
+  <button class="filter-btn" data-cat="scientifique">🔬 Scientifique</button>
+  <button class="filter-btn" data-cat="subaquatique">🤿 Subaquatique</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Explorateur <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Nationalité <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Zone explorée <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Découverte emblématique</th>
+      <th data-col="8">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="9">Héritage & Portée</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"🏺", name:"Pythéas de Marseille",          epoque:"~325 av. J.-C.", nat:"Grec (Massalia)",       zone:"Bretagne, Islande, Baltique",           cat:"maritime",    decouv:"Décrit la mer «gelée» et les terres au-delà de la Bretagne — premier Européen à mentionner la Scandinavie.", impact:4, heritage:"Premier explorateur scientifique de l'Atlantique Nord — ses récits jugés fabuleux pendant des siècles." },
+  { icon:"🐘", name:"Hannon le Navigateur",           epoque:"~500 av. J.-C.", nat:"Carthaginois",          zone:"Côte ouest de l'Afrique",               cat:"maritime",    decouv:"Atteint peut-être le Golfe de Guinée — premier circumnavigateur partiel de l'Afrique.",                     impact:4, heritage:"Périple fondateur de l'exploration africaine, décrit les gorilles pour la première fois dans l'histoire." },
+  { icon:"🇨🇳", name:"Zhang Qian",                    epoque:"138–119 av. J.-C.",nat:"Chinois",             zone:"Asie centrale, Bactriane, Parthie",      cat:"terrestre",   decouv:"Ouvre la Route de la Soie — relie la Chine Han à l'Occident pour la première fois.",                      impact:5, heritage:"Fondateur de la Route de la Soie — deux millénaires d'échanges commerciaux et culturels Asie-Europe." },
+  { icon:"🇨🇳", name:"Xuanzang",                      epoque:"629–645",         nat:"Chinois",              zone:"Inde, Asie centrale",                   cat:"terrestre",   decouv:"Rapporte 657 textes bouddhistes d'Inde en Chine — 17 ans de voyage à pied et à cheval.",                  impact:4, heritage:"Diffusion du bouddhisme en Chine, récits qui inspirent «Le Voyage en Occident» (Sun Wukong)." },
+  { icon:"⚓", name:"Leif Erikson",                    epoque:"~1000",           nat:"Viking (Norvégien)",   zone:"Amérique du Nord (Vinland)",            cat:"maritime",    decouv:"Premier Européen à fouler l'Amérique du Nord — 500 ans avant Christophe Colomb.",                         impact:5, heritage:"Establit le premier établissement européen en Amérique à L'Anse aux Meadows (Terre-Neuve)." },
+  { icon:"🇲🇦", name:"Ibn Battuta",                   epoque:"1325–1354",       nat:"Marocain",             zone:"Afrique, Asie, Europe (120 000 km)",    cat:"terrestre",   decouv:"Plus grand voyageur du Moyen Âge — 44 pays traversés, de Mali au Mali-Khanbaliq (Pékin).",               impact:5, heritage:"Récits irremplaçables sur 75 000 km de routes médiévales — encyclopédie vivante de 44 civilisations." },
+  { icon:"🇨🇳", name:"Zheng He",                      epoque:"1405–1433",       nat:"Chinois",              zone:"Asie du Sud-Est, Inde, Arabie, Afrique",cat:"maritime",    decouv:"7 expéditions avec des flottes de 300 navires et 28 000 hommes — atteint l'Afrique de l'Est.",            impact:5, heritage:"Preuve que la Chine aurait pu coloniser le monde avant l'Europe — abandon mystérieux après 1433." },
+  { icon:"🇵🇹", name:"Bartolomeu Dias",                epoque:"1487–1488",       nat:"Portugais",            zone:"Cap de Bonne-Espérance, Afrique",       cat:"maritime",    decouv:"Double le Cap de Bonne-Espérance — ouvre la route maritime vers les Indes par l'Afrique.",                impact:5, heritage:"Révolutionne le commerce mondial — fin du monopole arabe sur les épices, route des Indes ouverte." },
+  { icon:"🌍", name:"Christophe Colomb",               epoque:"1492–1504",       nat:"Génois (Espagne)",     zone:"Caraïbes, Amérique centrale et du Sud",  cat:"maritime",    decouv:"«Découvre» les Amériques le 12 octobre 1492 — ouvre un Nouveau Monde à l'Europe.",                      impact:5, heritage:"Bouleverse l'histoire mondiale — rencontre de deux mondes, colonisation, échange colombien (plantes, maladies)." },
+  { icon:"🇵🇹", name:"Vasco de Gama",                 epoque:"1497–1499",       nat:"Portugais",            zone:"Afrique, Inde (Calicut)",               cat:"maritime",    decouv:"Premier Européen à relier l'Europe à l'Inde par mer en contournant l'Afrique.",                           impact:5, heritage:"Ouvre la route des épices — empire portugais, fin du commerce terrestre arabe, révolution économique." },
+  { icon:"🌎", name:"Amerigo Vespucci",                epoque:"1499–1504",       nat:"Florentin (Espagne)",  zone:"Côte sud-américaine",                   cat:"maritime",    decouv:"Comprend que le Nouveau Monde est un continent distinct de l'Asie — nommé Amérique en son honneur.",     impact:5, heritage:"Donne son nom à deux continents — son intuition révolutionne la cartographie mondiale." },
+  { icon:"🌐", name:"Fernand de Magellan",             epoque:"1519–1522",       nat:"Portugais (Espagne)",  zone:"Premier tour du monde",                 cat:"maritime",    decouv:"Lance le premier tour du monde (achevé par Elcano après sa mort) — prouve la rotondité terrestre.",     impact:5, heritage:"Voyage fondateur — prouve que la Terre est sphérique et que les océans sont reliés." },
+  { icon:"🇪🇸", name:"Hernán Cortés",                  epoque:"1519–1521",       nat:"Espagnol",             zone:"Mexique, Empire aztèque",               cat:"terrestre",   decouv:"Conquête de l'Empire aztèque — Tenochtitlan prise avec 500 hommes face à des milliers.",               impact:4, heritage:"Fin de l'Empire aztèque, naissance du Mexique colonial — bouleverse l'Amérique centrale à jamais." },
+  { icon:"🇪🇸", name:"Francisco Pizarro",              epoque:"1531–1533",       nat:"Espagnol",             zone:"Pérou, Empire inca",                    cat:"terrestre",   decouv:"Conquête de l'Empire inca — capture Atahualpa avec 168 hommes face à 80 000 guerriers.",               impact:4, heritage:"Fin de l'Empire inca, plus grande rançon de l'histoire (salle remplie d'or), naissance du Pérou." },
+  { icon:"🇫🇷", name:"Jacques Cartier",                epoque:"1534–1542",       nat:"Français",             zone:"Canada, Fleuve Saint-Laurent",          cat:"maritime",    decouv:"Remonte le Saint-Laurent jusqu'à Hochelaga (Montréal) — prend possession du Canada au nom de France.",  impact:5, heritage:"Fondement de la présence française en Amérique — Québec, Canada français, identité franco-canadienne." },
+  { icon:"🇬🇧", name:"Francis Drake",                  epoque:"1577–1580",       nat:"Anglais",              zone:"Tour du monde (2ᵉ de l'histoire)",      cat:"maritime",    decouv:"2ᵉ tour du monde — premier capitaine à mener et achever lui-même son propre tour du monde.",            impact:4, heritage:"Affirme la puissance navale anglaise, ouvre la course aux colonies britanniques dans le Pacifique." },
+  { icon:"🇳🇱", name:"Abel Tasman",                    epoque:"1642–1644",       nat:"Néerlandais",          zone:"Australie, Nouvelle-Zélande, Tonga",    cat:"maritime",    decouv:"Premier Européen à atteindre la Tasmanie, la Nouvelle-Zélande et les Fidji.",                           impact:4, heritage:"Pose les bases de l'exploration du Pacifique Sud — Tasmanie porte son nom à jamais." },
+  { icon:"🇫🇷", name:"René-Robert Cavelier de La Salle",epoque:"1681–1682",     nat:"Français",             zone:"Fleuve Mississippi, Louisiane",         cat:"fluvial",     decouv:"Descend le Mississippi jusqu'au Golfe du Mexique — prend possession de la Louisiane pour la France.",   impact:4, heritage:"Fonde la Nouvelle-France intérieure — base de la future vente de la Louisiane à Jefferson en 1803." },
+  { icon:"🇬🇧", name:"James Cook",                     epoque:"1768–1779",       nat:"Britannique",          zone:"Pacifique, Australie, Antarctique",      cat:"maritime",    decouv:"Cartographie l'Australie, la Nouvelle-Zélande, Hawaï — trois circumnavigations du Pacifique.",          impact:5, heritage:"Cartographe du Pacifique — ses cartes servent encore de base à la navigation moderne." },
+  { icon:"🇫🇷", name:"Jean-François de Lapérouse",     epoque:"1785–1788",       nat:"Français",             zone:"Pacifique, Alaska, Asie du Nord-Est",   cat:"maritime",    decouv:"Exploration scientifique du Pacifique — disparition mystérieuse à Vanikoro en 1788.",                 impact:3, heritage:"Récits et cartes inestimables — sa disparition lance l'ère des expéditions de sauvetage scientifique." },
+  { icon:"🇬🇧", name:"Alexander von Humboldt",         epoque:"1799–1804",       nat:"Allemand (Prusse)",    zone:"Amérique du Sud, Mexique",              cat:"scientifique", decouv:"Ascension du Chimborazo (6 268 m), mesure du courant froid du Pacifique (courant de Humboldt).",        impact:5, heritage:"Père de la géographie moderne et de l'écologie — inspiré Darwin, Thoreau, John Muir et Bolivar." },
+  { icon:"🇺🇸", name:"Meriwether Lewis & William Clark",epoque:"1804–1806",      nat:"Américains",           zone:"Ouest américain, Pacifique",            cat:"terrestre",   decouv:"Traversée des États-Unis d'Est en Ouest — premiers Américains à atteindre le Pacifique par terre.",   impact:5, heritage:"Ouvre la conquête de l'Ouest américain — cartes, faune, flore, peuples autochtones documentés." },
+  { icon:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", name:"Mungo Park",                   epoque:"1795–1806",       nat:"Écossais",             zone:"Niger, Afrique occidentale",            cat:"fluvial",     decouv:"Premier Européen à atteindre le fleuve Niger — meurt lors de sa 2ᵉ expédition.",                     impact:3, heritage:"Ouvre l'exploration de l'Afrique de l'Ouest — inspire une génération d'explorateurs africains." },
+  { icon:"🇩🇪", name:"Johann Ludwig Burckhardt",       epoque:"1812–1817",       nat:"Suisse (Allemagne)",   zone:"Proche-Orient, Nubie, Arabie",          cat:"terrestre",   decouv:"Redécouvre Pétra (Jordanie) et Abu Simbel (Égypte) — pénètre La Mecque et Médine déguisé.",           impact:4, heritage:"Redécouverte de Pétra — «rose des sables» — l'une des plus grandes merveilles archéologiques du monde." },
+  { icon:"🇬🇧", name:"John Franklin",                  epoque:"1845–1848",       nat:"Britannique",          zone:"Arctique canadien, Passage du Nord-Ouest",cat:"arctique",   decouv:"Disparition tragique — son expédition cartographie le Passage du Nord-Ouest au prix de sa vie.",       impact:4, heritage:"Sa mort mobilise 40 expéditions de recherche — le Passage est finalement navigué par Amundsen en 1906." },
+  { icon:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", name:"David Livingstone",             epoque:"1841–1873",       nat:"Écossais",             zone:"Afrique centrale et australe",          cat:"terrestre",   decouv:"Chutes Victoria, source du Zambèze, traversée de l'Afrique — disparu puis retrouvé par Stanley.",   impact:5, heritage:"Ouvre l'Afrique centrale à l'exploration — combat l'esclavage, inspire le colonialisme britannique." },
+  { icon:"🇺🇸", name:"Henry Morton Stanley",           epoque:"1871–1889",       nat:"Américano-gallois",    zone:"Afrique centrale, Congo",               cat:"fluvial",     decouv:"Retrouve Livingstone, descend le Congo — cartographie l'Afrique équatoriale pour l'Europe.",            impact:4, heritage:"«Dr. Livingstone, I presume?» — ouvre le Congo à Léopold II de Belgique, conséquences tragiques." },
+  { icon:"🇺🇸", name:"John Wesley Powell",             epoque:"1869",            nat:"Américain",            zone:"Grand Canyon, Colorado",                cat:"fluvial",     decouv:"Premier à descendre le Grand Canyon en barque — cartographie le Colorado et ses canyons.",              impact:4, heritage:"Fondateur de la géologie américaine — ses travaux créent l'US Geological Survey en 1879." },
+  { icon:"🇧🇪", name:"Adolphe de Gerlache",            epoque:"1897–1899",       nat:"Belge",                zone:"Antarctique",                           cat:"antarctique", decouv:"Première expédition à hiverner en Antarctique — piégé dans la banquise 13 mois.",                      impact:4, heritage:"Ouvre l'ère des grandes expéditions antarctiques — Amundsen et Cook étaient à bord." },
+  { icon:"🇬🇧", name:"Robert Falcon Scott",            epoque:"1901–1912",       nat:"Britannique",          zone:"Antarctique, Pôle Sud",                 cat:"antarctique", decouv:"Atteint le Pôle Sud le 17 janvier 1912 — arrive 34 jours après Amundsen et meurt au retour.",          impact:5, heritage:"Symbole tragique de l'exploration — sa mort galvanise la recherche antarctique britannique." },
+  { icon:"🇳🇴", name:"Roald Amundsen",                 epoque:"1903–1926",       nat:"Norvégien",            zone:"Arctique, Antarctique, Pôle Sud",       cat:"antarctique", decouv:"1ᵉʳ au Pôle Sud (14 déc. 1911), 1ᵉʳ à naviguer le Passage du Nord-Ouest — deux «premières» absolues.",  impact:5, heritage:"L'explorateur polaire le plus couronné de l'histoire — méthode rigoureuse, zéro mort dans ses équipes." },
+  { icon:"🇺🇸", name:"Robert Peary & Matthew Henson",  epoque:"1909",            nat:"Américains",           zone:"Arctique, Pôle Nord",                   cat:"arctique",    decouv:"Revendiquent d'atteindre le Pôle Nord le 6 avril 1909 (toujours contesté).",                          impact:4, heritage:"Matthew Henson, explorateur noir américain héroïque — reconnu seulement en 1988 par le Congrès US." },
+  { icon:"🇬🇧", name:"Ernest Shackleton",              epoque:"1914–1916",       nat:"Irlando-britannique",  zone:"Antarctique, Mer de Weddell",           cat:"antarctique", decouv:"Expédition Endurance — navire broyé par la glace, 28 hommes sauvés sans une seule perte.",             impact:5, heritage:"Chef de survie légendaire — modèle absolu de leadership en situation de crise extrême." },
+  { icon:"🇫🇷", name:"Jean-Baptiste Charcot",          epoque:"1903–1936",       nat:"Français",             zone:"Antarctique, Arctique",                 cat:"antarctique", decouv:"Cartographie la péninsule antarctique — 30 ans d'exploration polaire avec le navire Pourquoi-Pas ?",    impact:4, heritage:"«Gentleman des pôles» — la base Charcot en Antarctique porte son nom. Disparu en mer en 1936." },
+  { icon:"🇨🇭", name:"Auguste Piccard",                epoque:"1931–1932",       nat:"Suisse",               zone:"Stratosphère (16 km d'altitude)",        cat:"spatial",     decouv:"Premier homme à atteindre la stratosphère en ballon (16 201 m) — ouvre l'ère de la haute altitude.",  impact:4, heritage:"Pionnier de la stratosphère et des bathyscaphes — inspira Jules Verne, grand-père de Bertrand Piccard." },
+  { icon:"🇳🇿", name:"Edmund Hillary & Tensing Norgay",epoque:"1953",            nat:"Néo-Zélandais / Népalais",zone:"Everest, Himalaya (8 849 m)",        cat:"montagne",    decouv:"Premiers à atteindre le sommet de l'Everest le 29 mai 1953 à 11h30.",                                impact:5, heritage:"Conquête du «Toit du Monde» — exploit planétaire, naissance de l'alpinisme moderne de haute altitude." },
+  { icon:"🇷🇺", name:"Youri Gagarine",                 epoque:"1961",            nat:"Soviétique",           zone:"Espace — orbite terrestre",             cat:"spatial",     decouv:"Premier être humain dans l'espace — orbite la Terre en 108 minutes à bord de Vostok 1.",              impact:5, heritage:"Ouvre l'ère spatiale humaine — «Poyekhali !» (C'est parti !) résonne encore dans toute l'humanité." },
+  { icon:"🇺🇸", name:"Neil Armstrong & Buzz Aldrin",   epoque:"1969",            nat:"Américains",           zone:"Lune (mer de la Tranquillité)",         cat:"spatial",     decouv:"Premiers hommes sur la Lune — 20 juillet 1969, «One small step for man...»",                          impact:5, heritage:"Exploit humain suprême — 600 millions de téléspectateurs, révolution technologique mondiale." },
+  { icon:"🇺🇸", name:"Jacques-Yves Cousteau",         epoque:"1943–1996",       nat:"Français",             zone:"Fonds marins mondiaux",                 cat:"subaquatique", decouv:"Invente le scaphandre autonome (Aqua-Lung) — plonge dans les épaves, récifs et océans du monde entier.", impact:5, heritage:"Père de l'exploration sous-marine et de l'écologie marine — ses films éveillent la conscience oceanique." },
+  { icon:"🇨🇭", name:"Jacques Piccard & Don Walsh",    epoque:"1960",            nat:"Suisse / Américain",   zone:"Fosse des Mariannes (10 916 m)",        cat:"subaquatique", decouv:"Plongée la plus profonde jamais réalisée — fond des Mariannes dans le bathyscaphe Trieste.",           impact:5, heritage:"Explore le point le plus profond de la Terre — ouvre l'ère de l'océanographie des grands fonds." },
+  { icon:"🇫🇷", name:"Michel Siffre",                  epoque:"1962–1972",       nat:"Français",             zone:"Glacières souterraines (Italie, Texas)", cat:"souterrain",  decouv:"Vit 63 jours seul sous terre sans repères temporels — fonde la chronobiologie humaine.",              impact:4, heritage:"Ses expériences révolutionnent la compréhension du rythme circadien humain — base de la médecine du sommeil." },
+  { icon:"🇳🇴", name:"Thor Heyerdahl",                 epoque:"1947–1970",       nat:"Norvégien",            zone:"Pacifique (radeau Kon-Tiki), Atlantique",cat:"maritime",    decouv:"Traverse le Pacifique sur un radeau de balsa en 101 jours — prouve les contacts précolombiens Amérique-Polynésie.", impact:4, heritage:"Remet en cause l'histoire des migrations humaines — best-seller mondial, Oscar du documentaire 1951." },
+  { icon:"🇬🇧", name:"Ranulph Fiennes",                epoque:"1979–présent",    nat:"Britannique",          zone:"Pôles, Everest, déserts extrêmes",      cat:"terrestre",   decouv:"Premier tour du monde par les deux pôles (Transglobe Expedition 1979–1982) — records d'endurance.",   impact:4, heritage:"«Plus grand explorateur vivant» selon le Guinness — repoussement des limites humaines à 70 ans passés." },
+  { icon:"🇺🇸", name:"Robert Ballard",                 epoque:"1985–présent",    nat:"Américain",            zone:"Épaves profondes (Titanic, Bismarck)",  cat:"subaquatique", decouv:"Découvre l'épave du Titanic le 1ᵉʳ septembre 1985 à 3 800 m de profondeur.",                          impact:4, heritage:"Révolutionne l'archéologie sous-marine — Titanic, Bismarck, PT109 de JFK retrouvés grâce à ses robots." },
+  { icon:"🇮🇹", name:"Reinhold Messner",               epoque:"1970–1986",       nat:"Italien (Sud-Tyrol)",  zone:"Himalaya — 14 sommets de 8 000 m",      cat:"montagne",    decouv:"Premier à gravir les 14 sommets de plus de 8 000 m — dont l'Everest sans oxygène en 1978.",           impact:5, heritage:"Révolutionne l'alpinisme — prouve que les 8 000 m sont accessibles sans assistance artificielle." },
+  { icon:"🇧🇪", name:"Dixie Dansercoer",               epoque:"1997–2020",       nat:"Belge",                zone:"Antarctique, Arctique en kite-ski",     cat:"antarctique", decouv:"Traversée polaire en kite-ski — distances record en autonomie totale dans les zones les plus hostiles.",  impact:3, heritage:"Modernise l'exploration polaire — ambassadeur des enjeux climatiques arctiques et antarctiques." },
+  { icon:"🇨🇦", name:"Mike Horn",                      epoque:"1997–présent",    nat:"Suisse (Afrique du Sud)",zone:"Tour du monde, Arctique, Antarctique", cat:"terrestre",   decouv:"Tour du monde sans moteur ni voile (Pangaea), traversée de l'Arctique en hiver en solo.",              impact:4, heritage:"Explorateur de l'extrême contemporain — ambassadeur de la protection des environnements polaires." },
+  { icon:"🇺🇸", name:"Sylvia Earle",                   epoque:"1970–présent",    nat:"Américaine",           zone:"Fonds marins mondiaux",                 cat:"subaquatique", decouv:"Marche seule à 381 m de profondeur (1979) — «Her Deepness», dirige les études des récifs coralliens.",  impact:5, heritage:"Pionnière des droits des océans — fondatrice de Mission Blue, protège 6 millions km² d'océan." },
+  { icon:"🇮🇳", name:"Bachendri Pal",                  epoque:"1984",            nat:"Indienne",             zone:"Everest, Himalaya",                     cat:"montagne",    decouv:"Première femme indienne à gravir l'Everest le 23 mai 1984.",                                             impact:4, heritage:"Brise les barrières de genre et de caste en Inde — inspire des générations de femmes alpinistes asiatiques." },
+  { icon:"🇿🇦", name:"Bertrand Piccard",               epoque:"1999–2016",       nat:"Suisse",               zone:"Tour du monde en ballon puis solaire",  cat:"spatial",     decouv:"1ᵉʳ tour du monde en ballon sans escale (1999) et en avion solaire Solar Impulse (2016).",             impact:4, heritage:"Pionnier des technologies propres — Solar Impulse inspire la révolution de l'aviation électrique." },
+  { icon:"🚀", name:"Valentina Terechkova",             epoque:"1963",            nat:"Soviétique",           zone:"Espace — orbite terrestre",             cat:"spatial",     decouv:"Première femme dans l'espace — 48 orbites autour de la Terre à bord de Vostok 6.",                     impact:5, heritage:"Brise le plafond de verre spatial — ouvre la voie à toutes les astronautes, cosmonautes et spationautes." },
+];
+
+const typeLabels = {
+  "maritime":    "⛵ Maritime",
+  "terrestre":   "🏕️ Terrestre",
+  "arctique":    "🧊 Arctique",
+  "antarctique": "❄️ Antarctique",
+  "fluvial":     "🌊 Fluvial",
+  "montagne":    "⛰️ Montagne",
+  "souterrain":  "🕳️ Souterrain",
+  "spatial":     "🚀 Spatial",
+  "scientifique":"🔬 Scientifique",
+  "subaquatique":"🤿 Subaquatique"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${typeLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.epoque; vb = b.epoque; break;
+      case 4: va = a.nat; vb = b.nat; break;
+      case 5: va = a.zone; vb = b.zone; break;
+      case 6: va = a.cat; vb = b.cat; break;
+      case 8: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' explorateur découverte')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.epoque}</td>
+      <td class="nat-cell"><a class="g-nat" href="${G}${q(d.name+' biographie')}" target="_blank">${d.nat}<sup class="arr"> ↗</sup></a></td>
+      <td class="zone-cell">${d.zone}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="decouv-cell">${d.decouv}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.impact===5).length;
+  const cats = {};
+  rows.forEach(d => cats[d.cat] = (cats[d.cat]||0)+1);
+  const top = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Explorateurs affichés : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Catégorie dominante : <span>${typeLabels[top?.[0]]||'—'} (${top?.[1]||0})</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
