@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Espèces Animales Menacées d'Extinction</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest-dark:  #1b4332;
+    --forest-mid:   #2d6a4f;
+    --forest-light: #74c69d;
+    --nature-bg:    #e8f5ec;
+    --nature-card:  #f0faf3;
+    --ink:          #0d2318;
+    --accent:       #40916c;
+    --accent-light: #52b788;
+    --red-accent:   #c0392b;
+    --shadow:       rgba(27,67,50,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--nature-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* RETOUR */
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--forest-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--forest-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--forest-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--accent); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--forest-light);
+    background: var(--nature-card);
+    color: var(--forest-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--forest-dark);
+    color: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--forest-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(27,67,50,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--nature-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--forest-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--accent-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--accent);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #b7dfc9;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #dff2e8; }
+  tbody tr:nth-child(even) { background: #e8f5ee; }
+  tbody tr:nth-child(even):hover { background: #dff2e8; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--forest-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell  { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell  {
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--forest-dark);
+    min-width: 160px;
+  }
+  .region-cell { font-style: italic; color: var(--forest-mid); font-size: 0.86rem; white-space: nowrap; }
+  .pop-cell    { color: var(--red-accent); font-size: 0.84rem; min-width: 130px; }
+  .menace-cell { font-size: 0.84rem; color: #1a3020; font-style: italic; min-width: 240px; }
+
+  /* BADGES STATUT UICN */
+  .statut-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    padding: 0.22rem 0.55rem;
+    border-radius: 2px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .s-EW { color: #1a1a2e; background: #d6d6e8; border-color: #8888aa; }
+  .s-CR { color: #7b0000; background: #ffd5d5; border-color: #e88080; }
+  .s-EN { color: #7a3900; background: #fff0d0; border-color: #e8a840; }
+  .s-VU { color: #5a5a00; background: #ffffcc; border-color: #d8d840; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .c-mammiferes  { color: #4a1a00; background: #fde8d0; border-color: #f5a080; }
+  .c-oiseaux     { color: #00307a; background: #d8e8ff; border-color: #8090f0; }
+  .c-reptiles    { color: #1a5500; background: #d8f5d0; border-color: #70d860; }
+  .c-amphibiens  { color: #005055; background: #d0f5f5; border-color: #50c8c8; }
+  .c-poissons    { color: #003070; background: #d0e4ff; border-color: #6090e8; }
+  .c-invertebres { color: #550055; background: #f0d0f5; border-color: #c070c8; }
+
+  /* ÉTOILES URGENCE */
+  .stars { color: #c0392b; font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--forest-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* BARRE DE STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--forest-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--forest-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--forest-light); }
+
+  @media (max-width: 750px) {
+    .menace-cell  { display: none; }
+    .region-cell  { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="btn-back">← Nature &amp; Environnement</a>
+
+<header>
+  <p class="subtitle">— Alerte Rouge pour la Biodiversité —</p>
+  <h1><span class="ornament">🌿</span> 50 Espèces Animales Menacées d'Extinction <span class="ornament">🌿</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des mammifères aux invertébrés — la biodiversité en péril · Sources : UICN Liste Rouge</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="mammiferes">🦁 Mammifères</button>
+  <button class="filter-btn" data-cat="oiseaux">🦅 Oiseaux</button>
+  <button class="filter-btn" data-cat="reptiles">🐊 Reptiles</button>
+  <button class="filter-btn" data-cat="amphibiens">🐸 Amphibiens</button>
+  <button class="filter-btn" data-cat="poissons">🐟 Poissons</button>
+  <button class="filter-btn" data-cat="invertebres">🦋 Invertébrés</button>
+</div>
+
+<div class="table-wrap">
+<table id="speciesTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Espèce <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Statut UICN <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Région <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Catégorie <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Population</th>
+      <th data-col="7">Urgence <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Principale menace</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Sources : UICN Liste Rouge (iucnredlist.org) — Compilé à des fins éducatives — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  // ── MAMMIFÈRES (16) ──────────────────────────────────────────────────────
+  { icon:"🦏", name:"Rhinocéros de Java",          statut:"CR", region:"Indonésie (Java)",                    cat:"mammiferes", pop:"~72 indiv.",              urgence:5, menace:"Braconnage pour la corne, perte totale d'habitat — dernier refuge : parc national Ujung Kulon." },
+  { icon:"🐬", name:"Vaquita",                      statut:"CR", region:"Golfe de Californie (Mexique)",       cat:"mammiferes", pop:"< 10 indiv.",              urgence:5, menace:"Capture accidentelle dans des filets illicites utilisés pour pêcher le totoaba." },
+  { icon:"🦏", name:"Rhinocéros blanc du Nord",     statut:"EW", region:"Afrique de l'Est",                   cat:"mammiferes", pop:"2 femelles (captivité)",   urgence:5, menace:"Braconnage massif pour la corne — espèce éteinte à l'état sauvage, 2 femelles survivantes." },
+  { icon:"🦧", name:"Orang-outan de Tapanuli",      statut:"CR", region:"Sumatra (Indonésie)",                 cat:"mammiferes", pop:"~800 indiv.",              urgence:5, menace:"Déforestation pour l'huile de palme et projets miniers — espèce décrite en 2017, déjà CR." },
+  { icon:"🦍", name:"Gorille des plaines de l'Est", statut:"CR", region:"RD Congo",                           cat:"mammiferes", pop:"~3 800 indiv.",            urgence:5, menace:"Braconnage, guerres civiles et destruction d'habitat dans l'Est du Congo." },
+  { icon:"🦏", name:"Rhinocéros noir",              statut:"CR", region:"Afrique australe et orientale",       cat:"mammiferes", pop:"~5 600 indiv.",            urgence:5, menace:"Braconnage intensif pour la corne destinée à la médecine traditionnelle asiatique." },
+  { icon:"🐯", name:"Tigre de Sumatra",             statut:"CR", region:"Sumatra (Indonésie)",                 cat:"mammiferes", pop:"~400 indiv.",              urgence:5, menace:"Déforestation pour les plantations de palmiers à huile et braconnage intensif." },
+  { icon:"🦔", name:"Pangolin de Chine",            statut:"CR", region:"Chine / Asie du Sud-Est",            cat:"mammiferes", pop:"Inconnu (déclin rapide)",  urgence:5, menace:"Animal le plus braconné au monde — médecine traditionnelle et gastronomie de luxe." },
+  { icon:"🐘", name:"Éléphant de Bornéo",           statut:"EN", region:"Bornéo (Malaisie / Indonésie)",      cat:"mammiferes", pop:"~1 500 indiv.",            urgence:4, menace:"Fragmentation de l'habitat par la déforestation et conflits avec les agriculteurs." },
+  { icon:"🦁", name:"Lion d'Asie",                  statut:"EN", region:"Inde (forêt de Gir)",                cat:"mammiferes", pop:"~700 indiv.",              urgence:4, menace:"Population isolée dans un seul parc, vulnérable aux épidémies et aux conflits humains." },
+  { icon:"🐋", name:"Baleine bleue",                statut:"EN", region:"Tous les océans",                    cat:"mammiferes", pop:"10 000–25 000 indiv.",     urgence:4, menace:"Collisions avec les navires, pollution sonore, changement climatique des océans." },
+  { icon:"🐺", name:"Loup d'Éthiopie",              statut:"EN", region:"Éthiopie (monts Bale)",              cat:"mammiferes", pop:"~500 indiv.",              urgence:4, menace:"Fragmentation de l'habitat, maladies transmises par les chiens domestiques (rage, Carré)." },
+  { icon:"🐨", name:"Koala",                        statut:"EN", region:"Australie (côte est)",               cat:"mammiferes", pop:"~100 000 indiv.",          urgence:4, menace:"Incendies catastrophiques, déforestation, chlamydia et changement climatique." },
+  { icon:"🐻", name:"Ours polaire",                 statut:"VU", region:"Arctique",                           cat:"mammiferes", pop:"~26 000 indiv.",           urgence:3, menace:"Fonte de la banquise liée au réchauffement climatique — perte progressive de l'habitat de chasse." },
+  { icon:"🐆", name:"Léopard des neiges",           statut:"VU", region:"Asie centrale (Himalaya, Altaï)",    cat:"mammiferes", pop:"4 000–6 500 indiv.",       urgence:3, menace:"Braconnage, raréfaction des proies sauvages, conflits avec les éleveurs de bétail." },
+  { icon:"🌊", name:"Dugong",                       statut:"VU", region:"Océan Indien / Pacifique occidental", cat:"mammiferes", pop:"Déclin (-20 % / 10 ans)", urgence:3, menace:"Perte des herbiers marins, noyades dans les filets de pêche et collisions avec les bateaux." },
+
+  // ── OISEAUX (10) ─────────────────────────────────────────────────────────
+  { icon:"🦜", name:"Perroquet de Spix",            statut:"EW", region:"Brésil (Caatinga)",                  cat:"oiseaux",    pop:"~160 (captivité)",         urgence:5, menace:"Déforestation de la Caatinga et capture pour le commerce — éteint à l'état sauvage depuis 2000." },
+  { icon:"🦜", name:"Kakapo",                       statut:"CR", region:"Nouvelle-Zélande",                   cat:"oiseaux",    pop:"~252 indiv.",              urgence:5, menace:"Prédateurs introduits (rats, hermines), incapacité à voler, reproduction très lente." },
+  { icon:"🦅", name:"Condor de Californie",         statut:"CR", region:"USA / Mexique (Basse-Californie)",   cat:"oiseaux",    pop:"~500 indiv.",              urgence:5, menace:"Intoxication au plomb (munitions dans les carcasses), collision avec les lignes électriques." },
+  { icon:"🦅", name:"Aigle des Philippines",        statut:"CR", region:"Philippines (Mindanao)",             cat:"oiseaux",    pop:"~800 indiv.",              urgence:5, menace:"Déforestation massive — plus grand aigle du monde, territoire de chasse immense requis." },
+  { icon:"🦢", name:"Grue de Sibérie",              statut:"CR", region:"Sibérie / Chine (hivernage)",        cat:"oiseaux",    pop:"~3 000 indiv.",            urgence:5, menace:"Drainage des zones humides, chasse lors des migrations, barrages sur le fleuve Yangtze." },
+  { icon:"🦅", name:"Vautour de Rüppell",           statut:"CR", region:"Afrique subsaharienne",              cat:"oiseaux",    pop:"Déclin sévère",           urgence:5, menace:"Empoisonnement des carcasses par des braconniers, électrocution sur les lignes à haute tension." },
+  { icon:"🦩", name:"Ibis chauve du Nord",          statut:"EN", region:"Maroc / Syrie",                      cat:"oiseaux",    pop:"~700 indiv. sauvages",    urgence:4, menace:"Perte des zones de nidification, pesticides agricoles, chasse illégale en migration." },
+  { icon:"🐧", name:"Manchot des Galapagos",        statut:"EN", region:"Îles Galapagos (Équateur)",          cat:"oiseaux",    pop:"~1 200 indiv.",            urgence:4, menace:"Phénomène El Niño, prédateurs introduits (chats, chiens, rats), pollution pétrolière." },
+  { icon:"🐦", name:"Macareux moine",               statut:"VU", region:"Atlantique Nord",                    cat:"oiseaux",    pop:"Déclin rapide",           urgence:3, menace:"Surpêche des poissons fourrages, changement climatique, pollution marine plastique." },
+  { icon:"🦩", name:"Flamant des Andes",            statut:"VU", region:"Andes (Bolivie / Chili / Argentine)", cat:"oiseaux",   pop:"~34 000 indiv.",           urgence:3, menace:"Assèchement des lacs salins (lithium mining), perturbations touristiques, El Niño." },
+
+  // ── REPTILES (6) ─────────────────────────────────────────────────────────
+  { icon:"🐊", name:"Gavial du Gange",              statut:"CR", region:"Inde / Népal",                       cat:"reptiles",   pop:"~650 indiv.",              urgence:5, menace:"Dégradation des berges du Gange, filets de pêche, extraction de sable, barrages." },
+  { icon:"🐢", name:"Tortue verte",                 statut:"EN", region:"Océans tropicaux mondiaux",          cat:"reptiles",   pop:"Déclin (certaines pop. CR)", urgence:4, menace:"Braconnage des œufs et adultes, pollution plastique, réchauffement des plages de ponte." },
+  { icon:"🐢", name:"Tortue luth",                  statut:"VU", region:"Tous les océans",                    cat:"reptiles",   pop:"~34 000 femelles",        urgence:3, menace:"Prises accessoires dans filets et palangres, ingestion de plastique, braconnage." },
+  { icon:"🦎", name:"Dragon de Komodo",             statut:"EN", region:"Indonésie (Komodo, Flores, Rinca)",  cat:"reptiles",   pop:"~1 400 indiv.",            urgence:4, menace:"Montée du niveau de la mer (perte d'îles habitables), tourisme non maîtrisé." },
+  { icon:"🐊", name:"Crocodile de Cuba",            statut:"CR", region:"Cuba",                               cat:"reptiles",   pop:"~3 000–4 000 indiv.",     urgence:5, menace:"Hybridation avec le crocodile à lunettes, braconnage, habitat limité à deux zones insulaires." },
+  { icon:"🐍", name:"Boa de Dumeril",               statut:"VU", region:"Madagascar",                         cat:"reptiles",   pop:"Déclin (habitat fragmenté)", urgence:3, menace:"Déforestation massive de Madagascar, capture pour le commerce illégal d'animaux de compagnie." },
+
+  // ── AMPHIBIENS (5) ───────────────────────────────────────────────────────
+  { icon:"🦎", name:"Axolotl",                      statut:"CR", region:"Mexique (lac Xochimilco)",           cat:"amphibiens", pop:"< 1 000 sauvages",         urgence:5, menace:"Pollution des canaux, assèchement du lac, espèces invasives (carpes, perches), urbanisation." },
+  { icon:"🐸", name:"Grenouille dorée du Panama",   statut:"CR", region:"Panama",                             cat:"amphibiens", pop:"~100 (captivité)",          urgence:5, menace:"Chytridiomycose (champignon B. dendrobatidis) — probablement éteinte à l'état sauvage." },
+  { icon:"🐸", name:"Salamandre géante de Chine",   statut:"CR", region:"Chine (rivières de montagne)",       cat:"amphibiens", pop:"< 1 000 sauvages",         urgence:5, menace:"Surpêche pour la gastronomie de luxe, pollution des rivières, destruction d'habitat." },
+  { icon:"🐸", name:"Dendrobate de Lehmann",        statut:"CR", region:"Colombie (Cordillère occidentale)",  cat:"amphibiens", pop:"< 250 adultes",            urgence:5, menace:"Déforestation intensive des Andes, trafic illégal pour animaux de compagnie colorés." },
+  { icon:"🐸", name:"Crapaud de Kihansi",           statut:"EW", region:"Tanzanie (gorge de Kihansi)",        cat:"amphibiens", pop:"~650 (captivité)",          urgence:5, menace:"Construction d'un barrage hydroélectrique qui a détruit les chutes d'eau — son seul habitat." },
+
+  // ── POISSONS (7) ─────────────────────────────────────────────────────────
+  { icon:"🐟", name:"Esturgeon béluga",             statut:"CR", region:"Mer Caspienne / Mer Noire",          cat:"poissons",   pop:"Déclin de 90 % (3 génér.)", urgence:5, menace:"Braconnage pour le caviar béluga, barrages bloquant les migrations, pollution fluviale." },
+  { icon:"🦈", name:"Requin marteau festonné",      statut:"CR", region:"Océans tropicaux mondiaux",          cat:"poissons",   pop:"Déclin de 80 %",           urgence:5, menace:"«Finning» (ablation des ailerons), pêche intensive, capture dans les filets dérivants." },
+  { icon:"🐟", name:"Anguille européenne",          statut:"CR", region:"Europe / Atlantique",                cat:"poissons",   pop:"Déclin de 95 % depuis 1980", urgence:5, menace:"Barrages bloquant les migrations, surpêche des civelles, parasites et pollution." },
+  { icon:"🐟", name:"Poisson-scie commun",          statut:"CR", region:"Côtes tropicales mondiales",         cat:"poissons",   pop:"< 1 % pop. historique",   urgence:5, menace:"Captures accidentelles dans les filets, destruction des mangroves et des fonds côtiers." },
+  { icon:"🦈", name:"Requin baleine",               statut:"EN", region:"Océans tropicaux",                   cat:"poissons",   pop:"~100 000 indiv.",          urgence:4, menace:"Pêche accidentelle, collisions avec les navires, tourisme non contrôlé, réchauffement." },
+  { icon:"🐟", name:"Cœlacanthe des Comores",       statut:"EN", region:"Océan Indien (Comores / Afrique du Sud)", cat:"poissons", pop:"~500 indiv.",           urgence:4, menace:"Pêche accidentelle au filet profond — «fossile vivant» à croissance et reproduction très lentes." },
+  { icon:"🐠", name:"Raie manta géante",            statut:"EN", region:"Tropiques et subtropiques",          cat:"poissons",   pop:"Déclin continu",          urgence:4, menace:"Braconnage pour les branchies (médecine chinoise), filets maillants, collision bateaux." },
+
+  // ── INVERTÉBRÉS (6) ──────────────────────────────────────────────────────
+  { icon:"🪸", name:"Corail Acropora palmata",      statut:"CR", region:"Caraïbes",                           cat:"invertebres", pop:"-92 % depuis 1980",       urgence:5, menace:"Blanchissement corallien (réchauffement), acidification des océans, maladies coralliennes." },
+  { icon:"🐝", name:"Bourdon de l'Ouest",           statut:"CR", region:"Amérique du Nord (ouest USA)",       cat:"invertebres", pop:"-87 % depuis 1998",       urgence:5, menace:"Pesticides néonicotinoïdes, pathogènes apicoles (Nosema), perte des prairies fleuries." },
+  { icon:"🦋", name:"Papillon monarque",            statut:"EN", region:"Amérique du Nord / Mexique",         cat:"invertebres", pop:"-80 % en 20 ans",         urgence:4, menace:"Pesticides détruisant l'asclépiade (plante-hôte), déforestation au Mexique, perte de couloirs." },
+  { icon:"🐚", name:"Nautile pompilius",            statut:"EN", region:"Pacifique occidental",               cat:"invertebres", pop:"Déclin non quantifié",    urgence:4, menace:"Collecte des coquilles pour l'artisanat et les bijoux, pêche au casier, croissance très lente." },
+  { icon:"🐚", name:"Palourde géante",              statut:"VU", region:"Indo-Pacifique",                     cat:"invertebres", pop:"Déclin généralisé",       urgence:3, menace:"Braconnage intensif pour la chair et la coquille, destruction des récifs coralliens." },
+  { icon:"🦐", name:"Crevette de Californie",       statut:"EN", region:"Californie (USA)",                   cat:"invertebres", pop:"~1 700 indiv.",            urgence:4, menace:"Destruction des cours d'eau saisonniers, sécheresse chronique, développement urbain." },
+];
+
+const statutLabels = {
+  EW: "Éteint à l'état sauvage",
+  CR: "En danger critique d'extinction",
+  EN: "En danger",
+  VU: "Vulnérable"
+};
+const catLabels = {
+  mammiferes:  "🦁 Mammifères",
+  oiseaux:     "🦅 Oiseaux",
+  reptiles:    "🐊 Reptiles",
+  amphibiens:  "🐸 Amphibiens",
+  poissons:    "🐟 Poissons",
+  invertebres: "🦋 Invertébrés"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
+
+function statutBadge(s) {
+  return `<span class="statut-badge s-${s}" title="${statutLabels[s]}">${s}</span>`;
+}
+
+function catBadge(cat) {
+  return `<span class="cat-badge c-${cat}">${catLabels[cat] || cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a, b) => {
+    let va, vb;
+    switch (sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name;    vb = b.name;    break;
+      case 3: va = a.statut;  vb = b.statut;  break;
+      case 4: va = a.region;  vb = b.region;  break;
+      case 5: va = a.cat;     vb = b.cat;     break;
+      case 7: va = a.urgence; vb = b.urgence; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d, i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i + 1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' espèce menacée')}" target="_blank" rel="noopener noreferrer">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td>${statutBadge(d.statut)}</td>
+      <td class="region-cell">${d.region}</td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="pop-cell">${d.pop}</td>
+      <td class="stars" title="${d.urgence}/5">${stars(d.urgence)}</td>
+      <td class="menace-cell">${d.menace}</td>
+    </tr>`).join('');
+
+  const nCR  = rows.filter(d => d.statut === "CR").length;
+  const nEW  = rows.filter(d => d.statut === "EW").length;
+  const nEN  = rows.filter(d => d.statut === "EN").length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Espèces affichées : <span>${rows.length}</span></span>
+    <span class="stat">En danger critique (CR) : <span>${nCR}</span></span>
+    <span class="stat">Éteint à l'état sauvage (EW) : <span>${nEW}</span></span>
+    <span class="stat">En danger (EN) : <span>${nEN}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
