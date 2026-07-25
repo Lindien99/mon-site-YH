@@ -219,6 +219,7 @@
   footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--forest-light); }
 
   @media (max-width: 750px) {
+    .menace-cell  { display: none; }
     .region-cell  { display: none; }
   }
 </style>
@@ -255,7 +256,7 @@
       <th data-col="5">Catégorie <span class="sort-icon">⇅</span></th>
       <th data-col="6">Population</th>
       <th data-col="7">Urgence <span class="sort-icon">⇅</span></th>
-      <th data-col="8">Principale menace</th>
+      <th data-col="8" class="menace-cell">Principale menace</th>
     </tr>
   </thead>
   <tbody id="tbody"></tbody>
