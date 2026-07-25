@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Pires Catastrophes Naturelles de l'Histoire</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .date-cell   { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .lieu-cell   { font-size: 0.86rem; color: #4a3520; white-space: nowrap; }
+  .bilan-cell  { color: var(--red-accent); font-size: 0.86rem; min-width: 130px; font-weight: 500; }
+  .magn-cell   { font-size: 0.84rem; color: #1a1a4a; font-style: italic; white-space: nowrap; }
+  .cons-cell   { font-size: 0.85rem; color: #1a3a1a; font-style: italic; min-width: 180px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .type-seisme    { color: #6e2a00; background: #fde8d8; border-color: #f0a878; }
+  .type-tsunami   { color: #003a6e; background: #d8eeff; border-color: #70b0e8; }
+  .type-cyclone   { color: #1a1a6e; background: #e0e0ff; border-color: #9090d8; }
+  .type-inondation{ color: #005a6e; background: #d8f5ff; border-color: #60c0d8; }
+  .type-volcan    { color: #6e0000; background: #ffe0d8; border-color: #e07060; }
+  .type-secheresse{ color: #6e4a00; background: #fff5d8; border-color: #d8a840; }
+  .type-epidemie  { color: #3a006e; background: #f0d8ff; border-color: #b070e0; }
+  .type-famine    { color: #4a3000; background: #fdf0d0; border-color: #c89840; }
+  .type-glissement{ color: #2a4a00; background: #e8f5d0; border-color: #88c050; }
+  .type-tempete   { color: #2a2a6e; background: #dde0ff; border-color: #8890d8; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-lieu {
+    color: #4a3520;
+    text-decoration: none;
+    border-bottom: 1px dashed #c8a870;
+    transition: color 0.15s;
+  }
+  a.g-lieu:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="btn-back">← Nature &amp; Environnement</a>
+
+<header>
+  <p class="subtitle">— Codex Calamitatum Mundi —</p>
+  <h1><span class="ornament">🌋</span> 50 Pires Catastrophes Naturelles de l'Histoire <span class="ornament">🌊</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Quand la Terre se déchaîne — des cataclysmes qui ont façonné les civilisations</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="seisme">🏔️ Séisme</button>
+  <button class="filter-btn" data-cat="tsunami">🌊 Tsunami</button>
+  <button class="filter-btn" data-cat="cyclone">🌀 Cyclone</button>
+  <button class="filter-btn" data-cat="inondation">💧 Inondation</button>
+  <button class="filter-btn" data-cat="volcan">🌋 Volcan</button>
+  <button class="filter-btn" data-cat="secheresse">☀️ Sécheresse</button>
+  <button class="filter-btn" data-cat="epidemie">🦠 Épidémie</button>
+  <button class="filter-btn" data-cat="famine">🌾 Famine</button>
+  <button class="filter-btn" data-cat="glissement">⛰️ Glissement</button>
+  <button class="filter-btn" data-cat="tempete">⛈️ Tempête</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Catastrophe <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Date <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Lieu <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Magnitude / Intensité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Bilan humain <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Gravité <span class="sort-icon">⇅</span></th>
+      <th data-col="9">Conséquences & Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"🌋", name:"Éruption du Toba",                          date:"~74 000 av. J.-C.", lieu:"Sumatra, Indonésie",         cat:"volcan",     magn:"VEI 8 — super-éruption",    bilan:"Quasi-extinction humaine (~10 000 survivants)",  grav:5, cons:"Hiver volcanique mondial de 6 ans — théorie de l'effet goulot d'étranglement génétique humain." },
+  { icon:"🌋", name:"Éruption du Santorin / Thera",              date:"~1620 av. J.-C.",   lieu:"Santorin, Grèce",            cat:"volcan",     magn:"VEI 7",                      bilan:"Milliers de morts, civilisation minoenne dévastée",grav:5, cons:"Effondrement de la civilisation minoenne, probable origine du mythe de l'Atlantide de Platon." },
+  { icon:"🌋", name:"Éruption du Vésuve — Destruction de Pompéi",date:"79",                lieu:"Pompéi, Italie",             cat:"volcan",     magn:"VEI 5 — 16 km de cendres",  bilan:"~16 000 morts",                                  grav:4, cons:"Pompéi et Herculanum ensevelies — capsule temporelle unique de la vie romaine du Iᵉʳ siècle." },
+  { icon:"🌊", name:"Tsunami de la mer de Marmara",              date:"358",               lieu:"Turquie / Grèce",            cat:"tsunami",    magn:"Séisme M 7,2",               bilan:"~50 000 morts",                                  grav:3, cons:"Dévaste les côtes byzantines — documenté par Ammien Marcellin, un des plus anciens tsunamis répertoriés." },
+  { icon:"🏔️", name:"Tremblement de terre de Shaanxi",           date:"1556",              lieu:"Shaanxi, Chine",             cat:"seisme",     magn:"M 8,0",                      bilan:"~830 000 morts",                                 grav:5, cons:"Séisme le plus meurtrier de l'histoire — loess caverneux effondré, certaines régions perdent 60% de pop." },
+  { icon:"🌋", name:"Éruption du Laki (Islande)",                date:"1783–1784",         lieu:"Islande",                    cat:"volcan",     magn:"VEI 4 — 8 mois de lave",    bilan:"~20 000 morts (Islande) + famines en Europe",    grav:4, cons:"Brouillard sulfureux sur l'Europe, été perdu, récoltes dévastées — contribue aux causes de la Révolution française." },
+  { icon:"💧", name:"Inondations du fleuve Jaune (Huang He)",    date:"1887",              lieu:"Chine centrale",             cat:"inondation",  magn:"Crue record — 900 000 km²", bilan:"900 000 à 2 millions de morts",                  grav:5, cons:"La pire inondation de l'histoire moderne, 2 millions de déplacés, famines dévastatrices." },
+  { icon:"🌋", name:"Éruption du Krakatoa",                      date:"1883",              lieu:"Java / Sumatra, Indonésie",  cat:"volcan",     magn:"VEI 6 — entendu à 5 000 km",bilan:"~36 000 morts (tsunami)",                        grav:5, cons:"Tsunami de 30 m, hiver volcanique mondial, couchers de soleil rouges peints par Turner. -1,2°C global." },
+  { icon:"🌀", name:"Cyclone de Bhola (Bangladesh)",              date:"1970",              lieu:"Bangladesh / Bengale",       cat:"cyclone",    magn:"Catégorie 3, vague 10 m",    bilan:"300 000 à 500 000 morts",                        grav:5, cons:"Pire cyclone tropical de l'histoire. Indignation face à l'indifférence du Pakistan — déclenche la guerre d'indépendance du Bangladesh." },
+  { icon:"🏔️", name:"Tremblement de terre de Lisbonne",          date:"1755",              lieu:"Lisbonne, Portugal",         cat:"seisme",     magn:"M 8,5–9,0",                  bilan:"~60 000 à 100 000 morts",                        grav:5, cons:"Raz-de-marée, incendies — inspire Voltaire et Rousseau, révolutionne la philosophie et la sismologie moderne." },
+  { icon:"🦠", name:"Peste noire (Peste bubonique)",              date:"1347–1351",         lieu:"Europe / Asie",              cat:"epidemie",   magn:"Pandémie mondiale",           bilan:"75 à 200 millions de morts",                     grav:5, cons:"Tue 30 à 60% de la population européenne, transforme l'économie, la religion et la société médiévale." },
+  { icon:"🦠", name:"Grippe espagnole",                          date:"1918–1919",         lieu:"Mondial",                    cat:"epidemie",   magn:"Pandémie H1N1",               bilan:"50 à 100 millions de morts",                     grav:5, cons:"Pandémie la plus meurtrière du XXᵉ siècle — touche 500 millions de personnes, aggravée par la WWI." },
+  { icon:"🦠", name:"Variole — endémie séculaire",               date:"jusqu'en 1980",     lieu:"Mondial",                    cat:"epidemie",   magn:"Taux mortalité 30%",          bilan:"300 millions de morts au XXᵉ siècle seul",       grav:5, cons:"Éradiquée en 1980 grâce à la vaccination — seule maladie humaine officiellement éliminée." },
+  { icon:"🦠", name:"Choléra — 7 pandémies",                     date:"1817–présent",      lieu:"Mondial",                    cat:"epidemie",   magn:"7 pandémies successives",     bilan:"Des millions de morts par pandémie",              grav:4, cons:"Chaque pandémie révolutionne la médecine — découverte du bacille par Koch 1883, naissance épidémiologie." },
+  { icon:"🌾", name:"Grande Famine d'Irlande",                   date:"1845–1852",         lieu:"Irlande",                    cat:"famine",     magn:"Mildiou + politique britannique",bilan:"1 million de morts, 2 millions d'émigrés",       grav:4, cons:"Population irlandaise réduite de 25%, diaspora massive aux USA — façonne l'identité irlandaise à jamais." },
+  { icon:"🌾", name:"Famine du Bengale",                         date:"1943",              lieu:"Bengale, Inde britannique",  cat:"famine",     magn:"Aggravée par Churchill / guerre",bilan:"2 à 3 millions de morts",                       grav:4, cons:"Famine aggravée par les politiques coloniales britanniques — catalyseur de l'indépendance indienne." },
+  { icon:"🌾", name:"Grande Famine chinoise (Grand Bond en avant)",date:"1959–1961",        lieu:"Chine",                      cat:"famine",     magn:"Politiques maoïstes",         bilan:"15 à 45 millions de morts",                      grav:5, cons:"Pire famine de l'histoire — conséquence directe de la collectivisation forcée et du régime de Mao." },
+  { icon:"💧", name:"Inondations de Chine de 1931",              date:"1931",              lieu:"Chine centrale",             cat:"inondation",  magn:"Montée 53 m au-dessus normal",bilan:"1 à 4 millions de morts",                        grav:5, cons:"Catastrophe naturelle la plus meurtrière du XXᵉ siècle, 53 millions de personnes affectées." },
+  { icon:"🏔️", name:"Tremblement de terre de Haïti",            date:"2010",              lieu:"Port-au-Prince, Haïti",      cat:"seisme",     magn:"M 7,0",                       bilan:"220 000 à 316 000 morts",                        grav:5, cons:"Un des séismes urbains les plus meurtriers — ravage un pays déjà pauvre, reconstruction chaotique." },
+  { icon:"🌊", name:"Tsunami de l'océan Indien",                 date:"2004",              lieu:"Asie du Sud-Est / Sri Lanka",cat:"tsunami",    magn:"M 9,1 — vagues de 30 m",     bilan:"227 000 à 280 000 morts",                        grav:5, cons:"14 pays touchés, révolutionne les systèmes d'alerte tsunami mondiaux et l'aide humanitaire internationale." },
+  { icon:"🌊", name:"Tsunami et séisme de Tōhoku",               date:"2011",              lieu:"Japon (côte Pacifique)",     cat:"tsunami",    magn:"M 9,0 — vagues de 40 m",     bilan:"~19 500 morts",                                  grav:5, cons:"Catastrophe triple : séisme, tsunami, accident nucléaire de Fukushima — redéfinit la sûreté nucléaire mondiale." },
+  { icon:"🏔️", name:"Tremblement de terre de Tangshan",         date:"1976",              lieu:"Tangshan, Chine",            cat:"seisme",     magn:"M 7,6 — de nuit",            bilan:"242 000 à 655 000 morts",                        grav:5, cons:"Ville de 1 million d'habitants rasée en 15 secondes — révolutionne la construction parasismique en Chine." },
+  { icon:"🏔️", name:"Tremblement de terre de Kanto (Tokyo)",    date:"1923",              lieu:"Tokyo, Japon",               cat:"seisme",     magn:"M 7,9 — incendies",          bilan:"~142 000 morts",                                 grav:5, cons:"Tokyo et Yokohama dévastées — incendies plus meurtriers que le séisme, reconstruction du Japon moderne." },
+  { icon:"🌀", name:"Typhon Nina (Chine)",                       date:"1975",              lieu:"Henan, Chine",               cat:"cyclone",    magn:"Rupture de 62 barrages",      bilan:"85 000 à 240 000 morts",                         grav:5, cons:"Effondrement du barrage de Banqiao — catastrophe hydraulique majeure tenue secrète pendant 20 ans." },
+  { icon:"🌀", name:"Ouragan Mitch",                             date:"1998",              lieu:"Amérique centrale",          cat:"cyclone",    magn:"Cat. 5 — 900 mm pluie/jour", bilan:"11 000 à 19 000 morts",                          grav:4, cons:"Détruit des décennies de développement au Honduras et au Nicaragua — retour 20 ans en arrière." },
+  { icon:"🌀", name:"Cyclone Nargis",                            date:"2008",              lieu:"Myanmar (Birmanie)",         cat:"cyclone",    magn:"Catégorie 4",                 bilan:"~138 000 morts",                                 grav:4, cons:"Junte militaire refuse l'aide internationale pendant 2 semaines — scandale humanitaire mondial." },
+  { icon:"💧", name:"Inondations du Pakistan",                   date:"2010",              lieu:"Pakistan",                   cat:"inondation",  magn:"20% du territoire inondé",   bilan:"~2 000 morts, 20 millions déplacés",              grav:4, cons:"Un cinquième du Pakistan sous les eaux — coûts de reconstruction: 43 milliards de dollars." },
+  { icon:"🌋", name:"Éruption du Tambora",                       date:"1815",              lieu:"Sumbawa, Indonésie",         cat:"volcan",     magn:"VEI 7 — plus puissante éruption historique",bilan:"~71 000 morts directs",          grav:5, cons:"Hiver sans été de 1816 — famines en Europe et Amérique du Nord, récoltes détruites, émigrations massives." },
+  { icon:"🌋", name:"Éruption du Pinatubo",                      date:"1991",              lieu:"Luçon, Philippines",         cat:"volcan",     magn:"VEI 6",                       bilan:"~800 morts",                                     grav:3, cons:"Refroidit la planète de 0,5°C pendant 2 ans — première éruption bien documentée, améliore les modèles climatiques." },
+  { icon:"🌋", name:"Éruption du Mont Saint Helens",             date:"1980",              lieu:"Washington, États-Unis",     cat:"volcan",     magn:"VEI 5",                       bilan:"57 morts",                                       grav:3, cons:"Décapitation de 400 m du sommet en secondes — révolutionne la volcanologie et les protocoles d'évacuation." },
+  { icon:"☀️", name:"Grande Sécheresse du Sahel",               date:"1968–1974",         lieu:"Afrique subsaharienne",      cat:"secheresse", magn:"Déficit pluvieux 25–50%",     bilan:"100 000 à 250 000 morts",                        grav:4, cons:"Désertification accélérée du Sahel, déplacements massifs, réveil des consciences sur la désertification." },
+  { icon:"☀️", name:"Sécheresse australienne (Millennium Drought)",date:"1997–2009",       lieu:"Australie",                  cat:"secheresse", magn:"Plus longue sécheresse enregistrée",bilan:"Pertes agricoles colossales",               grav:3, cons:"Accélère les débats sur le changement climatique en Australie, politique de l'eau radicalement réformée." },
+  { icon:"🏔️", name:"Séisme de Messine",                        date:"1908",              lieu:"Sicile / Calabre, Italie",   cat:"seisme",     magn:"M 7,1 — de nuit",            bilan:"75 000 à 200 000 morts",                         grav:4, cons:"Ville de Messine rasée en 37 secondes — déclenche les premières normes antisismiques en Europe." },
+  { icon:"🏔️", name:"Séisme du Cachemire",                      date:"2005",              lieu:"Cachemire, Pakistan",        cat:"seisme",     magn:"M 7,6 — montagneux",         bilan:"~86 000 morts",                                  grav:4, cons:"Zones inaccessibles, 3,5 millions de sans-abri avant l'hiver — coordination internationale inédite." },
+  { icon:"🏔️", name:"Séisme de Turquie-Syrie",                  date:"2023",              lieu:"Turquie / Syrie",            cat:"seisme",     magn:"M 7,8 + réplique M 7,7",     bilan:"~60 000 morts",                                  grav:5, cons:"Double séisme catastrophique — 500 000 bâtiments effondrés, crise humanitaire aggravée par la guerre en Syrie." },
+  { icon:"🌀", name:"Ouragan Katrina",                           date:"2005",              lieu:"Louisiane, États-Unis",      cat:"cyclone",    magn:"Cat. 5 — rupture de digues",  bilan:"~1 836 morts, 125 Md$ dégâts",                   grav:4, cons:"Révèle les inégalités raciales et la défaillance institutionnelle américaine — New Orleans transformée." },
+  { icon:"🌀", name:"Super Typhon Haiyan (Yolanda)",             date:"2013",              lieu:"Philippines",                cat:"cyclone",    magn:"Cat. 5 — vents 315 km/h",    bilan:"~6 300 morts",                                   grav:4, cons:"Tempête la plus puissante jamais enregistrée à l'atterrissage — accélère les engagements climatiques mondiaux." },
+  { icon:"💧", name:"Inondations du Bangladesh",                 date:"1998",              lieu:"Bangladesh",                 cat:"inondation",  magn:"66% du pays inondé",         bilan:"~1 000 morts, 30 millions déplacés",              grav:4, cons:"Bangladesh sous les eaux pendant 65 jours — réforme des digues et système d'alerte, modèle de résilience." },
+  { icon:"⛰️", name:"Glissement de terrain de Vargas",          date:"1999",              lieu:"Vargas, Venezuela",          cat:"glissement", magn:"Pluies diluviennes",           bilan:"15 000 à 30 000 morts",                          grav:4, cons:"Villes côtières ensevelies sous la boue — catastrophe révèle l'urbanisation anarchique sur les pentes andines." },
+  { icon:"⛰️", name:"Coulée de boue de Leyte",                  date:"2006",              lieu:"Leyte, Philippines",         cat:"glissement", magn:"Typhon + déforestation",      bilan:"~1 800 morts",                                   grav:3, cons:"Village de Southern Leyte englouti — illustre le lien mortel entre déforestation et glissements de terrain." },
+  { icon:"🌋", name:"Éruption de l'Eyjafjallajökull",           date:"2010",              lieu:"Islande",                    cat:"volcan",     magn:"VEI 4 — panache 9 km",       bilan:"0 mort direct",                                  grav:3, cons:"Paralysie de l'aviation européenne pendant 6 jours — 100 000 vols annulés, 10 millions passagers bloqués." },
+  { icon:"🏔️", name:"Tremblement de terre de Mexico",           date:"1985",              lieu:"Mexico, Mexique",            cat:"seisme",     magn:"M 8,1",                       bilan:"~10 000 morts",                                  grav:4, cons:"Gouvernement dépassé — société civile s'organise spontanément, naissance du mouvement citoyen mexicain." },
+  { icon:"⛈️", name:"Blizzard de 1888 (Schoolchildren Blizzard)",date:"1888",             lieu:"Grandes Plaines, USA",       cat:"tempete",    magn:"Température -40°C en 1h",     bilan:"~500 morts (dont de nombreux enfants)",          grav:3, cons:"Enfants piégés en rentrant de l'école — déclenche les premières météo-alertes scolaires aux États-Unis." },
+  { icon:"⛈️", name:"Tempête européenne de 1999 (Lothar & Martin)",date:"1999",           lieu:"France / Allemagne / Suisse",cat:"tempete",    magn:"Vents 200 km/h",              bilan:"~140 morts, 15 Md€ dégâts",                      grav:3, cons:"400 millions d'arbres déracinés, coupures électriques massives — révolutionne la gestion forestière européenne." },
+  { icon:"🏔️", name:"Séisme de Loma Prieta (World Series)",     date:"1989",              lieu:"San Francisco, USA",         cat:"seisme",     magn:"M 6,9 — en direct à la TV",  bilan:"63 morts",                                       grav:3, cons:"Premier séisme filmé en direct lors de la World Series — accélère le renforcement sismique de San Francisco." },
+  { icon:"🌾", name:"Famine de Mao / Grand Bond en avant",       date:"1959–1961",         lieu:"Chine",                      cat:"famine",     magn:"Collectivisation forcée",     bilan:"15 à 55 millions de morts",                      grav:5, cons:"Pire catastrophe humanitaire du XXᵉ siècle liée à une politique — dépasse en ampleur toutes les famines naturelles." },
+  { icon:"🦠", name:"Épidémie de SIDA",                          date:"1981–présent",      lieu:"Mondial",                    cat:"epidemie",   magn:"Pandémie chronique",          bilan:"40 millions de morts depuis 1981",                grav:5, cons:"Transforme la médecine, les droits LGBTQ+, la recherche antivirale — antiviraux modernes en découlent." },
+  { icon:"🦠", name:"COVID-19",                                  date:"2019–2023",         lieu:"Mondial",                    cat:"epidemie",   magn:"Pandémie — 700 M infectés",   bilan:"7 à 20 millions de morts officiels",              grav:5, cons:"Pandémie la plus documentée de l'histoire — révolutionne vaccins ARNm, télétravail, chaînes d'approvisionnement." },
+  { icon:"☀️", name:"Canicule européenne",                       date:"2003",              lieu:"Europe occidentale",         cat:"secheresse", magn:"+6°C au-dessus normale",      bilan:"~70 000 morts (dont 15 000 en France)",          grav:4, cons:"Alerte sur le vieillissement, réforme des plans de canicule, accélère la prise de conscience climatique en Europe." },
+  { icon:"💧", name:"Inondations catastrophiques de Valence",    date:"2024",              lieu:"Valence, Espagne",           cat:"inondation",  magn:"DANA — 500 mm en 8 h",       bilan:"~230 morts",                                     grav:3, cons:"Catastrophe naturelle la plus meurtrière d'Espagne depuis 1973 — alertes tardives, urbanisation en zones à risque." },
+];
+
+const typeLabels = {
+  "seisme":    "🏔️ Séisme",
+  "tsunami":   "🌊 Tsunami",
+  "cyclone":   "🌀 Cyclone",
+  "inondation":"💧 Inondation",
+  "volcan":    "🌋 Volcan",
+  "secheresse":"☀️ Sécheresse",
+  "epidemie":  "🦠 Épidémie",
+  "famine":    "🌾 Famine",
+  "glissement":"⛰️ Glissement",
+  "tempete":   "⛈️ Tempête"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${typeLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.date; vb = b.date; break;
+      case 4: va = a.lieu; vb = b.lieu; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.magn; vb = b.magn; break;
+      case 7: va = a.bilan; vb = b.bilan; break;
+      case 8: va = a.grav; vb = b.grav; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.date}</td>
+      <td class="lieu-cell"><a class="g-lieu" href="${G}${q(d.name+' '+d.lieu)}" target="_blank">${d.lieu}<sup class="arr"> ↗</sup></a></td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="magn-cell">${d.magn}</td>
+      <td class="bilan-cell">${d.bilan}</td>
+      <td class="stars" title="${d.grav}/5">${stars(d.grav)}</td>
+      <td class="cons-cell">${d.cons}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.grav===5).length;
+  const totVictimes = rows.length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Catastrophes affichées : <span>${totVictimes}</span></span>
+    <span class="stat">Gravité maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>74 000 av. J.-C. → 2024</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
