@@ -532,7 +532,8 @@ render();
   const label = btn.querySelector('.toggle-label');
 
   function applyTheme(dark) {
-    document.documentElement.classList.toggle('dark', dark);
+    if (dark) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
     icon.textContent  = dark ? '🌙' : '☀️';
     label.textContent = dark ? 'Jour' : 'Nuit';
     try { localStorage.setItem('nobel-theme', dark ? 'dark' : 'light'); } catch (e) {}
