@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Prix Nobel et leurs Contributions</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #0d1b2a;
+    --sepia-mid:    #1e4d7a;
+    --sepia-light:  #5b8db5;
+    --parch-bg:     #f0f5fb;
+    --parch-card:   #f8fafd;
+    --ink:          #0d1b2a;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --blue-accent:  #1a3a6a;
+    --shadow:       rgba(13,27,42,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #c8d8ea;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #ecf3fb; }
+  tbody tr:nth-child(even) { background: #f0f6fb; }
+  tbody tr:nth-child(even):hover { background: #ecf3fb; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: #2a3a4a; white-space: nowrap; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: #1a2a3a; font-style: italic; min-width: 200px; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-physique    { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-chimie      { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-medecine    { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-litterature { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-paix        { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-economie    { color: #7a4400; background: #fff3d0; border-color: #cc9933; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: #2a3a4a;
+    text-decoration: none;
+    border-bottom: 1px dashed #88a8c8;
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<a href="../index.html" class="btn-back">← Sciences &amp; Savoirs</a>
+
+<header>
+  <p class="subtitle">— Academia Nobilis —</p>
+  <h1><span class="ornament">🏅</span> 50 Prix Nobel et leurs Contributions <span class="ornament">⚗️</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les découvertes et œuvres qui ont transformé l'humanité — de 1901 à nos jours</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="physique">⚛️ Physique</button>
+  <button class="filter-btn" data-cat="chimie">⚗️ Chimie</button>
+  <button class="filter-btn" data-cat="medecine">🩺 Médecine</button>
+  <button class="filter-btn" data-cat="litterature">📚 Littérature</button>
+  <button class="filter-btn" data-cat="paix">🕊️ Paix</button>
+  <button class="filter-btn" data-cat="economie">📊 Économie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Lauréat <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Catégorie <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Découverte / Contribution <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"⚛️", name:"Wilhelm Röntgen",                              year:1901, pays:"Allemagne",            cat:"physique",    decouverte:"Découverte des rayons X",                                             imp:5, heritage:"Révolutionne la médecine dès 1895 — base de toute l'imagerie médicale moderne : radio, scanner, mammographie." },
+  { icon:"🕊️", name:"Henri Dunant",                                year:1901, pays:"Suisse",                cat:"paix",        decouverte:"Fondateur de la Croix-Rouge internationale",                          imp:5, heritage:"Rédaction des Conventions de Genève — fonde le droit humanitaire international, protège les blessés de guerre depuis 1864." },
+  { icon:"⚛️", name:"Marie Curie",                                  year:1903, pays:"France / Pologne",      cat:"physique",    decouverte:"Radioactivité — rayonnements alpha, bêta, gamma",                     imp:5, heritage:"Première femme Nobel — ouvre l'ère nucléaire, base de la radiothérapie contre le cancer et de la datation au carbone." },
+  { icon:"🩺", name:"Ivan Pavlov",                                  year:1904, pays:"Russie",                cat:"medecine",    decouverte:"Réflexes conditionnés et physiologie de la digestion",                 imp:5, heritage:"Fondement de la psychologie comportementale — ses expériences sur les chiens restent un pilier des neurosciences modernes." },
+  { icon:"🩺", name:"Robert Koch",                                  year:1905, pays:"Allemagne",              cat:"medecine",    decouverte:"Bacille de la tuberculose & postulats de Koch",                       imp:5, heritage:"Révolutionne la bactériologie — ses postulats deviennent la méthode standard pour identifier les agents pathogènes infectieux." },
+  { icon:"⚗️", name:"Marie Curie",                                  year:1911, pays:"France / Pologne",      cat:"chimie",      decouverte:"Isolation pure du radium et du polonium",                             imp:5, heritage:"Seule personne à obtenir deux Prix Nobel — découverte de deux nouveaux éléments, dont le polonium nommé d'après sa patrie." },
+  { icon:"⚛️", name:"Max Planck",                                   year:1918, pays:"Allemagne",              cat:"physique",    decouverte:"Théorie des quanta — constante de Planck h",                         imp:5, heritage:"Père de la physique quantique — sa découverte est l'une des révolutions intellectuelles les plus profondes de l'histoire des sciences." },
+  { icon:"⚗️", name:"Fritz Haber",                                  year:1918, pays:"Allemagne",              cat:"chimie",      decouverte:"Synthèse industrielle de l'ammoniac — procédé Haber-Bosch",           imp:5, heritage:"Nourrit la moitié de la population mondiale — sans lui, 4 milliards d'humains manqueraient d'engrais azotés. Nobel très controversé (armes chimiques WW1)." },
+  { icon:"⚛️", name:"Albert Einstein",                              year:1921, pays:"Allemagne / USA",        cat:"physique",    decouverte:"Effet photoélectrique & théorie de la relativité",                    imp:5, heritage:"E=mc² — base de l'énergie nucléaire, du laser et du GPS moderne. Symbole universel du génie scientifique." },
+  { icon:"⚛️", name:"Niels Bohr",                                   year:1922, pays:"Danemark",               cat:"physique",    decouverte:"Modèle atomique quantifié de Bohr",                                  imp:5, heritage:"Révolutionne la compréhension de la structure de l'atome — fondement de la spectroscopie et de toute la chimie quantique." },
+  { icon:"🩺", name:"Frederick Banting",                            year:1923, pays:"Canada",                 cat:"medecine",    decouverte:"Découverte et isolation de l'insuline",                               imp:5, heritage:"Sauve des millions de diabétiques chaque année depuis 1921 — l'une des découvertes médicales les plus importantes du XXᵉ siècle." },
+  { icon:"🩺", name:"Karl Landsteiner",                             year:1930, pays:"Autriche / USA",          cat:"medecine",    decouverte:"Classification des groupes sanguins ABO",                             imp:5, heritage:"Rend la transfusion sanguine sûre — sauve des millions de vies lors des chirurgies, des accouchements et des guerres." },
+  { icon:"⚛️", name:"Werner Heisenberg",                            year:1932, pays:"Allemagne",              cat:"physique",    decouverte:"Mécanique quantique & principe d'incertitude",                        imp:5, heritage:"Le principe d'incertitude révolutionne la physique fondamentale — remet en question le déterminisme classique hérité de Newton." },
+  { icon:"⚛️", name:"Erwin Schrödinger",                            year:1933, pays:"Autriche",               cat:"physique",    decouverte:"Mécanique ondulatoire — équation de Schrödinger",                     imp:5, heritage:"Son équation est le pilier de toute la physique quantique — fondement des semi-conducteurs, lasers et ordinateurs quantiques." },
+  { icon:"⚛️", name:"Enrico Fermi",                                 year:1938, pays:"Italie / USA",           cat:"physique",    decouverte:"Fission nucléaire et premier réacteur atomique Chicago Pile-1",        imp:5, heritage:"Père de l'ère nucléaire — énergie nucléaire civile (électricité propre) mais aussi bombe atomique. Figure majeure et ambivalente du XXᵉ siècle." },
+  { icon:"🩺", name:"Alexander Fleming",                            year:1945, pays:"Royaume-Uni",            cat:"medecine",    decouverte:"Découverte de la pénicilline (1928)",                                  imp:5, heritage:"L'antibiotique qui a sauvé le plus de vies — révolutionne la médecine moderne et rend possible la chirurgie complexe actuelle." },
+  { icon:"⚗️", name:"Linus Pauling",                                year:1954, pays:"USA",                   cat:"chimie",      decouverte:"Nature des liaisons chimiques & structure en hélice des protéines",    imp:5, heritage:"Seul à avoir deux Nobel dans deux disciplines différentes — ses travaux fondent la chimie structurale et la biologie moléculaire." },
+  { icon:"📚", name:"Albert Camus",                                  year:1957, pays:"France / Algérie",       cat:"litterature", decouverte:"L'Absurde : L'Étranger, La Peste, Le Mythe de Sisyphe",               imp:5, heritage:"Philosophie de l'absurde — influence des générations entières de lecteurs et de penseurs dans le monde entier." },
+  { icon:"🩺", name:"James Watson & Francis Crick",                  year:1962, pays:"USA / Royaume-Uni",      cat:"medecine",    decouverte:"Structure en double hélice de l'ADN",                                 imp:5, heritage:"Découverte la plus importante de la biologie du XXᵉ siècle — fonde la génétique moléculaire, les OGM et la médecine personnalisée." },
+  { icon:"🕊️", name:"Linus Pauling",                               year:1962, pays:"USA",                   cat:"paix",        decouverte:"Militantisme contre les essais nucléaires atmosphériques",              imp:4, heritage:"Seul à avoir Nobel Chimie (1954) et Nobel Paix (1962) — icône de la responsabilité éthique des scientifiques face au nucléaire." },
+  { icon:"🕊️", name:"Martin Luther King Jr.",                      year:1964, pays:"USA",                   cat:"paix",        decouverte:"Lutte non-violente pour les droits civiques des Noirs américains",      imp:5, heritage:"Discours 'I Have a Dream' — inspire les mouvements de droits civiques du monde entier, pilier universel de la résistance non-violente." },
+  { icon:"⚗️", name:"Dorothy Hodgkin",                              year:1964, pays:"Royaume-Uni",            cat:"chimie",      decouverte:"Cristallographie aux rayons X (insuline, pénicilline, vitamine B12)",  imp:4, heritage:"Première Britannique femme Nobel de sciences — détermine les structures de molécules vitales, ouvre la conception de médicaments ciblés." },
+  { icon:"⚛️", name:"Richard Feynman",                              year:1965, pays:"USA",                   cat:"physique",    decouverte:"Électrodynamique quantique (QED) & diagrammes de Feynman",              imp:5, heritage:"Ses diagrammes révolutionnent la physique des particules — outil universel pour calculer toutes les interactions entre particules élémentaires." },
+  { icon:"⚛️", name:"Abdus Salam",                                  year:1979, pays:"Pakistan",               cat:"physique",    decouverte:"Unification des forces électromagnétique et faible",                   imp:4, heritage:"Premier Pakistanais Nobel de sciences — théorie électrofaible confirmée au CERN, pierre angulaire du Modèle Standard de la physique." },
+  { icon:"🕊️", name:"Mère Teresa",                                 year:1979, pays:"Inde / Albanie",          cat:"paix",        decouverte:"Charité envers les plus démunis — Missionnaires de la Charité",        imp:4, heritage:"Symbole mondial de compassion — son ordre de religieuses est présent dans 133 pays et inspire des générations de bénévoles humanitaires." },
+  { icon:"📚", name:"Gabriel García Márquez",                        year:1982, pays:"Colombie",               cat:"litterature", decouverte:"Réalisme magique — Cent ans de solitude, L'Amour au temps du choléra", imp:5, heritage:"Transforme la littérature mondiale — le réalisme magique devient un genre reconnu et influence toute la littérature hispanique moderne." },
+  { icon:"🩺", name:"Barbara McClintock",                            year:1983, pays:"USA",                   cat:"medecine",    decouverte:"Éléments génétiques transposables — 'gènes sauteurs'",                 imp:4, heritage:"Révolutionne la génétique — les gènes sauteurs expliquent l'évolution, l'adaptation et certaines maladies génétiques héréditaires." },
+  { icon:"🕊️", name:"Dalaï Lama (Tenzin Gyatso)",                  year:1989, pays:"Tibet / Inde",           cat:"paix",        decouverte:"Résistance non-violente et dialogue pour l'autonomie tibétaine",        imp:3, heritage:"Symbole mondial de la non-violence bouddhiste — sensibilise des millions de personnes dans le monde à la situation du Tibet." },
+  { icon:"🕊️", name:"Aung San Suu Kyi",                            year:1991, pays:"Myanmar (Birmanie)",     cat:"paix",        decouverte:"Résistance non-violente contre la dictature militaire birmane",         imp:3, heritage:"15 ans en résidence surveillée — symbole du combat pour la démocratie, devenu controversé pour son silence sur le génocide des Rohingyas." },
+  { icon:"⚗️", name:"Kary Mullis",                                  year:1993, pays:"USA",                   cat:"chimie",      decouverte:"Réaction en chaîne polymérase (PCR)",                                 imp:5, heritage:"PCR révolutionne la biologie, la criminalistique et la médecine diagnostique — clé des tests COVID-19 et de toute la médecine génomique." },
+  { icon:"🕊️", name:"Nelson Mandela",                              year:1993, pays:"Afrique du Sud",          cat:"paix",        decouverte:"Lutte contre l'apartheid — 27 ans d'emprisonnement à Robben Island",   imp:5, heritage:"Réconciliation nationale en Afrique du Sud — modèle universel de pardon, de résistance et de construction démocratique post-oppression." },
+  { icon:"📚", name:"Toni Morrison",                                 year:1993, pays:"USA",                   cat:"litterature", decouverte:"Beloved, Song of Solomon — mémoire et identité afro-américaine",       imp:5, heritage:"Première Afro-Américaine Nobel de littérature — voix essentielle et indispensable sur l'esclavage, la diaspora et la mémoire collective." },
+  { icon:"📊", name:"John Nash",                                     year:1994, pays:"USA",                   cat:"economie",    decouverte:"Équilibre de Nash — théorie des jeux non coopératifs",                 imp:5, heritage:"Révolutionne l'économie, la stratégie militaire et la biologie évolutive — sa vie est popularisée par le film A Beautiful Mind (2001)." },
+  { icon:"⚗️", name:"Crutzen, Molina & Rowland",                    year:1995, pays:"International",           cat:"chimie",      decouverte:"Mécanismes de destruction de la couche d'ozone par les CFC",           imp:5, heritage:"Conduit au Protocole de Montréal 1987 — seul traité environnemental ratifié par tous les pays. La couche d'ozone est en voie de récupération." },
+  { icon:"🩺", name:"Christiane Nüsslein-Volhard",                   year:1995, pays:"Allemagne",              cat:"medecine",    decouverte:"Contrôle génétique du développement embryonnaire — gènes Hox",         imp:4, heritage:"Découvre le plan d'organisation de tout être vivant — fondement de la biologie du développement et de la médecine fœtale et pédiatrique." },
+  { icon:"📊", name:"Amartya Sen",                                   year:1998, pays:"Inde",                  cat:"economie",    decouverte:"Économie du développement — liberté, capabilités et famines",           imp:4, heritage:"Redéfinit le développement humain (IDH) — influence directe sur les politiques de l'ONU et les Objectifs de Développement Durable." },
+  { icon:"🕊️", name:"Médecins Sans Frontières",                    year:1999, pays:"International",           cat:"paix",        decouverte:"Médecine d'urgence humanitaire dans les zones de conflit et de crises", imp:4, heritage:"Redéfinit l'aide médicale humanitaire — présents dans plus de 70 pays en crises, modèle mondial d'indépendance et de témoignage." },
+  { icon:"📊", name:"Daniel Kahneman",                               year:2002, pays:"Israël / USA",           cat:"economie",    decouverte:"Économie comportementale — heuristiques et biais cognitifs",            imp:5, heritage:"Révolutionne l'économie et la prise de décision — Thinking Fast and Slow, fondement du nudge et des politiques publiques comportementales." },
+  { icon:"🩺", name:"Barry Marshall & Robin Warren",                  year:2005, pays:"Australie",              cat:"medecine",    decouverte:"Bactérie H. pylori comme cause des ulcères gastriques",                imp:4, heritage:"Marshall s'avale la bactérie pour prouver sa théorie — les antibiotiques guérissent désormais des millions d'ulcéreux chroniques dans le monde." },
+  { icon:"🕊️", name:"Muhammad Yunus",                              year:2006, pays:"Bangladesh",              cat:"paix",        decouverte:"Microcrédit — création de la Grameen Bank",                            imp:4, heritage:"Lutte contre la pauvreté par la finance solidaire — modèle de microfinance adopté dans le monde entier, des millions de familles aidées." },
+  { icon:"🕊️", name:"Al Gore & GIEC",                              year:2007, pays:"USA / International",     cat:"paix",        decouverte:"Sensibilisation mondiale au changement climatique",                     imp:4, heritage:"An Inconvenient Truth — accélère les négociations internationales sur le climat et prépare le terrain pour l'Accord de Paris en 2015." },
+  { icon:"🩺", name:"Françoise Barré-Sinoussi",                      year:2008, pays:"France",                 cat:"medecine",    decouverte:"Découverte du rétrovirus VIH à l'Institut Pasteur (1983)",             imp:5, heritage:"Identification du VIH — fondement de la recherche antivirale qui a transformé le SIDA en maladie chronique traitable et non plus mortelle à court terme." },
+  { icon:"⚗️", name:"Suzuki, Heck & Negishi",                       year:2010, pays:"Japon / USA",            cat:"chimie",      decouverte:"Couplage croisé au palladium en chimie organique",                      imp:4, heritage:"Transforme la synthèse pharmaceutique — environ 25 % des principes actifs médicamenteux sont fabriqués via ces réactions de couplage." },
+  { icon:"⚛️", name:"Peter Higgs",                                  year:2013, pays:"Royaume-Uni",            cat:"physique",    decouverte:"Boson de Higgs — particule conférant la masse à la matière",           imp:5, heritage:"Confirmé au CERN en 2012 après 50 ans de recherche — complète le Modèle Standard de la physique des particules élémentaires." },
+  { icon:"🕊️", name:"Malala Yousafzai",                            year:2014, pays:"Pakistan",                cat:"paix",        decouverte:"Droit à l'éducation pour les filles — résistance aux talibans",         imp:5, heritage:"Survivante d'un attentat taliban à 15 ans — plus jeune lauréate de l'histoire du Nobel, symbole mondial du droit à l'éducation pour toutes." },
+  { icon:"🩺", name:"Yoshinori Ohsumi",                              year:2016, pays:"Japon",                  cat:"medecine",    decouverte:"Mécanismes de l'autophagie cellulaire",                               imp:4, heritage:"La cellule se 'mange' elle-même pour se recycler — ouvre de nouvelles pistes thérapeutiques contre le cancer, Parkinson et Alzheimer." },
+  { icon:"📚", name:"Bob Dylan",                                     year:2016, pays:"USA",                   cat:"litterature", decouverte:"Poésie et chansons — Blowin' in the Wind, The Times They Are A-Changin'", imp:4, heritage:"Premier musicien Nobel de littérature — reconnaît officiellement la chanson comme forme d'expression littéraire à part entière." },
+  { icon:"📚", name:"Kazuo Ishiguro",                                year:2017, pays:"Royaume-Uni / Japon",    cat:"litterature", decouverte:"Les Vestiges du Jour, Auprès de moi toujours, Klara et le Soleil",      imp:4, heritage:"Romans sur la mémoire, la dignité et l'humanité — fusion unique de la sensibilité japonaise et de la tradition romanesque britannique." },
+  { icon:"⚗️", name:"Jennifer Doudna & Emmanuelle Charpentier",      year:2020, pays:"USA / France",           cat:"chimie",      decouverte:"Outil d'édition génomique CRISPR-Cas9",                               imp:5, heritage:"Ciseaux moléculaires — révolutionne la médecine, l'agriculture et le traitement des maladies génétiques. Ère de la 'chirurgie de l'ADN'." },
+  { icon:"🩺", name:"Katalin Karikó & Drew Weissman",                year:2023, pays:"Hongrie / USA",          cat:"medecine",    decouverte:"Modifications de l'ARN messager permettant les vaccins à ARNm",         imp:5, heritage:"Technologie ARNm — vaccins COVID développés en 11 mois. Ouvre l'ère des vaccins personnalisés contre le cancer et de nouvelles thérapies géniques." },
+];
+
+const catLabels = {
+  "physique":    "⚛️ Physique",
+  "chimie":      "⚗️ Chimie",
+  "medecine":    "🩺 Médecine",
+  "litterature": "📚 Littérature",
+  "paix":        "🕊️ Paix",
+  "economie":    "📊 Économie"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' Prix Nobel')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${d.year}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Lauréats affichés : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${minYear} → ${maxYear}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
