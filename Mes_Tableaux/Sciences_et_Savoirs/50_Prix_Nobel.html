@@ -6,7 +6,7 @@
 <title>50 Prix Nobel et leurs Contributions</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <!-- Applique le thème mémorisé AVANT le rendu pour éviter le flash blanc/noir -->
-<script>(function(){try{if(localStorage.getItem('site-theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}}());</script>
+<script>(function(){try{if(localStorage.getItem('nobel-theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}}());</script>
 <style>
   :root {
     --sepia-dark:   #0d1b2a;
@@ -536,7 +536,7 @@ render();
     else document.documentElement.classList.remove('dark');
     icon.textContent  = dark ? '🌙' : '☀️';
     label.textContent = dark ? 'Jour' : 'Nuit';
-    try { localStorage.setItem('site-theme', dark ? 'dark' : 'light'); } catch (e) {}
+    try { localStorage.setItem('nobel-theme', dark ? 'dark' : 'light'); } catch (e) {}
   }
 
   /* État initial — synchronise le bouton avec la classe déjà posée par le script <head> */

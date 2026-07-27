@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-<script>(function(){try{if(localStorage.getItem('site-theme')=='light')document.documentElement.classList.add('light');}catch(e){}}());</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pays-Bas — Guide du Voyageur</title>
   <meta name="description" content="Guide interactif du voyageur — Découvrez les monuments, sites UNESCO et trésors culturels des Pays-Bas.">
@@ -163,88 +162,9 @@
     }
       @media(max-width:480px){
       .card-number{font-size:2.8rem !important;right:12px !important;top:12px !important;color:rgba(255,206,0,.65) !important;}
-    }
-  /* ═══════════════════════════════════════════
-     BOUTON BASCULE THÈME — toujours visible
-  ═══════════════════════════════════════════ */
-  #themeToggle {
-    position: fixed; top: 1.1rem; right: 1.2rem; z-index: 9999;
-    display: flex; align-items: center; gap: 0.5rem;
-    padding: 0.48rem 1rem 0.48rem 0.72rem;
-    background: rgba(201,168,76,0.12);
-    border: 1.5px solid rgba(201,168,76,0.45);
-    border-radius: 2rem; cursor: pointer;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 0.67rem; letter-spacing: 0.11em; text-transform: uppercase;
-    color: var(--gold, #c9a84c);
-    box-shadow: 0 3px 14px rgba(0,0,0,0.3);
-    transition: background 0.35s, color 0.35s, border-color 0.35s, box-shadow 0.35s, transform 0.2s;
-  }
-  #themeToggle:hover {
-    background: rgba(201,168,76,0.28); border-color: var(--gold, #c9a84c);
-    transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,0,0,0.45);
-  }
-  #themeToggle:active { transform: translateY(0); }
-  .toggle-icon { font-size: 1.15rem; line-height: 1; display: inline-block; transition: transform 0.45s ease; }
-  #themeToggle:hover .toggle-icon { transform: rotate(22deg) scale(1.15); }
-
-  /* ═══════════════════════════════════════════
-     MODE JOUR — html.light overrides
-  ═══════════════════════════════════════════ */
-  html.light body { background: #f5ead8 !important; color: #1a1a1a !important; }
-  html.light .hero-eyebrow  { color: var(--gold, #c9a84c) !important; }
-  html.light .hero-title    { color: #1a1a1a !important; }
-  html.light .hero-title em { color: #7a5a20 !important; }
-  html.light .hero-subtitle { color: rgba(26,26,26,0.62) !important; }
-  html.light .hero-intro    { color: rgba(26,26,26,0.72) !important; }
-  html.light .hero-year     { color: rgba(201,168,76,0.10) !important; }
-  html.light .section-title { color: #1a1a1a !important; }
-  html.light .section-tag   { color: var(--gold, #c9a84c) !important; }
-  html.light .stat-num      { color: var(--gold, #c9a84c) !important; }
-  html.light .stat-label    { color: rgba(26,26,26,0.5) !important; }
-  html.light .monument-card {
-    background: rgba(245,234,216,0.85) !important;
-    border-color: rgba(201,168,76,0.3) !important;
-  }
-  html.light .monument-card:hover { background: rgba(245,234,216,1) !important; }
-  html.light .card-name    { color: #1a1a1a !important; }
-  html.light .card-context { color: rgba(26,26,26,0.65) !important; }
-  html.light .card-city    { color: var(--gold, #c9a84c) !important; }
-  html.light .carte-pays   { background: #f5ead8 !important; color: #1a1a1a !important; }
-  html.light .nom-pays     { color: #1a1a1a !important; }
-  html.light .timeline-year  { color: var(--gold, #c9a84c) !important; }
-  html.light .timeline-event { color: rgba(26,26,26,0.7) !important; }
-  html.light .timeline-event strong { color: #1a1a1a !important; }
-  html.light .timeline-dot  { background: var(--gold, #c9a84c) !important; }
-  html.light footer { border-top-color: rgba(201,168,76,0.25) !important; }
-  html.light .footer-text  { color: rgba(26,26,26,0.45) !important; }
-  html.light .footer-crest { opacity: 0.25 !important; }
-  html.light .bg-glow      { display: none !important; }
-  html.light .site-title   { color: #1a1a1a !important; }
-  html.light .site-subtitle { color: rgba(26,26,26,0.6) !important; }
-  html.light .eyebrow      { color: var(--gold, #c9a84c) !important; }
-  html.light #themeToggle {
-    background: rgba(26,26,26,0.06) !important;
-    border-color: rgba(26,26,26,0.2) !important;
-    color: #1a1a1a !important;
-  }
-  html.light #themeToggle:hover {
-    background: rgba(26,26,26,0.12) !important;
-    border-color: rgba(26,26,26,0.4) !important;
-  }
-  html, body, .monument-card, .section-title, #themeToggle, footer {
-    transition: background-color 0.35s ease, color 0.35s ease,
-                border-color 0.35s ease, box-shadow 0.35s ease;
-  }
-</style>
+    }</style>
 </head>
 <body>
-<!-- ★ BOUTON BASCULE THÈME ★ -->
-<button id="themeToggle" aria-label="Basculer entre thème clair et sombre">
-  <span class="toggle-icon" aria-hidden="true">☀️</span>
-  <span class="toggle-label">Jour</span>
-</button>
-
 
 <div id="wiki-modal" role="dialog" aria-modal="true" aria-labelledby="wiki-modal-title" onclick="if(event.target===this)closeWiki()">
   <div id="wiki-modal-box">
@@ -887,27 +807,6 @@ map.on('click',function(){if(window.innerWidth<=600&&panelOpen){panelOpen=false;
 
 var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},e.target.dataset.delay||0);obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(function(el,i){el.dataset.delay=(i%4)*80;obs.observe(el);});
-</script>
-
-<script>
-/* ===== THÈME JOUR/NUIT ===== */
-(function () {
-  var btn   = document.getElementById('themeToggle');
-  if (!btn) return;
-  var icon  = btn.querySelector('.toggle-icon');
-  var label = btn.querySelector('.toggle-label');
-  function applyTheme(light) {
-    if (light) document.documentElement.classList.add('light');
-    else       document.documentElement.classList.remove('light');
-    icon.textContent  = light ? '🌙' : '☀️';
-    label.textContent = light ? 'Nuit' : 'Jour';
-    try { localStorage.setItem('site-theme', light ? 'light' : 'dark'); } catch (e) {}
-  }
-  applyTheme(document.documentElement.classList.contains('light'));
-  btn.addEventListener('click', function () {
-    applyTheme(!document.documentElement.classList.contains('light'));
-  });
-}());
 </script>
 </body>
 </html>
