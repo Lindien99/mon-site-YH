@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem('site-theme')=='dark')document.documentElement.classList.add('dark');}catch(e){}}());</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sciences &amp; Savoirs — Yvon H.</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -166,9 +167,69 @@
     color: var(--sci-mid);
     opacity: 0.45;
   }
+
+  /* ═══════════════════════════════════════════
+     BOUTON BASCULE THÈME — toujours visible
+  ═══════════════════════════════════════════ */
+  #themeToggle {
+    position: fixed; top: 1.1rem; right: 1.2rem; z-index: 9999;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.48rem 1rem 0.48rem 0.72rem;
+    background: var(--parch-card, #fdf6e3);
+    border: 1.5px solid var(--sepia-light, #c9a97a);
+    border-radius: 2rem; cursor: pointer;
+    font-family: 'Cinzel', serif; font-size: 0.67rem;
+    letter-spacing: 0.11em; text-transform: uppercase;
+    color: var(--sepia-mid, #7a4f2d);
+    box-shadow: 0 3px 14px var(--shadow, rgba(44,26,14,0.18));
+    transition: background 0.35s, color 0.35s, border-color 0.35s, box-shadow 0.35s, transform 0.2s;
+  }
+  #themeToggle:hover {
+    background: var(--sepia-dark, #2c1a0e); color: var(--gold-light, #d4a843);
+    border-color: var(--gold, #b8860b);
+    box-shadow: 0 6px 22px var(--shadow); transform: translateY(-2px);
+  }
+  #themeToggle:active { transform: translateY(0); }
+  .toggle-icon { font-size: 1.15rem; line-height: 1; display: inline-block; transition: transform 0.45s ease; }
+  #themeToggle:hover .toggle-icon { transform: rotate(22deg) scale(1.15); }
+
+  /* ═══════════════════════════════════════════
+     THÈME SOMBRE — html.dark overrides
+  ═══════════════════════════════════════════ */
+  html.dark {
+    --parch-bg:   #0a0705; --parch-card: #120c07;
+    --sepia-dark: #e8d8b8; --sepia-mid:  #c9a97a; --sepia-light: #8b6840;
+    --ink:        #e8d8b8; --gold:       #c9a03a; --gold-light:  #eabb58;
+    --shadow:     rgba(0,0,0,0.65);
+  }
+  html.dark body { background-color: var(--parch-bg, #0a0705); }
+  html.dark table { background: var(--parch-card, #120c07); }
+  html.dark tbody tr { border-bottom: 1px solid #1e1608; }
+  html.dark tbody tr:hover { background: #1e1408; }
+  html.dark tbody tr:nth-child(even) { background: #150e05; }
+  html.dark tbody tr:nth-child(even):hover { background: #1e1408; }
+  html.dark .filter-btn { background: #120c07; border-color: #2a1e0e; color: #c9a97a; }
+  html.dark .filter-btn:hover,
+  html.dark .filter-btn.active { background: #201408; color: var(--gold-light); border-color: var(--gold); }
+  html.dark .btn-back { color: var(--sepia-mid); }
+  html.dark #themeToggle {
+    background: #1a1208; border-color: var(--gold); color: var(--gold-light);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.5), 0 0 10px rgba(201,160,58,0.15);
+  }
+  html.dark #themeToggle:hover { background: #251a0a; color: #f5cc70; border-color: #f5cc70; }
+  html, body, table, tbody tr, .filter-btn, #themeToggle, header, footer {
+    transition: background-color 0.35s ease, color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+  }
 </style>
 </head>
 <body>
+<!-- ★ BOUTON BASCULE THÈME ★ -->
+<button id="themeToggle" aria-label="Basculer entre thème clair et sombre">
+  <span class="toggle-icon" aria-hidden="true">☀️</span>
+  <span class="toggle-label">Nuit</span>
+</button>
+
 
   <a href="../index.html" class="btn-back">← Retour aux Tableaux</a>
 
@@ -193,5 +254,26 @@
     <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
   </footer>
 
+
+<script>
+/* ===== THÈME JOUR/NUIT ===== */
+(function () {
+  var btn   = document.getElementById('themeToggle');
+  if (!btn) return;
+  var icon  = btn.querySelector('.toggle-icon');
+  var label = btn.querySelector('.toggle-label');
+  function applyTheme(dark) {
+    if (dark) document.documentElement.classList.add('dark');
+    else      document.documentElement.classList.remove('dark');
+    icon.textContent  = dark ? '🌙' : '☀️';
+    label.textContent = dark ? 'Jour' : 'Nuit';
+    try { localStorage.setItem('site-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  }
+  applyTheme(document.documentElement.classList.contains('dark'));
+  btn.addEventListener('click', function () {
+    applyTheme(!document.documentElement.classList.contains('dark'));
+  });
+}());
+</script>
 </body>
 </html>
