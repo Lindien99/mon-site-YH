@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Découvertes Scientifiques Fondamentales</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #2b2018;
+    --sepia-mid:    #6b5744;
+    --sepia-light:  #a68a6c;
+    --parch-bg:     #f3ece0;
+    --parch-card:   #faf7f0;
+    --ink:          #2b2018;
+    --gold:         #a0522d;
+    --gold-light:   #c17f4f;
+    --blue-accent:  #3f6e63;
+    --shadow:       rgba(13,27,42,0.15);
+  }
+  body.dark-mode {
+    --sepia-dark:   #ece3d3;
+    --sepia-mid:    #c9b8a0;
+    --sepia-light:  #8a7360;
+    --parch-bg:     #16110b;
+    --parch-card:   #201a12;
+    --ink:          #ece3d3;
+    --gold:         #c17f4f;
+    --gold-light:   #e0a06a;
+    --blue-accent:  #7fbfae;
+    --shadow:       rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* BOUTON JOUR / NUIT */
+  .theme-toggle {
+    position: fixed;
+    top: 1.1rem;
+    right: 1.1rem;
+    z-index: 100;
+    font-family: Arial, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border: 1.5px solid var(--gold);
+    border-radius: 999px;
+    background: var(--parch-card);
+    color: var(--sepia-dark);
+    cursor: pointer;
+    box-shadow: 0 3px 10px var(--shadow);
+    transition: background 0.3s, color 0.3s;
+  }
+  .theme-toggle:hover { background: var(--sepia-dark); color: var(--gold-light); }
+  .theme-toggle .icon { font-size: 1rem; }
+  body.dark-mode .theme-toggle {
+    background: #3a2410;
+    color: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+  body.dark-mode .theme-toggle:hover {
+    background: var(--gold-light);
+    color: #3a2410;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+  body.dark-mode .filter-btn {
+    background: #201a12;
+    color: var(--sepia-mid);
+    border-color: var(--sepia-light);
+  }
+  body.dark-mode .filter-btn:hover,
+  body.dark-mode .filter-btn.active {
+    background: var(--gold-light);
+    color: #060a12;
+    border-color: var(--gold-light);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  body.dark-mode thead tr { background: #0d0a06; }
+  body.dark-mode thead th { color: var(--gold-light); }
+  body.dark-mode thead th:hover { color: #fff; }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #c8d8ea;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #f7f0e4; }
+  tbody tr:nth-child(even) { background: #f3ece0; }
+  tbody tr:nth-child(even):hover { background: #f7f0e4; }
+  body.dark-mode tbody tr:hover { background: #241c12; }
+  body.dark-mode tbody tr:nth-child(even) { background: #1c150e; }
+  body.dark-mode tbody tr:nth-child(even):hover { background: #241c12; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: #4a3826; white-space: nowrap; }
+  body.dark-mode .pays-cell { color: #d8c7b0; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: #2a2015; font-style: italic; min-width: 200px; }
+  body.dark-mode .heritage-cell { color: #c9b8a0; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-physique      { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-chimie        { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-biologie      { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-medecine      { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-mathematiques { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-astronomie    { color: #1a1a6e; background: #e2e0ff; border-color: #7777cc; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: #4a3826;
+    text-decoration: none;
+    border-bottom: 1px dashed #a68a6c;
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+  body.dark-mode a.g-pays { color: #d8c7b0; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">
+  <span class="icon" id="themeIcon">🌙</span><span id="themeLabel">Mode nuit</span>
+</button>
+
+<a href="index.html" class="btn-back">← Sciences &amp; Savoirs</a>
+
+<header>
+  <p class="subtitle">— Academia Scientiarum —</p>
+  <h1><span class="ornament">🔬</span> 50 Découvertes Scientifiques Fondamentales <span class="ornament">🌌</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les avancées qui ont façonné notre compréhension du monde — de l'Antiquité à nos jours</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="physique">⚛️ Physique</button>
+  <button class="filter-btn" data-cat="chimie">⚗️ Chimie</button>
+  <button class="filter-btn" data-cat="biologie">🧬 Biologie</button>
+  <button class="filter-btn" data-cat="medecine">🩺 Médecine</button>
+  <button class="filter-btn" data-cat="mathematiques">📐 Mathématiques</button>
+  <button class="filter-btn" data-cat="astronomie">🔭 Astronomie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Découvreur(s) <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Catégorie <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Découverte <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"⚛️", name:"Isaac Newton",                                  year:1687, pays:"Angleterre",             cat:"physique",      decouverte:"Lois du mouvement et gravitation universelle",                          imp:5, heritage:"Fonde la mécanique classique — décrit le mouvement des astres comme celui des objets terrestres, pilier de la physique pendant deux siècles." },
+  { icon:"⚛️", name:"Galilée",                                       year:1638, pays:"Italie",                 cat:"physique",      decouverte:"Loi de la chute des corps & méthode expérimentale",                     imp:5, heritage:"Fonde la physique expérimentale moderne — sépare la science de l'autorité dogmatique, ouvre la voie à Newton et à toute la science moderne." },
+  { icon:"⚛️", name:"James Clerk Maxwell",                           year:1865, pays:"Écosse",                 cat:"physique",      decouverte:"Équations unifiées de l'électromagnétisme",                             imp:5, heritage:"Unifie électricité, magnétisme et lumière — fondement de la radio, des télécommunications et de toute l'électrotechnique moderne." },
+  { icon:"⚛️", name:"Albert Einstein",                               year:1905, pays:"Allemagne / Suisse",     cat:"physique",      decouverte:"Relativité restreinte & équivalence masse-énergie (E=mc²)",             imp:5, heritage:"Bouleverse les notions d'espace et de temps — fondement de l'énergie nucléaire et de la physique des hautes énergies." },
+  { icon:"⚛️", name:"Albert Einstein",                               year:1915, pays:"Allemagne",              cat:"physique",      decouverte:"Théorie de la relativité générale",                                     imp:5, heritage:"La gravité comme courbure de l'espace-temps — prédit les trous noirs et les ondes gravitationnelles, base du GPS moderne." },
+  { icon:"⚛️", name:"Max Planck",                                    year:1900, pays:"Allemagne",              cat:"physique",      decouverte:"Théorie des quanta — naissance de la physique quantique",              imp:5, heritage:"Révolution conceptuelle majeure — fonde toute la physique quantique, à l'origine des semi-conducteurs, lasers et ordinateurs modernes." },
+  { icon:"⚛️", name:"Ernest Rutherford",                             year:1911, pays:"Nouvelle-Zélande / RU",  cat:"physique",      decouverte:"Découverte du noyau atomique",                                          imp:5, heritage:"Révèle la structure lacunaire de l'atome — fondement du modèle atomique moderne et de la physique nucléaire." },
+  { icon:"⚛️", name:"James Chadwick",                                year:1932, pays:"Royaume-Uni",            cat:"physique",      decouverte:"Découverte du neutron",                                                 imp:4, heritage:"Complète la description du noyau atomique — ouvre la voie à la fission nucléaire et à l'énergie atomique civile et militaire." },
+  { icon:"⚛️", name:"Alfred Wegener",                                year:1912, pays:"Allemagne",              cat:"physique",      decouverte:"Théorie de la dérive des continents",                                   imp:4, heritage:"D'abord raillée puis confirmée dans les années 1960 — fonde la tectonique des plaques, clé de compréhension des séismes et volcans." },
+  { icon:"⚛️", name:"Collaboration LIGO",                            year:2015, pays:"International",          cat:"physique",      decouverte:"Première détection directe des ondes gravitationnelles",               imp:5, heritage:"Confirme une prédiction d'Einstein vieille d'un siècle — ouvre l'ère de l'astronomie gravitationnelle, une nouvelle fenêtre sur l'univers." },
+  { icon:"⚗️", name:"Antoine Lavoisier",                             year:1789, pays:"France",                 cat:"chimie",        decouverte:"Loi de conservation de la masse — fondation de la chimie moderne",      imp:5, heritage:"'Rien ne se perd, rien ne se crée' — transforme la chimie en science quantitative rigoureuse, met fin à la théorie du phlogistique." },
+  { icon:"⚗️", name:"John Dalton",                                   year:1803, pays:"Angleterre",             cat:"chimie",        decouverte:"Théorie atomique moderne de la matière",                                imp:5, heritage:"Ressuscite l'atomisme sur des bases scientifiques — la matière est faite d'atomes discrets, fondement de toute la chimie quantitative." },
+  { icon:"⚗️", name:"Dmitri Mendeleïev",                             year:1869, pays:"Russie",                 cat:"chimie",        decouverte:"Tableau périodique des éléments",                                       imp:5, heritage:"Classe et prédit les propriétés d'éléments encore inconnus — outil fondamental universel de toute la chimie, enseigné dans le monde entier." },
+  { icon:"⚗️", name:"Robert Boyle",                                  year:1662, pays:"Irlande",                cat:"chimie",        decouverte:"Loi de Boyle-Mariotte sur les gaz",                                     imp:3, heritage:"Première loi physique quantitative sur les gaz — fondement de la thermodynamique et de la chimie physique naissante." },
+  { icon:"⚗️", name:"Marie Curie",                                   year:1898, pays:"France / Pologne",       cat:"chimie",        decouverte:"Découverte du polonium et du radium, étude de la radioactivité",       imp:5, heritage:"Ouvre l'ère nucléaire — fondement de la radiothérapie contre le cancer, de la datation isotopique et de la physique nucléaire." },
+  { icon:"⚗️", name:"Fritz Haber",                                   year:1909, pays:"Allemagne",              cat:"chimie",        decouverte:"Synthèse industrielle de l'ammoniac (procédé Haber-Bosch)",             imp:5, heritage:"Nourrit près de la moitié de l'humanité grâce aux engrais azotés — sans cette découverte, des milliards de personnes manqueraient de nourriture." },
+  { icon:"⚗️", name:"Willard Libby",                                 year:1949, pays:"USA",                   cat:"chimie",        decouverte:"Méthode de datation au carbone 14",                                    imp:4, heritage:"Révolutionne l'archéologie, la géologie et la paléontologie — permet de dater précisément des objets vieux de plusieurs dizaines de milliers d'années." },
+  { icon:"⚗️", name:"Jennifer Doudna & Emmanuelle Charpentier",       year:2012, pays:"USA / France",           cat:"chimie",        decouverte:"Outil d'édition génomique CRISPR-Cas9",                                 imp:5, heritage:"Ciseaux moléculaires programmables — révolutionne la médecine, l'agriculture et la recherche fondamentale sur le vivant." },
+  { icon:"🧬", name:"Charles Darwin",                                 year:1859, pays:"Royaume-Uni",            cat:"biologie",      decouverte:"Théorie de l'évolution par sélection naturelle",                        imp:5, heritage:"Unifie toute la biologie autour d'un principe explicatif — 'rien en biologie n'a de sens si ce n'est à la lumière de l'évolution'." },
+  { icon:"🧬", name:"Gregor Mendel",                                  year:1865, pays:"Empire d'Autriche",      cat:"biologie",      decouverte:"Lois de l'hérédité génétique",                                          imp:5, heritage:"Découvre les règles mathématiques de la transmission des caractères — fondement méconnu de son vivant, puis pilier de toute la génétique." },
+  { icon:"🧬", name:"James Watson, Francis Crick & Rosalind Franklin", year:1953, pays:"Royaume-Uni / USA",      cat:"biologie",      decouverte:"Structure en double hélice de l'ADN",                                   imp:5, heritage:"Découverte la plus importante de la biologie du XXᵉ siècle — fonde la génétique moléculaire, le génie génétique et la médecine personnalisée." },
+  { icon:"🧬", name:"Matthias Schleiden & Theodor Schwann",           year:1839, pays:"Allemagne",              cat:"biologie",      decouverte:"Théorie cellulaire",                                                    imp:5, heritage:"Établit que tout être vivant est fait de cellules — principe unificateur fondamental de toute la biologie moderne." },
+  { icon:"🧬", name:"Antonie van Leeuwenhoek",                        year:1674, pays:"Provinces-Unies",        cat:"biologie",      decouverte:"Découverte des micro-organismes",                                       imp:4, heritage:"Révèle un monde invisible à l'œil nu — fonde la microbiologie, ouvre la voie à la théorie des germes et à la bactériologie." },
+  { icon:"🧬", name:"Louis Pasteur",                                  year:1861, pays:"France",                cat:"biologie",      decouverte:"Théorie des germes & réfutation de la génération spontanée",           imp:5, heritage:"Transforme la médecine, l'hygiène et l'agroalimentaire — pasteurisation, vaccination moderne, asepsie chirurgicale en découlent directement." },
+  { icon:"🧬", name:"Barbara McClintock",                             year:1948, pays:"USA",                   cat:"biologie",      decouverte:"Découverte des transposons ('gènes sauteurs')",                         imp:4, heritage:"Révolutionne la génétique — les gènes mobiles expliquent l'évolution, l'adaptation et certaines maladies génétiques héréditaires." },
+  { icon:"🧬", name:"Consortium international du génome",             year:2003, pays:"International",          cat:"biologie",      decouverte:"Séquençage complet du génome humain",                                   imp:5, heritage:"Cartographie intégrale de l'ADN humain — ouvre l'ère de la médecine génomique, du dépistage génétique et des thérapies ciblées." },
+  { icon:"🧬", name:"Melvin Calvin",                                  year:1950, pays:"USA",                   cat:"biologie",      decouverte:"Élucidation du cycle de la photosynthèse (cycle de Calvin)",           imp:4, heritage:"Explique comment les plantes transforment le CO2 en matière organique — fondement de la biologie végétale et des enjeux climatiques actuels." },
+  { icon:"🩺", name:"Edward Jenner",                                  year:1796, pays:"Royaume-Uni",            cat:"medecine",      decouverte:"Invention de la vaccination (contre la variole)",                       imp:5, heritage:"Premier vaccin de l'histoire — sauve d'innombrables vies et conduit à l'éradication mondiale de la variole en 1980." },
+  { icon:"🩺", name:"William Harvey",                                 year:1628, pays:"Angleterre",             cat:"medecine",      decouverte:"Description de la circulation sanguine",                               imp:5, heritage:"Explique pour la première fois le cœur comme une pompe — fondement de toute la physiologie cardiovasculaire moderne." },
+  { icon:"🩺", name:"Alexander Fleming",                              year:1928, pays:"Royaume-Uni",            cat:"medecine",      decouverte:"Découverte de la pénicilline",                                         imp:5, heritage:"Premier antibiotique de l'histoire — rend possible la chirurgie moderne et sauve des dizaines de millions de vies depuis 1940." },
+  { icon:"🩺", name:"Karl Landsteiner",                               year:1901, pays:"Autriche",               cat:"medecine",      decouverte:"Découverte des groupes sanguins ABO",                                  imp:5, heritage:"Rend la transfusion sanguine sûre — sauve des millions de vies lors des chirurgies, des accouchements et des situations d'urgence." },
+  { icon:"🩺", name:"Frederick Banting & Charles Best",                year:1921, pays:"Canada",                 cat:"medecine",      decouverte:"Découverte et isolation de l'insuline",                                imp:5, heritage:"Transforme le diabète d'une maladie mortelle en maladie chronique gérable — sauve des millions de vies chaque année depuis un siècle." },
+  { icon:"🩺", name:"Wilhelm Röntgen",                                year:1895, pays:"Allemagne",              cat:"medecine",      decouverte:"Découverte des rayons X",                                               imp:5, heritage:"Révolutionne le diagnostic médical dès 1895 — base de toute l'imagerie médicale moderne : radiographie, scanner, mammographie." },
+  { icon:"🩺", name:"Katalin Karikó & Drew Weissman",                 year:2005, pays:"Hongrie / USA",          cat:"medecine",      decouverte:"Modification de l'ARN messager, fondement des vaccins ARNm",           imp:5, heritage:"Technologie ARNm — permet le développement des vaccins COVID-19 en moins d'un an, ouvre l'ère des vaccins personnalisés contre le cancer." },
+  { icon:"🩺", name:"Ignace Semmelweis",                              year:1847, pays:"Hongrie",                cat:"medecine",      decouverte:"Découverte de l'antisepsie par le lavage des mains",                   imp:4, heritage:"Fait chuter drastiquement la mortalité en maternité — précurseur méconnu et raillé de son vivant de l'hygiène hospitalière moderne." },
+  { icon:"🩺", name:"Jonas Salk",                                     year:1955, pays:"USA",                   cat:"medecine",      decouverte:"Mise au point du vaccin contre la poliomyélite",                       imp:5, heritage:"Fait reculer une maladie paralysante redoutée dans le monde entier — la polio est aujourd'hui quasiment éradiquée sur la planète." },
+  { icon:"📐", name:"Euclide",                                        year:-300, pays:"Grèce antique",          cat:"mathematiques", decouverte:"Fondation de la géométrie (les Éléments)",                             imp:5, heritage:"Le raisonnement axiomatique et déductif qu'il codifie reste la base de toutes les mathématiques enseignées pendant plus de deux millénaires." },
+  { icon:"📐", name:"Pythagore",                                      year:-530, pays:"Grèce antique",          cat:"mathematiques", decouverte:"Théorème de Pythagore",                                                imp:4, heritage:"Relation fondamentale entre les côtés d'un triangle rectangle — outil universel encore enseigné et utilisé dans le monde entier." },
+  { icon:"📐", name:"Mathématiciens indiens (Aryabhata, Brahmagupta)", year:500,  pays:"Inde",                   cat:"mathematiques", decouverte:"Invention du zéro et du système décimal positionnel",                  imp:5, heritage:"Révolutionne le calcul dans le monde entier — transmis via le monde arabe, ce système décimal reste la base de toutes les mathématiques modernes." },
+  { icon:"📐", name:"Isaac Newton & Gottfried Leibniz",                year:1675, pays:"Angleterre / Allemagne", cat:"mathematiques", decouverte:"Invention du calcul infinitésimal",                                    imp:5, heritage:"Outil mathématique indispensable à toute la physique, l'ingénierie et l'économie modernes — permet de modéliser le changement continu." },
+  { icon:"📐", name:"Al-Khwarizmi",                                   year:820,  pays:"Empire abbasside",       cat:"mathematiques", decouverte:"Fondation de l'algèbre",                                               imp:5, heritage:"Son traité donne son nom à l'algèbre et sa propre transcription latine donne le mot 'algorithme' — fondement de toutes les mathématiques appliquées." },
+  { icon:"📐", name:"Kurt Gödel",                                     year:1931, pays:"Autriche",               cat:"mathematiques", decouverte:"Théorèmes d'incomplétude",                                             imp:4, heritage:"Démontre les limites internes de tout système logique formel — bouleverse les fondements de la logique et de la philosophie des mathématiques." },
+  { icon:"📐", name:"Alan Turing",                                    year:1936, pays:"Royaume-Uni",            cat:"mathematiques", decouverte:"Machine de Turing, fondement théorique de l'informatique",             imp:5, heritage:"Définit ce qu'est un calcul et une machine universelle — fondement théorique de tous les ordinateurs et de l'intelligence artificielle actuels." },
+  { icon:"🔭", name:"Nicolas Copernic",                                year:1543, pays:"Pologne",                cat:"astronomie",    decouverte:"Modèle héliocentrique du système solaire",                             imp:5, heritage:"Déplace la Terre du centre de l'univers — révolution copernicienne qui change durablement la place de l'humanité dans le cosmos." },
+  { icon:"🔭", name:"Johannes Kepler",                                 year:1609, pays:"Saint-Empire",           cat:"astronomie",    decouverte:"Lois du mouvement des planètes",                                       imp:5, heritage:"Décrit avec précision les orbites elliptiques des planètes — préfigure et rend possible la loi de la gravitation de Newton." },
+  { icon:"🔭", name:"Edwin Hubble",                                    year:1929, pays:"USA",                   cat:"astronomie",    decouverte:"Découverte de l'expansion de l'univers",                               imp:5, heritage:"Montre que les galaxies s'éloignent les unes des autres — preuve observationnelle fondatrice de la théorie du Big Bang." },
+  { icon:"🔭", name:"Georges Lemaître",                                year:1927, pays:"Belgique",               cat:"astronomie",    decouverte:"Théorie du Big Bang",                                                  imp:5, heritage:"Propose le premier modèle scientifique d'un univers en expansion depuis un état originel dense — modèle cosmologique dominant encore aujourd'hui." },
+  { icon:"🔭", name:"Arno Penzias & Robert Wilson",                     year:1965, pays:"USA",                   cat:"astronomie",    decouverte:"Découverte du rayonnement fossile cosmologique",                       imp:5, heritage:"Preuve observationnelle décisive du Big Bang — le rayonnement fossile reste aujourd'hui l'un des piliers de la cosmologie moderne." },
+  { icon:"🔭", name:"Michel Mayor & Didier Queloz",                     year:1995, pays:"Suisse",                cat:"astronomie",    decouverte:"Première détection d'une exoplanète autour d'une étoile semblable au Soleil", imp:4, heritage:"Ouvre le champ immense de l'exoplanétologie — plus de 5000 exoplanètes sont recensées depuis, relançant la question de la vie ailleurs." },
+  { icon:"🔭", name:"Collaboration Event Horizon Telescope",            year:2019, pays:"International",          cat:"astronomie",    decouverte:"Première image directe d'un trou noir",                                imp:4, heritage:"Confirme visuellement l'existence des trous noirs prédits par Einstein un siècle plus tôt — prouesse technique et scientifique mondiale." },
+];
+
+const catLabels = {
+  "physique":      "⚛️ Physique",
+  "chimie":        "⚗️ Chimie",
+  "biologie":      "🧬 Biologie",
+  "medecine":      "🩺 Médecine",
+  "mathematiques": "📐 Mathématiques",
+  "astronomie":    "🔭 Astronomie"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function fmtYear(y) {
+  return y < 0 ? `${Math.abs(y)} av. J.-C.` : String(y);
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' ' + d.decouverte)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${fmtYear(d.year)}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Découvertes affichées : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${fmtYear(minYear)} → ${fmtYear(maxYear)}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark-mode');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = isDark ? 'Mode jour' : 'Mode nuit';
+});
+
+render();
+</script>
+</body>
+</html>
