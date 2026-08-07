@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Théorèmes et Lois qui gouvernent l'Univers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1320px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.94rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.70rem;
+    letter-spacing: 0.09em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.85rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.85rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+
+  .name-cell {
+    font-family: 'Cinzel', serif;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--sepia-dark);
+    min-width: 190px;
+  }
+  /* Formule en italique sous le nom */
+  .formula {
+    display: block;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--gold);
+    margin-top: 0.15rem;
+    letter-spacing: 0.04em;
+  }
+
+  .author-cell { color: var(--red-accent); font-size: 0.88rem; min-width: 130px; }
+  .date-cell   { font-style: italic; color: var(--sepia-mid); font-size: 0.85rem; white-space: nowrap; }
+  .domain-cell { font-size: 0.85rem; color: #4a3520; }
+
+  /* BADGES DOMAINE */
+  .dom-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .dom-physique    { color: #1a3a6e; background: #ddeeff; border-color: #aac4f0; }
+  .dom-maths       { color: #4a1a6e; background: #eeddf8; border-color: #c4a0e8; }
+  .dom-chimie      { color: #006e3a; background: #d8f5e8; border-color: #80d0a8; }
+  .dom-bio         { color: #3a6e1a; background: #e8f5d8; border-color: #a8d080; }
+  .dom-astro       { color: #1a1a6e; background: #d8d8ff; border-color: #9090e0; }
+  .dom-thermo      { color: #6e2a00; background: #fde8d8; border-color: #f0a080; }
+  .dom-info        { color: #2a4a5a; background: #d8eef8; border-color: #90c0d8; }
+  .dom-mecanique   { color: #5a4a00; background: #fdf5d0; border-color: #d8c060; }
+  .dom-electro     { color: #006060; background: #d0f0f0; border-color: #60c0c0; }
+  .dom-quantique   { color: #6e006e; background: #f8d8f8; border-color: #c060c0; }
+
+  /* ÉTOILES IMPORTANCE */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; white-space: nowrap; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-author {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-author:hover { color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1320px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  @media (max-width: 750px) {
+    .date-cell { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="subtitle">— Codex Legum Universalis —</p>
+  <h1><span class="ornament">∞</span> 50 Théorèmes & Lois qui gouvernent l'Univers <span class="ornament">∞</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des principes éternels qui expliquent tout — de l'atome aux galaxies</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="physique">⚛️ Physique</button>
+  <button class="filter-btn" data-cat="maths">📐 Mathématiques</button>
+  <button class="filter-btn" data-cat="chimie">⚗️ Chimie</button>
+  <button class="filter-btn" data-cat="bio">🧬 Biologie</button>
+  <button class="filter-btn" data-cat="astro">🔭 Astronomie</button>
+  <button class="filter-btn" data-cat="thermo">🌡️ Thermodynamique</button>
+  <button class="filter-btn" data-cat="mecanique">⚙️ Mécanique</button>
+  <button class="filter-btn" data-cat="electro">⚡ Électromagnétisme</button>
+  <button class="filter-btn" data-cat="quantique">🔮 Quantique</button>
+  <button class="filter-btn" data-cat="info">💻 Informatique</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Théorème / Loi <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Auteur(s) <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Domaine <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Importance <span class="sort-icon">⇅</span></th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  // PHYSIQUE
+  { icon:"🍎", name:"Lois de la Gravitation Universelle",     formula:"F = G·m₁·m₂ / r²",        author:"Isaac Newton",                  date:"1687",          cat:"physique",   imp:5, desc:"Toute masse attire toute autre masse. Explique la chute des corps, les orbites planétaires et les marées." },
+  { icon:"💡", name:"Théorie de la Relativité Restreinte",    formula:"E = mc²",                  author:"Albert Einstein",               date:"1905",          cat:"physique",   imp:5, desc:"L'énergie et la masse sont équivalentes. Fondement du nucléaire, du GPS et de notre compréhension du temps." },
+  { icon:"🌌", name:"Théorie de la Relativité Générale",      formula:"Gμν = 8πG/c⁴ · Tμν",     author:"Albert Einstein",               date:"1915",          cat:"physique",   imp:5, desc:"La gravité est une courbure de l'espace-temps. Prédit les trous noirs, les ondes gravitationnelles et l'expansion." },
+  { icon:"⚙️", name:"Lois du Mouvement de Newton",            formula:"F = m·a",                  author:"Isaac Newton",                  date:"1687",          cat:"mecanique",  imp:5, desc:"Trois lois fondamentales régissant tout mouvement : inertie, dynamique, action-réaction." },
+  { icon:"🔮", name:"Principe d'Incertitude de Heisenberg",   formula:"Δx·Δp ≥ ℏ/2",            author:"Werner Heisenberg",             date:"1927",          cat:"quantique",  imp:5, desc:"On ne peut pas connaître simultanément position et vitesse exactes d'une particule. Cœur de la physique quantique." },
+  { icon:"🌊", name:"Équation de Schrödinger",                formula:"iℏ ∂ψ/∂t = Ĥψ",          author:"Erwin Schrödinger",             date:"1926",          cat:"quantique",  imp:5, desc:"Décrit l'évolution d'un système quantique dans le temps. Fondement de la chimie quantique et de l'électronique." },
+  { icon:"⚡", name:"Équations de Maxwell",                   formula:"∇·E = ρ/ε₀",              author:"James Clerk Maxwell",           date:"1865",          cat:"electro",    imp:5, desc:"Quatre équations unifiant électricité, magnétisme et lumière — base de toute technologie électronique moderne." },
+  { icon:"🔬", name:"Loi de Coulomb",                         formula:"F = k·q₁·q₂ / r²",        author:"Charles-Augustin de Coulomb",   date:"1785",          cat:"electro",    imp:4, desc:"Force entre deux charges électriques. Analogue à la gravitation — base de l'électrostatique." },
+  { icon:"💫", name:"Conservation de l'Énergie",              formula:"E_total = constante",      author:"Mayer / Helmholtz / Joule",     date:"1842–1847",     cat:"physique",   imp:5, desc:"L'énergie ne se crée ni ne se détruit, elle se transforme. Loi absolue gouvernant tout processus physique." },
+  { icon:"🌡️", name:"1ʳᵉ Loi de la Thermodynamique",         formula:"ΔU = Q − W",               author:"Clausius / Kelvin",             date:"1850",          cat:"thermo",     imp:5, desc:"Conservation de l'énergie appliquée aux systèmes thermiques — base de tout moteur et machine thermique." },
+  { icon:"🔥", name:"2ᵉ Loi de la Thermodynamique",           formula:"ΔS ≥ 0",                   author:"Rudolf Clausius",               date:"1850",          cat:"thermo",     imp:5, desc:"L'entropie d'un système isolé ne diminue jamais. Explique le sens du temps et l'irréversibilité des phénomènes." },
+  { icon:"🧊", name:"3ᵉ Loi de la Thermodynamique",           formula:"S → 0 quand T → 0 K",      author:"Walther Nernst",                date:"1906",          cat:"thermo",     imp:4, desc:"L'entropie tend vers zéro au zéro absolu. Implique qu'on ne peut jamais atteindre 0 kelvin." },
+  { icon:"🌈", name:"Loi de Planck (Rayonnement du corps noir)",formula:"E = hν",                 author:"Max Planck",                    date:"1900",          cat:"quantique",  imp:5, desc:"L'énergie est émise par quanta discrets. Naissance de la physique quantique — révolution totale de la science." },
+  { icon:"☀️", name:"Loi de Stefan-Boltzmann",                formula:"P = σ·A·T⁴",               author:"Stefan & Boltzmann",            date:"1879",          cat:"thermo",     imp:4, desc:"Puissance rayonnée par un corps noir en fonction de sa température. Essentielle en astrophysique et climatologie." },
+  { icon:"🔭", name:"Loi de Hubble-Lemaître",                 formula:"v = H₀·d",                 author:"Hubble / Lemaître",             date:"1929",          cat:"astro",      imp:5, desc:"Les galaxies s'éloignent d'autant plus vite qu'elles sont lointaines — preuve de l'expansion de l'univers." },
+
+  // MATHÉMATIQUES
+  { icon:"📐", name:"Théorème de Pythagore",                  formula:"a² + b² = c²",             author:"Pythagore de Samos",            date:"~500 av. J.-C.",cat:"maths",      imp:5, desc:"Relation fondamentale dans un triangle rectangle. Base de la trigonométrie, de l'architecture et de la géométrie." },
+  { icon:"∞",  name:"Théorème des Nombres Premiers (Euler)",  formula:"ζ(s) = Σ 1/nˢ",           author:"Leonhard Euler",                date:"1737",          cat:"maths",      imp:4, desc:"Lien profond entre les nombres premiers et la fonction zêta. Ouvre la voie à la théorie analytique des nombres." },
+  { icon:"🔢", name:"Dernier Théorème de Fermat",             formula:"aⁿ + bⁿ ≠ cⁿ (n>2)",      author:"Fermat / Andrew Wiles",         date:"1637 / 1995",   cat:"maths",      imp:4, desc:"Aucun triplet entier ne vérifie cette équation pour n > 2. Problème ouvert 358 ans, résolu par Wiles en 1995." },
+  { icon:"🌀", name:"Théorème de Gödel (Incomplétude)",       formula:"∃ p : ¬(⊢p) ∧ ¬(⊢¬p)",   author:"Kurt Gödel",                   date:"1931",          cat:"maths",      imp:5, desc:"Tout système formel suffisamment puissant contient des vérités indémontrables. Bouleverse les fondements des maths." },
+  { icon:"📊", name:"Loi des Grands Nombres",                  formula:"x̄ → μ quand n → ∞",      author:"Jacob Bernoulli",               date:"1713",          cat:"maths",      imp:5, desc:"La moyenne empirique converge vers la moyenne théorique. Fondement des statistiques, de l'assurance et du hasard." },
+  { icon:"🎲", name:"Théorème Central Limite",                 formula:"X̄ ~ N(μ, σ²/n)",          author:"Moivre / Laplace / Lyapunov",  date:"1733–1901",     cat:"maths",      imp:5, desc:"La somme de variables aléatoires indépendantes tend vers une loi normale. Universel en statistiques." },
+  { icon:"🔑", name:"Théorème de Bayes",                       formula:"P(A|B) = P(B|A)·P(A)/P(B)",author:"Thomas Bayes",                date:"1763",          cat:"maths",      imp:5, desc:"Comment mettre à jour une probabilité à la lumière de nouvelles données. Révolution en IA, médecine, sciences." },
+  { icon:"📐", name:"Identité d'Euler",                        formula:"eⁱᵖ + 1 = 0",             author:"Leonhard Euler",                date:"1748",          cat:"maths",      imp:5, desc:"Relie les cinq constantes fondamentales des maths (e, i, π, 1, 0). Souvent qualifiée de «plus belle équation»." },
+  { icon:"🌐", name:"Théorème de Fourier",                     formula:"f(x) = Σ aₙcos(nx)+bₙsin(nx)",author:"Joseph Fourier",            date:"1822",          cat:"maths",      imp:5, desc:"Toute fonction peut s'écrire comme somme de sinusoïdes. Base du son numérique, des images et du traitement du signal." },
+  { icon:"🗺️", name:"Théorème des Quatre Couleurs",            formula:"χ(G) ≤ 4",                 author:"Appel & Haken",                date:"1976",          cat:"maths",      imp:3, desc:"Toute carte plane peut être coloriée avec 4 couleurs sans que deux régions adjacentes aient la même couleur." },
+
+  // CHIMIE
+  { icon:"⚗️", name:"Tableau Périodique de Mendeleïev",        formula:"Propriétés = f(Z)",        author:"Dmitri Mendeleïev",            date:"1869",          cat:"chimie",     imp:5, desc:"Les éléments s'organisent par numéro atomique et propriétés périodiques. Prédit des éléments encore inconnus." },
+  { icon:"🧪", name:"Loi de Conservation de la Masse",         formula:"m_réactifs = m_produits",  author:"Antoine Lavoisier",            date:"1789",          cat:"chimie",     imp:5, desc:"Rien ne se perd, rien ne se crée, tout se transforme. Fondement de la chimie moderne et de la stœchiométrie." },
+  { icon:"💧", name:"Loi de Henry",                            formula:"p = kH · c",               author:"William Henry",                date:"1803",          cat:"chimie",     imp:3, desc:"Solubilité d'un gaz proportionnelle à sa pression partielle. Essentielle en plongée, boissons gazeuses, médecine." },
+  { icon:"⚡", name:"Lois de Faraday (Électrolyse)",            formula:"m = (M·I·t)/(n·F)",        author:"Michael Faraday",              date:"1833",          cat:"chimie",     imp:4, desc:"Quantité de matière déposée proportionnelle à la charge électrique. Base des batteries et de la métallurgie." },
+  { icon:"🌡️", name:"Loi des Gaz Parfaits",                   formula:"PV = nRT",                 author:"Boyle / Gay-Lussac / Avogadro",date:"1662–1811",    cat:"chimie",     imp:5, desc:"Relation entre pression, volume, température et quantité de gaz. Universelle en chimie, physique et météorologie." },
+
+  // BIOLOGIE
+  { icon:"🧬", name:"Lois de Mendel (Hérédité)",               formula:"3:1 (dominance / réces.)", author:"Gregor Mendel",                date:"1866",          cat:"bio",        imp:5, desc:"Règles de transmission des caractères héréditaires. Fondement de la génétique moderne avant même la découverte de l'ADN." },
+  { icon:"🦕", name:"Théorie de l'Évolution par Sélection Naturelle",formula:"Survie du + apte",  author:"Charles Darwin",               date:"1859",          cat:"bio",        imp:5, desc:"Les organismes les mieux adaptés survivent et se reproduisent davantage. Unifie toute la biologie." },
+  { icon:"🔬", name:"Théorie Cellulaire",                       formula:"Omnis cellula e cellula",  author:"Schleiden, Schwann, Virchow",  date:"1838–1855",     cat:"bio",        imp:5, desc:"Tout être vivant est composé de cellules issues d'autres cellules. Base absolue de la biologie et de la médecine." },
+  { icon:"🌿", name:"Loi de Hardy-Weinberg",                    formula:"p² + 2pq + q² = 1",        author:"Hardy & Weinberg",             date:"1908",          cat:"bio",        imp:4, desc:"Fréquences alléliques stables en population idéale. Référence pour détecter l'évolution réelle d'une population." },
+  { icon:"🧫", name:"Loi de Michaelis-Menten",                  formula:"v = Vmax·[S]/(Km+[S])",    author:"Michaelis & Menten",           date:"1913",          cat:"bio",        imp:4, desc:"Cinétique des réactions enzymatiques. Fondamentale en biochimie, pharmacologie et conception de médicaments." },
+
+  // ASTRONOMIE
+  { icon:"🪐", name:"Lois de Kepler",                           formula:"T² ∝ a³",                  author:"Johannes Kepler",              date:"1609–1619",     cat:"astro",      imp:5, desc:"Trois lois décrivant les orbites elliptiques des planètes. Confirmées par Newton, base de toute astronautique." },
+  { icon:"💥", name:"Théorie du Big Bang",                      formula:"t = 0, T → ∞",             author:"Lemaître / Gamow / Penzias",   date:"1927–1965",     cat:"astro",      imp:5, desc:"L'univers a commencé il y a 13,8 milliards d'années en un point infiniment dense. Soutenu par le fond diffus cosmologique." },
+  { icon:"🌑", name:"Limite de Chandrasekhar",                  formula:"M_max ≈ 1,4 M☉",           author:"Subrahmanyan Chandrasekhar",   date:"1930",          cat:"astro",      imp:4, desc:"Masse maximale d'une étoile morte stable. Au-delà, elle s'effondre en étoile à neutrons ou trou noir." },
+  { icon:"🌟", name:"Loi de Stefan-Boltzmann (étoiles)",        formula:"L = 4πR²σT⁴",              author:"Stefan & Boltzmann",           date:"1884",          cat:"astro",      imp:4, desc:"Luminosité d'une étoile selon sa taille et sa température. Permet de calculer la distance des étoiles." },
+
+  // ÉLECTROMAGNÉTISME
+  { icon:"🔋", name:"Loi d'Ohm",                               formula:"U = R·I",                  author:"Georg Simon Ohm",              date:"1827",          cat:"electro",    imp:5, desc:"Tension proportionnelle au courant et à la résistance. Base absolue de tout circuit électronique." },
+  { icon:"🔌", name:"Loi de Lenz",                             formula:"ε = −dΦ/dt",               author:"Heinrich Lenz",                date:"1834",          cat:"electro",    imp:4, desc:"Un courant induit s'oppose toujours à la variation qui le crée. Base des moteurs, alternateurs et transformateurs." },
+  { icon:"🧲", name:"Loi d'Ampère",                            formula:"∮B·dl = μ₀·I",             author:"André-Marie Ampère",           date:"1826",          cat:"electro",    imp:4, desc:"Un courant électrique crée un champ magnétique autour de lui. Base de l'électromagnétisme et des aimants." },
+
+  // MÉCANIQUE
+  { icon:"🌊", name:"Équation de Bernoulli",                   formula:"P + ½ρv² + ρgh = cte",    author:"Daniel Bernoulli",             date:"1738",          cat:"mecanique",  imp:5, desc:"Conservation de l'énergie dans un fluide en écoulement. Explique la portance des avions et le vol." },
+  { icon:"⚖️", name:"Principe d'Archimède",                    formula:"F_p = ρ·g·V",              author:"Archimède de Syracuse",        date:"~250 av. J.-C.",cat:"mecanique",  imp:5, desc:"Tout corps immergé reçoit une poussée égale au poids du fluide déplacé. Base de la navigation et de l'hydrostatique." },
+  { icon:"🔄", name:"Conservation du Moment Cinétique",        formula:"L = r × p = constante",    author:"Newton / Euler",               date:"1750",          cat:"mecanique",  imp:5, desc:"En l'absence de couple extérieur, le moment cinétique est constant. Explique la rotation des planètes et des galaxies." },
+  { icon:"📡", name:"Effet Doppler",                           formula:"f' = f·(v±v_obs)/(v∓v_src)",author:"Christian Doppler",           date:"1842",          cat:"physique",   imp:5, desc:"Variation de fréquence due au mouvement relatif. Base du radar, de l'échographie et de la mesure des vitesses galactiques." },
+
+  // QUANTIQUE & INFORMATIQUE
+  { icon:"💻", name:"Théorème de Church-Turing",               formula:"Tout calcul = machine de Turing",author:"Church & Turing",          date:"1936",          cat:"info",       imp:5, desc:"Définit les limites fondamentales du calcul. Fondement de l'informatique théorique et de l'intelligence artificielle." },
+  { icon:"📦", name:"Loi de Moore",                            formula:"N_transistors × 2 / 2 ans",author:"Gordon Moore",                 date:"1965",          cat:"info",       imp:4, desc:"Le nombre de transistors double tous les deux ans. A guidé 50 ans d'innovation technologique en microélectronique." },
+  { icon:"🔐", name:"Théorème de Shannon (Information)",       formula:"H = −Σ pᵢ log₂ pᵢ",       author:"Claude Shannon",               date:"1948",          cat:"info",       imp:5, desc:"Mesure la quantité d'information et la capacité d'un canal. Fondement de toutes les communications numériques." },
+  { icon:"🌀", name:"Dualité Onde-Corpuscule",                 formula:"λ = h/p",                  author:"Louis de Broglie",             date:"1924",          cat:"quantique",  imp:5, desc:"Toute particule possède aussi un comportement ondulatoire. Révolutionne la vision de la matière — base de la physique moderne." },
+  { icon:"⚗️", name:"Principe d'Exclusion de Pauli",           formula:"∄ 2 fermions : même état", author:"Wolfgang Pauli",              date:"1925",          cat:"quantique",  imp:5, desc:"Deux fermions ne peuvent occuper le même état quantique. Explique la structure des atomes, la chimie et la matière solide." },
+];
+
+const domLabels = {
+  "physique":"⚛️ Physique","maths":"📐 Mathématiques","chimie":"⚗️ Chimie",
+  "bio":"🧬 Biologie","astro":"🔭 Astronomie","thermo":"🌡️ Thermodynamique",
+  "mecanique":"⚙️ Mécanique","electro":"⚡ Électromagnétisme",
+  "quantique":"🔮 Quantique","info":"💻 Informatique"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function domBadge(cat) {
+  return `<span class="dom-badge dom-${cat}">${domLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.author; vb = b.author; break;
+      case 4: va = a.date; vb = b.date; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell">
+        <a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a>
+        <span class="formula">${d.formula}</span>
+      </td>
+      <td class="author-cell"><a class="g-author" href="${G}${q(d.author+' scientifique')}" target="_blank">${d.author}<sup class="arr"> ↗</sup></a></td>
+      <td class="date-cell">${d.date}</td>
+      <td>${domBadge(d.cat)}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const domCounts = {};
+  rows.forEach(d => domCounts[d.cat] = (domCounts[d.cat]||0)+1);
+  const topDom = Object.entries(domCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Entrées affichées : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Domaine le plus représenté : <span>${domLabels[topDom?.[0]]||'—'} (${topDom?.[1]||0})</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
