@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Expériences Scientifiques qui ont Tout Changé</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #0d1b2a;
+    --sepia-mid:    #1e4d7a;
+    --sepia-light:  #5b8db5;
+    --parch-bg:     #f0f5fb;
+    --parch-card:   #f8fafd;
+    --ink:          #0d1b2a;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --blue-accent:  #1a3a6a;
+    --shadow:       rgba(13,27,42,0.15);
+    --row-border:   #c8d8ea;
+    --row-hover:    #ecf3fb;
+    --row-even:     #f0f6fb;
+    --pays-color:   #2a3a4a;
+    --heritage-color: #1a2a3a;
+    --pays-border:  #88a8c8;
+    --noise-opacity: 0.05;
+    --header-bg: #0d1b2a;
+  }
+
+  [data-theme="dark"] {
+    --sepia-dark:   #e8d9b5;
+    --sepia-mid:    #a8c8e8;
+    --sepia-light:  #4a6a8a;
+    --parch-bg:     #10161f;
+    --parch-card:   #1a2230;
+    --ink:          #e8e4d8;
+    --gold:         #d4a843;
+    --gold-light:   #e8c878;
+    --blue-accent:  #7aa8e0;
+    --shadow:       rgba(0,0,0,0.5);
+    --row-border:   #2a3444;
+    --row-hover:    #232d3d;
+    --row-even:     #1e2733;
+    --pays-color:   #c8d4e0;
+    --heritage-color: #b8c4d0;
+    --pays-border:  #3a5a7a;
+    --noise-opacity: 0.03;
+    --header-bg: #060a12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='var(--noise-opacity)'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--row-border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: var(--pays-color); white-space: nowrap; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: var(--heritage-color); font-style: italic; min-width: 200px; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-physique    { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-biologie    { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-medecine    { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-chimie      { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-astronomie  { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-psychologie { color: #7a4400; background: #fff3d0; border-color: #cc9933; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: var(--pays-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--pays-border);
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.1rem;
+    border: 1.5px solid var(--gold);
+    background: var(--parch-card);
+    color: var(--sepia-dark);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .theme-toggle:hover { background: var(--header-bg); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Sciences &amp; Savoirs</a>
+
+<header>
+  <p class="subtitle">— Theatrum Experimentorum —</p>
+  <h1><span class="ornament">🔬</span> 50 Expériences Scientifiques qui ont Tout Changé <span class="ornament">💡</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les expériences qui ont redéfini notre compréhension du monde — de l'Antiquité à nos jours</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="physique">⚛️ Physique</button>
+  <button class="filter-btn" data-cat="biologie">🧬 Biologie</button>
+  <button class="filter-btn" data-cat="medecine">🩺 Médecine</button>
+  <button class="filter-btn" data-cat="chimie">⚗️ Chimie</button>
+  <button class="filter-btn" data-cat="astronomie">🔭 Astronomie</button>
+  <button class="filter-btn" data-cat="psychologie">🧠 Psychologie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Expérience <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Domaine <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Ce qui a été démontré <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-experiences') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-experiences', next);
+});
+
+const DATA = [
+  { icon:"🔭", name:"Mesure de la circonférence de la Terre (Ératosthène)",   year:-240, pays:"Égypte grecque (Alexandrie)", cat:"astronomie",  decouverte:"Calcul de la circonférence terrestre par l'ombre de deux bâtons distants, avec une précision remarquable", imp:5, heritage:"Première mesure scientifique de la taille de notre planète — prouve que la Terre est mesurable par la seule géométrie, sans quitter le sol." },
+  { icon:"⚛️", name:"La poussée d'Archimède (« Eurêka ! »)",                  year:-250, pays:"Grèce antique (Syracuse)",     cat:"physique",    decouverte:"Découverte du principe de poussée hydrostatique en observant le déplacement d'eau dans son bain", imp:5, heritage:"Fonde l'hydrostatique — principe encore utilisé aujourd'hui pour la conception des navires, sous-marins et ballons dirigeables." },
+  { icon:"⚛️", name:"La chambre noire et les lois de l'optique (Ibn al-Haytham)", year:1021, pays:"Irak (Bassora / Le Caire)", cat:"physique",    decouverte:"Démonstration expérimentale que la vision résulte de la lumière entrant dans l'œil, et non l'inverse", imp:5, heritage:"Son Livre d'optique introduit la méthode expérimentale rigoureuse — inspire directement la chambre obscure et, plus tard, la photographie." },
+  { icon:"⚛️", name:"La chute des corps (plan incliné)",                     year:1589, pays:"Italie",                       cat:"physique",    decouverte:"Tous les corps tombent à la même vitesse indépendamment de leur masse, en l'absence de frottement", imp:5, heritage:"Galilée fonde la méthode expérimentale moderne — remet en cause 2000 ans de physique aristotélicienne enseignée comme dogme." },
+  { icon:"🔭", name:"Observation des lunes de Jupiter au télescope",          year:1610, pays:"Italie",                       cat:"astronomie",  decouverte:"Découverte de quatre satellites en orbite autour de Jupiter — preuve que tout ne tourne pas autour de la Terre", imp:5, heritage:"Coup décisif porté au géocentrisme, en soutien au modèle héliocentrique de Copernic — vaut à Galilée un procès de l'Inquisition." },
+  { icon:"🩺", name:"La circulation sanguine (William Harvey)",              year:1628, pays:"Angleterre",                   cat:"medecine",    decouverte:"Démonstration que le cœur pompe le sang en un circuit fermé unique, et non deux systèmes séparés", imp:5, heritage:"Fonde la physiologie moderne — remplace les théories galéniques millénaires par une explication mécanique vérifiable du corps humain." },
+  { icon:"⚛️", name:"Le baromètre à mercure (Torricelli)",                   year:1643, pays:"Italie",                       cat:"physique",    decouverte:"Mise en évidence de la pression atmosphérique et création du premier vide artificiel (vide de Torricelli)", imp:4, heritage:"Invente le baromètre — outil essentiel de la météorologie moderne ; son nom est donné à l'unité de pression, le torr." },
+  { icon:"⚛️", name:"L'expérience du Puy de Dôme",                          year:1648, pays:"France",                       cat:"physique",    decouverte:"La pression atmosphérique diminue avec l'altitude, confirmée en comparant un baromètre en plaine et en montagne", imp:4, heritage:"Confirme expérimentalement l'existence de la pression atmosphérique — Pascal donne ensuite son nom à l'unité de pression du Système international." },
+  { icon:"⚗️", name:"La loi de Boyle-Mariotte (compressibilité des gaz)",     year:1662, pays:"Irlande / Angleterre",         cat:"chimie",      decouverte:"À température constante, le volume d'un gaz est inversement proportionnel à sa pression", imp:4, heritage:"Première loi quantitative de la chimie des gaz — fondement de la thermodynamique et de la chimie physique moderne." },
+  { icon:"⚛️", name:"La décomposition de la lumière au prisme",             year:1666, pays:"Angleterre",                   cat:"physique",    decouverte:"La lumière blanche est composée de toutes les couleurs du spectre, séparables puis recomposables", imp:5, heritage:"Fonde l'optique moderne et la spectroscopie — technique encore utilisée pour analyser la composition des étoiles lointaines." },
+  { icon:"🧬", name:"Découverte des micro-organismes (« animalcules »)",     year:1674, pays:"Pays-Bas",                     cat:"biologie",    decouverte:"Observation au microscope artisanal de bactéries et protozoaires vivant dans l'eau et la salive", imp:5, heritage:"Van Leeuwenhoek ouvre le monde invisible du vivant — fondement de la microbiologie, deux siècles avant la théorie microbienne de Pasteur." },
+  { icon:"🩺", name:"Première mesure de la pression artérielle",            year:1733, pays:"Angleterre",                   cat:"medecine",    decouverte:"Mesure directe de la pression sanguine chez un cheval à l'aide d'un tube de verre relié à une artère", imp:4, heritage:"Stephen Hales pose les bases de l'hémodynamique — principe encore à l'œuvre dans chaque tensiomètre médical moderne." },
+  { icon:"⚛️", name:"L'expérience du cerf-volant",                          year:1752, pays:"États-Unis",                   cat:"physique",    decouverte:"Preuve que la foudre est une décharge électrique, identique à l'électricité produite en laboratoire", imp:5, heritage:"Benjamin Franklin invente le paratonnerre à partir de cette découverte — protège encore aujourd'hui bâtiments et infrastructures dans le monde entier." },
+  { icon:"⚗️", name:"Découverte de l'oxygène (« air déphlogistiqué »)",      year:1774, pays:"Angleterre",                   cat:"chimie",      decouverte:"Isolement d'un gaz qui intensifie la combustion et la respiration, plus tard nommé oxygène par Lavoisier", imp:5, heritage:"Joseph Priestley déclenche une révolution chimique — remet en cause la théorie du phlogistique et ouvre la voie à la chimie moderne." },
+  { icon:"⚗️", name:"La loi de conservation de la masse",                   year:1789, pays:"France",                       cat:"chimie",      decouverte:"Dans une réaction chimique en système clos, la masse totale des réactifs égale celle des produits", imp:5, heritage:"Antoine Lavoisier fonde la chimie moderne comme science quantitative — principe fondamental encore enseigné dans toutes les classes de chimie." },
+  { icon:"🧬", name:"L'électricité animale (pattes de grenouille)",         year:1780, pays:"Italie",                       cat:"biologie",    decouverte:"Les muscles d'une grenouille morte se contractent sous l'effet d'une décharge électrique",         imp:4, heritage:"Luigi Galvani découvre la bioélectricité — fonde l'électrophysiologie et inspire indirectement Mary Shelley pour Frankenstein." },
+  { icon:"🩺", name:"Le premier vaccin (variole)",                          year:1796, pays:"Angleterre",                   cat:"medecine",    decouverte:"L'inoculation de la vaccine (variole de la vache) protège durablement contre la variole humaine", imp:5, heritage:"Edward Jenner invente la vaccination — technique qui permettra l'éradication mondiale de la variole en 1980, seule maladie humaine éliminée à ce jour." },
+  { icon:"⚛️", name:"La pile électrique (pile voltaïque)",                  year:1800, pays:"Italie",                       cat:"physique",    decouverte:"Empilement de disques de métaux différents séparés par un tissu imbibé produisant un courant continu stable", imp:5, heritage:"Alessandro Volta invente la première source d'électricité continue et fiable — ouvre l'ère de l'électrochimie et de l'électrotechnique." },
+  { icon:"⚛️", name:"L'expérience des fentes de Young",                     year:1801, pays:"Angleterre",                   cat:"physique",    decouverte:"Figures d'interférence de la lumière à travers deux fentes, prouvant sa nature ondulatoire",       imp:5, heritage:"Réfute temporairement la théorie corpusculaire de Newton — l'expérience, reproduite avec des particules uniques, illustre encore la dualité onde-corpuscule en physique quantique." },
+  { icon:"⚛️", name:"La densité de la Terre (balance de torsion)",          year:1798, pays:"Angleterre",                   cat:"physique",    decouverte:"Mesure de la constante gravitationnelle et de la masse de la Terre à l'aide d'une balance de torsion extrêmement sensible", imp:4, heritage:"Henry Cavendish « pèse » le premier la Terre avec précision — sa méthode reste une référence pour mesurer des forces infimes." },
+  { icon:"⚛️", name:"Le lien entre électricité et magnétisme",             year:1820, pays:"Danemark",                     cat:"physique",    decouverte:"Un courant électrique dévie l'aiguille d'une boussole placée à proximité — l'électricité crée un champ magnétique", imp:5, heritage:"Hans Christian Ørsted unifie deux phénomènes crus indépendants — déclenche la course qui mènera à l'électromagnétisme de Maxwell." },
+  { icon:"⚛️", name:"L'induction électromagnétique",                       year:1831, pays:"Angleterre",                   cat:"physique",    decouverte:"Un champ magnétique variable induit un courant électrique dans un circuit voisin",                imp:5, heritage:"Michael Faraday pose le principe de fonctionnement de tous les générateurs et transformateurs électriques — fondement de l'électrification mondiale." },
+  { icon:"⚛️", name:"Le pendule de Foucault",                               year:1851, pays:"France",                       cat:"physique",    decouverte:"Un pendule oscillant librement change lentement de plan d'oscillation, prouvant directement la rotation de la Terre", imp:5, heritage:"Léon Foucault offre la première preuve visible et directe, sans observation astronomique, que la Terre tourne sur elle-même — expérience reproduite dans des musées du monde entier." },
+  { icon:"🧬", name:"La réfutation de la génération spontanée",            year:1861, pays:"France",                       cat:"biologie",    decouverte:"Des ballons à col de cygne stérilisés restent exempts de micro-organismes tant que l'air poussiéreux n'y pénètre pas", imp:5, heritage:"Louis Pasteur enterre définitivement la théorie de la génération spontanée — fonde la théorie microbienne des maladies et l'asepsie moderne." },
+  { icon:"🧬", name:"Les lois de l'hérédité (petits pois)",                 year:1865, pays:"Autriche (Moravie)",           cat:"biologie",    decouverte:"Croisements de petits pois révélant des règles statistiques de transmission des caractères héréditaires", imp:5, heritage:"Gregor Mendel fonde la génétique moderne — ses lois, ignorées 35 ans, sont redécouvertes en 1900 et deviennent la base de toute la biologie héréditaire." },
+  { icon:"⚛️", name:"L'expérience de Michelson-Morley",                    year:1887, pays:"États-Unis",                   cat:"physique",    decouverte:"La vitesse de la lumière est identique dans toutes les directions, réfutant l'existence de « l'éther » supposé", imp:5, heritage:"Résultat négatif le plus célèbre de l'histoire des sciences — ouvre la voie à la théorie de la relativité restreinte d'Einstein." },
+  { icon:"⚛️", name:"Production et détection des ondes radio",             year:1887, pays:"Allemagne",                    cat:"physique",    decouverte:"Confirmation expérimentale des ondes électromagnétiques prédites par Maxwell, produites et captées en laboratoire", imp:5, heritage:"Heinrich Hertz prouve l'existence des ondes radio — fondement direct de la radio, de la télévision et de toutes les télécommunications sans fil." },
+  { icon:"⚛️", name:"La découverte des rayons X",                          year:1895, pays:"Allemagne",                    cat:"physique",    decouverte:"Observation accidentelle d'un rayonnement traversant la matière et impressionnant une plaque photographique", imp:5, heritage:"Wilhelm Röntgen ouvre l'ère de l'imagerie médicale — la radiographie devient en quelques mois un outil de diagnostic utilisé dans le monde entier." },
+  { icon:"⚛️", name:"La découverte de l'électron",                         year:1897, pays:"Angleterre",                   cat:"physique",    decouverte:"Les rayons cathodiques sont des particules chargées négativement, bien plus légères que tout atome connu", imp:5, heritage:"J.J. Thomson découvre la première particule subatomique — brise le mythe de l'atome indivisible et ouvre l'ère de la physique des particules." },
+  { icon:"🧠", name:"Le conditionnement classique (chiens de Pavlov)",      year:1902, pays:"Russie",                       cat:"psychologie", decouverte:"Un chien apprend à saliver au son d'une cloche associée de façon répétée à la nourriture",         imp:5, heritage:"Ivan Pavlov fonde la psychologie expérimentale du comportement — le « réflexe conditionné » devient un concept central de la psychologie et des neurosciences." },
+  { icon:"⚗️", name:"La découverte du radium et du polonium",              year:1898, pays:"France",                       cat:"chimie",      decouverte:"Isolement de deux nouveaux éléments radioactifs à partir de tonnes de pechblende traitées manuellement", imp:5, heritage:"Marie et Pierre Curie fondent la science de la radioactivité — ouvre la voie à la radiothérapie contre le cancer et à la physique nucléaire." },
+  { icon:"⚛️", name:"L'expérience de la feuille d'or",                     year:1911, pays:"Angleterre",                   cat:"physique",    decouverte:"Des particules alpha traversent une fine feuille d'or, mais certaines rebondissent — l'atome a un noyau dense et minuscule", imp:5, heritage:"Ernest Rutherford découvre le noyau atomique — remplace le modèle du « pudding aux prunes » par le modèle planétaire de l'atome." },
+  { icon:"⚛️", name:"L'expérience de la goutte d'huile",                   year:1909, pays:"États-Unis",                   cat:"physique",    decouverte:"Mesure précise de la charge électrique élémentaire en observant des gouttelettes d'huile suspendues électriquement", imp:4, heritage:"Robert Millikan détermine la charge de l'électron avec une précision remarquable pour l'époque — donnée fondamentale de toute la physique moderne." },
+  { icon:"🔭", name:"L'éclipse de 1919 et la courbure de la lumière",       year:1919, pays:"Île de Príncipe (Afrique)",    cat:"astronomie",  decouverte:"Pendant une éclipse totale, la lumière des étoiles est déviée par la gravité du Soleil, comme le prédit la relativité générale", imp:5, heritage:"L'expédition d'Eddington confirme la théorie d'Einstein et le rend célèbre du jour au lendemain — un des tests les plus décisifs de l'histoire de la physique." },
+  { icon:"🔭", name:"La découverte de l'expansion de l'univers",           year:1929, pays:"États-Unis",                   cat:"astronomie",  decouverte:"Les galaxies lointaines s'éloignent de nous à une vitesse proportionnelle à leur distance",        imp:5, heritage:"Edwin Hubble établit que l'univers est en expansion — preuve observationnelle fondatrice de la théorie du Big Bang." },
+  { icon:"🩺", name:"La découverte accidentelle de la pénicilline",        year:1928, pays:"Écosse",                       cat:"medecine",    decouverte:"Une moisissure contaminant une culture bactérienne inhibe la croissance des bactéries autour d'elle", imp:5, heritage:"Alexander Fleming ouvre l'ère des antibiotiques — sauve depuis des centaines de millions de vies à travers le monde." },
+  { icon:"⚛️", name:"La fission nucléaire",                                year:1938, pays:"Allemagne / Suède",           cat:"physique",    decouverte:"Le bombardement d'un noyau d'uranium par des neutrons le scinde en deux noyaux plus légers, libérant une énergie considérable", imp:5, heritage:"Otto Hahn et Lise Meitner découvrent la fission nucléaire — fondement à la fois de l'énergie nucléaire civile et de l'arme atomique." },
+  { icon:"🧠", name:"Le conditionnement opérant (boîte de Skinner)",       year:1938, pays:"États-Unis",                   cat:"psychologie", decouverte:"Un animal apprend à répéter un comportement lorsqu'il est systématiquement récompensé ou puni",   imp:4, heritage:"B.F. Skinner formalise le béhaviorisme expérimental — influence durablement l'éducation, la formation animale et les théories de l'apprentissage." },
+  { icon:"⚛️", name:"Première réaction nucléaire en chaîne contrôlée",     year:1942, pays:"États-Unis",                   cat:"physique",    decouverte:"Un réacteur expérimental sous un stade de Chicago maintient une réaction en chaîne auto-entretenue et contrôlable", imp:5, heritage:"Enrico Fermi démontre la faisabilité technique de l'énergie nucléaire — étape clé du projet Manhattan et des futures centrales nucléaires." },
+  { icon:"🧬", name:"L'ADN identifié comme support de l'hérédité",         year:1944, pays:"Canada / États-Unis",         cat:"biologie",    decouverte:"Transfert de caractères héréditaires entre bactéries par l'ADN purifié seul, sans protéines",     imp:5, heritage:"Oswald Avery démontre que l'ADN, et non les protéines, porte l'information génétique — préparation directe de la découverte de sa structure en 1953." },
+  { icon:"🧬", name:"L'expérience de Hershey et Chase",                    year:1952, pays:"États-Unis",                   cat:"biologie",    decouverte:"Des virus marqués radioactivement injectent leur ADN, et non leurs protéines, dans les bactéries qu'ils infectent", imp:5, heritage:"Confirme définitivement l'ADN comme matériau génétique universel — convainc la communauté scientifique restée sceptique après les travaux d'Avery." },
+  { icon:"⚗️", name:"L'expérience de Miller-Urey",                        year:1952, pays:"États-Unis",                   cat:"chimie",      decouverte:"Des décharges électriques dans un mélange de gaz simulant l'atmosphère primitive produisent spontanément des acides aminés", imp:5, heritage:"Stanley Miller et Harold Urey montrent que les briques du vivant peuvent apparaître spontanément — expérience fondatrice de la chimie de l'origine de la vie." },
+  { icon:"🧬", name:"La structure en double hélice de l'ADN",              year:1953, pays:"Angleterre",                   cat:"biologie",    decouverte:"Les clichés de diffraction aux rayons X révèlent la structure hélicoïdale à deux brins complémentaires de l'ADN", imp:5, heritage:"Watson, Crick et Franklin dévoilent la molécule de l'hérédité — fondement de toute la biologie moléculaire et des biotechnologies modernes." },
+  { icon:"🧠", name:"L'expérience de conformité sociale",                  year:1951, pays:"États-Unis",                   cat:"psychologie", decouverte:"Des participants donnent volontairement une réponse fausse et évidente pour se conformer à l'avis erroné du groupe", imp:4, heritage:"Solomon Asch révèle la puissance de la pression sociale sur le jugement individuel — référence incontournable en psychologie sociale." },
+  { icon:"🧠", name:"L'expérience de l'obéissance à l'autorité",           year:1961, pays:"États-Unis",                   cat:"psychologie", decouverte:"Des participants ordinaires acceptent d'infliger de fausses décharges électriques croissantes sur simple instruction d'une figure d'autorité", imp:5, heritage:"Stanley Milgram met en lumière la soumission humaine à l'autorité — étude majeure pour comprendre les mécanismes psychologiques derrière l'obéissance aveugle." },
+  { icon:"🧠", name:"L'expérience de la prison de Stanford",               year:1971, pays:"États-Unis",                   cat:"psychologie", decouverte:"Des étudiants assignés au hasard aux rôles de gardien ou de prisonnier adoptent rapidement des comportements abusifs ou soumis", imp:4, heritage:"Philip Zimbardo illustre l'influence du contexte situationnel sur le comportement humain — étude très discutée, mais toujours citée en psychologie sociale." },
+  { icon:"⚛️", name:"La découverte du boson de Higgs",                    year:2012, pays:"Suisse (CERN)",                cat:"physique",    decouverte:"Collisions de protons à très haute énergie révélant l'existence de la particule qui donne leur masse aux autres particules", imp:5, heritage:"Confirme le dernier élément manquant du modèle standard de la physique des particules, prédit 48 ans plus tôt — vaut le prix Nobel 2013 à Higgs et Englert." },
+  { icon:"🧬", name:"L'édition génomique CRISPR-Cas9",                     year:2012, pays:"États-Unis / France",         cat:"biologie",    decouverte:"Détournement d'un mécanisme de défense bactérien en un outil programmable de découpe précise de l'ADN", imp:5, heritage:"Jennifer Doudna et Emmanuelle Charpentier rendent l'édition génétique accessible et précise — révolutionne la recherche biomédicale et ouvre la voie aux thérapies géniques." },
+  { icon:"🔭", name:"Première détection des ondes gravitationnelles",      year:2015, pays:"États-Unis (LIGO)",           cat:"astronomie",  decouverte:"Détection directe d'une infime déformation de l'espace-temps causée par la fusion de deux trous noirs lointains", imp:5, heritage:"Confirme la dernière prédiction majeure d'Einstein restée non vérifiée depuis un siècle — ouvre un nouveau champ d'observation de l'univers." },
+  { icon:"🔭", name:"Première image directe d'un trou noir",              year:2019, pays:"International (Event Horizon Telescope)", cat:"astronomie", decouverte:"Combinaison de radiotélescopes du monde entier produisant la première image de l'ombre d'un trou noir supermassif", imp:5, heritage:"Rend visible un objet longtemps considéré comme purement théorique — prouesse technique et confirmation visuelle spectaculaire de la relativité générale." },
+];
+
+const catLabels = {
+  "physique":    "⚛️ Physique",
+  "biologie":    "🧬 Biologie",
+  "medecine":    "🩺 Médecine",
+  "chimie":      "⚗️ Chimie",
+  "astronomie":  "🔭 Astronomie",
+  "psychologie": "🧠 Psychologie"
+};
+
+function formatYear(y) {
+  return y < 0 ? `${Math.abs(y)} av. J.-C.` : `${y}`;
+}
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' expérience scientifique')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${formatYear(d.year)}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Expériences affichées : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${formatYear(minYear)} → ${formatYear(maxYear)}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
