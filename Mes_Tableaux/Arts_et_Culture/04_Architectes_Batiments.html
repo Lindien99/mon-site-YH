@@ -1,0 +1,466 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Architectes et leurs Bâtiments Iconiques</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #0d1b2a;
+    --sepia-mid:    #1e4d7a;
+    --sepia-light:  #5b8db5;
+    --parch-bg:     #f0f5fb;
+    --parch-card:   #f8fafd;
+    --ink:          #0d1b2a;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --blue-accent:  #1a3a6a;
+    --shadow:       rgba(13,27,42,0.15);
+    --row-border:   #c8d8ea;
+    --row-hover:    #ecf3fb;
+    --row-even:     #f0f6fb;
+    --pays-color:   #2a3a4a;
+    --heritage-color: #1a2a3a;
+    --pays-border:  #88a8c8;
+    --noise-opacity: 0.05;
+    --header-bg: #0d1b2a;
+  }
+
+  [data-theme="dark"] {
+    --sepia-dark:   #e8d9b5;
+    --sepia-mid:    #a8c8e8;
+    --sepia-light:  #4a6a8a;
+    --parch-bg:     #10161f;
+    --parch-card:   #1a2230;
+    --ink:          #e8e4d8;
+    --gold:         #d4a843;
+    --gold-light:   #e8c878;
+    --blue-accent:  #7aa8e0;
+    --shadow:       rgba(0,0,0,0.5);
+    --row-border:   #2a3444;
+    --row-hover:    #232d3d;
+    --row-even:     #1e2733;
+    --pays-color:   #c8d4e0;
+    --heritage-color: #b8c4d0;
+    --pays-border:  #3a5a7a;
+    --noise-opacity: 0.03;
+    --header-bg: #060a12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='var(--noise-opacity)'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--row-border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: var(--pays-color); white-space: nowrap; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: var(--heritage-color); font-style: italic; min-width: 200px; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-antique      { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-medieval     { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-renaissance  { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-neoclassique { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-moderne      { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-contemporain { color: #7a4400; background: #fff3d0; border-color: #cc9933; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: var(--pays-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--pays-border);
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.1rem;
+    border: 1.5px solid var(--gold);
+    background: var(--parch-card);
+    color: var(--sepia-dark);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .theme-toggle:hover { background: var(--header-bg); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Arts &amp; Culture</a>
+
+<header>
+  <p class="subtitle">— Ars Aedificandi —</p>
+  <h1><span class="ornament">🏛️</span> 50 Architectes et leurs Bâtiments Iconiques <span class="ornament">🏗️</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les bâtisseurs qui ont façonné nos villes et notre imaginaire — de l'Antiquité à l'architecture contemporaine</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="antique">🏛️ Antique</button>
+  <button class="filter-btn" data-cat="medieval">⛪ Médiéval &amp; Gothique</button>
+  <button class="filter-btn" data-cat="renaissance">🎨 Renaissance &amp; Baroque</button>
+  <button class="filter-btn" data-cat="neoclassique">🏢 Néoclassique &amp; XIXᵉ</button>
+  <button class="filter-btn" data-cat="moderne">🏗️ Moderne (XXᵉ)</button>
+  <button class="filter-btn" data-cat="contemporain">🌆 Contemporain</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Architecte <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Bâtiment iconique <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-architectes') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-architectes', next);
+});
+
+const DATA = [
+  { icon:"🏛️", name:"Imhotep",                  year:-2650, pays:"Égypte",              cat:"antique",      decouverte:"Pyramide à degrés de Saqqarah — premier grand monument de pierre taillée de l'histoire",     imp:5, heritage:"Considéré comme le premier architecte connu par son nom — plus tard divinisé par les Égyptiens comme dieu de la médecine et de l'architecture." },
+  { icon:"🏛️", name:"Ictinos",                   year:-447, pays:"Grèce antique",        cat:"antique",      decouverte:"Le Parthénon d'Athènes, chef-d'œuvre de proportions et d'harmonie de l'architecture dorique", imp:5, heritage:"Sa maîtrise des raffinements optiques (colonnes légèrement inclinées, courbes subtiles) influence toute l'architecture classique occidentale." },
+  { icon:"🏛️", name:"Vitruve",                   year:-80, pays:"Rome antique",          cat:"antique",      decouverte:"De Architectura — seul traité d'architecture antique conservé, définissant solidité, utilité et beauté", imp:5, heritage:"Son « homme de Vitruve », popularisé par Léonard de Vinci, et ses principes fondent toute la théorie architecturale occidentale jusqu'à la Renaissance." },
+  { icon:"🏛️", name:"Empereur Hadrien",          year:76, pays:"Rome antique",          cat:"antique",      decouverte:"Le Panthéon de Rome — plus grande coupole non armée jamais construite avant le XIXᵉ siècle", imp:5, heritage:"Sa coupole en béton romain reste un record d'ingénierie pendant près de 1700 ans — modèle direct de nombreux dômes de la Renaissance." },
+  { icon:"🏛️", name:"Apollodore de Damas",       year:100, pays:"Rome / Syrie",         cat:"antique",      decouverte:"Le Forum de Trajan et sa Colonne — ensemble monumental narrant les campagnes militaires en spirale sculptée", imp:4, heritage:"Architecte officiel de l'empereur Trajan — sa colonne narrative influence l'art commémoratif triomphal pendant des siècles." },
+  { icon:"🏛️", name:"Anthemius de Tralles",      year:474, pays:"Empire byzantin",      cat:"antique",      decouverte:"Sainte-Sophie de Constantinople — coupole immense semblant flotter au-dessus de la nef",     imp:5, heritage:"Chef-d'œuvre absolu de l'architecture byzantine — inspire directement les mosquées ottomanes et reste l'un des monuments les plus admirés au monde." },
+  { icon:"⛪", name:"Abbé Suger",                 year:1081, pays:"France",               cat:"medieval",     decouverte:"La basilique Saint-Denis — premier édifice conçu selon les principes de l'art gothique naissant", imp:5, heritage:"Considéré comme l'inventeur conceptuel du style gothique, avec ses voûtes d'ogives et ses vitraux baignant l'église de lumière colorée." },
+  { icon:"⛪", name:"Villard de Honnecourt",       year:1200, pays:"France",               cat:"medieval",     decouverte:"Carnet de croquis d'architecture et de machines gothiques, rare témoignage technique du Moyen Âge", imp:3, heritage:"Son carnet reste l'un des seuls documents montrant les méthodes de conception des bâtisseurs de cathédrales gothiques." },
+  { icon:"⛪", name:"Arnolfo di Cambio",           year:1245, pays:"Italie",               cat:"medieval",     decouverte:"Début de la cathédrale Santa Maria del Fiore de Florence, achevée plus tard par Brunelleschi", imp:4, heritage:"Pose les fondations du monument le plus emblématique de Florence, symbole de la puissance de la cité-État florentine." },
+  { icon:"⛪", name:"Pierre de Montreuil",         year:1200, pays:"France",               cat:"medieval",     decouverte:"La Sainte-Chapelle de Paris, prouesse de finesse structurelle avec ses immenses verrières colorées", imp:4, heritage:"Sommet technique du gothique rayonnant — ses murs presque entièrement vitrés annoncent les futures façades de verre." },
+  { icon:"⛪", name:"Erwin von Steinbach",         year:1244, pays:"Allemagne",            cat:"medieval",     decouverte:"La façade de la cathédrale de Strasbourg, l'une des plus hautes flèches gothiques d'Europe",  imp:4, heritage:"Sa dynastie de bâtisseurs poursuit son œuvre sur plusieurs générations — la cathédrale reste un chef-d'œuvre du gothique rhénan." },
+  { icon:"⛪", name:"Henry Yevele",                year:1320, pays:"Angleterre",           cat:"medieval",     decouverte:"Refonte de Westminster Hall avec sa charpente en marteau, prouesse de menuiserie gothique anglaise", imp:3, heritage:"Architecte royal le plus influent de l'Angleterre médiévale — sa charpente reste la plus grande d'Europe sans piliers intermédiaires." },
+  { icon:"🎨", name:"Filippo Brunelleschi",       year:1377, pays:"Italie",               cat:"renaissance",  decouverte:"La coupole de la cathédrale de Florence, construite sans échafaudage grâce à une double coque autoportante", imp:5, heritage:"Considéré comme le père de l'architecture Renaissance — redécouvre la perspective mathématique et l'ingénierie des Romains antiques." },
+  { icon:"🎨", name:"Leon Battista Alberti",       year:1404, pays:"Italie",               cat:"renaissance",  decouverte:"La façade de Santa Maria Novella et le traité De re aedificatoria, codifiant l'architecture Renaissance", imp:4, heritage:"Humaniste complet, son traité devient la référence théorique de l'architecture classique pendant plus de trois siècles en Europe." },
+  { icon:"🎨", name:"Donato Bramante",             year:1444, pays:"Italie",               cat:"renaissance",  decouverte:"Plan initial en croix grecque de la nouvelle basilique Saint-Pierre de Rome",                 imp:5, heritage:"Fonde l'architecture classique romaine de la haute Renaissance — son plan centralisé influence tous les dômes religieux qui suivront." },
+  { icon:"🎨", name:"Michel-Ange",                 year:1475, pays:"Italie",               cat:"renaissance",  decouverte:"La coupole de la basilique Saint-Pierre de Rome, achevée après sa mort selon ses plans",       imp:5, heritage:"Sa coupole devient le modèle de référence de tous les grands dômes occidentaux, du Capitole de Washington aux Invalides de Paris." },
+  { icon:"🎨", name:"Andrea Palladio",             year:1508, pays:"Italie",               cat:"renaissance",  decouverte:"La Villa Rotonda et le traité I Quattro Libri dell'Architettura, diffusés dans toute l'Europe", imp:5, heritage:"Son style « palladien » influence directement l'architecture anglaise et américaine, jusqu'à la Maison Blanche et Monticello." },
+  { icon:"🎨", name:"Mimar Sinan",                 year:1489, pays:"Empire ottoman",       cat:"renaissance",  decouverte:"La mosquée Selimiye d'Edirne, sommet technique de l'architecture ottomane avec sa coupole immense", imp:5, heritage:"Architecte en chef de l'Empire ottoman pendant 50 ans, conçoit plus de 300 bâtiments — considéré comme le plus grand architecte du monde islamique." },
+  { icon:"🎨", name:"Gian Lorenzo Bernini",        year:1598, pays:"Italie",               cat:"renaissance",  decouverte:"La colonnade elliptique de la place Saint-Pierre, embrassant symboliquement les fidèles du monde entier", imp:5, heritage:"Maître absolu du baroque romain, sculpteur et architecte — façonne l'image monumentale de la Rome papale pour les siècles suivants." },
+  { icon:"🎨", name:"Francesco Borromini",         year:1599, pays:"Italie",               cat:"renaissance",  decouverte:"San Carlo alle Quattro Fontane, église aux courbes ondulantes et à la géométrie complexe inédite", imp:4, heritage:"Rival de Bernini, pousse le baroque vers une virtuosité géométrique extrême — influence l'architecture baroque d'Europe centrale." },
+  { icon:"🎨", name:"Christopher Wren",            year:1632, pays:"Angleterre",           cat:"renaissance",  decouverte:"La cathédrale Saint-Paul de Londres, reconstruite après le grand incendie de 1666",           imp:5, heritage:"Reconstruit plus de 50 églises londoniennes après l'incendie — sa cathédrale reste le symbole architectural de Londres pendant trois siècles." },
+  { icon:"🎨", name:"Jules Hardouin-Mansart",      year:1646, pays:"France",               cat:"renaissance",  decouverte:"Les extensions monumentales du château de Versailles, dont la galerie des Glaces",             imp:5, heritage:"Architecte officiel de Louis XIV — Versailles devient le modèle absolu du pouvoir royal imité par toutes les cours d'Europe." },
+  { icon:"🏢", name:"Ange-Jacques Gabriel",        year:1698, pays:"France",               cat:"neoclassique", decouverte:"La place de la Concorde et le Petit Trianon, sommets de l'élégance classique française",     imp:4, heritage:"Premier architecte du roi sous Louis XV — incarne le raffinement du classicisme français à son apogée avant la Révolution." },
+  { icon:"🏢", name:"John Nash",                   year:1752, pays:"Angleterre",           cat:"neoclassique", decouverte:"Le Royal Pavilion de Brighton et l'aménagement urbain de Regent Street à Londres",            imp:4, heritage:"Transforme le visage de Londres sous le Régence — mêle exotisme oriental et urbanisme néoclassique dans une synthèse originale." },
+  { icon:"🏢", name:"Karl Friedrich Schinkel",     year:1781, pays:"Allemagne",            cat:"neoclassique", decouverte:"L'Altes Museum de Berlin, temple néoclassique dédié à l'art et au savoir",                    imp:4, heritage:"Architecte le plus influent de la Prusse du XIXᵉ siècle — façonne durablement l'image néoclassique de Berlin." },
+  { icon:"🏢", name:"Joseph Paxton",               year:1803, pays:"Angleterre",           cat:"neoclassique", decouverte:"Le Crystal Palace de Londres, immense structure de verre et de fer préfabriquée pour l'Exposition universelle de 1851", imp:5, heritage:"Révolutionne la construction par la préfabrication industrielle du verre et du métal — précurseur direct de l'architecture moderne." },
+  { icon:"🏢", name:"Charles Garnier",             year:1825, pays:"France",               cat:"neoclassique", decouverte:"L'Opéra Garnier de Paris, somptueux édifice mêlant styles classique, baroque et Second Empire", imp:5, heritage:"Devenu le symbole du faste architectural du Second Empire — son escalier monumental reste l'un des plus célèbres du monde." },
+  { icon:"🏢", name:"Eugène Viollet-le-Duc",       year:1814, pays:"France",               cat:"neoclassique", decouverte:"Restauration de Notre-Dame de Paris et de la cité fortifiée de Carcassonne au XIXᵉ siècle",  imp:4, heritage:"Fonde la doctrine moderne de la restauration du patrimoine — sa flèche de Notre-Dame, détruite en 2019, a depuis été reconstruite à l'identique." },
+  { icon:"🏢", name:"Gustave Eiffel",              year:1832, pays:"France",               cat:"neoclassique", decouverte:"La Tour Eiffel, structure métallique de 300 mètres construite pour l'Exposition universelle de 1889", imp:5, heritage:"D'abord contestée par des artistes parisiens, la tour devient le monument payant le plus visité au monde et symbole absolu de la France." },
+  { icon:"🏢", name:"Antoni Gaudí",                year:1852, pays:"Espagne",              cat:"neoclassique", decouverte:"La Sagrada Família de Barcelone, basilique inachevée aux formes organiques inspirées de la nature", imp:5, heritage:"Figure majeure du modernisme catalan — son chantier, débuté en 1882, se poursuit encore aujourd'hui grâce aux dons des visiteurs." },
+  { icon:"🏗️", name:"Louis Sullivan",              year:1856, pays:"États-Unis",           cat:"moderne",      decouverte:"Le Wainwright Building de Saint-Louis, l'un des tout premiers gratte-ciel modernes en structure métallique", imp:5, heritage:"Formule le principe « la forme suit la fonction » — pionnier de l'école de Chicago et véritable inventeur du gratte-ciel moderne." },
+  { icon:"🏗️", name:"Victor Horta",                year:1861, pays:"Belgique",             cat:"moderne",      decouverte:"L'Hôtel Tassel à Bruxelles, considéré comme le premier édifice complet de l'Art nouveau",     imp:4, heritage:"Pionnier de l'Art nouveau — introduit la ligne courbe organique et le fer forgé décoratif dans l'architecture domestique européenne." },
+  { icon:"🏗️", name:"Frank Lloyd Wright",          year:1867, pays:"États-Unis",           cat:"moderne",      decouverte:"Fallingwater (la Maison sur la cascade), maison suspendue au-dessus d'une chute d'eau en Pennsylvanie", imp:5, heritage:"Théoricien de l'« architecture organique » intégrant le bâti à son environnement naturel — l'un des architectes les plus influents du XXᵉ siècle." },
+  { icon:"🏗️", name:"Walter Gropius",              year:1883, pays:"Allemagne",            cat:"moderne",      decouverte:"Le bâtiment du Bauhaus à Dessau, manifeste architectural de l'école qu'il a fondée en 1919",  imp:5, heritage:"Fonde le Bauhaus, école qui unit art, artisanat et industrie — influence durablement le design et l'architecture fonctionnaliste mondiale." },
+  { icon:"🏗️", name:"Le Corbusier",                year:1887, pays:"Suisse / France",      cat:"moderne",      decouverte:"La Villa Savoye et la Cité radieuse de Marseille, manifestes des « cinq points de l'architecture moderne »", imp:5, heritage:"Théoricien majeur de l'urbanisme moderne, ses idées façonnent la construction de logements collectifs dans le monde entier après-guerre." },
+  { icon:"🏗️", name:"Ludwig Mies van der Rohe",    year:1886, pays:"Allemagne / États-Unis", cat:"moderne",      decouverte:"Le Seagram Building de New York, tour de verre et d'acier incarnant le principe « less is more »", imp:5, heritage:"Dernier directeur du Bauhaus, exilé aux États-Unis — son style minimaliste en verre et acier devient le modèle du gratte-ciel moderne mondial." },
+  { icon:"🏗️", name:"Alvar Aalto",                 year:1898, pays:"Finlande",             cat:"moderne",      decouverte:"La Villa Mairea, synthèse entre modernisme international et matériaux naturels scandinaves", imp:4, heritage:"Humanise le mouvement moderne par l'usage chaleureux du bois — figure majeure du design et de l'architecture scandinaves du XXᵉ siècle." },
+  { icon:"🏗️", name:"Oscar Niemeyer",              year:1907, pays:"Brésil",               cat:"moderne",      decouverte:"La cathédrale de Brasília et le plan général de la nouvelle capitale brésilienne, inaugurée en 1960", imp:5, heritage:"Sculpte le béton en courbes audacieuses inédites — Brasília devient un exemple unique de ville entièrement conçue selon les principes modernistes." },
+  { icon:"🏗️", name:"Louis Kahn",                  year:1901, pays:"Estonie / États-Unis", cat:"moderne",      decouverte:"L'Assemblée nationale du Bangladesh à Dacca, monument monumental en béton brut",             imp:5, heritage:"Philosophe autant qu'architecte, son usage de la lumière et de la masse influence profondément l'architecture monumentale contemporaine." },
+  { icon:"🏗️", name:"Jørn Utzon",                  year:1918, pays:"Danemark",             cat:"moderne",      decouverte:"L'Opéra de Sydney, toiture en voiles de béton blanc devenue symbole architectural de l'Australie", imp:5, heritage:"Prouesse technique et artistique de son temps — inscrit au patrimoine mondial de l'UNESCO comme icône de l'architecture expressive du XXᵉ siècle." },
+  { icon:"🌆", name:"I.M. Pei",                     year:1917, pays:"Chine / États-Unis",   cat:"contemporain", decouverte:"La pyramide de verre du Louvre à Paris, entrée moderne insérée dans la cour du palais historique", imp:5, heritage:"D'abord très controversée, la pyramide devient l'un des symboles les plus reconnaissables de Paris et un modèle de dialogue entre ancien et moderne." },
+  { icon:"🌆", name:"Renzo Piano",                  year:1937, pays:"Italie",               cat:"contemporain", decouverte:"Le Centre Pompidou de Paris, bâtiment aux structures et tuyaux exposés à l'extérieur",         imp:5, heritage:"Révolutionne l'architecture muséale en exposant sa structure technique — poursuit une carrière prolifique avec The Shard à Londres." },
+  { icon:"🌆", name:"Richard Rogers",               year:1933, pays:"Angleterre",           cat:"contemporain", decouverte:"Co-conception du Centre Pompidou avec Renzo Piano, puis le Lloyd's Building de Londres",       imp:4, heritage:"Pionnier du « style high-tech » en architecture, où les éléments techniques deviennent des composants esthétiques assumés du bâtiment." },
+  { icon:"🌆", name:"Norman Foster",                year:1935, pays:"Angleterre",           cat:"contemporain", decouverte:"La tour 30 St Mary Axe à Londres (« The Gherkin ») et la reconstruction de la coupole du Reichstag à Berlin", imp:5, heritage:"L'un des architectes les plus prolifiques au monde — son style high-tech écologique influence les gratte-ciel contemporains sur tous les continents." },
+  { icon:"🌆", name:"Frank Gehry",                  year:1929, pays:"Canada / États-Unis",  cat:"contemporain", decouverte:"Le musée Guggenheim de Bilbao, structure aux formes courbes et métalliques audacieuses",      imp:5, heritage:"Son musée relance à lui seul l'économie touristique de Bilbao, phénomène urbain surnommé l'« effet Bilbao », depuis imité dans le monde entier." },
+  { icon:"🌆", name:"Zaha Hadid",                   year:1950, pays:"Irak / Angleterre",    cat:"contemporain", decouverte:"Le Centre culturel Heydar Aliyev à Bakou, façade fluide sans angle droit apparent",           imp:5, heritage:"Première femme à recevoir le prestigieux prix Pritzker (2004) — pionnière du déconstructivisme et des formes architecturales fluides générées par ordinateur." },
+  { icon:"🌆", name:"Tadao Ando",                   year:1941, pays:"Japon",                cat:"contemporain", decouverte:"L'Église de la Lumière à Osaka, sanctuaire de béton brut traversé par une croix de lumière naturelle", imp:5, heritage:"Autodidacte devenu architecte de renommée mondiale — son minimalisme méditatif en béton influence profondément l'architecture spirituelle contemporaine." },
+  { icon:"🌆", name:"Santiago Calatrava",           year:1951, pays:"Espagne",              cat:"contemporain", decouverte:"La Cité des Arts et des Sciences de Valence, ensemble architectural aux formes organiques blanches spectaculaires", imp:4, heritage:"Ingénieur autant qu'architecte, ses structures évoquent souvent des formes squelettiques ou ailées — signature reconnaissable dans le monde entier." },
+  { icon:"🌆", name:"Rem Koolhaas",                 year:1944, pays:"Pays-Bas",             cat:"contemporain", decouverte:"Le siège de la télévision CCTV à Pékin, tour en boucle défiant les conventions structurelles classiques", imp:4, heritage:"Théoricien influent de l'urbanisme contemporain, son cabinet OMA questionne sans cesse les conventions de la ville et du gratte-ciel modernes." },
+  { icon:"🌆", name:"Bjarke Ingels",                year:1974, pays:"Danemark",             cat:"contemporain", decouverte:"CopenHill à Copenhague, usine de valorisation énergétique surmontée d'une piste de ski artificielle", imp:4, heritage:"Figure montante de l'architecture durable et ludique — son cabinet BIG mêle écologie, urbanisme innovant et audace formelle." },
+];
+
+const catLabels = {
+  "antique":      "🏛️ Antique",
+  "medieval":     "⛪ Médiéval & Gothique",
+  "renaissance":  "🎨 Renaissance & Baroque",
+  "neoclassique": "🏢 Néoclassique & XIXᵉ",
+  "moderne":      "🏗️ Moderne (XXᵉ)",
+  "contemporain": "🌆 Contemporain"
+};
+
+function formatYear(y) {
+  return y < 0 ? `${Math.abs(y)} av. J.-C.` : `${y}`;
+}
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' architecte')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${formatYear(d.year)}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Architectes affichés : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${formatYear(minYear)} → ${formatYear(maxYear)}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
