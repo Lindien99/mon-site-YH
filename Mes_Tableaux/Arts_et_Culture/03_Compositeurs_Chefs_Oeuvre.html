@@ -1,0 +1,466 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Compositeurs et leurs Chefs-d'Œuvre</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #0d1b2a;
+    --sepia-mid:    #1e4d7a;
+    --sepia-light:  #5b8db5;
+    --parch-bg:     #f0f5fb;
+    --parch-card:   #f8fafd;
+    --ink:          #0d1b2a;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --blue-accent:  #1a3a6a;
+    --shadow:       rgba(13,27,42,0.15);
+    --row-border:   #c8d8ea;
+    --row-hover:    #ecf3fb;
+    --row-even:     #f0f6fb;
+    --pays-color:   #2a3a4a;
+    --heritage-color: #1a2a3a;
+    --pays-border:  #88a8c8;
+    --noise-opacity: 0.05;
+    --header-bg: #0d1b2a;
+  }
+
+  [data-theme="dark"] {
+    --sepia-dark:   #e8d9b5;
+    --sepia-mid:    #a8c8e8;
+    --sepia-light:  #4a6a8a;
+    --parch-bg:     #10161f;
+    --parch-card:   #1a2230;
+    --ink:          #e8e4d8;
+    --gold:         #d4a843;
+    --gold-light:   #e8c878;
+    --blue-accent:  #7aa8e0;
+    --shadow:       rgba(0,0,0,0.5);
+    --row-border:   #2a3444;
+    --row-hover:    #232d3d;
+    --row-even:     #1e2733;
+    --pays-color:   #c8d4e0;
+    --heritage-color: #b8c4d0;
+    --pays-border:  #3a5a7a;
+    --noise-opacity: 0.03;
+    --header-bg: #060a12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='var(--noise-opacity)'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--row-border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: var(--pays-color); white-space: nowrap; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: var(--heritage-color); font-style: italic; min-width: 200px; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-baroque     { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-classique   { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-romantique  { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-opera       { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-moderne     { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-film        { color: #7a4400; background: #fff3d0; border-color: #cc9933; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: var(--pays-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--pays-border);
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.1rem;
+    border: 1.5px solid var(--gold);
+    background: var(--parch-card);
+    color: var(--sepia-dark);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .theme-toggle:hover { background: var(--header-bg); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Arts &amp; Culture</a>
+
+<header>
+  <p class="subtitle">— Musica Aeterna —</p>
+  <h1><span class="ornament">🎼</span> 50 Compositeurs et leurs Chefs-d'Œuvre <span class="ornament">🎹</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les voix musicales qui ont façonné notre sensibilité — du baroque au cinéma contemporain</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="baroque">🎼 Baroque</button>
+  <button class="filter-btn" data-cat="classique">🎻 Classique</button>
+  <button class="filter-btn" data-cat="romantique">🎹 Romantique</button>
+  <button class="filter-btn" data-cat="opera">🎭 Opéra</button>
+  <button class="filter-btn" data-cat="moderne">🎺 Moderne &amp; XXᵉ siècle</button>
+  <button class="filter-btn" data-cat="film">🎬 Musique de film</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Compositeur <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période musicale <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Chef-d'œuvre <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-compositeurs') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-compositeurs', next);
+});
+
+const DATA = [
+  { icon:"🎭", name:"Claudio Monteverdi",     year:1567, pays:"Italie",                cat:"opera",      decouverte:"L'Orfeo (1607) — premier grand opéra de l'histoire, alliant théâtre et musique",           imp:5, heritage:"Fait passer la musique de la polyphonie religieuse au drame lyrique — considéré comme l'inventeur de l'opéra tel qu'on le connaît." },
+  { icon:"🎼", name:"Henry Purcell",          year:1659, pays:"Angleterre",            cat:"baroque",    decouverte:"Dido and Aeneas — premier grand opéra anglais, célèbre pour le déchirant « Dido's Lament »", imp:4, heritage:"Plus grand compositeur anglais avant le XXᵉ siècle — fusionne les styles italien et français dans une voix typiquement britannique." },
+  { icon:"🎼", name:"Arcangelo Corelli",      year:1653, pays:"Italie",                cat:"baroque",    decouverte:"Concerti grossi — codifie la forme du concerto et la technique du violon baroque",         imp:4, heritage:"Influence directe sur Bach, Haendel et Vivaldi — pose les bases de l'écriture instrumentale pour cordes de toute l'ère baroque." },
+  { icon:"🎼", name:"Antonio Vivaldi",        year:1678, pays:"Italie",                cat:"baroque",    decouverte:"Les Quatre Saisons — quatre concertos pour violon peignant musicalement les saisons de l'année", imp:5, heritage:"Prêtre roux surnommé « il Prete Rosso », compose plus de 500 concertos — son style influence directement Bach et tout le baroque européen." },
+  { icon:"🎼", name:"Georg Philipp Telemann", year:1681, pays:"Allemagne",             cat:"baroque",    decouverte:"Musique de table — vaste corpus mêlant styles français, italien et allemand avec une aisance rare", imp:4, heritage:"Compositeur le plus prolifique de son temps, plus célèbre que Bach de son vivant — pionnier de la musique éditée pour un large public." },
+  { icon:"🎼", name:"Jean-Philippe Rameau",   year:1683, pays:"France",                cat:"baroque",    decouverte:"Les Indes galantes — opéra-ballet somptueux, et traité fondateur de l'harmonie tonale moderne", imp:4, heritage:"Son Traité de l'harmonie (1722) fonde la théorie musicale occidentale moderne — référence enseignée encore aujourd'hui dans les conservatoires." },
+  { icon:"🎼", name:"Johann Sebastian Bach",  year:1685, pays:"Allemagne",             cat:"baroque",    decouverte:"Les Variations Goldberg, la Messe en si mineur et l'intégralité des Concertos brandebourgeois", imp:5, heritage:"Souvent considéré comme le plus grand compositeur de l'histoire — sa maîtrise du contrepoint reste un sommet indépassé de la musique occidentale." },
+  { icon:"🎼", name:"Georg Friedrich Haendel",year:1685, pays:"Allemagne / Angleterre",cat:"baroque",    decouverte:"Le Messie — oratorio célèbre pour son « Hallelujah Chorus », composé en seulement 24 jours",  imp:5, heritage:"Compositeur naturalisé anglais, maître de l'oratorio et de l'opéra baroque — son Messie reste joué chaque année à Noël dans le monde entier." },
+  { icon:"🎼", name:"Domenico Scarlatti",     year:1685, pays:"Italie / Espagne",      cat:"baroque",    decouverte:"555 sonates pour clavecin, d'une virtuosité et d'une inventivité harmonique très en avance sur leur temps", imp:4, heritage:"Ses sonates influencent la technique pianistique jusqu'au XXᵉ siècle — pionnier de l'utilisation du clavier comme instrument virtuose à part entière." },
+  { icon:"🎻", name:"Christoph Willibald Gluck", year:1714, pays:"Allemagne / Autriche", cat:"classique",  decouverte:"Orphée et Eurydice — réforme l'opéra en simplifiant l'intrigue au profit de l'expression dramatique", imp:4, heritage:"Sa réforme de l'opéra influence directement Mozart et prépare le passage du baroque tardif au classicisme viennois." },
+  { icon:"🎻", name:"Carl Philipp Emanuel Bach", year:1714, pays:"Allemagne",           cat:"classique",  decouverte:"Symphonies et sonates au style « sensible », marquant la transition entre baroque et classicisme", imp:3, heritage:"Fils de J.S. Bach, très admiré par Haydn et Mozart — pont essentiel entre le style baroque et le classicisme naissant." },
+  { icon:"🎻", name:"Joseph Haydn",           year:1732, pays:"Autriche",              cat:"classique",  decouverte:"104 symphonies et l'oratorio La Création — codifie la forme symphonique et le quatuor à cordes", imp:5, heritage:"Surnommé le « père de la symphonie » et du « quatuor à cordes » — mentor de Beethoven et ami proche de Mozart." },
+  { icon:"🎻", name:"Wolfgang Amadeus Mozart",year:1756, pays:"Autriche",              cat:"classique",  decouverte:"La Flûte enchantée, Don Giovanni et la Symphonie n°40 — plus de 600 œuvres d'une perfection formelle rare", imp:5, heritage:"Enfant prodige devenu génie universel de la musique classique — son œuvre reste un sommet absolu de clarté, d'équilibre et d'émotion." },
+  { icon:"🎻", name:"Antonio Salieri",        year:1750, pays:"Italie / Autriche",     cat:"classique",  decouverte:"Compositeur de cour à Vienne et professeur influent de Beethoven, Schubert et Liszt",         imp:3, heritage:"Longtemps caricaturé en rival jaloux de Mozart par la légende (popularisée par le film Amadeus) — fut en réalité un pédagogue respecté et influent." },
+  { icon:"🎻", name:"Muzio Clementi",         year:1752, pays:"Italie / Angleterre",   cat:"classique",  decouverte:"Sonates pour piano et méthode pédagogique Gradus ad Parnassum, toujours utilisée aujourd'hui", imp:3, heritage:"Surnommé le « père du pianoforte » — ses études techniques restent une référence dans l'apprentissage du piano classique." },
+  { icon:"🎻", name:"Luigi Boccherini",       year:1743, pays:"Italie / Espagne",      cat:"classique",  decouverte:"Quintettes à cordes et le célèbre Menuet, pionnier du répertoire pour violoncelle virtuose",  imp:3, heritage:"Virtuose du violoncelle, enrichit considérablement le répertoire de musique de chambre classique, notamment à la cour d'Espagne." },
+  { icon:"🎻", name:"Ludwig van Beethoven",   year:1770, pays:"Allemagne",             cat:"classique",  decouverte:"La Symphonie n°9 « Ode à la joie », composée alors qu'il était totalement sourd",             imp:5, heritage:"Transition du classicisme au romantisme — sa force expressive et son indépendance créatrice inspirent tous les compositeurs qui lui succèdent." },
+  { icon:"🎻", name:"Franz Schubert",         year:1797, pays:"Autriche",              cat:"classique",  decouverte:"Plus de 600 lieder (mélodies) dont Le Roi des Aulnes, et la Symphonie « Inachevée »",         imp:5, heritage:"Mort à 31 ans après une œuvre immense — élève le lied au rang d'art majeur, pont entre classicisme et romantisme naissant." },
+  { icon:"🎭", name:"Gioachino Rossini",      year:1792, pays:"Italie",                cat:"opera",      decouverte:"Le Barbier de Séville — comédie pétillante à l'ouverture devenue l'une des plus célèbres de l'opéra", imp:5, heritage:"Maître de l'opéra bouffe italien — abandonne l'opéra à 37 ans au sommet de sa gloire pour se consacrer à la gastronomie." },
+  { icon:"🎭", name:"Gaetano Donizetti",      year:1797, pays:"Italie",                cat:"opera",      decouverte:"Lucia di Lammermoor — opéra tragique célèbre pour sa scène de folie vocale vertigineuse",     imp:4, heritage:"Avec Rossini et Bellini, incarne l'âge d'or du bel canto italien — plus de 70 opéras composés en une carrière prolifique." },
+  { icon:"🎹", name:"Frédéric Chopin",        year:1810, pays:"Pologne / France",      cat:"romantique", decouverte:"Nocturnes, Études et Polonaises — répertoire pianistique d'une intimité et d'une virtuosité inégalées", imp:5, heritage:"Compositeur presque exclusivement pour piano solo — élève l'instrument à un niveau de poésie et de nationalisme musical polonais jamais atteint." },
+  { icon:"🎹", name:"Robert Schumann",        year:1810, pays:"Allemagne",             cat:"romantique", decouverte:"Carnaval et Scènes d'enfants — cycles de pièces pour piano d'une intense inspiration littéraire", imp:4, heritage:"Figure centrale du romantisme allemand, critique musical influent — son mariage avec Clara Wieck fait de leur duo un couple mythique de la musique." },
+  { icon:"🎹", name:"Clara Schumann",         year:1819, pays:"Allemagne",             cat:"romantique", decouverte:"Concerto pour piano et Trio avec piano, composés en menant une carrière de concertiste virtuose", imp:4, heritage:"Pianiste virtuose de renommée européenne et compositrice reconnue malgré les obstacles imposés aux femmes de son époque, fait aussi vivre l'œuvre de Brahms et de son mari." },
+  { icon:"🎹", name:"Franz Liszt",            year:1811, pays:"Hongrie",               cat:"romantique", decouverte:"Rhapsodies hongroises et invention du « poème symphonique », genre orchestral narratif nouveau", imp:5, heritage:"Pianiste le plus virtuose de son temps, véritable « rock star » du XIXᵉ siècle — invente le récital de piano solo tel qu'on le connaît." },
+  { icon:"🎹", name:"Felix Mendelssohn",      year:1809, pays:"Allemagne",             cat:"romantique", decouverte:"Le Songe d'une nuit d'été et le Concerto pour violon en mi mineur, d'une élégance classique rare", imp:4, heritage:"Redécouvre et fait rejouer la musique oubliée de Bach au XIXᵉ siècle — sauve ainsi une grande partie du patrimoine musical baroque." },
+  { icon:"🎹", name:"Johannes Brahms",        year:1833, pays:"Allemagne",             cat:"romantique", decouverte:"La Symphonie n°1, longtemps surnommée « la dixième de Beethoven » tant elle en poursuit l'héritage", imp:5, heritage:"Défenseur de la forme classique en pleine ère romantique — considéré comme l'héritier direct de Bach et Beethoven." },
+  { icon:"🎹", name:"Piotr Ilitch Tchaïkovski", year:1840, pays:"Russie",              cat:"romantique", decouverte:"Le Lac des cygnes et Casse-Noisette — ballets devenus les plus joués au monde",               imp:5, heritage:"Compositeur russe le plus populaire à l'international — fusionne le lyrisme romantique occidental avec l'âme mélodique russe." },
+  { icon:"🎹", name:"Antonín Dvořák",         year:1841, pays:"Bohême (Tchéquie actuelle)", cat:"romantique", decouverte:"Symphonie n°9 « Du Nouveau Monde », composée lors de son séjour aux États-Unis",             imp:4, heritage:"Porte-drapeau du nationalisme musical tchèque — intègre folklore slave et influences afro-américaines dans une synthèse originale." },
+  { icon:"🎹", name:"Camille Saint-Saëns",    year:1835, pays:"France",                cat:"romantique", decouverte:"Le Carnaval des animaux et la Symphonie n°3 « avec orgue », d'un raffinement typiquement français", imp:4, heritage:"Prodige précoce et compositeur d'une immense polyvalence — figure centrale du renouveau de la musique française au XIXᵉ siècle." },
+  { icon:"🎭", name:"Giuseppe Verdi",         year:1813, pays:"Italie",                cat:"opera",      decouverte:"La Traviata, Aida et Rigoletto — trilogie d'opéras parmi les plus joués au monde",            imp:5, heritage:"Devient une figure nationale de l'unité italienne — ses chœurs et ses airs restent parmi les plus populaires de tout le répertoire lyrique." },
+  { icon:"🎭", name:"Richard Wagner",         year:1813, pays:"Allemagne",             cat:"opera",      decouverte:"L'Anneau du Nibelung — cycle de quatre opéras monumentaux fondés sur le concept d'« œuvre d'art totale »", imp:5, heritage:"Révolutionne l'opéra par le leitmotiv et l'ampleur orchestrale — influence profondément la musique de film du XXᵉ siècle." },
+  { icon:"🎭", name:"Georges Bizet",          year:1838, pays:"France",                cat:"opera",      decouverte:"Carmen — opéra devenu l'un des plus joués au monde, célèbre pour son « Habanera »",           imp:5, heritage:"Meurt trois mois après la création jugée scandaleuse de Carmen, sans connaître son immense succès posthume et universel." },
+  { icon:"🎭", name:"Giacomo Puccini",        year:1858, pays:"Italie",                cat:"opera",      decouverte:"La Bohème, Madame Butterfly et Tosca — sommets de l'émotion lyrique italienne",               imp:5, heritage:"Dernier grand maître de l'opéra italien traditionnel — son sens mélodique et dramatique reste inégalé sur les scènes lyriques du monde entier." },
+  { icon:"🎺", name:"Gustav Mahler",          year:1860, pays:"Bohême / Autriche",     cat:"moderne",    decouverte:"Symphonie n°2 « Résurrection » — symphonies monumentales mêlant orchestre géant et voix humaine", imp:5, heritage:"Chef d'orchestre visionnaire et compositeur charnière entre romantisme tardif et modernité — redécouvert et vénéré tout au long du XXᵉ siècle." },
+  { icon:"🎺", name:"Claude Debussy",         year:1862, pays:"France",                cat:"moderne",    decouverte:"Clair de lune et Prélude à l'après-midi d'un faune — fondateur de l'impressionnisme musical", imp:5, heritage:"Libère la musique des règles harmoniques classiques au profit de timbres et d'atmosphères — influence directement le jazz et la musique du XXᵉ siècle." },
+  { icon:"🎺", name:"Maurice Ravel",          year:1875, pays:"France",                cat:"moderne",    decouverte:"Le Boléro — crescendo orchestral hypnotique bâti sur une seule mélodie répétée",               imp:5, heritage:"Orchestrateur d'une précision inégalée — le Boléro devient l'une des œuvres classiques les plus jouées et reconnaissables au monde." },
+  { icon:"🎺", name:"Igor Stravinsky",        year:1882, pays:"Russie",                cat:"moderne",    decouverte:"Le Sacre du printemps — ballet dont la création en 1913 déclenche une émeute au théâtre à Paris", imp:5, heritage:"Bouleverse radicalement le rythme et l'harmonie de la musique occidentale — l'une des œuvres les plus influentes de tout le XXᵉ siècle." },
+  { icon:"🎺", name:"Serge Rachmaninov",      year:1873, pays:"Russie",                cat:"moderne",    decouverte:"Concerto pour piano n°2, d'un lyrisme et d'une virtuosité pianistique intensément romantiques", imp:5, heritage:"Dernier grand représentant du romantisme russe au XXᵉ siècle, pianiste virtuose exilé après la révolution — son style influence largement la musique de film hollywoodienne." },
+  { icon:"🎺", name:"Béla Bartók",            year:1881, pays:"Hongrie",               cat:"moderne",    decouverte:"Concerto pour orchestre, fruit de ses recherches ethnomusicologiques sur le folklore d'Europe de l'Est", imp:4, heritage:"Pionnier de l'ethnomusicologie, collecte des milliers de chants populaires — fusionne folklore et modernité dans un langage harmonique novateur." },
+  { icon:"🎺", name:"Serge Prokofiev",        year:1891, pays:"Russie",                cat:"moderne",    decouverte:"Pierre et le Loup — conte musical pédagogique où chaque personnage est incarné par un instrument", imp:5, heritage:"Compositeur soviétique majeur, entre modernisme et lyrisme accessible — Pierre et le Loup reste l'une des œuvres les plus utilisées pour initier les enfants à l'orchestre." },
+  { icon:"🎺", name:"Dmitri Chostakovitch",   year:1906, pays:"Russie (URSS)",         cat:"moderne",    decouverte:"Symphonie n°7 « Leningrad », composée et créée pendant le siège nazi de la ville",             imp:5, heritage:"Compose sous la pression constante de la censure soviétique — son œuvre témoigne du courage artistique face à l'oppression politique du XXᵉ siècle." },
+  { icon:"🎺", name:"George Gershwin",        year:1898, pays:"États-Unis",            cat:"moderne",    decouverte:"Rhapsody in Blue — fusion audacieuse entre jazz et musique classique symphonique",            imp:5, heritage:"Premier compositeur à faire entrer pleinement le jazz dans les salles de concert classiques — pont durable entre musique populaire américaine et tradition savante." },
+  { icon:"🎺", name:"Aaron Copland",          year:1900, pays:"États-Unis",            cat:"moderne",    decouverte:"Appalachian Spring et Fanfare for the Common Man — sonorités devenues l'image musicale de l'Amérique", imp:4, heritage:"Surnommé le « doyen de la musique américaine » — forge un langage orchestral immédiatement identifiable comme profondément américain." },
+  { icon:"🎬", name:"Max Steiner",            year:1888, pays:"Autriche / États-Unis",cat:"film",       decouverte:"Autant en emporte le vent — partition fondatrice de la musique de film symphonique hollywoodienne", imp:4, heritage:"Considéré comme le « père de la musique de film » — établit les codes de la partition orchestrale au service de la narration cinématographique." },
+  { icon:"🎬", name:"Bernard Herrmann",       year:1911, pays:"États-Unis",            cat:"film",       decouverte:"Psychose — les stridents accords de cordes de la scène de la douche, devenus culte à eux seuls", imp:5, heritage:"Collaborateur de longue date d'Alfred Hitchcock — révolutionne l'usage de la musique comme véritable outil de suspense psychologique au cinéma." },
+  { icon:"🎬", name:"Nino Rota",              year:1911, pays:"Italie",                cat:"film",       decouverte:"Le Parrain — thème mélancolique à la trompette devenu l'un des plus reconnaissables du cinéma", imp:5, heritage:"Compositeur fétiche de Fellini et Coppola — incarne l'élégance mélodique du cinéma italien et hollywoodien de la seconde moitié du XXᵉ siècle." },
+  { icon:"🎬", name:"Ennio Morricone",        year:1928, pays:"Italie",                cat:"film",       decouverte:"Le Bon, la Brute et le Truand — thème sifflé devenu l'un des plus célèbres de toute l'histoire du cinéma", imp:5, heritage:"Plus de 500 musiques de film composées — élève la musique de western spaghetti au rang de véritable art symphonique reconnu mondialement." },
+  { icon:"🎬", name:"John Williams",          year:1932, pays:"États-Unis",            cat:"film",       decouverte:"Star Wars et Indiana Jones — thèmes symphoniques devenus une part immédiatement reconnaissable de la culture populaire mondiale", imp:5, heritage:"Compositeur le plus récompensé de l'histoire du cinéma hollywoodien — redonne au grand orchestre symphonique une place centrale dans le cinéma des années 1970." },
+  { icon:"🎬", name:"Danny Elfman",           year:1953, pays:"États-Unis",            cat:"film",       decouverte:"Les Noces funèbres et Edward aux mains d'argent — univers musical gothique et féerique propre à Tim Burton", imp:4, heritage:"Ancien chanteur de rock devenu compositeur incontournable — crée une signature sonore instantanément reconnaissable pour le cinéma fantastique." },
+  { icon:"🎬", name:"Hans Zimmer",            year:1957, pays:"Allemagne",             cat:"film",       decouverte:"Inception et Le Roi Lion — fusion de synthétiseurs électroniques et d'orchestre symphonique massif", imp:5, heritage:"Redéfinit la musique de film contemporaine par son usage novateur des textures électroniques — influence toute une génération de compositeurs hollywoodiens." },
+];
+
+const catLabels = {
+  "baroque":    "🎼 Baroque",
+  "classique":  "🎻 Classique",
+  "romantique": "🎹 Romantique",
+  "opera":      "🎭 Opéra",
+  "moderne":    "🎺 Moderne & XXᵉ siècle",
+  "film":       "🎬 Musique de film"
+};
+
+function formatYear(y) {
+  return y < 0 ? `${Math.abs(y)} av. J.-C.` : `${y}`;
+}
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' compositeur')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${formatYear(d.year)}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Compositeurs affichés : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${formatYear(minYear)} → ${formatYear(maxYear)}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
