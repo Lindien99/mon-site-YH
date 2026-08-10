@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Livres qui ont changé le monde</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:  #2c1a0e;
+    --sepia-mid:   #7a4f2d;
+    --sepia-light: #c9a97a;
+    --parch-bg:    #f5ead3;
+    --parch-card:  #fdf6e3;
+    --ink:         #1e0f05;
+    --gold:        #b8860b;
+    --gold-light:  #d4a843;
+    --red-accent:  #8b2500;
+    --shadow:      rgba(44,26,14,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(44,26,14,0.3);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--sepia-dark); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid #e0d0b0;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: #fef9ee; }
+  tbody tr:nth-child(even) { background: #faf3e0; }
+  tbody tr:nth-child(even):hover { background: #fef9ee; }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+
+  .title-cell {
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--sepia-dark);
+    min-width: 160px;
+  }
+  .year-cell  { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; }
+  .author-cell { color: var(--red-accent); font-size: 0.88rem; min-width: 130px; }
+  .origin-cell { font-size: 0.87rem; color: #4a3520; }
+  .desc-cell   { font-size: 0.85rem; color: #2a2010; font-style: italic; min-width: 260px; }
+
+  /* BADGES GENRE */
+  .gen-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .gen-religion    { color: #6e2a00; background: #fde8d8; border-color: #f5b090; }
+  .gen-philosophie { color: #4a1a6e; background: #f0deff; border-color: #c890e8; }
+  .gen-science     { color: #005a5a; background: #d8f8f5; border-color: #60c8c0; }
+  .gen-litterature { color: #6e001a; background: #ffd8e0; border-color: #f090a8; }
+  .gen-politique   { color: #1a2e6e; background: #dde8ff; border-color: #90b0f0; }
+  .gen-societe     { color: #5a4a00; background: #fff8d0; border-color: #d8c060; }
+
+  /* ÉTOILES IMPACT */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-title {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-title:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-author {
+    color: var(--red-accent);
+    text-decoration: none;
+    border-bottom: 1px dashed #c8855a;
+    transition: color 0.15s;
+  }
+  a.g-author:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  @media (max-width: 750px) {
+    .desc-cell  { display: none; }
+    .origin-cell { display: none; }
+  }
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="btn-back">&#8592; Arts &amp; Culture</a>
+
+<header>
+  <p class="subtitle">— Codex Librorum Mundi —</p>
+  <h1><span class="ornament">📚</span> 50 Livres qui ont changé le monde <span class="ornament">📚</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Des textes sacrés aux manifestes révolutionnaires — l'histoire de la pensée humaine</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="religion">📖 Religion</button>
+  <button class="filter-btn" data-cat="philosophie">🏛️ Philosophie</button>
+  <button class="filter-btn" data-cat="science">🔬 Science</button>
+  <button class="filter-btn" data-cat="litterature">📚 Littérature</button>
+  <button class="filter-btn" data-cat="politique">⚖️ Politique</button>
+  <button class="filter-btn" data-cat="societe">🌍 Société</button>
+</div>
+
+<div class="table-wrap">
+<table id="bookTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Titre <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Auteur(s) <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Genre <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Portée &amp; Influence</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const DATA = [
+  { icon:"📖", title:"La Bible",                                   year:"~1200 av. J.-C. – 100", author:"Auteurs multiples",           origin:"Hébreu / Grec",          cat:"religion",    impact:5, desc:"Fondement du christianisme et du judaïsme, a façonné la morale, les lois et toute la civilisation occidentale." },
+  { icon:"📖", title:"Le Coran",                                   year:"610 – 632",              author:"Mahomet",                     origin:"Arabe",                  cat:"religion",    impact:5, desc:"Texte fondateur de l'islam, guide de vie pour 1,9 milliard de croyants à travers le monde." },
+  { icon:"🎭", title:"L'Iliade & L'Odyssée",                      year:"~800 av. J.-C.",         author:"Homère",                      origin:"Grec (Grèce)",           cat:"litterature", impact:5, desc:"Fondement de la littérature occidentale, modèle du récit héroïque et de l'épopée universelle." },
+  { icon:"⚔️", title:"L'Art de la Guerre",                        year:"~500 av. J.-C.",         author:"Sun Tzu",                     origin:"Chinois",                cat:"politique",   impact:5, desc:"Traité de stratégie militaire fondamental, encore étudié en management, diplomatie et armée." },
+  { icon:"🌸", title:"Tao-tö King",                               year:"~500 av. J.-C.",         author:"Lao-Tseu",                    origin:"Chinois",                cat:"philosophie", impact:5, desc:"Texte fondateur du taoïsme, influence la pensée asiatique et la médecine traditionnelle chinoise." },
+  { icon:"📐", title:"Les Éléments",                              year:"~300 av. J.-C.",         author:"Euclide",                     origin:"Grec (Alexandrie)",      cat:"science",     impact:5, desc:"Manuel de géométrie le plus influent pendant 2 000 ans, modèle universel de rigueur scientifique." },
+  { icon:"🏛️", title:"La République",                            year:"~375 av. J.-C.",         author:"Platon",                      origin:"Grec (Grèce)",           cat:"philosophie", impact:5, desc:"Premier traité sur la justice et le gouvernement idéal, socle de la pensée politique occidentale." },
+  { icon:"🌸", title:"La Divine Comédie",                         year:"1320",                   author:"Dante Alighieri",             origin:"Italien",                cat:"litterature", impact:5, desc:"Chef-d'œuvre médiéval, fonde la langue italienne, représentation de l'au-delà chrétien." },
+  { icon:"🏛️", title:"Utopie",                                   year:"1516",                   author:"Thomas More",                 origin:"Latin (Angleterre)",     cat:"philosophie", impact:4, desc:"Donne son nom à un concept universel, imagine une société idéale, fondement de la pensée socialiste." },
+  { icon:"🎯", title:"Le Prince",                                  year:"1532",                   author:"Nicolas Machiavel",           origin:"Italien",                cat:"politique",   impact:5, desc:"Premier traité de science politique réaliste, révolutionne la conception du pouvoir et de l'État." },
+  { icon:"🧪", title:"Éloge de la folie",                         year:"1511",                   author:"Érasme",                      origin:"Latin (Pays-Bas)",       cat:"philosophie", impact:4, desc:"Satire humaniste de l'Église et du pouvoir, précurseur de la Réforme protestante." },
+  { icon:"🔭", title:"Dialogue sur les deux grands systèmes",     year:"1632",                   author:"Galilée",                     origin:"Italien",                cat:"science",     impact:5, desc:"Défense de l'héliocentrisme, marque le début de la science moderne contre le dogme religieux." },
+  { icon:"💭", title:"Discours de la méthode",                    year:"1637",                   author:"René Descartes",              origin:"Français",               cat:"philosophie", impact:5, desc:"«Je pense, donc je suis» — fondement de la philosophie moderne et de la méthode scientifique." },
+  { icon:"🏛️", title:"L'Éthique",                                year:"1677",                   author:"Baruch Spinoza",              origin:"Latin (Pays-Bas)",       cat:"philosophie", impact:4, desc:"Système philosophique mathématique complet, panthéisme et défense radicale de la liberté de pensée." },
+  { icon:"🍎", title:"Principia Mathematica",                     year:"1687",                   author:"Isaac Newton",                origin:"Latin / Anglais",        cat:"science",     impact:5, desc:"Loi de la gravitation universelle, naissance de la physique classique, révolution scientifique mondiale." },
+  { icon:"🌍", title:"Don Quichotte",                             year:"1605",                   author:"Miguel de Cervantès",         origin:"Espagnol",               cat:"litterature", impact:5, desc:"Premier roman moderne, naissance de l'ironie narrative et du personnage à la psychologie complexe." },
+  { icon:"🎭", title:"Hamlet",                                     year:"1603",                   author:"William Shakespeare",         origin:"Anglais (Angleterre)",   cat:"litterature", impact:5, desc:"Exploration de la psychologie humaine et du doute existentiel — le personnage le plus joué au monde." },
+  { icon:"🌿", title:"L'Esprit des lois",                         year:"1748",                   author:"Montesquieu",                 origin:"Français",               cat:"politique",   impact:5, desc:"Concept de séparation des pouvoirs, fondement des constitutions démocratiques modernes." },
+  { icon:"✍️", title:"Le Contrat Social",                        year:"1762",                   author:"Jean-Jacques Rousseau",       origin:"Français",               cat:"philosophie", impact:5, desc:"Théorie de la souveraineté populaire, a directement inspiré la Révolution française et les démocraties modernes." },
+  { icon:"😄", title:"Candide",                                    year:"1759",                   author:"Voltaire",                    origin:"Français",               cat:"litterature", impact:4, desc:"Chef-d'œuvre du conte philosophique, satire de l'optimisme naïf et des injustices de la société." },
+  { icon:"📚", title:"L'Encyclopédie",                            year:"1751 – 1772",            author:"Diderot & d'Alembert",        origin:"Français",               cat:"philosophie", impact:5, desc:"Monument des Lumières, démocratise le savoir et alimente directement la Révolution française." },
+  { icon:"💰", title:"La Richesse des Nations",                   year:"1776",                   author:"Adam Smith",                  origin:"Anglais (Écosse)",       cat:"politique",   impact:5, desc:"Fondement du capitalisme et de l'économie libérale moderne, influence toujours les politiques mondiales." },
+  { icon:"🗽", title:"Le Sens commun",                            year:"1776",                   author:"Thomas Paine",                origin:"Anglais (USA)",          cat:"politique",   impact:4, desc:"Pamphlet qui convainc les Américains de déclarer l'indépendance, bestseller révolutionnaire." },
+  { icon:"🌐", title:"La Déclaration d'indépendance",            year:"1776",                   author:"Thomas Jefferson",            origin:"Anglais (USA)",          cat:"politique",   impact:5, desc:"«Tous les hommes sont créés égaux» — fonde la démocratie américaine et inspire les révolutions mondiales." },
+  { icon:"🏰", title:"Faust",                                      year:"1808",                   author:"Johann Wolfgang von Goethe",  origin:"Allemand",               cat:"litterature", impact:4, desc:"Chef-d'œuvre de la littérature allemande, archétype de la quête du savoir au prix de l'âme." },
+  { icon:"🌿", title:"De la démocratie en Amérique",             year:"1835",                   author:"Alexis de Tocqueville",       origin:"Français",               cat:"politique",   impact:4, desc:"Analyse lumineuse de la démocratie libérale, toujours pertinente sur les risques du populisme." },
+  { icon:"📜", title:"Le Manifeste du Parti communiste",         year:"1848",                   author:"Marx & Engels",               origin:"Allemand",               cat:"politique",   impact:5, desc:"«Un spectre hante l'Europe» — texte le plus influent du mouvement ouvrier et révolutionnaire mondial." },
+  { icon:"🌺", title:"Les Mille et Une Nuits",                    year:"~800 – 1500",            author:"Anonyme",                     origin:"Arabe / Persan",         cat:"litterature", impact:4, desc:"Trésor littéraire arabo-persan, influence la littérature mondiale, Shéhérazade symbole du récit." },
+  { icon:"🌸", title:"Les Fleurs du Mal",                         year:"1857",                   author:"Charles Baudelaire",          origin:"Français",               cat:"litterature", impact:4, desc:"Révolution poétique, naissance du symbolisme, scandale et beauté de la modernité littéraire française." },
+  { icon:"💡", title:"De la liberté",                             year:"1859",                   author:"John Stuart Mill",            origin:"Anglais",                cat:"philosophie", impact:4, desc:"Défense de la liberté individuelle face au pouvoir collectif, pilier du libéralisme politique moderne." },
+  { icon:"🔬", title:"De l'origine des espèces",                 year:"1859",                   author:"Charles Darwin",              origin:"Anglais",                cat:"science",     impact:5, desc:"Théorie de l'évolution, bouleverse la biologie, la religion et la compréhension de l'être humain." },
+  { icon:"📖", title:"Crime et Châtiment",                        year:"1866",                   author:"Fiodor Dostoïevski",          origin:"Russe",                  cat:"litterature", impact:5, desc:"Roman psychologique fondateur, explore la culpabilité, la rédemption et la conscience morale." },
+  { icon:"📜", title:"Le Capital",                                year:"1867",                   author:"Karl Marx",                   origin:"Allemand",               cat:"politique",   impact:5, desc:"Analyse critique du capitalisme, base théorique du communisme et du socialisme du XXe siècle." },
+  { icon:"☮️", title:"Guerre et Paix",                            year:"1869",                   author:"Léon Tolstoï",                origin:"Russe",                  cat:"litterature", impact:5, desc:"Fresque monumentale, modèle ultime du roman réaliste, vision profonde de l'âme humaine et de l'Histoire." },
+  { icon:"🎭", title:"Les Misérables",                            year:"1862",                   author:"Victor Hugo",                 origin:"Français",               cat:"litterature", impact:5, desc:"Roman-cathédrale, dénonce les inégalités sociales, a inspiré les mouvements humanistes du monde entier." },
+  { icon:"📘", title:"Ainsi parlait Zarathoustra",                year:"1883 – 1885",            author:"Friedrich Nietzsche",         origin:"Allemand",               cat:"philosophie", impact:4, desc:"«Dieu est mort», volonté de puissance, surhomme — révolution radicale de la pensée philosophique." },
+  { icon:"🧠", title:"L'Interprétation des rêves",               year:"1900",                   author:"Sigmund Freud",               origin:"Allemand (Autriche)",    cat:"science",     impact:5, desc:"Fondation de la psychanalyse, révèle l'inconscient comme moteur caché de la psyché humaine." },
+  { icon:"⚡", title:"La Relativité",                             year:"1905 – 1915",            author:"Albert Einstein",             origin:"Allemand",               cat:"science",     impact:5, desc:"E=mc², révolution de la physique moderne, base de l'énergie nucléaire et de la cosmologie." },
+  { icon:"🌊", title:"Ulysse",                                     year:"1922",                   author:"James Joyce",                 origin:"Anglais (Irlande)",      cat:"litterature", impact:4, desc:"Révolution du roman moderne, flux de conscience, influence majeure sur la littérature du XXe siècle." },
+  { icon:"🔥", title:"Le Meilleur des mondes",                    year:"1932",                   author:"Aldous Huxley",               origin:"Anglais",                cat:"litterature", impact:4, desc:"Dystopie du bonheur forcé et de la manipulation génétique, d'une actualité troublante au XXIe siècle." },
+  { icon:"🌺", title:"Le Petit Prince",                           year:"1943",                   author:"Antoine de Saint-Exupéry",    origin:"Français",               cat:"litterature", impact:5, desc:"Fable poétique sur l'amour et la pureté de l'enfance, traduite en plus de 300 langues." },
+  { icon:"🐷", title:"La Ferme des animaux",                      year:"1945",                   author:"George Orwell",               origin:"Anglais",                cat:"litterature", impact:5, desc:"Allégorie du totalitarisme soviétique, pamphlet politique universel d'une efficacité redoutable." },
+  { icon:"📝", title:"Le Journal d'Anne Frank",                   year:"1947",                   author:"Anne Frank",                  origin:"Néerlandais",            cat:"societe",     impact:5, desc:"Témoignage bouleversant de la Shoah, symbole mondial de la résilience et du devoir de mémoire." },
+  { icon:"⚖️", title:"La Peste",                                  year:"1947",                   author:"Albert Camus",                origin:"Français",               cat:"litterature", impact:4, desc:"Allégorie de l'occupation nazie, réflexion sur la solidarité humaine face à l'absurde et à la mort." },
+  { icon:"👁️", title:"1984",                                      year:"1949",                   author:"George Orwell",               origin:"Anglais",                cat:"litterature", impact:5, desc:"Dystopie prophétique sur la surveillance totalitaire, Big Brother est entré dans le langage commun." },
+  { icon:"👩", title:"Le Deuxième Sexe",                          year:"1949",                   author:"Simone de Beauvoir",          origin:"Français",               cat:"philosophie", impact:5, desc:"Manifeste fondateur du féminisme moderne : «On ne naît pas femme, on le devient.»" },
+  { icon:"🧙", title:"Le Seigneur des Anneaux",                   year:"1954 – 1955",            author:"J.R.R. Tolkien",              origin:"Anglais",                cat:"litterature", impact:4, desc:"Fondation de la fantasy moderne, a inventé un genre littéraire entier et créé des langues complètes." },
+  { icon:"🌱", title:"Printemps silencieux",                      year:"1962",                   author:"Rachel Carson",               origin:"Anglais (USA)",          cat:"science",     impact:5, desc:"Déclenche le mouvement écologiste mondial, mène à l'interdiction du DDT et à la création de l'EPA." },
+  { icon:"🦠", title:"La Structure des révolutions scientifiques", year:"1962",                  author:"Thomas S. Kuhn",              origin:"Anglais (USA)",          cat:"science",     impact:4, desc:"Introduit le concept de «paradigme», révolutionne la philosophie des sciences et de la connaissance." },
+  { icon:"🧬", title:"La Double Hélice",                          year:"1968",                   author:"James D. Watson",             origin:"Anglais (USA)",          cat:"science",     impact:4, desc:"Récit de la découverte de l'ADN, structure de la vie dévoilée, révolution de la biologie moléculaire." },
+  { icon:"🌍", title:"Un long chemin vers la liberté",           year:"1994",                   author:"Nelson Mandela",              origin:"Anglais (Afrique du Sud)",cat:"societe",    impact:4, desc:"Autobiographie d'une icône de la lutte contre l'apartheid, symbole universel de réconciliation." },
+];
+
+const genLabels = {
+  "religion":"📖 Religion","philosophie":"🏛️ Philosophie","science":"🔬 Science",
+  "litterature":"📚 Littérature","politique":"⚖️ Politique","societe":"🌍 Société"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
+
+function genBadge(cat) {
+  return `<span class="gen-badge gen-${cat}">${genLabels[cat] || cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a, b) => {
+    let va, vb;
+    switch (sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.title;  vb = b.title;  break;
+      case 3: va = a.year;   vb = b.year;   break;
+      case 4: va = a.author; vb = b.author; break;
+      case 5: va = a.origin; vb = b.origin; break;
+      case 6: va = a.cat;    vb = b.cat;    break;
+      case 7: va = a.impact; vb = b.impact; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d, i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i + 1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="title-cell"><a class="g-title" href="${G}${q(d.title + ' livre')}" target="_blank" rel="noopener noreferrer">${d.title}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${d.year}</td>
+      <td class="author-cell"><a class="g-author" href="${G}${q(d.author)}" target="_blank" rel="noopener noreferrer">${d.author}<sup class="arr"> ↗</sup></a></td>
+      <td class="origin-cell">${d.origin}</td>
+      <td>${genBadge(d.cat)}</td>
+      <td class="stars" title="${d.impact}/5">${stars(d.impact)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d => d.impact === 5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Livres affichés : <span>${rows.length}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Plus ancien texte : <span>La Bible (~1200 av. J.-C.)</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
