@@ -1,0 +1,466 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Œuvres d'Art qui ont Marqué l'Humanité</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sepia-dark:   #0d1b2a;
+    --sepia-mid:    #1e4d7a;
+    --sepia-light:  #5b8db5;
+    --parch-bg:     #f0f5fb;
+    --parch-card:   #f8fafd;
+    --ink:          #0d1b2a;
+    --gold:         #b8860b;
+    --gold-light:   #d4a843;
+    --blue-accent:  #1a3a6a;
+    --shadow:       rgba(13,27,42,0.15);
+    --row-border:   #c8d8ea;
+    --row-hover:    #ecf3fb;
+    --row-even:     #f0f6fb;
+    --pays-color:   #2a3a4a;
+    --heritage-color: #1a2a3a;
+    --pays-border:  #88a8c8;
+    --noise-opacity: 0.05;
+    --header-bg: #0d1b2a;
+  }
+
+  [data-theme="dark"] {
+    --sepia-dark:   #e8d9b5;
+    --sepia-mid:    #a8c8e8;
+    --sepia-light:  #4a6a8a;
+    --parch-bg:     #10161f;
+    --parch-card:   #1a2230;
+    --ink:          #e8e4d8;
+    --gold:         #d4a843;
+    --gold-light:   #e8c878;
+    --blue-accent:  #7aa8e0;
+    --shadow:       rgba(0,0,0,0.5);
+    --row-border:   #2a3444;
+    --row-hover:    #232d3d;
+    --row-even:     #1e2733;
+    --pays-color:   #c8d4e0;
+    --heritage-color: #b8c4d0;
+    --pays-border:  #3a5a7a;
+    --noise-opacity: 0.03;
+    --header-bg: #060a12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--parch-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='var(--noise-opacity)'/%3E%3C/svg%3E");
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  header { text-align: center; margin-bottom: 2.8rem; }
+  header::before, header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0.5rem auto;
+    width: 60%;
+  }
+  .subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--sepia-mid);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--sepia-dark);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-shadow: 1px 2px 6px var(--shadow);
+  }
+  .ornament { color: var(--gold); font-size: 1.3em; }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--sepia-light);
+    background: var(--parch-card);
+    color: var(--sepia-mid);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sepia-dark);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid var(--sepia-light);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px var(--shadow), inset -12px 0 12px -12px rgba(13,27,42,0.2);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--parch-card); font-size: 0.95rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    padding: 0.9rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold);
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: #fff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--row-border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.7rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    color: var(--sepia-light);
+    text-align: center;
+    width: 2.8rem;
+  }
+  .icon-cell       { text-align: center; font-size: 1.35rem; width: 2.8rem; }
+  .name-cell       { font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 600; color: var(--sepia-dark); min-width: 200px; }
+  .year-cell       { font-style: italic; color: var(--sepia-mid); font-size: 0.86rem; white-space: nowrap; text-align: center; }
+  .pays-cell       { font-size: 0.86rem; color: var(--pays-color); white-space: nowrap; }
+  .decouverte-cell { color: var(--blue-accent); font-size: 0.86rem; min-width: 200px; font-weight: 500; }
+  .heritage-cell   { font-size: 0.85rem; color: var(--heritage-color); font-style: italic; min-width: 200px; }
+
+  /* BADGES CATÉGORIE */
+  .cat-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.63rem;
+    letter-spacing: 0.07em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .cat-peinture     { color: #002277; background: #dce6ff; border-color: #7799dd; }
+  .cat-sculpture    { color: #1a5200; background: #d0f0d0; border-color: #55aa55; }
+  .cat-architecture { color: #7a0000; background: #ffe4e4; border-color: #dd7777; }
+  .cat-musique      { color: #44007a; background: #f0dcff; border-color: #aa66cc; }
+  .cat-litterature  { color: #00524a; background: #d4f5ee; border-color: #44aa99; }
+  .cat-cinema       { color: #7a4400; background: #fff3d0; border-color: #cc9933; }
+
+  /* ÉTOILES */
+  .stars { color: var(--gold); font-size: 1rem; letter-spacing: 0.04em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--sepia-light);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  a.g-pays {
+    color: var(--pays-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--pays-border);
+    transition: color 0.15s;
+  }
+  a.g-pays:hover { color: var(--sepia-dark); border-bottom-color: var(--sepia-dark); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1300px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat { font-family: 'Cinzel', serif; font-size: 0.76rem; color: var(--sepia-mid); letter-spacing: 0.07em; }
+  .stat span { color: var(--sepia-dark); font-weight: 600; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sepia-mid);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.25s;
+  }
+  .btn-back:hover { opacity: 1; }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.1rem;
+    border: 1.5px solid var(--gold);
+    background: var(--parch-card);
+    color: var(--sepia-dark);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .theme-toggle:hover { background: var(--header-bg); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Arts &amp; Culture</a>
+
+<header>
+  <p class="subtitle">— Ars Aeterna —</p>
+  <h1><span class="ornament">🎨</span> 50 Œuvres d'Art qui ont Marqué l'Humanité <span class="ornament">🏛️</span></h1>
+  <p class="subtitle" style="margin-top:0.4rem">Les créations qui ont façonné la culture et la sensibilité humaines — de la préhistoire à nos jours</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="peinture">🎨 Peinture</button>
+  <button class="filter-btn" data-cat="sculpture">🗿 Sculpture</button>
+  <button class="filter-btn" data-cat="architecture">🏛️ Architecture</button>
+  <button class="filter-btn" data-cat="musique">🎵 Musique</button>
+  <button class="filter-btn" data-cat="litterature">📖 Littérature</button>
+  <button class="filter-btn" data-cat="cinema">🎬 Cinéma</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Œuvre <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Époque <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Pays <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Domaine <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Ce que l'œuvre représente <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Impact &amp; Héritage</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-oeuvres-art') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-oeuvres-art', next);
+});
+
+const DATA = [
+  { icon:"🎨", name:"Peintures rupestres de Lascaux",                     year:-17000, pays:"France",                cat:"peinture",     decouverte:"Fresques polychromes représentant chevaux, aurochs et cerfs sur les parois d'une grotte",           imp:5, heritage:"Plus ancien témoignage majeur de l'art figuratif humain — révèle une pensée symbolique déjà pleinement développée il y a 17 000 ans." },
+  { icon:"🏛️", name:"Les pyramides de Gizeh",                             year:-2560, pays:"Égypte",                 cat:"architecture", decouverte:"Complexe funéraire monumental construit pour les pharaons, avec une précision géométrique inégalée pour l'époque", imp:5, heritage:"Dernière merveille du monde antique encore debout — symbole universel de la puissance de l'ingénierie et de la civilisation égyptienne." },
+  { icon:"🗿", name:"Le buste de Néfertiti",                              year:-1345, pays:"Égypte",                 cat:"sculpture",    decouverte:"Portrait sculpté d'une élégance et d'un réalisme exceptionnels, attribué à l'atelier du sculpteur Thoutmôsis", imp:4, heritage:"Devenu une icône mondiale de la beauté antique — l'un des objets les plus visités du musée de Berlin, symbole de la maîtrise artistique égyptienne." },
+  { icon:"📖", name:"L'Odyssée (Homère)",                                 year:-800, pays:"Grèce antique",          cat:"litterature",  decouverte:"Épopée du retour d'Ulysse après la guerre de Troie, mêlant aventure, ruse et destin humain",        imp:5, heritage:"Fondement de la littérature occidentale — ses figures et récits irriguent encore la culture, le cinéma et la langue courante 28 siècles plus tard." },
+  { icon:"🏛️", name:"Le Parthénon",                                       year:-447, pays:"Grèce",                  cat:"architecture", decouverte:"Temple dédié à Athéna sur l'Acropole d'Athènes, chef-d'œuvre de proportions et de sculpture architecturale", imp:5, heritage:"Symbole absolu de la démocratie athénienne et de l'architecture classique — modèle de référence pour d'innombrables monuments occidentaux." },
+  { icon:"🗿", name:"La Vénus de Milo",                                   year:-130, pays:"Grèce",                  cat:"sculpture",    decouverte:"Statue de marbre représentant Aphrodite, célèbre pour ses bras manquants et l'équilibre parfait de sa posture", imp:5, heritage:"Icône de la beauté classique conservée au Louvre — l'une des sculptures antiques les plus reproduites et étudiées au monde." },
+  { icon:"🏛️", name:"Le Colisée de Rome",                                  year:70,   pays:"Italie",                 cat:"architecture", decouverte:"Amphithéâtre monumental pouvant accueillir plus de 50 000 spectateurs pour combats et spectacles publics", imp:5, heritage:"Prouesse d'ingénierie romaine encore debout après deux millénaires — modèle des stades et arènes modernes à travers le monde." },
+  { icon:"🗿", name:"L'armée en terre cuite de Xi'an",                    year:-210, pays:"Chine",                  cat:"sculpture",    decouverte:"Plus de 8000 soldats, chevaux et chars en terre cuite grandeur nature, chacun au visage distinct, gardant le tombeau du premier empereur", imp:5, heritage:"Découverte archéologique majeure de 1974 — témoigne d'une maîtrise artisanale et logistique exceptionnelle de la Chine antique." },
+  { icon:"🏛️", name:"La Grande Muraille de Chine",                        year:-700, pays:"Chine",                  cat:"architecture", decouverte:"Réseau de fortifications s'étendant sur des milliers de kilomètres pour protéger les frontières nord de la Chine", imp:5, heritage:"Plus grand ouvrage défensif jamais construit par l'humanité — symbole national chinois inscrit au patrimoine mondial de l'UNESCO." },
+  { icon:"🏛️", name:"Angkor Vat",                                         year:1113, pays:"Cambodge",               cat:"architecture", decouverte:"Vaste temple-montagne dédié à Vishnou, orné de bas-reliefs narratifs sur plus d'un kilomètre",         imp:5, heritage:"Plus grand monument religieux du monde — chef-d'œuvre de l'architecture khmère, aujourd'hui emblème national du Cambodge." },
+  { icon:"🏛️", name:"Le Machu Picchu",                                    year:1450, pays:"Pérou",                  cat:"architecture", decouverte:"Cité inca perchée à 2430 mètres d'altitude, bâtie en blocs de pierre taillés sans mortier avec une précision remarquable", imp:5, heritage:"Vestige le mieux préservé de la civilisation inca — symbole du Pérou et l'un des sites archéologiques les plus visités au monde." },
+  { icon:"📖", name:"La Divine Comédie (Dante)",                          year:1308, pays:"Italie",                 cat:"litterature",  decouverte:"Voyage poétique à travers l'Enfer, le Purgatoire et le Paradis, écrit en langue vernaculaire plutôt qu'en latin", imp:5, heritage:"Fonde la littérature italienne moderne — son imaginaire de l'au-delà influence durablement l'art, la théologie et la culture occidentale." },
+  { icon:"🏛️", name:"La cathédrale Notre-Dame de Paris",                  year:1163, pays:"France",                 cat:"architecture", decouverte:"Chef-d'œuvre de l'architecture gothique, avec ses arcs-boutants, ses rosaces et ses voûtes d'ogives",  imp:5, heritage:"Symbole de Paris et de l'art gothique — son incendie de 2019 et sa reconstruction ont montré l'attachement mondial à ce monument." },
+  { icon:"📖", name:"Hamlet (Shakespeare)",                               year:1600, pays:"Angleterre",             cat:"litterature",  decouverte:"Tragédie du prince danois tourmenté par le doute, la vengeance et la folie feinte",                 imp:5, heritage:"Œuvre la plus étudiée et adaptée du théâtre occidental — ses répliques et son introspection psychologique restent une référence universelle." },
+  { icon:"📖", name:"Don Quichotte (Cervantès)",                          year:1605, pays:"Espagne",                cat:"litterature",  decouverte:"Aventures d'un hidalgo qui, à force de lire des romans de chevalerie, part combattre des moulins à vent", imp:5, heritage:"Considéré comme le premier roman moderne — a donné à la langue universelle l'expression « combattre des moulins à vent »." },
+  { icon:"🎨", name:"La Naissance de Vénus (Botticelli)",                 year:1485, pays:"Italie",                 cat:"peinture",     decouverte:"Vénus émergeant d'un coquillage, incarnation picturale de l'idéal de beauté de la Renaissance italienne", imp:5, heritage:"Icône absolue de la Renaissance florentine — parmi les images les plus reproduites de l'histoire de l'art occidental." },
+  { icon:"🗿", name:"Le David (Michel-Ange)",                             year:1501, pays:"Italie",                 cat:"sculpture",    decouverte:"Statue de marbre de 5,17 mètres représentant le héros biblique juste avant son combat contre Goliath", imp:5, heritage:"Sommet de la sculpture Renaissance — symbole de la cité de Florence et de la maîtrise anatomique retrouvée de l'art antique." },
+  { icon:"🗿", name:"La Pietà (Michel-Ange)",                             year:1499, pays:"Italie",                 cat:"sculpture",    decouverte:"Marie tenant sur ses genoux le corps du Christ, sculptée dans un seul bloc de marbre avec un réalisme bouleversant", imp:5, heritage:"Seule œuvre signée par Michel-Ange — chef-d'œuvre de la basilique Saint-Pierre, référence absolue de l'art sacré occidental." },
+  { icon:"🎨", name:"La Joconde (Léonard de Vinci)",                      year:1503, pays:"Italie",                 cat:"peinture",     decouverte:"Portrait à l'énigmatique sourire, célèbre pour sa technique du sfumato estompant les contours",       imp:5, heritage:"Tableau le plus célèbre et le plus visité au monde, exposé au Louvre — symbole universel de l'art occidental." },
+  { icon:"🎨", name:"Le plafond de la chapelle Sixtine (Michel-Ange)",    year:1508, pays:"Italie (Vatican)",       cat:"peinture",     decouverte:"Fresque monumentale narrant la Genèse, peinte allongé sur un échafaudage pendant plus de quatre ans", imp:5, heritage:"Sommet de la peinture de la Renaissance — visitée par des millions de personnes chaque année, référence absolue de l'art religieux." },
+  { icon:"🎨", name:"Les Ménines (Vélasquez)",                            year:1656, pays:"Espagne",                cat:"peinture",     decouverte:"Scène de cour complexe jouant sur les points de vue, où le peintre s'inclut lui-même face à un miroir énigmatique", imp:5, heritage:"Considéré comme l'un des tableaux les plus analysés de l'histoire de l'art — a influencé Picasso, Dalí et de nombreux artistes modernes." },
+  { icon:"🎨", name:"La Ronde de nuit (Rembrandt)",                       year:1642, pays:"Pays-Bas",               cat:"peinture",     decouverte:"Portrait de groupe milicien saisi en plein mouvement, révolutionnaire par son usage dramatique de la lumière", imp:5, heritage:"Rompt avec la tradition figée du portrait collectif — chef-d'œuvre du Rijksmuseum, sommet du siècle d'or néerlandais." },
+  { icon:"🎨", name:"La Jeune Fille à la perle (Vermeer)",                year:1665, pays:"Pays-Bas",               cat:"peinture",     decouverte:"Portrait intime d'une jeune femme se retournant, surnommé la « Joconde du Nord » pour son mystère",   imp:5, heritage:"Devenu une icône populaire mondiale, popularisée par le roman et le film éponymes — chef-d'œuvre du siècle d'or hollandais." },
+  { icon:"🏛️", name:"Le Taj Mahal",                                      year:1632, pays:"Inde",                   cat:"architecture", decouverte:"Mausolée de marbre blanc édifié par l'empereur moghol Shah Jahan à la mémoire de son épouse défunte", imp:5, heritage:"Symbole universel de l'amour éternel — chef-d'œuvre de l'architecture moghole classé au patrimoine mondial de l'UNESCO." },
+  { icon:"🎵", name:"Les Quatre Saisons (Vivaldi)",                       year:1725, pays:"Italie",                 cat:"musique",      decouverte:"Quatre concertos pour violon décrivant musicalement le printemps, l'été, l'automne et l'hiver",       imp:5, heritage:"Une des œuvres de musique classique les plus jouées au monde — pionnière de la musique à programme (musique évoquant une scène ou une image)." },
+  { icon:"🎵", name:"La Flûte enchantée (Mozart)",                        year:1791, pays:"Autriche",               cat:"musique",      decouverte:"Opéra féerique mêlant magie, épreuves initiatiques et idéaux maçonniques, sur un livret en allemand accessible au grand public", imp:4, heritage:"Dernier opéra de Mozart, composé l'année de sa mort — reste l'un des opéras les plus joués et les plus populaires du répertoire mondial." },
+  { icon:"🎵", name:"Symphonie n°9 (Beethoven)",                          year:1824, pays:"Autriche",               cat:"musique",      decouverte:"Première grande symphonie intégrant un chœur et des voix solistes, sur l'« Ode à la joie » de Schiller", imp:5, heritage:"Composée alors que Beethoven était totalement sourd — l'« Ode à la joie » est devenue l'hymne officiel de l'Union européenne." },
+  { icon:"🎨", name:"Le Radeau de la Méduse (Géricault)",                 year:1819, pays:"France",                cat:"peinture",     decouverte:"Scène tragique de naufragés à la dérive, inspirée d'un fait divers réel qui scandalisa la France",   imp:5, heritage:"Manifeste du romantisme français — dénonce un scandale politique de son époque à travers une composition d'un réalisme bouleversant." },
+  { icon:"🎨", name:"La Liberté guidant le peuple (Delacroix)",           year:1830, pays:"France",                cat:"peinture",     decouverte:"Allégorie de la Liberté menant le peuple insurgé, sein nu et drapeau tricolore à la main, sur les barricades", imp:5, heritage:"Devenue l'image la plus emblématique de la France révolutionnaire — reproduite sur les billets de banque et dans l'imaginaire national." },
+  { icon:"🎨", name:"La Grande Vague de Kanagawa (Hokusai)",              year:1831, pays:"Japon",                 cat:"peinture",     decouverte:"Estampe montrant une vague monumentale menaçant des barques, avec le mont Fuji en arrière-plan",      imp:5, heritage:"Image japonaise la plus reconnue au monde — a profondément influencé les impressionnistes européens et la culture visuelle mondiale." },
+  { icon:"🎨", name:"Impression, soleil levant (Monet)",                  year:1872, pays:"France",                cat:"peinture",     decouverte:"Vue portuaire au lever du soleil peinte par touches rapides et visibles, privilégiant l'impression lumineuse au détail", imp:5, heritage:"Donne son nom au mouvement impressionniste — marque une rupture décisive avec la peinture académique du XIXᵉ siècle." },
+  { icon:"🏛️", name:"La Tour Eiffel (Gustave Eiffel)",                    year:1889, pays:"France",                cat:"architecture", decouverte:"Tour métallique de 300 mètres construite pour l'Exposition universelle, prouesse d'ingénierie en fer puddlé", imp:5, heritage:"D'abord critiquée par des artistes parisiens, devient le monument payant le plus visité au monde et symbole absolu de la France." },
+  { icon:"🎨", name:"La Nuit étoilée (Van Gogh)",                         year:1889, pays:"France",                cat:"peinture",     decouverte:"Ciel nocturne tourbillonnant peint depuis la fenêtre de son asile de Saint-Rémy-de-Provence",         imp:5, heritage:"Une des œuvres les plus reproduites de l'histoire de l'art — symbole de l'intensité émotionnelle et du génie tourmenté de Van Gogh." },
+  { icon:"🗿", name:"La Statue de la Liberté (Bartholdi)",                year:1886, pays:"France / États-Unis",   cat:"sculpture",    decouverte:"Statue monumentale en cuivre repoussé offerte par la France aux États-Unis pour célébrer l'amitié entre les deux nations", imp:5, heritage:"Symbole mondial de la liberté et de l'accueil des immigrants — l'une des sculptures les plus reconnaissables de la planète." },
+  { icon:"🎨", name:"Le Cri (Munch)",                                    year:1893, pays:"Norvège",                cat:"peinture",     decouverte:"Figure au visage déformé hurlant sous un ciel rouge tourbillonnant, expression picturale de l'angoisse existentielle", imp:5, heritage:"Devenu symbole universel de l'anxiété moderne — image la plus parodiée et détournée de l'histoire de l'art." },
+  { icon:"🎬", name:"Le Voyage dans la Lune (Méliès)",                    year:1902, pays:"France",                cat:"cinema",       decouverte:"Premier film de science-fiction narratif, avec trucages en incrustation et image devenue culte de la fusée dans l'œil de la Lune", imp:5, heritage:"Fonde le cinéma de fiction et les effets spéciaux — Georges Méliès invente le langage du cinéma narratif dès les débuts du 7ᵉ art." },
+  { icon:"🗿", name:"Le Penseur (Rodin)",                                 year:1904, pays:"France",                cat:"sculpture",    decouverte:"Homme nu assis, menton sur la main, plongé dans une intense méditation intérieure",                  imp:4, heritage:"Devenue l'image universelle de la réflexion philosophique — l'une des sculptures les plus reproduites et parodiées au monde." },
+  { icon:"🎨", name:"Les Demoiselles d'Avignon (Picasso)",                year:1907, pays:"France",                cat:"peinture",     decouverte:"Cinq figures féminines aux formes anguleuses et fragmentées, inspirées de l'art africain et ibérique", imp:5, heritage:"Considérée comme l'acte de naissance du cubisme — rupture radicale avec la perspective classique héritée de la Renaissance." },
+  { icon:"🎨", name:"Le Baiser (Klimt)",                                  year:1908, pays:"Autriche",              cat:"peinture",     decouverte:"Couple enlacé enveloppé d'ornements dorés géométriques, fusion du corps et du décor",                imp:5, heritage:"Œuvre emblématique de la Sécession viennoise — l'un des tableaux les plus reproduits sur affiches, produits dérivés et cartes postales." },
+  { icon:"🎬", name:"Metropolis (Fritz Lang)",                            year:1927, pays:"Allemagne",             cat:"cinema",       decouverte:"Fresque de science-fiction muette dépeignant une mégapole futuriste divisée entre élite et ouvriers opprimés", imp:5, heritage:"Fonde visuellement l'imaginaire de la science-fiction urbaine — son esthétique influence encore Blade Runner et le cinéma futuriste contemporain." },
+  { icon:"🎨", name:"Composition VIII (Kandinsky)",                       year:1923, pays:"Russie / Allemagne",    cat:"peinture",     decouverte:"Composition purement abstraite de formes géométriques et de couleurs, sans aucune référence au réel", imp:4, heritage:"Kandinsky, pionnier de l'art abstrait, théorise la peinture comme langage autonome de formes et de couleurs, libéré de la représentation." },
+  { icon:"📖", name:"American Gothic (Grant Wood)",                       year:1930, pays:"États-Unis",            cat:"peinture",     decouverte:"Portrait rigide d'un fermier et sa fille devant leur maison à fenêtre gothique, fourche à la main",  imp:4, heritage:"Devenue l'image la plus parodiée de l'art américain — symbole ambivalent de la ruralité et des valeurs traditionnelles des États-Unis." },
+  { icon:"🎨", name:"La Persistance de la mémoire (Dalí)",                year:1931, pays:"Espagne",               cat:"peinture",     decouverte:"Montres molles fondant dans un paysage désertique onirique, image la plus célèbre du surréalisme",   imp:5, heritage:"Icône absolue du mouvement surréaliste — popularise l'idée d'un art puisant directement dans l'inconscient et les rêves." },
+  { icon:"🎨", name:"Les Nymphéas (Monet)",                               year:1914, pays:"France",                cat:"peinture",     decouverte:"Vaste cycle de grands panneaux peints représentant son jardin d'eau à Giverny, presque abstrait par endroits", imp:5, heritage:"Aboutissement de l'impressionnisme, aux frontières de l'abstraction — installés en cycle immersif à l'Orangerie, précurseurs de l'art contemplatif moderne." },
+  { icon:"🎨", name:"Guernica (Picasso)",                                 year:1937, pays:"Espagne / France",      cat:"peinture",     decouverte:"Grande toile monochrome dénonçant le bombardement de la ville basque de Guernica pendant la guerre civile espagnole", imp:5, heritage:"Devenue le symbole universel de la dénonciation de la guerre — exposée en permanence au musée Reina Sofía de Madrid." },
+  { icon:"🎬", name:"Citizen Kane (Orson Welles)",                        year:1941, pays:"États-Unis",            cat:"cinema",       decouverte:"Ascension et chute d'un magnat de la presse racontées par flashbacks fragmentés et plans en profondeur de champ", imp:5, heritage:"Régulièrement classé meilleur film de l'histoire du cinéma par la critique — révolutionne le langage narratif et visuel du 7ᵉ art." },
+  { icon:"🎬", name:"Casablanca",                                         year:1942, pays:"États-Unis",            cat:"cinema",       decouverte:"Romance et dilemme moral sur fond de Seconde Guerre mondiale dans un café d'Afrique du Nord",        imp:4, heritage:"Devenu un classique intemporel du cinéma hollywoodien — ses répliques et sa chanson figurent parmi les plus célèbres de l'histoire du cinéma." },
+  { icon:"🎬", name:"2001, l'Odyssée de l'espace (Kubrick)",              year:1968, pays:"États-Unis / Royaume-Uni", cat:"cinema",     decouverte:"Fresque de science-fiction contemplative sur l'évolution humaine, l'intelligence artificielle et l'exploration spatiale", imp:5, heritage:"Redéfinit les effets spéciaux et l'ambition narrative de la science-fiction au cinéma — influence durablement le genre jusqu'à aujourd'hui." },
+  { icon:"🏛️", name:"L'Opéra de Sydney (Jørn Utzon)",                    year:1973, pays:"Australie",              cat:"architecture", decouverte:"Toiture en voiles de béton blanc évoquant des coquillages ou des voiles de bateau, prouesse technique pour son époque", imp:5, heritage:"Symbole architectural de l'Australie moderne, classé au patrimoine mondial de l'UNESCO — icône de l'architecture expressive du XXᵉ siècle." },
+  { icon:"📖", name:"Cent Ans de solitude (García Márquez)",              year:1967, pays:"Colombie",              cat:"litterature",  decouverte:"Saga de la famille Buendía dans le village imaginaire de Macondo, mêlant histoire réelle et éléments fantastiques", imp:5, heritage:"Œuvre fondatrice du réalisme magique latino-américain — vaut à Gabriel García Márquez le prix Nobel de littérature en 1982." },
+];
+
+const catLabels = {
+  "peinture":     "🎨 Peinture",
+  "sculpture":    "🗿 Sculpture",
+  "architecture": "🏛️ Architecture",
+  "musique":      "🎵 Musique",
+  "litterature":  "📖 Littérature",
+  "cinema":       "🎬 Cinéma"
+};
+
+function formatYear(y) {
+  return y < 0 ? `${Math.abs(y)} av. J.-C.` : `${y}`;
+}
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function catBadge(cat) {
+  return `<span class="cat-badge cat-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.year; vb = b.year; break;
+      case 4: va = a.pays; vb = b.pays; break;
+      case 5: va = a.cat; vb = b.cat; break;
+      case 6: va = a.decouverte; vb = b.decouverte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name + ' œuvre art')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="year-cell">${formatYear(d.year)}</td>
+      <td class="pays-cell"><a class="g-pays" href="${G}${q(d.name + ' ' + d.pays)}" target="_blank">${d.pays}<sup class="arr"> ↗</sup></a></td>
+      <td>${catBadge(d.cat)}</td>
+      <td class="decouverte-cell">${d.decouverte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="heritage-cell">${d.heritage}</td>
+    </tr>`).join('');
+
+  const max5 = rows.filter(d=>d.imp===5).length;
+  const years = rows.map(d=>d.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Œuvres affichées : <span>${rows.length}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>
+    <span class="stat">Période couverte : <span>${formatYear(minYear)} → ${formatYear(maxYear)}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
