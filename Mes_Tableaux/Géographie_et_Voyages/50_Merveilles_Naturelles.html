@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Merveilles Naturelles du Monde</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eaf6f8;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(15,125,153,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f2fafb;
+    --text:          #0c1a1c;
+    --text-muted:    #52686c;
+    --accent:        #0f7d99;
+    --accent-hover:  #0c6379;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #d8e8ea;
+    --row-hover:     #e7f6f8;
+    --row-even:      #f2fafb;
+    --shadow:        rgba(12,26,28,0.10);
+    --header-bg:     #071519;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #071519;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(79,217,232,0.16), transparent 70%);
+    --surface:       #0f1f23;
+    --surface-alt:   #13272b;
+    --text:          #e6f4f6;
+    --text-muted:    #9bb8bc;
+    --accent:        #4fd9e8;
+    --accent-hover:  #74e3ef;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #1e3338;
+    --row-hover:     #142a2e;
+    --row-even:      #102125;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #030a0c;
+    --header-text:   #f2c14e;
+    --chip-text:     #071519;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/turquoise façon carte de voyage --- */
+  .travel-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(15,125,153,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 190px; }
+  .pays-cell   { font-size: 0.86rem; color: var(--text-muted); min-width: 160px; }
+  .dim-cell    { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 170px; }
+  .partic-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-canyon             { background: #b6651d; }
+  .type-cascade            { background: #2e5f7a; }
+  .type-montagne           { background: #4a4a4a; }
+  .type-grotte             { background: #6b3a8a; }
+  .type-formation_rocheuse { background: #7a4a1f; }
+  .type-geothermal         { background: #a12439; }
+  .type-cote_maritime      { background: #0f6b6b; }
+  .type-glacier            { background: #4a6b7a; }
+  .type-ile                { background: #1f7a5c; }
+
+  /* ÉTOILES RENOMMÉE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .dim-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Géographie &amp; Voyages</a>
+
+<header>
+  <div class="travel-strip"></div>
+  <p class="eyebrow">Atlas des Merveilles du Globe</p>
+  <h1><span class="ornament">🌍</span> 50 Merveilles Naturelles du Monde <span class="ornament">🧭</span></h1>
+  <p class="subtitle">Des canyons vertigineux aux îles paradisiaques — les paysages les plus spectaculaires de la planète</p>
+  <div class="travel-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="canyon">🏜️ Canyon</button>
+  <button class="filter-btn" data-cat="cascade">💦 Cascade</button>
+  <button class="filter-btn" data-cat="montagne">⛰️ Montagne</button>
+  <button class="filter-btn" data-cat="grotte">🕳️ Grotte</button>
+  <button class="filter-btn" data-cat="formation_rocheuse">🗿 Formation rocheuse</button>
+  <button class="filter-btn" data-cat="geothermal">🌋 Géothermal</button>
+  <button class="filter-btn" data-cat="cote_maritime">🏖️ Côte maritime</button>
+  <button class="filter-btn" data-cat="glacier">❄️ Glacier</button>
+  <button class="filter-btn" data-cat="ile">🏝️ Île</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Merveille <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Pays / Région <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Dimension / Record <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Particularité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Renommée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-merveilles-naturelles') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-merveilles-naturelles', next);
+});
+
+const DATA = [
+  { icon:"🏜️", name:"Grand Canyon",            pays:"États-Unis",              cat:"canyon",             dim:"~446 km de long, jusqu'à 1 800 m de profondeur", partic:"Sculpté par le fleuve Colorado sur des millions d'années", imp:5, desc:"L'un des paysages géologiques les plus célèbres au monde — ses parois révèlent près de deux milliards d'années d'histoire de la Terre." },
+  { icon:"🏜️", name:"Antelope Canyon",         pays:"États-Unis",              cat:"canyon",             dim:"Canyon en fente (slot canyon)",        partic:"Célèbre pour ses faisceaux de lumière naturelle", imp:4, desc:"Canyon sacré des Navajos, sculpté par les eaux de ruissellement dans le grès — ses formes ondulées attirent photographes du monde entier." },
+  { icon:"🏜️", name:"Gorges du Verdon",        pays:"France",                  cat:"canyon",             dim:"~25 km de long, jusqu'à 700 m de profondeur", partic:"Plus grand canyon d'Europe",       imp:3, desc:"Surnommé le « Grand Canyon européen », ses eaux turquoise et ses falaises calcaires en font un site emblématique de Provence." },
+  { icon:"🏜️", name:"Fish River Canyon",       pays:"Namibie",                 cat:"canyon",             dim:"~160 km de long, jusqu'à 550 m de profondeur", partic:"2ᵉ plus grand canyon du monde",   imp:3, desc:"Immense entaille dans le désert namibien, formée il y a plus de 500 millions d'années par l'érosion et des mouvements tectoniques." },
+  { icon:"🏜️", name:"Copper Canyon",           pays:"Mexique",                 cat:"canyon",             dim:"Système de canyons plus vaste que le Grand Canyon", partic:"Plusieurs canyons entrelacés dans la Sierra Madre", imp:3, desc:"Réseau de canyons de la Sierra Madre occidentale, plus étendu en superficie totale que le Grand Canyon américain." },
+
+  { icon:"💦", name:"Chutes Victoria",         pays:"Zambie, Zimbabwe",        cat:"cascade",            dim:"~108 m de haut, 1 700 m de large",     partic:"Plus grand rideau d'eau tombant du monde", imp:5, desc:"Nommées « Mosi-oa-Tunya » (la fumée qui gronde) par les populations locales — un mur d'eau spectaculaire sur le fleuve Zambèze." },
+  { icon:"💦", name:"Chutes d'Iguazu",         pays:"Argentine, Brésil",       cat:"cascade",            dim:"~2,7 km de large, environ 275 chutes",  partic:"Système de chutes le plus large du monde", imp:5, desc:"Vaste ensemble de cascades à la frontière argentino-brésilienne, entouré d'une forêt tropicale classée au patrimoine mondial." },
+  { icon:"💦", name:"Chutes du Niagara",       pays:"États-Unis, Canada",      cat:"cascade",            dim:"~51 m de haut, débit parmi les plus élevés au monde", partic:"Symbole touristique nord-américain historique", imp:4, desc:"L'une des chutes d'eau les plus visitées au monde, célèbre pour son débit impressionnant plutôt que sa hauteur." },
+  { icon:"💦", name:"Chutes Angel",            pays:"Venezuela",               cat:"cascade",            dim:"~979 m de haut",                       partic:"Plus haute chute d'eau ininterrompue du monde", imp:4, desc:"Nichées au cœur de la jungle vénézuélienne, ces chutes vertigineuses se jettent depuis un plateau tabulaire (tepui)." },
+  { icon:"💦", name:"Chutes de Plitvice",      pays:"Croatie",                 cat:"cascade",            dim:"16 lacs en cascade",                    partic:"Eaux turquoise aux couleurs changeantes", imp:3, desc:"Système de lacs en terrasses reliés par des cascades, célèbre pour ses teintes turquoise et émeraude spectaculaires." },
+  { icon:"💦", name:"Gullfoss",                pays:"Islande",                 cat:"cascade",            dim:"~32 m de haut en deux paliers",         partic:"Chute majeure du « Cercle d'or » islandais", imp:3, desc:"Cascade puissante se déversant dans une gorge étroite, l'un des sites naturels les plus visités d'Islande." },
+
+  { icon:"⛰️", name:"Mont Everest",            pays:"Népal, Chine",            cat:"montagne",           dim:"8 849 m, plus haut sommet du monde",   partic:"Sommet du monde",                  imp:5, desc:"Point culminant de la planète au cœur de l'Himalaya, symbole ultime de l'exploration et de l'endurance humaine." },
+  { icon:"⛰️", name:"Kilimandjaro",            pays:"Tanzanie",                cat:"montagne",           dim:"5 895 m, plus haut sommet d'Afrique",  partic:"Volcan isolé traversant plusieurs zones climatiques", imp:4, desc:"Toit de l'Afrique, dont les glaciers sommitaux contrastent avec la savane environnante, aujourd'hui menacés par le réchauffement." },
+  { icon:"⛰️", name:"Cervin (Matterhorn)",     pays:"Suisse, Italie",          cat:"montagne",           dim:"4 478 m",                               partic:"Silhouette pyramidale emblématique des Alpes", imp:4, desc:"L'un des sommets les plus photographiés au monde, dont la forme pyramidale distinctive domine la vallée de Zermatt." },
+  { icon:"⛰️", name:"Mont Fuji",               pays:"Japon",                  cat:"montagne",           dim:"3 776 m, plus haut sommet du Japon",   partic:"Volcan sacré, symbole culturel majeur",  imp:4, desc:"Volcan quasi parfaitement symétrique, vénéré depuis des siècles et omniprésent dans l'art et la culture japonaise." },
+  { icon:"⛰️", name:"Torres del Paine",        pays:"Chili",                  cat:"montagne",           dim:"Tours granitiques culminant à ~2 850 m", partic:"Formations granitiques sculptées par les glaciers", imp:3, desc:"Massif spectaculaire de Patagonie, ses tours de granit émergent d'un paysage façonné par d'anciens glaciers." },
+
+  { icon:"🕳️", name:"Son Doong",               pays:"Vietnam",                 cat:"grotte",             dim:"Plus grande grotte du monde (par volume)", partic:"Assez vaste pour contenir un quartier entier de gratte-ciel", imp:5, desc:"Découverte récemment au public, cette grotte gigantesque possède sa propre jungle et son propre microclimat intérieur." },
+  { icon:"🕳️", name:"Grottes de Waitomo",      pays:"Nouvelle-Zélande",        cat:"grotte",             dim:"Réseau de grottes calcaires",          partic:"Plafonds illuminés par des milliers de vers luisants", imp:3, desc:"Grottes calcaires transformées en ciel étoilé souterrain grâce à la bioluminescence de larves endémiques." },
+  { icon:"🕳️", name:"Grotte de cristal de Naica", pays:"Mexique",             cat:"grotte",             dim:"Cristaux de sélénite jusqu'à 12 m",    partic:"Plus grands cristaux naturels jamais découverts", imp:4, desc:"Chambre souterraine extrême abritant des cristaux géants formés sur des centaines de milliers d'années dans une chaleur intense." },
+  { icon:"🕳️", name:"Grottes de Carlsbad",     pays:"États-Unis",              cat:"grotte",             dim:"Plus de 119 grottes cartographiées",   partic:"Immense chambre souterraine et colonies de chauves-souris", imp:3, desc:"Vaste réseau souterrain du désert du Nouveau-Mexique, célèbre pour ses envolées massives de chauves-souris au crépuscule." },
+  { icon:"🕳️", name:"Grotte bleue de Capri",   pays:"Italie",                  cat:"grotte",             dim:"Grotte marine de ~60 m de long",       partic:"Lumière bleue intense due à la réfraction solaire", imp:3, desc:"Grotte marine où la lumière du soleil, filtrée par l'eau, crée un bleu électrique saisissant à l'intérieur de la cavité." },
+
+  { icon:"🗿", name:"Uluru (Ayers Rock)",      pays:"Australie",               cat:"formation_rocheuse", dim:"~348 m de haut, 9,4 km de circonférence", partic:"Site sacré aborigène majeur",     imp:5, desc:"Monolithe de grès emblématique de l'Outback australien, changeant de couleur au fil de la journée — lieu sacré pour les Anangu." },
+  { icon:"🗿", name:"Chaussée des Géants",     pays:"Irlande du Nord",         cat:"formation_rocheuse", dim:"~40 000 colonnes de basalte",          partic:"Colonnes hexagonales issues d'une ancienne éruption", imp:4, desc:"Formation géologique spectaculaire née d'anciennes coulées de lave basaltique, entourée de légendes celtiques." },
+  { icon:"🗿", name:"Monument Valley",         pays:"États-Unis",              cat:"formation_rocheuse", dim:"Buttes de grès culminant à ~300 m",    partic:"Silhouette iconique du désert américain", imp:4, desc:"Vaste plateau de grès rouge parsemé de buttes isolées, rendu célèbre par le cinéma et emblématique des westerns américains." },
+  { icon:"🗿", name:"Les Douze Apôtres",       pays:"Australie",               cat:"formation_rocheuse", dim:"Piliers calcaires jusqu'à 45 m",       partic:"Vestiges rocheux d'une côte en constante érosion", imp:3, desc:"Formations calcaires isolées émergeant de l'océan Austral le long de la Great Ocean Road, sculptées par l'érosion marine." },
+  { icon:"🗿", name:"Cappadoce",               pays:"Turquie",                 cat:"formation_rocheuse", dim:"Cheminées de fées de plusieurs mètres", partic:"Paysage volcanique troglodyte unique", imp:4, desc:"Paysage lunaire façonné par des millions d'années d'érosion volcanique, habité depuis des siècles dans des demeures troglodytes." },
+  { icon:"🗿", name:"Météores (Meteora)",      pays:"Grèce",                  cat:"formation_rocheuse", dim:"Piliers rocheux jusqu'à ~600 m",       partic:"Monastères perchés au sommet des pitons rocheux", imp:3, desc:"Formations rocheuses vertigineuses couronnées de monastères orthodoxes construits à flanc de falaise dès le Moyen Âge." },
+  { icon:"🗿", name:"Salar de Uyuni",          pays:"Bolivie",                 cat:"formation_rocheuse", dim:"~10 582 km², plus grand désert de sel du monde", partic:"Effet miroir géant lors des pluies", imp:4, desc:"Ancien lac asséché transformé en immense étendue de sel — après la pluie, il se transforme en le plus grand miroir naturel du monde." },
+
+  { icon:"🌋", name:"Geysers de Yellowstone",  pays:"États-Unis",              cat:"geothermal",         dim:"Plus de 500 geysers actifs",           partic:"Plus grande concentration de geysers au monde", imp:5, desc:"Situé au-dessus d'un supervolcan, ce parc regroupe la plus grande concentration mondiale de geysers, sources chaudes et fumerolles." },
+  { icon:"🌋", name:"Pamukkale",               pays:"Turquie",                 cat:"geothermal",         dim:"Terrasses de travertin blanc",         partic:"Bassins naturels d'eau thermale calcifiée", imp:3, desc:"Signifiant « château de coton » en turc, ce site présente des terrasses blanches formées par des sources thermales calcaires." },
+  { icon:"🌋", name:"Dépression du Danakil",   pays:"Éthiopie",                cat:"geothermal",         dim:"L'un des lieux habités les plus chauds de la Terre", partic:"Lac de lave permanent, sources acides colorées", imp:4, desc:"Paysage extraterrestre parmi les plus inhospitaliers de la planète, mêlant volcans actifs, sources sulfureuses et sel." },
+  { icon:"🌋", name:"Blue Lagoon",             pays:"Islande",                 cat:"geothermal",         dim:"Eau à ~37-39°C toute l'année",         partic:"Lagon géothermal aux eaux laiteuses",    imp:3, desc:"Lagon d'eau chaude riche en minéraux né d'une centrale géothermale voisine, devenu l'un des sites les plus visités d'Islande." },
+  { icon:"🌋", name:"Geysers du Kamtchatka",   pays:"Russie",                  cat:"geothermal",         dim:"« Vallée des geysers », 2ᵉ concentration au monde", partic:"Région volcanique extrêmement isolée", imp:3, desc:"Vallée reculée de Sibérie orientale abritant la deuxième plus grande concentration de geysers au monde, au cœur d'une région volcanique active." },
+
+  { icon:"🏖️", name:"Grande Barrière de corail", pays:"Australie",            cat:"cote_maritime",      dim:"~2 300 km de long",                    partic:"Plus grand système corallien du monde", imp:5, desc:"Visible depuis l'espace, cet immense récif abrite une biodiversité marine exceptionnelle sur la côte nord-est de l'Australie." },
+  { icon:"🏖️", name:"Falaises de Moher",       pays:"Irlande",                 cat:"cote_maritime",      dim:"~214 m de haut, 8 km de long",         partic:"L'une des côtes les plus spectaculaires d'Europe", imp:4, desc:"Falaises abruptes plongeant dans l'Atlantique, offrant des vues vertigineuses sur l'océan et les îles Aran au loin." },
+  { icon:"🏖️", name:"Rocher Percé",            pays:"Canada",                  cat:"cote_maritime",      dim:"~433 m de long, arche naturelle",      partic:"Formation calcaire emblématique du Québec", imp:3, desc:"Immense rocher percé d'une arche naturelle au large de la Gaspésie, symbole du littoral québécois." },
+  { icon:"🏖️", name:"Durdle Door",             pays:"Angleterre",              cat:"cote_maritime",      dim:"Arche calcaire naturelle",             partic:"Formation rocheuse emblématique de la Jurassic Coast", imp:3, desc:"Arche de calcaire spectaculaire née de l'érosion marine, joyau de la côte jurassique classée au patrimoine mondial." },
+  { icon:"🏖️", name:"Baie d'Ha Long",          pays:"Vietnam",                 cat:"cote_maritime",      dim:"Près de 2 000 îles et îlots karstiques", partic:"Paysage karstique emblématique d'Asie du Sud-Est", imp:4, desc:"Baie parsemée de milliers de pitons calcaires émergeant des eaux turquoise, entourée de légendes de dragons." },
+  { icon:"🏖️", name:"Fjords de Norvège",       pays:"Norvège",                 cat:"cote_maritime",      dim:"Fjords creusés sur plusieurs centaines de mètres", partic:"Vallées glaciaires envahies par la mer", imp:4, desc:"Vallées profondes sculptées par les glaciers puis envahies par la mer, formant certains des paysages côtiers les plus saisissants au monde." },
+
+  { icon:"❄️", name:"Glacier Perito Moreno",   pays:"Argentine",               cat:"glacier",            dim:"~5 km de large, ~74 m de hauteur de front", partic:"L'un des rares glaciers encore en équilibre stable", imp:4, desc:"Glacier spectaculaire de Patagonie connu pour ses ruptures de glace impressionnantes directement visibles depuis des plateformes." },
+  { icon:"❄️", name:"Calotte glaciaire du Groenland", pays:"Groenland",       cat:"glacier",            dim:"2ᵉ plus grande masse de glace du monde", partic:"Contient environ 8% de l'eau douce mondiale", imp:5, desc:"Immense masse de glace couvrant la majeure partie du Groenland, dont la fonte est étroitement surveillée par les scientifiques du climat." },
+  { icon:"❄️", name:"Vatnajökull",             pays:"Islande",                 cat:"glacier",            dim:"Plus grand glacier d'Europe par volume", partic:"Recouvre plusieurs volcans actifs",     imp:3, desc:"Calotte glaciaire immense recouvrant plusieurs volcans islandais, créant un contraste saisissant entre feu et glace." },
+  { icon:"❄️", name:"Glacier Athabasca",       pays:"Canada",                  cat:"glacier",            dim:"L'un des glaciers les plus accessibles d'Amérique du Nord", partic:"Recule visiblement d'année en année", imp:3, desc:"Langue glaciaire des Rocheuses canadiennes, témoin frappant et accessible du recul des glaciers à l'échelle mondiale." },
+  { icon:"❄️", name:"Milford Sound",           pays:"Nouvelle-Zélande",        cat:"glacier",            dim:"Fjord creusé par d'anciens glaciers",  partic:"Cascades tombant directement dans le fjord", imp:4, desc:"Fjord spectaculaire sculpté par les glaciers de l'ère glaciaire, entouré de parois abruptes et de cascades vertigineuses." },
+
+  { icon:"🏝️", name:"Îles Galápagos",          pays:"Équateur",                cat:"ile",                dim:"Archipel volcanique isolé",            partic:"A inspiré la théorie de l'évolution de Darwin", imp:5, desc:"Archipel isolé au large de l'Équateur, célèbre pour sa faune endémique unique qui a inspiré la théorie de l'évolution." },
+  { icon:"🏝️", name:"Bora Bora",               pays:"Polynésie française",     cat:"ile",                dim:"Lagon turquoise entouré d'un récif corallien", partic:"Symbole mondial des îles paradisiaques", imp:4, desc:"Île volcanique entourée d'un lagon turquoise emblématique, devenue l'archétype universel de la destination paradisiaque." },
+  { icon:"🏝️", name:"Socotra",                 pays:"Yémen",                   cat:"ile",                dim:"Île isolée avec un fort taux d'endémisme", partic:"Arbres sang-dragon uniques au monde",   imp:4, desc:"Île surnommée « l'île la plus extraterrestre de la Terre », abritant une flore endémique spectaculaire due à son isolement extrême." },
+  { icon:"🏝️", name:"Îles Similan",            pays:"Thaïlande",               cat:"ile",                dim:"Archipel de 9 îles granitiques",       partic:"Eaux cristallines réputées pour la plongée", imp:3, desc:"Archipel granitique de la mer d'Andaman, réputé pour la clarté de ses eaux et la richesse de ses fonds marins." },
+  { icon:"🏝️", name:"Raja Ampat",              pays:"Indonésie",               cat:"ile",                dim:"Plus de 1 500 petites îles",           partic:"Cœur du triangle de corail, biodiversité marine record", imp:4, desc:"Archipel reculé de Nouvelle-Guinée occidentale, considéré comme l'un des points les plus riches en biodiversité marine de la planète." },
+  { icon:"🏝️", name:"Rock Islands (Palau)",    pays:"Palaos",                  cat:"ile",                dim:"Plus de 300 îlots calcaires",          partic:"Lacs marins abritant des méduses inoffensives", imp:3, desc:"Constellation d'îlots calcaires couverts de végétation émergeant d'un lagon turquoise, abritant des lacs marins uniques au monde." }
+];
+
+const catLabels = {
+  "canyon":             "🏜️ Canyon",
+  "cascade":            "💦 Cascade",
+  "montagne":           "⛰️ Montagne",
+  "grotte":             "🕳️ Grotte",
+  "formation_rocheuse": "🗿 Formation rocheuse",
+  "geothermal":         "🌋 Géothermal",
+  "cote_maritime":      "🏖️ Côte maritime",
+  "glacier":            "❄️ Glacier",
+  "ile":                "🏝️ Île"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.pays; vb = b.pays; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.dim; vb = b.dim; break;
+      case 6: va = a.partic; vb = b.partic; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' '+d.pays)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="dim-cell">${d.dim}</td>
+      <td class="partic-cell">${d.partic}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Merveilles affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Renommée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
