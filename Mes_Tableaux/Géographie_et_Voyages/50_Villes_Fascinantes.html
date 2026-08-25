@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Villes les plus Fascinantes de l'Histoire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eaf6f8;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(15,125,153,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f2fafb;
+    --text:          #0c1a1c;
+    --text-muted:    #52686c;
+    --accent:        #0f7d99;
+    --accent-hover:  #0c6379;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #d8e8ea;
+    --row-hover:     #e7f6f8;
+    --row-even:      #f2fafb;
+    --shadow:        rgba(12,26,28,0.10);
+    --header-bg:     #071519;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #071519;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(79,217,232,0.16), transparent 70%);
+    --surface:       #0f1f23;
+    --surface-alt:   #13272b;
+    --text:          #e6f4f6;
+    --text-muted:    #9bb8bc;
+    --accent:        #4fd9e8;
+    --accent-hover:  #74e3ef;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #1e3338;
+    --row-hover:     #142a2e;
+    --row-even:      #102125;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #030a0c;
+    --header-text:   #f2c14e;
+    --chip-text:     #071519;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/turquoise façon carte de voyage --- */
+  .travel-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.7rem, 5vw, 3.1rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(15,125,153,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 170px; }
+  .pays-cell   { font-size: 0.86rem; color: var(--text-muted); min-width: 160px; }
+  .periode-cell{ font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 190px; }
+  .partic-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-antique     { background: #7a4a1f; }
+  .type-medievale   { background: #4a4a4a; }
+  .type-renaissance { background: #6b3a8a; }
+  .type-coloniale   { background: #b6651d; }
+  .type-moderne     { background: #3f5fa8; }
+  .type-sacree      { background: #b58a1f; }
+  .type-mythique    { background: #a12439; }
+  .type-disparue    { background: #6b7a1f; }
+  .type-portuaire   { background: #1f6b8a; }
+
+  /* ÉTOILES RENOMMÉE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .periode-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Géographie &amp; Voyages</a>
+
+<header>
+  <div class="travel-strip"></div>
+  <p class="eyebrow">Chroniques des Cités du Monde</p>
+  <h1><span class="ornament">🏛️</span> 50 Villes les plus Fascinantes de l'Histoire <span class="ornament">🗺️</span></h1>
+  <p class="subtitle">Des capitales antiques aux mégapoles modernes — les cités qui ont marqué l'humanité</p>
+  <div class="travel-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="antique">🏛️ Antique</button>
+  <button class="filter-btn" data-cat="medievale">🏰 Médiévale</button>
+  <button class="filter-btn" data-cat="renaissance">🎨 Renaissance</button>
+  <button class="filter-btn" data-cat="coloniale">⚓ Coloniale</button>
+  <button class="filter-btn" data-cat="moderne">🏙️ Moderne</button>
+  <button class="filter-btn" data-cat="sacree">🕊️ Sacrée</button>
+  <button class="filter-btn" data-cat="mythique">📜 Mythique</button>
+  <button class="filter-btn" data-cat="disparue">🏺 Disparue</button>
+  <button class="filter-btn" data-cat="portuaire">🚢 Portuaire</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Ville <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Pays / Région <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période / Âge d'or <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Particularité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Renommée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-villes-fascinantes') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-villes-fascinantes', next);
+});
+
+const DATA = [
+  { icon:"🏛️", name:"Rome",              pays:"Italie",                  cat:"antique",     periode:"Fondée au VIIIᵉ siècle av. J.-C.", partic:"Berceau de l'Empire romain", imp:5, desc:"« Ville éternelle » qui a régné sur l'un des plus grands empires de l'histoire — son héritage architectural et juridique façonne encore le monde actuel." },
+  { icon:"🏛️", name:"Athènes",           pays:"Grèce",                   cat:"antique",     periode:"Âge d'or au Vᵉ siècle av. J.-C.",  partic:"Berceau de la démocratie et de la philosophie", imp:5, desc:"Foyer de Socrate, Platon et Aristote — la cité qui a inventé la démocratie continue de dominer l'imaginaire intellectuel occidental." },
+  { icon:"🏛️", name:"Alexandrie",        pays:"Égypte",                  cat:"antique",     periode:"Fondée en 331 av. J.-C. par Alexandre le Grand", partic:"Abritait la plus grande bibliothèque de l'Antiquité", imp:4, desc:"Carrefour intellectuel du monde antique, sa légendaire bibliothèque symbolise encore aujourd'hui le savoir universel perdu." },
+  { icon:"🏛️", name:"Xi'an",             pays:"Chine",                   cat:"antique",     periode:"Capitale impériale pendant plus de 1 000 ans", partic:"Point de départ de la Route de la Soie",  imp:4, desc:"Ancienne capitale de treize dynasties chinoises, elle abrite la célèbre armée de terre cuite de l'empereur Qin Shi Huang." },
+  { icon:"🏛️", name:"Damas",             pays:"Syrie",                   cat:"antique",     periode:"Habitée en continu depuis plus de 5 000 ans", partic:"L'une des plus anciennes villes habitées au monde", imp:4, desc:"Ville dont l'occupation ininterrompue remonte à l'aube de la civilisation, carrefour majeur des routes commerciales antiques." },
+  { icon:"🏛️", name:"Louxor (Thèbes d'Égypte)", pays:"Égypte",           cat:"antique",     periode:"Capitale de l'Égypte antique vers 1550-1070 av. J.-C.", partic:"Surnommée « le plus grand musée à ciel ouvert du monde »", imp:4, desc:"Ancienne capitale religieuse de l'Égypte pharaonique, elle concentre à elle seule environ un tiers des trésors archéologiques du pays." },
+
+  { icon:"🏰", name:"Tolède",            pays:"Espagne",                 cat:"medievale",   periode:"Capitale médiévale, apogée aux Xᵉ-XIIIᵉ siècles", partic:"« Ville des trois cultures » (chrétienne, juive, musulmane)", imp:4, desc:"Cité fortifiée où coexistaient pendant des siècles chrétiens, juifs et musulmans, laissant un patrimoine architectural exceptionnel." },
+  { icon:"🏰", name:"Bruges",            pays:"Belgique",                cat:"medievale",   periode:"Âge d'or aux XIIIᵉ-XVᵉ siècles",   partic:"Canaux médiévaux parfaitement préservés", imp:3, desc:"Surnommée la « Venise du Nord », son centre historique médiéval est resté remarquablement intact jusqu'à aujourd'hui." },
+  { icon:"🏰", name:"Prague",            pays:"République tchèque",      cat:"medievale",   periode:"Âge d'or sous Charles IV au XIVᵉ siècle", partic:"L'un des centres historiques les mieux conservés d'Europe", imp:4, desc:"Ville aux mille tours et aux ponts gothiques, son cœur médiéval a traversé les siècles quasiment intact." },
+  { icon:"🏰", name:"Carcassonne",       pays:"France",                  cat:"medievale",   periode:"Cité fortifiée dès le Moyen Âge",  partic:"Plus grande cité médiévale fortifiée d'Europe", imp:3, desc:"Forteresse aux doubles remparts et 52 tours, véritable capsule temporelle de l'architecture militaire médiévale." },
+  { icon:"🏰", name:"Tombouctou",        pays:"Mali",                    cat:"medievale",   periode:"Âge d'or aux XIVᵉ-XVIᵉ siècles",   partic:"Centre intellectuel et commercial majeur de l'Afrique médiévale", imp:3, desc:"Surnommée la « cité des 333 saints », elle fut un foyer d'érudition islamique renommé, riche en manuscrits anciens." },
+
+  { icon:"🎨", name:"Florence",          pays:"Italie",                  cat:"renaissance", periode:"Berceau de la Renaissance, XIVᵉ-XVIᵉ siècles", partic:"Ville natale de Léonard de Vinci et Michel-Ange", imp:5, desc:"Foyer originel de la Renaissance italienne, où l'art, la science et la pensée humaniste ont connu un essor sans précédent." },
+  { icon:"🎨", name:"Venise",            pays:"Italie",                  cat:"renaissance", periode:"Apogée de la République aux XVᵉ-XVIᵉ siècles", partic:"Cité lacustre bâtie sur plus de 100 îles", imp:5, desc:"République maritime devenue puissance commerciale et artistique majeure, unique au monde par son entrelacs de canaux." },
+  { icon:"🎨", name:"Sienne",            pays:"Italie",                  cat:"renaissance", periode:"Rivale de Florence aux XIIIᵉ-XIVᵉ siècles", partic:"Célèbre pour sa place en éventail, la Piazza del Campo", imp:3, desc:"Cité-État toscane à l'urbanisme médiéval remarquablement préservé, rivale artistique et politique de Florence." },
+  { icon:"🎨", name:"Amsterdam",         pays:"Pays-Bas",                cat:"renaissance", periode:"Âge d'or néerlandais, XVIIᵉ siècle", partic:"Réseau de canaux classé au patrimoine mondial", imp:4, desc:"Capitale commerciale et artistique de l'âge d'or hollandais, elle a vu naître Rembrandt et l'essor du commerce mondial." },
+  { icon:"🎨", name:"Cracovie",          pays:"Pologne",                 cat:"renaissance", periode:"Capitale royale jusqu'au XVIᵉ siècle",  partic:"L'un des rares centres historiques polonais épargnés par la guerre", imp:3, desc:"Ancienne capitale royale de Pologne, son centre médiéval et Renaissance a échappé presque intact aux destructions du XXᵉ siècle." },
+
+  { icon:"⚓", name:"La Havane",         pays:"Cuba",                    cat:"coloniale",   periode:"Fondée en 1519 par les Espagnols", partic:"Architecture coloniale espagnole exceptionnellement préservée", imp:4, desc:"Capitale cubaine au charme suspendu dans le temps, célèbre pour ses vieilles voitures américaines et son architecture coloniale colorée." },
+  { icon:"⚓", name:"Carthagène des Indes", pays:"Colombie",              cat:"coloniale",   periode:"Fondée en 1533",                    partic:"Cité fortifiée espagnole des Caraïbes", imp:3, desc:"Port fortifié majeur de l'Empire espagnol dans les Caraïbes, ses remparts protégeaient jadis l'or en route vers l'Europe." },
+  { icon:"⚓", name:"Macao",             pays:"Chine",                   cat:"coloniale",   periode:"Comptoir portugais dès 1557",      partic:"Fusion unique des cultures portugaise et chinoise", imp:3, desc:"Première et dernière colonie européenne en Asie de l'Est, son architecture mêle influences portugaise et cantonaise." },
+  { icon:"⚓", name:"Goa",               pays:"Inde",                    cat:"coloniale",   periode:"Colonie portugaise de 1510 à 1961", partic:"Églises baroques portugaises en Asie du Sud", imp:3, desc:"Ancien joyau de l'empire colonial portugais en Asie, célèbre pour ses églises baroques et son métissage culturel unique." },
+  { icon:"⚓", name:"Salvador de Bahia",  pays:"Brésil",                  cat:"coloniale",   periode:"Première capitale du Brésil colonial (1549)", partic:"Berceau de la culture afro-brésilienne", imp:3, desc:"Première capitale du Brésil colonial, son centre historique Pelourinho témoigne d'un riche héritage afro-brésilien." },
+
+  { icon:"🏙️", name:"New York",         pays:"États-Unis",              cat:"moderne",     periode:"Essor comme mégapole au XXᵉ siècle", partic:"Capitale culturelle et financière mondiale", imp:5, desc:"Symbole ultime de la mégapole moderne, elle incarne depuis un siècle l'ambition et la diversité culturelle à l'échelle planétaire." },
+  { icon:"🏙️", name:"Tokyo",            pays:"Japon",                   cat:"moderne",     periode:"Reconstruite après 1945, essor rapide", partic:"Plus grande zone métropolitaine du monde", imp:5, desc:"Mégapole ultramoderne mêlant gratte-ciel futuristes et traditions séculaires, cœur battant de l'économie asiatique." },
+  { icon:"🏙️", name:"Dubaï",            pays:"Émirats arabes unis",     cat:"moderne",     periode:"Transformation rapide depuis les années 1990", partic:"Passée de village de pêcheurs à mégapole en quelques décennies", imp:4, desc:"Exemple spectaculaire d'urbanisation accélérée, transformée en quelques décennies en carrefour mondial du commerce et du tourisme." },
+  { icon:"🏙️", name:"Singapour",        pays:"Singapour",               cat:"moderne",     periode:"Cité-État indépendante depuis 1965", partic:"L'une des villes les plus densément planifiées au monde", imp:4, desc:"Cité-État devenue modèle mondial d'urbanisme et de développement économique en à peine plus d'une génération." },
+  { icon:"🏙️", name:"Shanghai",         pays:"Chine",                   cat:"moderne",     periode:"Essor fulgurant depuis les années 1990", partic:"Skyline parmi les plus impressionnants du monde",  imp:4, desc:"Ancien comptoir commercial devenu vitrine de la puissance économique chinoise, son horizon a été transformé en une génération." },
+  { icon:"🏙️", name:"Hong Kong",        pays:"Chine (RAS)",             cat:"moderne",     periode:"Essor comme centre financier au XXᵉ siècle", partic:"L'une des plus fortes densités de gratte-ciel au monde", imp:4, desc:"Ancien comptoir britannique devenu centre financier mondial, célèbre pour sa skyline vertigineuse entre montagnes et mer." },
+
+  { icon:"🕊️", name:"Jérusalem",        pays:"Israël / Palestine",      cat:"sacree",      periode:"Ville sainte depuis plus de 3 000 ans", partic:"Sacrée pour le judaïsme, le christianisme et l'islam", imp:5, desc:"Ville sainte pour trois grandes religions monothéistes, son histoire millénaire en fait l'un des lieux les plus disputés et vénérés au monde." },
+  { icon:"🕊️", name:"La Mecque",        pays:"Arabie saoudite",         cat:"sacree",      periode:"Lieu saint de l'islam depuis le VIIᵉ siècle", partic:"Destination du pèlerinage annuel du Hajj",  imp:5, desc:"Ville la plus sainte de l'islam, elle accueille chaque année des millions de pèlerins venus du monde entier pour le Hajj." },
+  { icon:"🕊️", name:"Varanasi (Bénarès)", pays:"Inde",                   cat:"sacree",      periode:"L'une des plus anciennes villes habitées au monde", partic:"Ville sainte sur les rives sacrées du Gange", imp:4, desc:"Cité sacrée de l'hindouisme sur les rives du Gange, où se pratiquent depuis des millénaires rituels et cérémonies funéraires." },
+  { icon:"🕊️", name:"Lhassa",           pays:"Chine (Tibet)",           cat:"sacree",      periode:"Capitale spirituelle depuis le VIIᵉ siècle", partic:"Abrite le Palais du Potala, ancienne résidence du Dalaï-Lama", imp:4, desc:"Capitale spirituelle du bouddhisme tibétain, perchée sur le plateau himalayen à plus de 3 600 mètres d'altitude." },
+  { icon:"🕊️", name:"Kyoto",            pays:"Japon",                   cat:"sacree",      periode:"Capitale impériale de 794 à 1868", partic:"Plus de 1 600 temples bouddhistes et sanctuaires shintô", imp:4, desc:"Ancienne capitale impériale du Japon, épargnée des bombardements de 1945, elle conserve un patrimoine spirituel exceptionnel." },
+  { icon:"🕊️", name:"Cité du Vatican",  pays:"Cité du Vatican",         cat:"sacree",      periode:"État souverain depuis 1929",        partic:"Plus petit État souverain du monde",  imp:4, desc:"Cœur spirituel du catholicisme mondial, ce plus petit État souverain de la planète abrite la basilique Saint-Pierre et la chapelle Sixtine." },
+
+  { icon:"📜", name:"Troie",             pays:"Turquie",                 cat:"mythique",    periode:"Site archéologique daté dès env. 3000 av. J.-C.", partic:"Cadre légendaire du siège raconté par Homère", imp:4, desc:"Cité rendue immortelle par l'Iliade d'Homère, ses ruines réelles ont longtemps été considérées comme purement légendaires." },
+  { icon:"📜", name:"Thèbes (Grèce)",    pays:"Grèce",                   cat:"mythique",    periode:"Cité importante de la Grèce antique",  partic:"Cadre des tragédies d'Œdipe et d'Antigone", imp:3, desc:"Cité grecque au cœur des grandes tragédies antiques, dont le mythe d'Œdipe a traversé les siècles jusqu'à nous." },
+  { icon:"📜", name:"Delphes",           pays:"Grèce",                   cat:"mythique",    periode:"Sanctuaire majeur dès le VIIIᵉ siècle av. J.-C.", partic:"Siège du célèbre oracle de Delphes", imp:4, desc:"Considérée par les Grecs comme le « centre du monde », son oracle guidait les décisions des rois et des cités-états antiques." },
+  { icon:"📜", name:"Knossos",           pays:"Grèce (Crète)",           cat:"mythique",    periode:"Centre de la civilisation minoenne, IIᵉ millénaire av. J.-C.", partic:"Associée au mythe du labyrinthe et du Minotaure", imp:3, desc:"Palais minoen dont le plan complexe a inspiré la légende du labyrinthe du Minotaure, berceau de la civilisation égéenne." },
+  { icon:"📜", name:"Ur",                pays:"Irak",                    cat:"mythique",    periode:"Cité sumérienne florissante vers 2000 av. J.-C.", partic:"Ville natale légendaire du patriarche biblique Abraham", imp:3, desc:"Ancienne cité sumérienne de Mésopotamie, associée par la tradition biblique à la ville natale du patriarche Abraham." },
+
+  { icon:"🏺", name:"Pompéi",            pays:"Italie",                  cat:"disparue",    periode:"Ensevelie en 79 apr. J.-C.",       partic:"Figée dans le temps par l'éruption du Vésuve", imp:5, desc:"Ville romaine figée par les cendres du Vésuve, offrant un instantané archéologique exceptionnel de la vie quotidienne antique." },
+  { icon:"🏺", name:"Petra",             pays:"Jordanie",                cat:"disparue",    periode:"Capitale nabatéenne dès le IVᵉ siècle av. J.-C.", partic:"Cité rupestre taillée à même la roche rose", imp:5, desc:"Cité caravanière taillée dans la roche rose du désert, redécouverte par un explorateur occidental seulement au XIXᵉ siècle." },
+  { icon:"🏺", name:"Machu Picchu",      pays:"Pérou",                   cat:"disparue",    periode:"Cité inca du XVᵉ siècle",           partic:"Perchée à plus de 2 400 m dans les Andes", imp:5, desc:"Citadelle inca perchée dans les Andes péruviennes, restée ignorée des conquistadors espagnols et redécouverte en 1911." },
+  { icon:"🏺", name:"Angkor",            pays:"Cambodge",                cat:"disparue",    periode:"Capitale khmère du IXᵉ au XVᵉ siècle", partic:"Ancienne plus grande cité préindustrielle du monde", imp:5, desc:"Capitale de l'empire khmer engloutie par la jungle pendant des siècles, redécouverte grâce à ses temples monumentaux comme Angkor Vat." },
+  { icon:"🏺", name:"Babylone",          pays:"Irak",                    cat:"disparue",    periode:"Apogée sous Nabuchodonosor II, VIᵉ siècle av. J.-C.", partic:"Abritait légendairement les Jardins suspendus", imp:4, desc:"Capitale mésopotamienne légendaire associée à la tour de Babel et aux Jardins suspendus, l'une des sept merveilles du monde antique." },
+  { icon:"🏺", name:"Persépolis",        pays:"Iran",                    cat:"disparue",    periode:"Capitale cérémonielle perse, VIᵉ-IVᵉ siècle av. J.-C.", partic:"Incendiée par Alexandre le Grand en 330 av. J.-C.", imp:3, desc:"Somptueuse capitale cérémonielle de l'Empire perse achéménide, dont les ruines monumentales témoignent encore de sa splendeur passée." },
+
+  { icon:"🚢", name:"Marseille",         pays:"France",                  cat:"portuaire",   periode:"Fondée vers 600 av. J.-C.",         partic:"Plus ancienne ville de France",       imp:3, desc:"Plus ancienne cité de France, fondée par des marins grecs, elle demeure depuis un carrefour méditerranéen majeur." },
+  { icon:"🚢", name:"Istanbul (Constantinople)", pays:"Turquie",         cat:"portuaire",   periode:"Capitale impériale pendant plus de 1 600 ans", partic:"Seule métropole au monde à cheval sur deux continents", imp:5, desc:"Ancienne capitale de trois empires successifs, unique au monde par sa position à cheval entre l'Europe et l'Asie." },
+  { icon:"🚢", name:"Canton (Guangzhou)", pays:"Chine",                  cat:"portuaire",   periode:"Port majeur depuis plus de 2 000 ans", partic:"Point de départ historique de la Route maritime de la Soie", imp:3, desc:"L'un des plus anciens ports de commerce international, longtemps unique fenêtre commerciale de la Chine sur le monde extérieur." },
+  { icon:"🚢", name:"Zanzibar",          pays:"Tanzanie",                cat:"portuaire",   periode:"Carrefour commercial dès le Moyen Âge", partic:"Cœur historique du commerce des épices en Afrique de l'Est", imp:3, desc:"Île-carrefour du commerce entre l'Afrique, l'Arabie et l'Inde, célèbre pour son passé lié aux épices et son architecture swahilie." },
+  { icon:"🚢", name:"Lisbonne",          pays:"Portugal",                cat:"portuaire",   periode:"Point de départ des grandes explorations, XVᵉ siècle", partic:"Berceau des grandes découvertes maritimes portugaises", imp:4, desc:"Port d'où sont partis les grands navigateurs portugais à la conquête des routes maritimes mondiales à la Renaissance." },
+  { icon:"🚢", name:"Gênes",             pays:"Italie",                  cat:"portuaire",   periode:"Puissante république maritime, XIᵉ-XVIᵉ siècles", partic:"Ville natale de Christophe Colomb",   imp:3, desc:"Ancienne république maritime rivale de Venise, elle a vu naître Christophe Colomb et dominé le commerce méditerranéen." }
+];
+
+const catLabels = {
+  "antique":     "🏛️ Antique",
+  "medievale":   "🏰 Médiévale",
+  "renaissance": "🎨 Renaissance",
+  "coloniale":   "⚓ Coloniale",
+  "moderne":     "🏙️ Moderne",
+  "sacree":      "🕊️ Sacrée",
+  "mythique":    "📜 Mythique",
+  "disparue":    "🏺 Disparue",
+  "portuaire":   "🚢 Portuaire"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.pays; vb = b.pays; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.periode; vb = b.periode; break;
+      case 6: va = a.partic; vb = b.partic; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' '+d.pays)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="periode-cell">${d.periode}</td>
+      <td class="partic-cell">${d.partic}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Villes affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Renommée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
