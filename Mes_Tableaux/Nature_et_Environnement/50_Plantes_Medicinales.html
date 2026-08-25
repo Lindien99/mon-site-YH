@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Plantes Médicinales et leurs Usages</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eef4ee;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(31,107,58,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f3f8f3;
+    --text:          #101a12;
+    --text-muted:    #576257;
+    --accent:        #1f6b3a;
+    --accent-hover:  #175530;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #dbe6db;
+    --row-hover:     #eaf5ea;
+    --row-even:      #f3f8f3;
+    --shadow:        rgba(16,26,18,0.10);
+    --header-bg:     #0a140d;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0a140d;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(79,199,133,0.16), transparent 70%);
+    --surface:       #101d13;
+    --surface-alt:   #142519;
+    --text:          #e7f2e9;
+    --text-muted:    #9db5a0;
+    --accent:        #4fc785;
+    --accent-hover:  #6dd49c;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #1e3324;
+    --row-hover:     #152a1c;
+    --row-even:      #112417;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #040a06;
+    --header-text:   #f2c14e;
+    --chip-text:     #0a140d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré feuillage or/vert --- */
+  .nature-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(31,107,58,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 170px; }
+  .sci-cell     { font-size: 0.83rem; color: var(--text-muted); font-style: italic; min-width: 190px; }
+  .partie-cell  { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 150px; }
+  .usage-cell   { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 240px; }
+
+  /* BADGES CATÉGORIE D'USAGE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-digestif        { background: #1f7a3f; }
+  .type-respiratoire    { background: #2e5f7a; }
+  .type-cutane          { background: #b58a1f; }
+  .type-analgesique     { background: #a12439; }
+  .type-cardiovasculaire{ background: #9c2b56; }
+  .type-immunitaire     { background: #3f5fa8; }
+  .type-nerveux         { background: #6b3a8a; }
+  .type-antiseptique    { background: #0f6b6b; }
+  .type-adaptogene      { background: #7a4a1f; }
+
+  /* ÉTOILES RECONNAISSANCE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+  footer .disclaimer { display: block; margin-top: 0.4rem; font-size: 0.76rem; opacity: 0.85; }
+
+  @media (max-width: 750px) {
+    .sci-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Nature &amp; Environnement</a>
+
+<header>
+  <div class="nature-strip"></div>
+  <p class="eyebrow">Herbier des Savoirs Anciens</p>
+  <h1><span class="ornament">🌿</span> 50 Plantes Médicinales et leurs Usages <span class="ornament">🍃</span></h1>
+  <p class="subtitle">De la pharmacopée traditionnelle aux recherches modernes — le savoir botanique à travers le monde</p>
+  <div class="nature-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="digestif">🌿 Digestif</button>
+  <button class="filter-btn" data-cat="respiratoire">🫁 Respiratoire</button>
+  <button class="filter-btn" data-cat="cutane">🩹 Cutané</button>
+  <button class="filter-btn" data-cat="analgesique">🩺 Anti-inflammatoire</button>
+  <button class="filter-btn" data-cat="cardiovasculaire">❤️ Cardiovasculaire</button>
+  <button class="filter-btn" data-cat="immunitaire">🛡️ Immunitaire</button>
+  <button class="filter-btn" data-cat="nerveux">🌙 Nerveux &amp; Sommeil</button>
+  <button class="filter-btn" data-cat="antiseptique">🦠 Antiseptique</button>
+  <button class="filter-btn" data-cat="adaptogene">⚡ Adaptogène</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Plante <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Nom scientifique · Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Catégorie <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Partie utilisée <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Usage principal <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Reconnaissance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Usage traditionnel &amp; recherches</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+  <span class="disclaimer">Contenu informatif sur les usages traditionnels et la recherche scientifique — ne constitue pas un avis médical. Consultez un professionnel de santé avant tout usage thérapeutique.</span>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-plantes-medicinales') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-plantes-medicinales', next);
+});
+
+const DATA = [
+  { icon:"🌿", name:"Menthe poivrée",     sci:"Mentha piperita · Europe",                cat:"digestif",         partie:"Feuilles",         usage:"Confort digestif",             imp:5, desc:"Utilisée depuis l'Antiquité pour apaiser les troubles digestifs — son menthol est aussi étudié pour ses effets sur les maux de tête." },
+  { icon:"🌿", name:"Gingembre",          sci:"Zingiber officinale · Asie du Sud-Est",   cat:"digestif",         partie:"Rhizome",          usage:"Nausées, digestion",           imp:5, desc:"Une des épices médicinales les plus étudiées au monde — largement utilisée traditionnellement contre les nausées et les troubles gastriques." },
+  { icon:"🌿", name:"Camomille",          sci:"Matricaria chamomilla · Europe",          cat:"digestif",         partie:"Fleurs",           usage:"Apaisant digestif et calmant", imp:4, desc:"Infusion traditionnelle emblématique en Europe — reconnue pour ses propriétés apaisantes sur le système digestif et nerveux." },
+  { icon:"🌿", name:"Fenouil",            sci:"Foeniculum vulgare · Méditerranée",       cat:"digestif",         partie:"Graines",          usage:"Ballonnements, coliques",      imp:4, desc:"Utilisé depuis l'Égypte antique — ses graines sont une base classique des tisanes digestives dans de nombreuses cultures." },
+  { icon:"🌿", name:"Réglisse",           sci:"Glycyrrhiza glabra · Méditerranée, Asie", cat:"digestif",         partie:"Racine",           usage:"Muqueuses digestives",         imp:4, desc:"Racine sucrée utilisée en médecine chinoise et méditerranéenne — étudiée pour son effet apaisant sur les muqueuses digestives." },
+  { icon:"🌿", name:"Artichaut",          sci:"Cynara scolymus · Méditerranée",          cat:"digestif",         partie:"Feuilles",         usage:"Fonction hépatique",           imp:3, desc:"Traditionnellement associé au soutien de la fonction hépatique et biliaire dans la phytothérapie méditerranéenne." },
+
+  { icon:"🫁", name:"Eucalyptus",         sci:"Eucalyptus globulus · Australie",         cat:"respiratoire",     partie:"Feuilles",         usage:"Voies respiratoires",          imp:5, desc:"Utilisé par les peuples aborigènes australiens puis adopté mondialement — ses composés volatils sont classiques en inhalation." },
+  { icon:"🫁", name:"Thym",               sci:"Thymus vulgaris · Méditerranée",          cat:"respiratoire",     partie:"Feuilles, fleurs", usage:"Toux, gorge",                  imp:4, desc:"Plante aromatique méditerranéenne au long usage traditionnel contre les affections des voies respiratoires." },
+  { icon:"🫁", name:"Guimauve",           sci:"Althaea officinalis · Europe",            cat:"respiratoire",     partie:"Racine, feuilles", usage:"Adoucissant des muqueuses",    imp:3, desc:"Ses mucilages sont traditionnellement utilisés pour adoucir les irritations de la gorge et des voies respiratoires." },
+  { icon:"🫁", name:"Lierre grimpant",    sci:"Hedera helix · Europe",                   cat:"respiratoire",     partie:"Feuilles",         usage:"Toux grasse",                  imp:3, desc:"Utilisé en phytothérapie européenne, notamment dans des préparations traditionnelles contre la toux." },
+  { icon:"🫁", name:"Pin sylvestre",      sci:"Pinus sylvestris · Europe, Asie",         cat:"respiratoire",     partie:"Bourgeons, aiguilles", usage:"Voies respiratoires",      imp:3, desc:"Ses bourgeons et son essence sont traditionnellement associés au bien-être respiratoire dans les régions boréales." },
+
+  { icon:"🩹", name:"Aloe vera",          sci:"Aloe vera · Afrique, péninsule arabique", cat:"cutane",           partie:"Gel des feuilles", usage:"Soin de la peau",              imp:5, desc:"L'une des plantes médicinales les plus anciennes et les plus utilisées au monde pour apaiser et hydrater la peau." },
+  { icon:"🩹", name:"Calendula (souci)",  sci:"Calendula officinalis · Méditerranée",    cat:"cutane",           partie:"Fleurs",           usage:"Apaisant cutané",              imp:4, desc:"Fleur traditionnellement utilisée en onguent pour apaiser les peaux irritées, base classique des cosmétiques naturels." },
+  { icon:"🩹", name:"Arbre à thé",        sci:"Melaleuca alternifolia · Australie",      cat:"cutane",           partie:"Feuilles (huile essentielle)", usage:"Soin local de la peau", imp:4, desc:"Utilisé par les peuples aborigènes australiens — son huile essentielle est étudiée pour ses propriétés purifiantes." },
+  { icon:"🩹", name:"Consoude",           sci:"Symphytum officinale · Europe",           cat:"cutane",           partie:"Feuilles, racine", usage:"Cicatrisation",                imp:3, desc:"Surnommée « l'herbe aux coupures » en Europe — longue tradition d'usage externe pour le soin de la peau." },
+  { icon:"🩹", name:"Hamamélis",          sci:"Hamamelis virginiana · Amérique du Nord", cat:"cutane",           partie:"Écorce, feuilles", usage:"Tonique cutané",               imp:3, desc:"Utilisé traditionnellement par les peuples autochtones nord-américains — ingrédient classique des lotions apaisantes." },
+  { icon:"🩹", name:"Plantain",           sci:"Plantago major · Europe, Asie",           cat:"cutane",           partie:"Feuilles",         usage:"Apaisant des petites lésions",  imp:3, desc:"Plante commune utilisée depuis des siècles en usage externe traditionnel dans de nombreuses cultures rurales." },
+
+  { icon:"🩺", name:"Curcuma",            sci:"Curcuma longa · Inde",                    cat:"analgesique",      partie:"Rhizome",          usage:"Inflammation",                 imp:5, desc:"Épice centrale de la médecine ayurvédique — la curcumine qu'il contient est l'un des composés végétaux les plus étudiés au monde." },
+  { icon:"🩺", name:"Saule blanc",        sci:"Salix alba · Europe, Asie",               cat:"analgesique",      partie:"Écorce",           usage:"Douleurs, fièvre",             imp:5, desc:"Utilisé depuis l'Antiquité contre la douleur — son écorce a inspiré la découverte de l'aspirine au XIXᵉ siècle." },
+  { icon:"🩺", name:"Griffe du diable",   sci:"Harpagophytum procumbens · Afrique australe", cat:"analgesique",  partie:"Racine tubéreuse", usage:"Confort articulaire",          imp:4, desc:"Plante traditionnelle des savanes d'Afrique australe, largement étudiée pour le confort articulaire." },
+  { icon:"🩺", name:"Arnica",             sci:"Arnica montana · Europe",                 cat:"analgesique",      partie:"Fleurs",           usage:"Usage externe, chocs",         imp:4, desc:"Fleur de montagne emblématique de la pharmacopée européenne, traditionnellement utilisée en usage externe après un choc." },
+  { icon:"🩺", name:"Boswellia (encens)", sci:"Boswellia serrata · Inde, Afrique",       cat:"analgesique",      partie:"Résine",           usage:"Confort articulaire",          imp:4, desc:"Résine utilisée depuis des millénaires en médecine ayurvédique et dans les rituels — étudiée pour son effet sur l'inflammation." },
+  { icon:"🩺", name:"Piment de Cayenne",  sci:"Capsicum annuum · Amérique centrale",     cat:"analgesique",      partie:"Fruit",            usage:"Usage externe (chauffant)",    imp:3, desc:"La capsaïcine qu'il contient est utilisée traditionnellement en usage externe et fait l'objet de nombreuses études." },
+
+  { icon:"❤️", name:"Aubépine",           sci:"Crataegus monogyna · Europe",             cat:"cardiovasculaire", partie:"Fleurs, baies",    usage:"Tonique cardiaque",            imp:5, desc:"Référence historique de la phytothérapie cardiovasculaire européenne, utilisée depuis des siècles pour soutenir le cœur." },
+  { icon:"❤️", name:"Ail",                sci:"Allium sativum · Asie centrale",          cat:"cardiovasculaire", partie:"Bulbe",            usage:"Circulation sanguine",         imp:5, desc:"L'une des plantes médicinales les plus étudiées scientifiquement, utilisée depuis l'Égypte antique pour la circulation." },
+  { icon:"❤️", name:"Ginkgo biloba",      sci:"Ginkgo biloba · Chine",                   cat:"cardiovasculaire", partie:"Feuilles",         usage:"Circulation, mémoire",         imp:4, desc:"Un des plus anciens arbres vivants au monde — utilisé en médecine chinoise depuis des millénaires pour la circulation." },
+  { icon:"❤️", name:"Olivier",            sci:"Olea europaea · Méditerranée",            cat:"cardiovasculaire", partie:"Feuilles",         usage:"Tension, antioxydant",         imp:4, desc:"Ses feuilles sont traditionnellement utilisées en Méditerranée en complément d'une alimentation bonne pour le cœur." },
+  { icon:"❤️", name:"Vigne rouge",        sci:"Vitis vinifera · Europe",                 cat:"cardiovasculaire", partie:"Feuilles",         usage:"Circulation veineuse",         imp:3, desc:"Les feuilles de vigne rouge sont classiquement associées au confort de la circulation veineuse en phytothérapie européenne." },
+
+  { icon:"🛡️", name:"Échinacée",          sci:"Echinacea purpurea · Amérique du Nord",   cat:"immunitaire",      partie:"Racine, parties aériennes", usage:"Soutien immunitaire", imp:5, desc:"Utilisée par les peuples autochtones des Grandes Plaines nord-américaines, devenue l'un des compléments immunitaires les plus populaires au monde." },
+  { icon:"🛡️", name:"Sureau noir",        sci:"Sambucus nigra · Europe",                 cat:"immunitaire",      partie:"Baies, fleurs",    usage:"Soutien hivernal",             imp:4, desc:"Baies traditionnellement utilisées en Europe en période hivernale, largement étudiées ces dernières décennies." },
+  { icon:"🛡️", name:"Astragale",          sci:"Astragalus membranaceus · Chine",         cat:"immunitaire",      partie:"Racine",           usage:"Tonique de fond",              imp:4, desc:"Pilier de la médecine traditionnelle chinoise, utilisé depuis des siècles comme tonique de fond du système immunitaire." },
+  { icon:"🛡️", name:"Reishi",             sci:"Ganoderma lucidum · Asie de l'Est",       cat:"immunitaire",      partie:"Champignon (fructification)", usage:"Tonique, immunité", imp:4, desc:"Champignon vénéré en Chine et au Japon depuis plus de 2 000 ans, surnommé « champignon de l'immortalité »." },
+  { icon:"🛡️", name:"Andrographis",       sci:"Andrographis paniculata · Asie du Sud",   cat:"immunitaire",      partie:"Feuilles",         usage:"Soutien hivernal",             imp:3, desc:"Plante amère très utilisée en médecine traditionnelle indienne et asiatique face aux affections saisonnières." },
+  { icon:"🛡️", name:"Cassis",             sci:"Ribes nigrum · Europe",                   cat:"immunitaire",      partie:"Feuilles, baies",  usage:"Confort articulaire, immunité", imp:3, desc:"Arbuste européen dont les feuilles sont traditionnellement associées au bien-être général et au confort articulaire." },
+
+  { icon:"🌙", name:"Valériane",          sci:"Valeriana officinalis · Europe, Asie",    cat:"nerveux",          partie:"Racine",           usage:"Sommeil, détente",             imp:5, desc:"L'une des plantes les plus utilisées au monde pour favoriser un sommeil paisible, connue depuis l'Antiquité grecque." },
+  { icon:"🌙", name:"Millepertuis",       sci:"Hypericum perforatum · Europe",           cat:"nerveux",          partie:"Sommités fleuries", usage:"Humeur",                       imp:4, desc:"Fleur dorée traditionnellement associée au bien-être de l'humeur — l'une des plantes les plus étudiées en Europe." },
+  { icon:"🌙", name:"Passiflore",         sci:"Passiflora incarnata · Amérique",         cat:"nerveux",          partie:"Parties aériennes", usage:"Détente nerveuse",             imp:4, desc:"Utilisée par les peuples autochtones d'Amérique, aujourd'hui répandue mondialement pour favoriser la détente." },
+  { icon:"🌙", name:"Lavande",            sci:"Lavandula angustifolia · Méditerranée",   cat:"nerveux",          partie:"Fleurs",           usage:"Relaxation",                   imp:4, desc:"Symbole de la Provence, utilisée depuis l'Antiquité romaine pour son parfum apaisant et relaxant." },
+  { icon:"🌙", name:"Mélisse",            sci:"Melissa officinalis · Europe, Méditerranée", cat:"nerveux",       partie:"Feuilles",         usage:"Apaisement, digestion",        imp:3, desc:"Plante mellifère utilisée depuis le Moyen Âge en Europe pour ses vertus apaisantes et digestives combinées." },
+  { icon:"🌙", name:"Kava",               sci:"Piper methysticum · Océanie",             cat:"nerveux",          partie:"Racine",           usage:"Détente, rituels sociaux",     imp:3, desc:"Racine centrale des rituels sociaux et cérémoniels du Pacifique, traditionnellement préparée en boisson relaxante." },
+
+  { icon:"🦠", name:"Origan",             sci:"Origanum vulgare · Méditerranée",         cat:"antiseptique",     partie:"Feuilles (huile essentielle)", usage:"Antimicrobien",       imp:4, desc:"Son huile essentielle, riche en carvacrol, est l'une des plus étudiées pour ses propriétés antimicrobiennes naturelles." },
+  { icon:"🦠", name:"Clou de girofle",    sci:"Syzygium aromaticum · Indonésie",         cat:"antiseptique",     partie:"Bouton floral",    usage:"Hygiène bucco-dentaire",       imp:4, desc:"Épice précieuse de l'histoire du commerce mondial, traditionnellement utilisée pour l'hygiène buccale en Asie." },
+  { icon:"🦠", name:"Cannelle",           sci:"Cinnamomum verum · Sri Lanka",            cat:"antiseptique",     partie:"Écorce",           usage:"Antimicrobien, glycémie",      imp:4, desc:"Épice emblématique des routes commerciales anciennes, étudiée pour ses propriétés antimicrobiennes et son effet sur la glycémie." },
+  { icon:"🦠", name:"Neem",               sci:"Azadirachta indica · Inde",               cat:"antiseptique",     partie:"Feuilles, huile",  usage:"Soin de la peau, hygiène",     imp:3, desc:"Arbre sacré de la médecine ayurvédique indienne, surnommé « la pharmacie du village » pour sa polyvalence." },
+  { icon:"🦠", name:"Bardane",            sci:"Arctium lappa · Europe, Asie",            cat:"antiseptique",     partie:"Racine",           usage:"Purifiant, peau",              imp:3, desc:"Racine traditionnellement utilisée en Europe et en Asie comme plante dépurative et purifiante." },
+
+  { icon:"⚡", name:"Ginseng",             sci:"Panax ginseng · Asie de l'Est",           cat:"adaptogene",       partie:"Racine",           usage:"Tonique, vitalité",            imp:5, desc:"Racine la plus prestigieuse de la pharmacopée chinoise, utilisée depuis plus de 2 000 ans comme tonique de vitalité." },
+  { icon:"⚡", name:"Ashwagandha",         sci:"Withania somnifera · Inde",               cat:"adaptogene",       partie:"Racine",           usage:"Adaptogène, énergie",          imp:5, desc:"Pilier de la médecine ayurvédique indienne, l'un des adaptogènes les plus étudiés dans la recherche moderne." },
+  { icon:"⚡", name:"Rhodiola",            sci:"Rhodiola rosea · Régions arctiques",      cat:"adaptogene",       partie:"Racine",           usage:"Résistance au stress",         imp:4, desc:"Plante des régions froides utilisée traditionnellement en Scandinavie et en Sibérie pour résister à la fatigue." },
+  { icon:"⚡", name:"Maca",                sci:"Lepidium meyenii · Pérou (Andes)",        cat:"adaptogene",       partie:"Racine",           usage:"Endurance, vitalité",          imp:3, desc:"Racine andine cultivée en haute altitude depuis des millénaires par les civilisations précolombiennes du Pérou." },
+  { icon:"⚡", name:"Schisandra",          sci:"Schisandra chinensis · Chine",            cat:"adaptogene",       partie:"Baies",            usage:"Adaptogène, foie",             imp:3, desc:"Baie dite « aux cinq saveurs », utilisée en médecine chinoise traditionnelle comme tonique adaptogène." }
+];
+
+const catLabels = {
+  "digestif":         "🌿 Digestif",
+  "respiratoire":     "🫁 Respiratoire",
+  "cutane":           "🩹 Cutané",
+  "analgesique":      "🩺 Anti-inflammatoire",
+  "cardiovasculaire": "❤️ Cardiovasculaire",
+  "immunitaire":      "🛡️ Immunitaire",
+  "nerveux":          "🌙 Nerveux & Sommeil",
+  "antiseptique":     "🦠 Antiseptique",
+  "adaptogene":       "⚡ Adaptogène"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.sci; vb = b.sci; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.partie; vb = b.partie; break;
+      case 6: va = a.usage; vb = b.usage; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' plante')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="sci-cell">${d.sci}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="partie-cell">${d.partie}</td>
+      <td class="usage-cell">${d.usage}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Plantes affichées : <span>${rows.length}</span></span>
+    <span class="stat">Catégories représentées : <span>${nbTypes}</span></span>
+    <span class="stat">Reconnaissance maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
