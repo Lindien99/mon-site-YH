@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Îles Mystérieuses et Isolées du Globe</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eaf6f8;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(15,125,153,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f2fafb;
+    --text:          #0c1a1c;
+    --text-muted:    #52686c;
+    --accent:        #0f7d99;
+    --accent-hover:  #0c6379;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #d8e8ea;
+    --row-hover:     #e7f6f8;
+    --row-even:      #f2fafb;
+    --shadow:        rgba(12,26,28,0.10);
+    --header-bg:     #071519;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #071519;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(79,217,232,0.16), transparent 70%);
+    --surface:       #0f1f23;
+    --surface-alt:   #13272b;
+    --text:          #e6f4f6;
+    --text-muted:    #9bb8bc;
+    --accent:        #4fd9e8;
+    --accent-hover:  #74e3ef;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #1e3338;
+    --row-hover:     #142a2e;
+    --row-even:      #102125;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #030a0c;
+    --header-text:   #f2c14e;
+    --chip-text:     #071519;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/turquoise façon carte de voyage --- */
+  .travel-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.7rem, 5vw, 3.1rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(15,125,153,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 190px; }
+  .pays-cell   { font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .dim-cell    { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 190px; }
+  .partic-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-volcanique    { background: #a12439; }
+  .type-interdite     { background: #4a4a4a; }
+  .type-legendaire    { background: #6b3a8a; }
+  .type-disparue      { background: #7a4a1f; }
+  .type-prison        { background: #3f5fa8; }
+  .type-militaire     { background: #6b7a1f; }
+  .type-polaire       { background: #4a6b7a; }
+  .type-paradis_perdu { background: #1f7a5c; }
+  .type-fantome       { background: #1f6b8a; }
+
+  /* ÉTOILES MYSTÈRE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .dim-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Géographie &amp; Voyages</a>
+
+<header>
+  <div class="travel-strip"></div>
+  <p class="eyebrow">Confins Oubliés du Monde</p>
+  <h1><span class="ornament">🏝️</span> 50 Îles Mystérieuses et Isolées du Globe <span class="ornament">🔍</span></h1>
+  <p class="subtitle">Terres interdites, vestiges disparus et confins polaires — les îles les plus énigmatiques de la planète</p>
+  <div class="travel-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="volcanique">🌋 Volcanique</button>
+  <button class="filter-btn" data-cat="interdite">🚫 Interdite</button>
+  <button class="filter-btn" data-cat="legendaire">👻 Légendaire</button>
+  <button class="filter-btn" data-cat="disparue">🗿 Civilisation disparue</button>
+  <button class="filter-btn" data-cat="prison">⛓️ Prison</button>
+  <button class="filter-btn" data-cat="militaire">🔒 Militaire</button>
+  <button class="filter-btn" data-cat="polaire">❄️ Polaire</button>
+  <button class="filter-btn" data-cat="paradis_perdu">🏝️ Paradis perdu</button>
+  <button class="filter-btn" data-cat="fantome">🏚️ Fantôme</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Île <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Pays / Océan <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Superficie / Statut <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Particularité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Mystère <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-iles-mysterieuses') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-iles-mysterieuses', next);
+});
+
+const DATA = [
+  { icon:"🌋", name:"Surtsey",              pays:"Islande",              cat:"volcanique", dim:"~1,3 km², accès scientifique strictement limité", partic:"Île née d'une éruption sous-marine en 1963", imp:4, desc:"Île volcanique récemment formée, étudiée en accès restreint depuis sa naissance pour observer la colonisation naturelle d'une terre vierge." },
+  { icon:"🌋", name:"Bouvet",               pays:"Norvège",              cat:"volcanique", dim:"~49 km², inhabitée",                    partic:"Île considérée comme la plus isolée du monde", imp:5, desc:"Îlot volcanique glacé perdu dans l'Atlantique Sud, à plus de 1 700 km de toute autre terre habitée — l'isolement absolu." },
+  { icon:"🌋", name:"Whakaari (White Island)", pays:"Nouvelle-Zélande",  cat:"volcanique", dim:"~2,4 km², volcan actif",                partic:"L'un des volcans les plus actifs de Nouvelle-Zélande", imp:4, desc:"Île volcanique fumante au large de la Nouvelle-Zélande, tristement connue pour une éruption meurtrière ayant frappé des visiteurs en 2019." },
+  { icon:"🌋", name:"Deception Island",     pays:"Antarctique",          cat:"volcanique", dim:"~98 km², caldeira volcanique active",  partic:"Volcan en forme de fer à cheval abritant une baie naturelle", imp:4, desc:"Caldeira volcanique antarctique dont l'effondrement a créé un port naturel unique, encore actif et surveillé de près." },
+  { icon:"🌋", name:"Anak Krakatoa",        pays:"Indonésie",            cat:"volcanique", dim:"Née en 1927, en croissance continue",  partic:"« Enfant » du volcan Krakatoa, tristement célèbre",  imp:4, desc:"Volcan émergé des eaux après l'explosion légendaire du Krakatoa en 1883, toujours actif et en perpétuelle transformation." },
+  { icon:"🌋", name:"Stromboli",            pays:"Italie",               cat:"volcanique", dim:"~12,6 km², en éruption quasi continue", partic:"Surnommé le « phare de la Méditerranée »", imp:3, desc:"Volcan en activité presque ininterrompue depuis plus de 2 000 ans, dont les éruptions régulières sont visibles à des kilomètres en mer." },
+
+  { icon:"🚫", name:"North Sentinel Island", pays:"Inde (îles Andaman)", cat:"interdite",  dim:"~60 km², accès formellement interdit", partic:"Habitée par l'un des derniers peuples non contactés au monde", imp:5, desc:"Île isolée dont les habitants sentinelles rejettent tout contact extérieur depuis des millénaires — l'accès y est légalement interdit pour les protéger." },
+  { icon:"🚫", name:"Niihau",               pays:"États-Unis (Hawaï)",   cat:"interdite",  dim:"~180 km², propriété privée",           partic:"Surnommée « l'île interdite » d'Hawaï",  imp:3, desc:"Île privée hawaïenne dont l'accès est réservé à ses habitants et à quelques visiteurs autorisés, préservant un mode de vie traditionnel." },
+  { icon:"🚫", name:"Ilha da Queimada Grande", pays:"Brésil",             cat:"interdite",  dim:"~0,43 km², accès interdit au public",  partic:"Surnommée « l'île aux serpents » du Brésil", imp:4, desc:"Île interdite au public en raison d'une densité extrême de serpents venimeux endémiques, parmi les plus dangereux au monde." },
+  { icon:"🚫", name:"Poveglia",             pays:"Italie",               cat:"interdite",  dim:"~7 hectares, accès très restreint",    partic:"Ancienne île de quarantaine et d'isolement des malades", imp:4, desc:"Petite île vénitienne à l'histoire lourde, ayant servi de lieu de quarantaine puis d'asile, aujourd'hui laissée à l'abandon et difficile d'accès." },
+  { icon:"🚫", name:"Clipperton",           pays:"France",               cat:"interdite",  dim:"~6 km², inhabitée en permanence",      partic:"Atoll français isolé dans le Pacifique oriental", imp:3, desc:"Atoll corallien isolé sans habitants permanents, seul territoire français du Pacifique nord, difficile d'accès et rarement visité." },
+  { icon:"🚫", name:"Farallon Islands",     pays:"États-Unis",           cat:"interdite",  dim:"Accès public interdit, réserve naturelle", partic:"Surnommées les « îles de la mort » en raison des requins", imp:3, desc:"Archipel californien classé réserve naturelle protégée, accès strictement limité aux chercheurs en raison de sa faune sensible." },
+
+  { icon:"👻", name:"Skellig Michael",      pays:"Irlande",              cat:"legendaire", dim:"~22 hectares, monastère du VIᵉ siècle", partic:"Ancien refuge de moines ermites, rendu célèbre par le cinéma", imp:4, desc:"Îlot rocheux abrupt battu par l'Atlantique, ancien sanctuaire monastique médiéval au caractère mystique préservé jusqu'à aujourd'hui." },
+  { icon:"👻", name:"Oak Island",           pays:"Canada",               cat:"legendaire", dim:"~57 hectares",                          partic:"Légendaire « puits d'argent », objet de fouilles depuis des siècles", imp:4, desc:"Petite île canadienne au centre d'une légende de trésor enfoui, ayant motivé des recherches infructueuses pendant plus de 200 ans." },
+  { icon:"👻", name:"Rockall",              pays:"Royaume-Uni",          cat:"legendaire", dim:"~570 m², inhabitable",                  partic:"Îlot granitique disputé au milieu de l'Atlantique Nord", imp:3, desc:"Minuscule rocher isolé émergeant à peine des flots, objet de différends territoriaux et de légendes marines depuis des siècles." },
+  { icon:"👻", name:"Staffa",               pays:"Écosse",               cat:"legendaire", dim:"~0,33 km², inhabitée",                  partic:"Grotte de Fingal aux colonnes basaltiques légendaires", imp:3, desc:"Île volcanique célèbre pour sa grotte aux formations de basalte hexagonales, source d'inspiration de légendes celtiques anciennes." },
+  { icon:"👻", name:"Sable Island",         pays:"Canada",               cat:"legendaire", dim:"~34 km², en forme de croissant",       partic:"Surnommée le « cimetière de l'Atlantique »", imp:3, desc:"Île de sable isolée responsable de centaines de naufrages historiques, aujourd'hui refuge de chevaux sauvages en liberté." },
+
+  { icon:"🗿", name:"Île de Pâques",        pays:"Chili",                cat:"disparue",   dim:"~164 km², plus de 900 statues moaï",   partic:"Civilisation disparue laissant derrière elle des statues énigmatiques", imp:5, desc:"Île isolée du Pacifique dont l'effondrement de la civilisation qui érigea les moaï demeure l'un des grands mystères archéologiques." },
+  { icon:"🗿", name:"Nan Madol",            pays:"Micronésie (Pohnpei)", cat:"disparue",   dim:"Cité mégalithique sur récif corallien", partic:"Surnommée la « Venise du Pacifique »",   imp:4, desc:"Cité antique bâtie sur un récif corallien à partir de blocs basaltiques géants, dont les techniques de construction restent mystérieuses." },
+  { icon:"🗿", name:"Yonaguni",             pays:"Japon",                cat:"disparue",   dim:"~29 km²",                               partic:"Structures sous-marines énigmatiques au large de ses côtes", imp:3, desc:"Île japonaise au large de laquelle des formations rocheuses sous-marines suscitent un débat scientifique sur leur origine naturelle ou humaine." },
+  { icon:"🗿", name:"Malden Island",        pays:"Kiribati",             cat:"disparue",   dim:"~39 km², inhabitée",                    partic:"Vestiges de plateformes cérémonielles d'une civilisation disparue", imp:3, desc:"Atoll isolé du Pacifique central présentant des vestiges archéologiques mystérieux d'une occupation humaine ancienne et disparue." },
+  { icon:"🗿", name:"Pitcairn",             pays:"Territoire britannique", cat:"disparue", dim:"~4,6 km², moins de 50 habitants",       partic:"Refuge des mutins du Bounty en 1790",    imp:4, desc:"Île la plus isolée habitée du Pacifique, colonisée par les mutins du Bounty et leurs descendants, aujourd'hui presque désertée." },
+
+  { icon:"⛓️", name:"Alcatraz",             pays:"États-Unis",           cat:"prison",     dim:"~0,08 km², prison fermée en 1963",     partic:"Ancienne prison fédérale réputée inviolable", imp:5, desc:"Îlot rocheux de la baie de San Francisco ayant abrité l'une des prisons les plus célèbres et redoutées de l'histoire américaine." },
+  { icon:"⛓️", name:"Robben Island",        pays:"Afrique du Sud",       cat:"prison",     dim:"~5,07 km², site UNESCO depuis 1999",   partic:"A emprisonné Nelson Mandela pendant 18 ans", imp:5, desc:"Île-prison au large du Cap, symbole de la lutte contre l'apartheid, où Nelson Mandela fut incarcéré une grande partie de sa détention." },
+  { icon:"⛓️", name:"Île du Diable",        pays:"Guyane française",     cat:"prison",     dim:"~0,15 km²",                             partic:"Bagne français rendu célèbre par l'affaire Dreyfus", imp:4, desc:"Ancien bagne colonial français au large de la Guyane, tristement célèbre pour avoir détenu le capitaine Alfred Dreyfus." },
+  { icon:"⛓️", name:"Île Sainte-Marguerite", pays:"France",              cat:"prison",     dim:"~3,1 km²",                              partic:"Légende du mystérieux « Homme au Masque de Fer »", imp:3, desc:"Île méditerranéenne où fut détenu le prisonnier masqué resté anonyme, dont l'identité alimente encore les spéculations historiques." },
+  { icon:"⛓️", name:"Château d'If",         pays:"France",               cat:"prison",     dim:"~3 hectares",                           partic:"Cadre du roman « Le Comte de Monte-Cristo »", imp:3, desc:"Forteresse-prison au large de Marseille, immortalisée par Alexandre Dumas comme lieu d'évasion légendaire du Comte de Monte-Cristo." },
+
+  { icon:"🔒", name:"Diego Garcia",         pays:"Chagos (Royaume-Uni)", cat:"militaire",  dim:"~44 km², base militaire fermée au public", partic:"Base militaire stratégique américano-britannique", imp:4, desc:"Atoll transformé en base militaire majeure, dont l'histoire reste marquée par l'expulsion controversée de sa population d'origine." },
+  { icon:"🔒", name:"Bikini Atoll",         pays:"Îles Marshall",        cat:"militaire",  dim:"~6 km² de terres émergées",             partic:"Site de plus de 20 essais nucléaires américains", imp:5, desc:"Atoll du Pacifique rendu tristement célèbre par une série d'essais nucléaires américains menés entre 1946 et 1958." },
+  { icon:"🔒", name:"Wake Island",          pays:"États-Unis",           cat:"militaire",  dim:"~7,4 km², sans population civile",     partic:"Base militaire américaine isolée dans le Pacifique", imp:3, desc:"Atoll isolé du Pacifique central sous contrôle militaire américain, sans population civile permanente." },
+  { icon:"🔒", name:"Johnston Atoll",       pays:"États-Unis",           cat:"militaire",  dim:"~2,8 km², inhabité depuis 2005",       partic:"Ancien site de stockage d'armes chimiques", imp:3, desc:"Atoll isolé ayant servi à des essais militaires et au stockage d'armes chimiques, aujourd'hui abandonné et fermé au public." },
+  { icon:"🔒", name:"Kwajalein Atoll",      pays:"Îles Marshall",        cat:"militaire",  dim:"Plus grand lagon d'atoll au monde",    partic:"Site américain de tests de missiles balistiques", imp:3, desc:"Immense atoll du Pacifique abritant une installation militaire américaine dédiée aux essais de missiles à longue portée." },
+
+  { icon:"❄️", name:"Kerguelen",            pays:"France",               cat:"polaire",    dim:"~7 215 km², sans population permanente", partic:"Surnommées les « îles de la Désolation »", imp:4, desc:"Archipel subantarctique français d'une isolement extrême, ne comptant qu'une poignée de scientifiques présents à l'année." },
+  { icon:"❄️", name:"Géorgie du Sud",       pays:"Royaume-Uni",          cat:"polaire",    dim:"~3 900 km², sans population permanente", partic:"Dernière expédition et tombe de l'explorateur Ernest Shackleton", imp:4, desc:"Île subantarctique sauvage à la faune abondante, lieu du dernier voyage du célèbre explorateur polaire Ernest Shackleton." },
+  { icon:"❄️", name:"Peter Ier",            pays:"Norvège",              cat:"polaire",    dim:"~156 km², quasi intégralement englacée", partic:"L'une des terres les plus isolées d'Antarctique", imp:4, desc:"Île volcanique antarctique presque entièrement recouverte de glace, parmi les terres les plus difficiles d'accès de la planète." },
+  { icon:"❄️", name:"Nouvelle-Zemble",      pays:"Russie",               cat:"polaire",    dim:"Archipel arctique, faible population",  partic:"Ancien site des plus puissants essais nucléaires jamais réalisés", imp:4, desc:"Archipel arctique russe ayant accueilli les essais de la Tsar Bomba, la plus puissante arme nucléaire jamais testée." },
+  { icon:"❄️", name:"Jan Mayen",            pays:"Norvège",              cat:"polaire",    dim:"~377 km², présence militaire limitée", partic:"Volcan actif isolé dans l'Atlantique Nord",  imp:3, desc:"Île volcanique arctique isolée sans population civile, uniquement occupée par du personnel météorologique et militaire norvégien." },
+  { icon:"❄️", name:"Terre François-Joseph", pays:"Russie",              cat:"polaire",    dim:"Archipel de plus de 190 îles",         partic:"L'un des archipels les plus septentrionaux habités du monde", imp:3, desc:"Vaste archipel arctique russe presque entièrement englacé, base avancée de recherche polaire aux confins du monde habité." },
+
+  { icon:"🏝️", name:"Tristan da Cunha",     pays:"Royaume-Uni",          cat:"paradis_perdu", dim:"~98 km², environ 250 habitants",     partic:"Île habitée la plus isolée du monde",    imp:5, desc:"Archipel perdu dans l'Atlantique Sud, à plus de 2 400 km de toute autre terre habitée — la définition même de l'isolement humain." },
+  { icon:"🏝️", name:"Palmerston",           pays:"Îles Cook",            cat:"paradis_perdu", dim:"~2 km², moins de 50 habitants",       partic:"Population entièrement descendante d'un seul colon britannique", imp:3, desc:"Atoll isolé du Pacifique dont tous les habitants descendent d'un unique marin anglais installé au XIXᵉ siècle avec sa famille." },
+  { icon:"🏝️", name:"Chatham",              pays:"Nouvelle-Zélande",     cat:"paradis_perdu", dim:"~966 km²",                            partic:"Premier lieu habité à voir le lever du soleil chaque jour",  imp:3, desc:"Archipel isolé du Pacifique Sud, parmi les premiers endroits habités de la planète à accueillir chaque nouveau jour." },
+  { icon:"🏝️", name:"Robinson Crusoé (Más a Tierra)", pays:"Chili",     cat:"paradis_perdu", dim:"~48 km²",                              partic:"A inspiré le roman de Daniel Defoe",     imp:4, desc:"Île de l'archipel Juan Fernández où survécut réellement le marin Alexander Selkirk, inspirateur du célèbre roman d'aventure." },
+  { icon:"🏝️", name:"Henderson",            pays:"Îles Pitcairn",        cat:"paradis_perdu", dim:"~37 km², inhabitée",                  partic:"Île corallienne intacte classée au patrimoine mondial", imp:3, desc:"Île isolée et vierge de toute exploitation, préservée pour sa valeur exceptionnelle d'écosystème insulaire non perturbé." },
+  { icon:"🏝️", name:"Tromelin",             pays:"France",               cat:"paradis_perdu", dim:"~1 km², inhabitée en permanence",     partic:"Théâtre d'un naufrage tragique au XVIIIᵉ siècle", imp:3, desc:"Îlot isolé de l'océan Indien, tristement célèbre pour avoir vu des esclaves naufragés y survivre abandonnés pendant quinze ans." },
+
+  { icon:"🏚️", name:"Hashima (Gunkanjima)", pays:"Japon",                cat:"fantome",    dim:"~0,06 km², abandonnée depuis 1974",    partic:"Ancienne cité minière ultra-densément peuplée, désertée du jour au lendemain", imp:5, desc:"Île-usine abandonnée surnommée « île-vaisseau de guerre », véritable ville fantôme figée depuis la fermeture de sa mine de charbon." },
+  { icon:"🏚️", name:"Spinalonga",           pays:"Grèce",                cat:"fantome",    dim:"~8,5 hectares",                         partic:"Ancienne colonie de lépreux abandonnée",  imp:4, desc:"Ancienne forteresse vénitienne devenue léproserie isolée jusqu'en 1957, aujourd'hui île fantôme chargée d'une histoire poignante." },
+  { icon:"🏚️", name:"North Brother Island", pays:"États-Unis",           cat:"fantome",    dim:"~8 hectares, abandonnée depuis 1963",  partic:"Ancien hôpital de quarantaine dans New York", imp:3, desc:"Île abandonnée au cœur de New York, ancien site d'isolement de patients contagieux, aujourd'hui envahie par une nature reprenant ses droits." },
+  { icon:"🏚️", name:"Bannerman Island",     pays:"États-Unis",           cat:"fantome",    dim:"~2,4 hectares",                         partic:"Château en ruine abandonné sur l'Hudson",  imp:2, desc:"Petite île de l'Hudson abritant les vestiges spectaculaires d'un château néogothique construit comme entrepôt d'armes, aujourd'hui en ruine." },
+  { icon:"🏚️", name:"Holland Island",       pays:"États-Unis",           cat:"fantome",    dim:"Presque entièrement engloutie",         partic:"Village autrefois prospère disparu sous les eaux", imp:2, desc:"Ancienne île habitée de la baie de Chesapeake, progressivement engloutie par l'érosion jusqu'à la quasi-disparition complète de ses terres." },
+  { icon:"🏚️", name:"Sandy Island",         pays:"Océan Pacifique (fictive)", cat:"fantome", dim:"Figurait sur les cartes pendant plus d'un siècle", partic:"Île « fantôme » retirée des cartes en 2012 après vérification", imp:3, desc:"Île qui n'a jamais existé mais figura sur des cartes officielles pendant plus d'un siècle, retirée seulement après une expédition scientifique." }
+];
+
+const catLabels = {
+  "volcanique":    "🌋 Volcanique",
+  "interdite":     "🚫 Interdite",
+  "legendaire":    "👻 Légendaire",
+  "disparue":      "🗿 Civilisation disparue",
+  "prison":        "⛓️ Prison",
+  "militaire":     "🔒 Militaire",
+  "polaire":       "❄️ Polaire",
+  "paradis_perdu": "🏝️ Paradis perdu",
+  "fantome":       "🏚️ Fantôme"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.pays; vb = b.pays; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.dim; vb = b.dim; break;
+      case 6: va = a.partic; vb = b.partic; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' île '+d.pays)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="dim-cell">${d.dim}</td>
+      <td class="partic-cell">${d.partic}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Îles affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Mystère maximal ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
