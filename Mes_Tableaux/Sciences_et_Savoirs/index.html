@@ -18,6 +18,18 @@
     --shadow:      rgba(13,27,42,0.16);
   }
 
+  [data-theme="dark"] {
+    --sci-dark:    #a8cfea;
+    --sci-mid:     #7aadcf;
+    --sci-light:   #5b8db5;
+    --sci-bg:      #07111a;
+    --sci-card:    #0f1e2d;
+    --ink:         #e8f0f8;
+    --accent:      #4a7fb5;
+    --accent-light:#6a9fd5;
+    --shadow:      rgba(0,0,0,0.45);
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -27,6 +39,7 @@
     color: var(--ink);
     min-height: 100vh;
     padding: 2.5rem 1.5rem 5rem;
+    transition: background-color 0.3s, color 0.3s;
   }
 
   /* ── NAVIGATION RETOUR ── */
@@ -166,9 +179,29 @@
     color: var(--sci-mid);
     opacity: 0.45;
   }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.4rem;
+    border: 1.5px solid var(--accent);
+    background: var(--sci-card);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
 </style>
 </head>
 <body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
 
   <a href="../index.html" class="btn-back">← Retour aux Tableaux</a>
 
@@ -220,6 +253,27 @@
   <footer>
     <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
   </footer>
+
+<script>
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-sciences') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-sciences', next);
+});
+</script>
 
 </body>
 </html>

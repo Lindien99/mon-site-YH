@@ -14,6 +14,16 @@
             --bg:           #07090f;
         }
 
+        [data-theme="light"] {
+            --bg:           #f5ead8;
+            --parchment:    #2c1a0e;
+            --parchment-dim:rgba(44,26,14,0.6);
+            --gold:         #9a6c1a;
+            --gold-dim:     rgba(154,108,26,0.35);
+        }
+        [data-theme="light"] .cat-carte { background: rgba(44,26,14,0.04); }
+        [data-theme="light"] footer { color: rgba(44,26,14,0.35); }
+
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -21,6 +31,7 @@
             color: var(--parchment);
             font-family: 'Cormorant Garamond', Georgia, serif;
             min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
         }
 
         .bg-glow {
@@ -203,12 +214,30 @@
             .page-header { padding: 48px 20px 32px; }
             main { padding: 10px 18px 60px; grid-template-columns: 1fr; }
         }
+
+        .theme-toggle {
+            display: block;
+            margin: 0 auto 1.5rem;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            padding: 0.5rem 1.4rem;
+            border: 1.5px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: var(--gold); color: var(--bg); }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
 
     <header class="page-header">
+        <button class="theme-toggle" id="themeToggle" type="button">☀️ Écran clair</button>
         <a href="../index.html" class="btn-back">← Accueil</a>
         <p class="eyebrow">✦ &nbsp; Collections Thématiques &nbsp; ✦</p>
         <h1 class="page-title">Mes <em>Tableaux</em></h1>
@@ -285,5 +314,27 @@
     <footer>
         <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
     </footer>
+
+<script>
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    themeBtn.textContent = '🌙 Écran sombre';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '☀️ Écran clair';
+  }
+}
+const savedTheme = localStorage.getItem('theme-mes-tableaux') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  localStorage.setItem('theme-mes-tableaux', next);
+});
+</script>
+
 </body>
 </html>
