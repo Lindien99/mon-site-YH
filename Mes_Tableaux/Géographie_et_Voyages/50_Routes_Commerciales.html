@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Routes Commerciales qui ont Forgé la Mondialisation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eaf6f8;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(15,125,153,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f2fafb;
+    --text:          #0c1a1c;
+    --text-muted:    #52686c;
+    --accent:        #0f7d99;
+    --accent-hover:  #0c6379;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #d8e8ea;
+    --row-hover:     #e7f6f8;
+    --row-even:      #f2fafb;
+    --shadow:        rgba(12,26,28,0.10);
+    --header-bg:     #071519;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #071519;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(79,217,232,0.16), transparent 70%);
+    --surface:       #0f1f23;
+    --surface-alt:   #13272b;
+    --text:          #e6f4f6;
+    --text-muted:    #9bb8bc;
+    --accent:        #4fd9e8;
+    --accent-hover:  #74e3ef;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #1e3338;
+    --row-hover:     #142a2e;
+    --row-even:      #102125;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #030a0c;
+    --header-text:   #f2c14e;
+    --chip-text:     #071519;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/turquoise façon carte de voyage --- */
+  .travel-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(15,125,153,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 200px; }
+  .regions-cell{ font-size: 0.86rem; color: var(--text-muted); min-width: 190px; }
+  .periode-cell{ font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 180px; }
+  .partic-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-terrestre           { background: #7a4a1f; }
+  .type-maritime             { background: #2e5f7a; }
+  .type-canal                { background: #1f6b8a; }
+  .type-detroit              { background: #3f5fa8; }
+  .type-ferroviaire          { background: #4a4a4a; }
+  .type-coloniale            { background: #a12439; }
+  .type-moderne              { background: #6b3a8a; }
+  .type-epices_encens        { background: #b58a1f; }
+  .type-alliance_commerciale { background: #6b7a1f; }
+
+  /* ÉTOILES IMPORTANCE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .periode-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Géographie &amp; Voyages</a>
+
+<header>
+  <div class="travel-strip"></div>
+  <p class="eyebrow">Voies du Commerce Mondial</p>
+  <h1><span class="ornament">🐫</span> 50 Routes Commerciales qui ont Forgé la Mondialisation <span class="ornament">⚓</span></h1>
+  <p class="subtitle">Des caravanes du désert aux porte-conteneurs modernes — les voies qui ont relié les civilisations</p>
+  <div class="travel-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="terrestre">🐫 Terrestre</button>
+  <button class="filter-btn" data-cat="maritime">⛵ Maritime</button>
+  <button class="filter-btn" data-cat="canal">🚢 Canal</button>
+  <button class="filter-btn" data-cat="detroit">🌊 Détroit</button>
+  <button class="filter-btn" data-cat="ferroviaire">🚂 Ferroviaire</button>
+  <button class="filter-btn" data-cat="coloniale">⚓ Coloniale</button>
+  <button class="filter-btn" data-cat="moderne">📦 Moderne</button>
+  <button class="filter-btn" data-cat="epices_encens">🌶️ Épices &amp; encens</button>
+  <button class="filter-btn" data-cat="alliance_commerciale">🤝 Alliance commerciale</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Route commerciale <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Régions reliées <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période d'activité <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Marchandise / Particularité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-routes-commerciales') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-routes-commerciales', next);
+});
+
+const DATA = [
+  { icon:"🐫", name:"Route de la Soie",              regions:"Chine, Asie centrale, Moyen-Orient, Europe", cat:"terrestre", periode:"IIᵉ siècle av. J.-C. – XVᵉ siècle", partic:"Soie, épices, savoirs et religions",  imp:5, desc:"Le plus célèbre réseau de routes commerciales de l'histoire, reliant l'Orient et l'Occident sur plus de 6 000 km pendant près de 1 700 ans." },
+  { icon:"🐫", name:"Route de l'Ambre",              regions:"Baltique, Europe centrale, Méditerranée",  cat:"terrestre", periode:"Depuis l'Âge du bronze",           partic:"Ambre jaune de la Baltique",           imp:3, desc:"Ancienne voie reliant les rivages de la Baltique riches en ambre fossile aux marchés romains et grecs de Méditerranée." },
+  { icon:"🐫", name:"Route du Thé et des Chevaux",   regions:"Chine, Tibet",                              cat:"terrestre", periode:"VIᵉ siècle – XXᵉ siècle",          partic:"Thé compressé échangé contre des chevaux", imp:3, desc:"Réseau de sentiers escarpés himalayens sur lesquels le thé chinois était échangé contre les précieux chevaux tibétains." },
+  { icon:"🐫", name:"Route Royale perse",            regions:"Empire perse (Anatolie à l'Iran)",         cat:"terrestre", periode:"Vᵉ siècle av. J.-C.",              partic:"Première grande route impériale organisée", imp:3, desc:"Voie impériale achéménide reliant Sardes à Suse, dotée d'un système de relais postaux considéré comme précurseur des routes modernes." },
+  { icon:"🐫", name:"Route Trans-saharienne",        regions:"Afrique du Nord, Sahel",                    cat:"terrestre", periode:"VIIIᵉ siècle – XVIᵉ siècle",       partic:"Or, sel et esclaves entre l'Afrique noire et le Maghreb", imp:4, desc:"Réseau de pistes caravanières traversant le désert du Sahara, moteur économique des grands empires ouest-africains médiévaux." },
+  { icon:"🐫", name:"Grand Trunk Road",              regions:"Asie du Sud (Inde, Pakistan, Bangladesh)", cat:"terrestre", periode:"IIIᵉ siècle av. J.-C. – aujourd'hui", partic:"L'une des plus anciennes et plus longues routes d'Asie", imp:3, desc:"Voie historique majeure du sous-continent indien, colonne vertébrale du commerce sud-asiatique depuis plus de 2 000 ans." },
+  { icon:"🐫", name:"Qhapaq Ñan (route inca)",       regions:"Amérique du Sud (Andes)",                   cat:"terrestre", periode:"XVᵉ – XVIᵉ siècle",                partic:"Plus de 30 000 km de routes andines",  imp:3, desc:"Vaste réseau routier inca reliant l'ensemble de l'empire à travers les Andes, utilisé pour le commerce et l'administration impériale." },
+
+  { icon:"⛵", name:"Route des Épices",              regions:"Océan Indien, Asie du Sud-Est, Europe",    cat:"maritime",  periode:"Antiquité – XVIIᵉ siècle",         partic:"Poivre, cannelle, girofle, muscade",   imp:5, desc:"Réseau maritime reliant les îles à épices d'Asie à l'Europe, moteur des grandes explorations maritimes de la Renaissance." },
+  { icon:"⛵", name:"Route du Galion de Manille",    regions:"Philippines, Mexique (océan Pacifique)",   cat:"maritime",  periode:"1565 – 1815",                      partic:"Premier lien commercial permanent Asie-Amérique", imp:4, desc:"Liaison maritime espagnole régulière entre l'Asie et les Amériques, échangeant argent mexicain contre soieries et porcelaines chinoises." },
+  { icon:"⛵", name:"Route de la Soie maritime",     regions:"Chine, océan Indien, Afrique de l'Est",    cat:"maritime",  periode:"IIᵉ siècle av. J.-C. – XVᵉ siècle", partic:"Pendant maritime de la Route de la Soie terrestre", imp:4, desc:"Réseau de routes navales complétant la Route de la Soie continentale, reliant la Chine à l'Afrique de l'Est via l'océan Indien." },
+  { icon:"⛵", name:"Route du Cap",                  regions:"Portugal, Afrique, Asie",                   cat:"maritime",  periode:"Depuis 1498",                      partic:"Contournement de l'Afrique par le cap de Bonne-Espérance", imp:4, desc:"Route ouverte par Vasco de Gama contournant l'Afrique, qui a permis à l'Europe d'accéder directement aux richesses asiatiques." },
+  { icon:"⛵", name:"Route transatlantique triangulaire", regions:"Europe, Afrique, Amériques",           cat:"maritime",  periode:"XVIᵉ – XIXᵉ siècle",                partic:"Textiles, personnes réduites en esclavage, matières premières", imp:4, desc:"Circuit commercial reliant trois continents, dont l'héritage tragique reste indissociable de la traite transatlantique des esclaves." },
+  { icon:"⛵", name:"Route des Moluques",            regions:"Indonésie, Europe",                         cat:"maritime",  periode:"XVIᵉ – XVIIᵉ siècle",               partic:"Convoitées pour leurs girofliers et muscadiers uniques", imp:3, desc:"Voie maritime vers les îles Moluques, seules productrices mondiales de girofle et de muscade, âprement disputée par les puissances européennes." },
+  { icon:"⛵", name:"Route commerciale swahilie",    regions:"Afrique de l'Est, océan Indien",           cat:"maritime",  periode:"VIIIᵉ – XVᵉ siècle",                partic:"Or, ivoire et esclaves entre l'Afrique et l'Arabie",  imp:3, desc:"Réseau de cités-États swahilies de la côte est-africaine, plaque tournante du commerce entre l'Afrique intérieure et le monde arabo-persan." },
+
+  { icon:"🚢", name:"Canal de Suez",                 regions:"Égypte",                                    cat:"canal",     periode:"Ouvert en 1869",                   partic:"Raccourcit le trajet Europe-Asie de plusieurs semaines", imp:5, desc:"Voie d'eau artificielle reliant Méditerranée et mer Rouge, l'une des artères maritimes les plus stratégiques du commerce mondial actuel." },
+  { icon:"🚢", name:"Canal de Panama",               regions:"Panama",                                    cat:"canal",     periode:"Ouvert en 1914",                   partic:"Évite le contournement du cap Horn",  imp:5, desc:"Prouesse d'ingénierie reliant Atlantique et Pacifique, raccourcissant considérablement les routes maritimes entre les deux côtes américaines." },
+  { icon:"🚢", name:"Canal de Kiel",                 regions:"Allemagne",                                 cat:"canal",     periode:"Ouvert en 1895",                   partic:"L'un des canaux artificiels les plus fréquentés au monde", imp:3, desc:"Voie navigable reliant mer du Nord et mer Baltique, évitant le contournement du Danemark pour le trafic maritime européen." },
+  { icon:"🚢", name:"Canal Érié",                    regions:"États-Unis",                                cat:"canal",     periode:"Ouvert en 1825",                   partic:"A ouvert l'intérieur des États-Unis au commerce atlantique", imp:3, desc:"Canal historique reliant les Grands Lacs à l'océan Atlantique, catalyseur majeur de l'expansion économique américaine au XIXᵉ siècle." },
+  { icon:"🚢", name:"Grand Canal de Chine",          regions:"Chine",                                     cat:"canal",     periode:"Construit dès le Vᵉ siècle av. J.-C.", partic:"Plus long canal artificiel du monde", imp:4, desc:"Voie navigable la plus longue et la plus ancienne du monde, reliant depuis des millénaires le nord et le sud de la Chine." },
+
+  { icon:"🌊", name:"Détroit de Malacca",            regions:"Indonésie, Malaisie, Singapour",           cat:"detroit",   periode:"Stratégique depuis l'Antiquité",   partic:"Passage d'environ un quart du commerce maritime mondial", imp:5, desc:"L'un des points de passage maritimes les plus fréquentés et stratégiques au monde, reliant l'océan Indien à la mer de Chine méridionale." },
+  { icon:"🌊", name:"Détroit d'Ormuz",               regions:"Golfe Persique",                            cat:"detroit",   periode:"Stratégique depuis l'Antiquité",   partic:"Passage majeur pour le commerce pétrolier mondial", imp:5, desc:"Goulet d'étranglement crucial du commerce énergétique mondial, par lequel transite une part considérable du pétrole exporté par bateau." },
+  { icon:"🌊", name:"Détroit de Gibraltar",          regions:"Espagne, Maroc",                            cat:"detroit",   periode:"Stratégique depuis l'Antiquité",   partic:"Seul accès maritime entre Méditerranée et Atlantique", imp:4, desc:"Porte d'entrée historique entre la Méditerranée et l'océan Atlantique, point de passage obligé du commerce européen depuis l'Antiquité." },
+  { icon:"🌊", name:"Bosphore",                      regions:"Turquie",                                   cat:"detroit",   periode:"Stratégique depuis l'Antiquité",   partic:"Sépare l'Europe et l'Asie, relie mer Noire et Méditerranée", imp:4, desc:"Détroit historique séparant deux continents, verrou stratégique entre la mer Noire et la Méditerranée depuis l'époque byzantine." },
+  { icon:"🌊", name:"Détroit de Bab-el-Mandeb",      regions:"Djibouti, Yémen",                           cat:"detroit",   periode:"Stratégique depuis l'Antiquité",   partic:"Passage clé entre mer Rouge et océan Indien", imp:4, desc:"Verrou maritime entre la mer Rouge et le golfe d'Aden, étape incontournable des routes commerciales entre Europe et Asie." },
+
+  { icon:"🚂", name:"Transsibérien",                 regions:"Russie",                                    cat:"ferroviaire", periode:"Achevé en 1916",                 partic:"Plus longue ligne ferroviaire du monde",  imp:4, desc:"Ligne ferroviaire reliant Moscou à Vladivostok sur plus de 9 000 km, colonne vertébrale du commerce terrestre russe vers l'Asie." },
+  { icon:"🚂", name:"Chemin de fer transcontinental américain", regions:"États-Unis",                     cat:"ferroviaire", periode:"Achevé en 1869",                 partic:"A relié les côtes est et ouest des États-Unis", imp:4, desc:"Première ligne ferroviaire traversant l'Amérique du Nord, catalyseur majeur du développement économique de l'ouest américain." },
+  { icon:"🚂", name:"Nouvelle Route de la Soie ferroviaire", regions:"Chine, Asie centrale, Europe",       cat:"ferroviaire", periode:"Développée depuis 2011",         partic:"Fret ferroviaire direct Chine-Europe",     imp:4, desc:"Corridor ferroviaire moderne reliant les usines chinoises aux marchés européens, alternative rapide au transport maritime traditionnel." },
+  { icon:"🚂", name:"Chemin de fer de l'Ouganda",    regions:"Kenya, Ouganda",                            cat:"ferroviaire", periode:"Achevé en 1901",                 partic:"Surnommé « Lunatic Express » lors de sa construction", imp:2, desc:"Ligne coloniale britannique reliant l'intérieur de l'Afrique de l'Est à la côte, ayant profondément marqué le développement régional." },
+  { icon:"🚂", name:"Chemin de fer Congo-Océan",     regions:"République du Congo",                       cat:"ferroviaire", periode:"Construit entre 1921 et 1934",   partic:"Relie Brazzaville à l'océan Atlantique",   imp:2, desc:"Ligne coloniale française reliant le fleuve Congo à l'océan, construite au prix d'un lourd tribut humain durant l'époque coloniale." },
+
+  { icon:"⚓", name:"Commerce triangulaire",         regions:"Europe, Afrique, Amériques",                cat:"coloniale", periode:"XVIᵉ – XIXᵉ siècle",               partic:"Circuit économique lié à la traite négrière", imp:4, desc:"Système commercial colonial reliant trois continents, dont l'héritage historique reste marqué par la tragédie de l'esclavage." },
+  { icon:"⚓", name:"Route des Indes orientales",    regions:"Europe, Asie",                              cat:"coloniale", periode:"XVIIᵉ – XIXᵉ siècle",               partic:"Épices, thé, textiles et porcelaine",  imp:4, desc:"Réseau commercial des grandes compagnies européennes des Indes orientales, moteur du commerce colonial entre l'Europe et l'Asie." },
+  { icon:"⚓", name:"Route de l'or et du sel trans-saharienne", regions:"Afrique de l'Ouest, Maghreb",    cat:"coloniale", periode:"VIIIᵉ – XVIᵉ siècle",               partic:"Or échangé contre du sel au poids égal", imp:3, desc:"Ancien commerce d'échange où l'or ouest-africain valait son pesant de sel saharien, fondement de la richesse des empires du Mali et du Ghana." },
+  { icon:"⚓", name:"Route du sucre des Caraïbes",   regions:"Caraïbes, Europe",                          cat:"coloniale", periode:"XVIIᵉ – XIXᵉ siècle",               partic:"Sucre produit par le travail des esclaves antillais", imp:3, desc:"Commerce colonial du sucre de canne, dont la production reposait sur l'exploitation massive de la main-d'œuvre esclave dans les Antilles." },
+  { icon:"⚓", name:"Route de la Compagnie de la Baie d'Hudson", regions:"Amérique du Nord, Europe",      cat:"coloniale", periode:"Depuis 1670",                      partic:"Commerce des fourrures nord-américaines", imp:3, desc:"Réseau commercial britannique dédié au commerce des fourrures, qui a façonné l'exploration et la colonisation du nord du Canada." },
+
+  { icon:"📦", name:"Route maritime Asie-Europe (via Suez)", regions:"Asie, Europe",                      cat:"moderne",   periode:"Depuis le XXᵉ siècle",              partic:"Colonne vertébrale du commerce conteneurisé mondial", imp:5, desc:"Artère maritime la plus fréquentée du commerce mondial moderne, empruntée quotidiennement par des centaines de porte-conteneurs géants." },
+  { icon:"📦", name:"Route transpacifique",          regions:"Asie, Amérique du Nord",                    cat:"moderne",   periode:"Depuis le XXᵉ siècle",              partic:"Principale voie du commerce Chine-États-Unis", imp:5, desc:"Corridor maritime majeur du commerce mondial contemporain, essentiel aux échanges entre les usines asiatiques et les marchés nord-américains." },
+  { icon:"📦", name:"Nouvelle Route de la Soie (Belt and Road)", regions:"Chine et plus de 140 pays",     cat:"moderne",   periode:"Lancée en 2013",                    partic:"Vaste programme chinois d'infrastructures mondiales", imp:4, desc:"Initiative chinoise contemporaine visant à recréer des corridors commerciaux terrestres et maritimes à l'échelle planétaire." },
+  { icon:"📦", name:"Route arctique (passage du Nord-Est)", regions:"Russie, Arctique",                  cat:"moderne",   periode:"Utilisation croissante depuis les années 2010", partic:"Raccourcit fortement le trajet Asie-Europe", imp:3, desc:"Route maritime septentrionale de plus en plus praticable avec la fonte des glaces, offrant un raccourci potentiel entre l'Asie et l'Europe." },
+  { icon:"📦", name:"Corridor économique Chine-Pakistan", regions:"Chine, Pakistan",                      cat:"moderne",   periode:"Lancé en 2015",                    partic:"Relie le Xinjiang chinois au port de Gwadar", imp:3, desc:"Corridor d'infrastructures reliant l'ouest de la Chine à la mer d'Arabie, pilier régional de la Nouvelle Route de la Soie." },
+
+  { icon:"🌶️", name:"Route de l'Encens",             regions:"Arabie, Méditerranée",                     cat:"epices_encens", periode:"VIIᵉ siècle av. J.-C. – IIᵉ siècle apr. J.-C.", partic:"Encens et myrrhe d'Arabie du Sud", imp:3, desc:"Ancienne route caravanière transportant l'encens et la myrrhe précieux depuis l'Arabie du Sud vers les marchés méditerranéens." },
+  { icon:"🌶️", name:"Route du Poivre",               regions:"Inde, Europe",                              cat:"epices_encens", periode:"Antiquité – XVIIᵉ siècle",         partic:"« L'or noir » de l'Antiquité et du Moyen Âge", imp:4, desc:"Voie commerciale historique du poivre indien, épice si précieuse qu'elle servait autrefois de monnaie d'échange en Europe." },
+  { icon:"🌶️", name:"Via Salaria (route du sel)",    regions:"Italie antique",                            cat:"epices_encens", periode:"Depuis l'Âge du fer",              partic:"Sel transporté depuis les marais côtiers vers Rome", imp:2, desc:"Ancienne voie romaine reliant la côte adriatique à Rome, dédiée au transport du sel, denrée alors aussi précieuse que rare." },
+  { icon:"🌶️", name:"Route du Cacao",                regions:"Mésoamérique",                              cat:"epices_encens", periode:"Depuis l'époque précolombienne",   partic:"Fèves de cacao utilisées comme monnaie d'échange", imp:2, desc:"Réseaux d'échange précolombiens où les fèves de cacao, boisson sacrée des élites, servaient également de monnaie d'échange." },
+  { icon:"🌶️", name:"Route de la Cannelle",          regions:"Sri Lanka, Europe",                        cat:"epices_encens", periode:"Antiquité – XVIIIᵉ siècle",        partic:"Cannelle sri-lankaise très recherchée en Europe", imp:3, desc:"Voie commerciale historique de la cannelle, longtemps monopolisée successivement par différentes puissances coloniales européennes." },
+
+  { icon:"🤝", name:"Ligue hanséatique",             regions:"Europe du Nord (mer Baltique, mer du Nord)", cat:"alliance_commerciale", periode:"XIIIᵉ – XVIIᵉ siècle",           partic:"Alliance de plus de 200 villes marchandes",  imp:4, desc:"Puissante confédération de cités marchandes d'Europe du Nord ayant dominé le commerce baltique pendant plusieurs siècles." },
+  { icon:"🤝", name:"Compagnie néerlandaise des Indes orientales (VOC)", regions:"Pays-Bas, Asie",         cat:"alliance_commerciale", periode:"1602 – 1799",                    partic:"Première grande société par actions de l'histoire", imp:4, desc:"Considérée comme la première multinationale de l'histoire, elle a dominé le commerce des épices asiatiques pendant près de deux siècles." },
+  { icon:"🤝", name:"Compagnie britannique des Indes orientales", regions:"Grande-Bretagne, Asie",         cat:"alliance_commerciale", periode:"1600 – 1874",                    partic:"A gouverné de vastes territoires en Inde",  imp:4, desc:"Compagnie commerciale devenue puissance politique majeure, dont l'influence a directement façonné la colonisation britannique de l'Inde." },
+  { icon:"🤝", name:"Compagnie française des Indes orientales", regions:"France, Asie",                   cat:"alliance_commerciale", periode:"1664 – 1794",                    partic:"Rivale française des compagnies néerlandaise et britannique", imp:3, desc:"Compagnie commerciale française fondée par Colbert pour concurrencer les puissances rivales dans le commerce avec l'Asie." },
+  { icon:"🤝", name:"Foires de Champagne",           regions:"France",                                    cat:"alliance_commerciale", periode:"XIIᵉ – XIVᵉ siècle",              partic:"Grand carrefour commercial de l'Europe médiévale", imp:3, desc:"Cycle de grandes foires commerciales médiévales ayant fait de la région Champagne un carrefour économique majeur de l'Europe occidentale." },
+  { icon:"🤝", name:"Réseau commercial phénicien",   regions:"Méditerranée antique",                     cat:"alliance_commerciale", periode:"XIIᵉ – VIᵉ siècle av. J.-C.",      partic:"Comptoirs commerciaux disséminés sur tout le pourtour méditerranéen", imp:3, desc:"Réseau de cités-comptoirs phéniciennes ayant diffusé commerce, alphabet et savoir-faire maritime à travers toute la Méditerranée antique." }
+];
+
+const catLabels = {
+  "terrestre":           "🐫 Terrestre",
+  "maritime":             "⛵ Maritime",
+  "canal":                "🚢 Canal",
+  "detroit":              "🌊 Détroit",
+  "ferroviaire":          "🚂 Ferroviaire",
+  "coloniale":            "⚓ Coloniale",
+  "moderne":              "📦 Moderne",
+  "epices_encens":        "🌶️ Épices & encens",
+  "alliance_commerciale": "🤝 Alliance commerciale"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.regions; vb = b.regions; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.periode; vb = b.periode; break;
+      case 6: va = a.partic; vb = b.partic; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="regions-cell">${d.regions}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="periode-cell">${d.periode}</td>
+      <td class="partic-cell">${d.partic}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Routes affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
