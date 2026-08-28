@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Sources d'Énergie du Futur</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f1eefa;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f5f2fb;
+    --text:          #14101f;
+    --text-muted:    #5d5670;
+    --accent:        #5b3ac9;
+    --accent-hover:  #4a2ea3;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #e2ddf0;
+    --row-hover:     #f0ecfa;
+    --row-even:      #f5f2fb;
+    --shadow:        rgba(20,16,31,0.10);
+    --header-bg:     #0d0a1a;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0d0a1a;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(155,124,240,0.16), transparent 70%);
+    --surface:       #171326;
+    --surface-alt:   #1d1830;
+    --text:          #ede9f7;
+    --text-muted:    #a89ec4;
+    --accent:        #9b7cf0;
+    --accent-hover:  #b39cf5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #2c2545;
+    --row-hover:     #221c3a;
+    --row-even:      #1a1530;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #060510;
+    --header-text:   #f2c14e;
+    --chip-text:     #0d0a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/violet façon circuit --- */
+  .tech-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(91,58,201,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 220px; }
+  .horizon-cell { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 190px; }
+  .avantage-cell{ font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 200px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-solaire      { background: #b58a1f; }
+  .type-eolien       { background: #2e5f7a; }
+  .type-nucleaire    { background: #8a2c6b; }
+  .type-hydrogene    { background: #1f6b8a; }
+  .type-geothermique { background: #a12439; }
+  .type-marine       { background: #1f4f8a; }
+  .type-biomasse     { background: #1f7a5c; }
+  .type-stockage     { background: #4a4a4a; }
+  .type-emergente    { background: #6b7a1f; }
+
+  /* ÉTOILES POTENTIEL */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .horizon-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Futur &amp; Technologies</a>
+
+<header>
+  <div class="tech-strip"></div>
+  <p class="eyebrow">Étincelles de Demain</p>
+  <h1><span class="ornament">⚡</span> 50 Sources d'Énergie du Futur <span class="ornament">🌍</span></h1>
+  <p class="subtitle">Du solaire spatial à la fusion nucléaire — les technologies qui alimenteront demain</p>
+  <div class="tech-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="solaire">☀️ Solaire</button>
+  <button class="filter-btn" data-cat="eolien">💨 Éolien</button>
+  <button class="filter-btn" data-cat="nucleaire">⚛️ Nucléaire</button>
+  <button class="filter-btn" data-cat="hydrogene">💧 Hydrogène</button>
+  <button class="filter-btn" data-cat="geothermique">🌋 Géothermique</button>
+  <button class="filter-btn" data-cat="marine">🌊 Marine</button>
+  <button class="filter-btn" data-cat="biomasse">🌱 Biomasse</button>
+  <button class="filter-btn" data-cat="stockage">🔋 Stockage</button>
+  <button class="filter-btn" data-cat="emergente">✨ Émergente</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Source d'énergie <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Horizon de maturité <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Avantage clé <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Potentiel <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-energies-futures') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-energies-futures', next);
+});
+
+const DATA = [
+  { icon:"☀️", name:"Panneaux solaires bifaciaux",  cat:"solaire", horizon:"Déjà largement déployée",     avantage:"Capte la lumière des deux côtés du panneau", imp:4, desc:"Cellules solaires captant la lumière directe et réfléchie simultanément, augmentant significativement le rendement énergétique par rapport aux panneaux classiques." },
+  { icon:"☀️", name:"Solaire flottant",              cat:"solaire", horizon:"Déploiement en forte croissance", avantage:"Économise l'espace au sol et réduit l'évaporation", imp:4, desc:"Fermes photovoltaïques installées directement sur des plans d'eau, préservant les terres agricoles tout en limitant l'évaporation des réservoirs." },
+  { icon:"☀️", name:"Énergie solaire à concentration", cat:"solaire", horizon:"Déjà déployée à échelle industrielle", avantage:"Peut stocker la chaleur pour produire de l'électricité la nuit", imp:3, desc:"Centrales utilisant des miroirs pour concentrer la lumière solaire et produire de la chaleur, stockable pour générer de l'électricité même après le coucher du soleil." },
+  { icon:"☀️", name:"Solaire spatial",               cat:"solaire", horizon:"Stade expérimental, premiers essais en orbite", avantage:"Captation ininterrompue, sans nuages ni nuit",  imp:3, desc:"Concept consistant à capter l'énergie solaire en orbite, où elle est disponible en continu, puis à la transmettre vers la Terre sans fil." },
+  { icon:"☀️", name:"Cellules solaires organiques flexibles", cat:"solaire", horizon:"Premières commercialisations de niche", avantage:"Légères, flexibles et intégrables à de nombreuses surfaces", imp:2, desc:"Cellules photovoltaïques souples et légères pouvant être intégrées à des vêtements, des sacs ou des surfaces courbes, malgré un rendement encore limité." },
+  { icon:"☀️", name:"Fenêtres solaires transparentes", cat:"solaire", horizon:"Stade de recherche avancée",   avantage:"Transforme les vitrages de bâtiments en générateurs d'électricité", imp:3, desc:"Vitrages capables de produire de l'électricité tout en restant transparents, permettant de transformer les façades entières des bâtiments en surfaces productrices d'énergie." },
+
+  { icon:"💨", name:"Éoliennes flottantes offshore", cat:"eolien", horizon:"Premiers parcs commerciaux en exploitation", avantage:"Exploite des zones marines profondes inaccessibles aux éoliennes fixes", imp:4, desc:"Éoliennes ancrées sur des plateformes flottantes, permettant d'exploiter des zones maritimes profondes où les vents sont plus forts et réguliers." },
+  { icon:"💨", name:"Éoliennes aéroportées",         cat:"eolien", horizon:"Stade expérimental avancé",    avantage:"Capte les vents plus forts et constants en haute altitude", imp:2, desc:"Systèmes ressemblant à des cerfs-volants captant l'énergie des vents de haute altitude, généralement plus puissants et réguliers qu'au niveau du sol." },
+  { icon:"💨", name:"Éoliennes sans pales",          cat:"eolien", horizon:"Premiers prototypes commerciaux", avantage:"Réduit l'impact visuel et le danger pour les oiseaux",  imp:2, desc:"Technologie exploitant la vibration induite par le vent plutôt que la rotation de pales classiques, réduisant bruit et impact sur la faune volante." },
+  { icon:"💨", name:"Parcs éoliens offshore géants", cat:"eolien", horizon:"Déjà largement déployée",       avantage:"Vents plus forts et réguliers qu'à terre",   imp:5, desc:"Vastes installations d'éoliennes en mer, bénéficiant de vents plus puissants et constants, produisant une part croissante de l'électricité renouvelable mondiale." },
+  { icon:"💨", name:"Micro-éoliennes urbaines",      cat:"eolien", horizon:"Applications de niche en croissance", avantage:"Production d'énergie décentralisée en milieu urbain dense", imp:2, desc:"Petites éoliennes conçues pour être intégrées à des bâtiments ou des infrastructures urbaines, produisant de l'énergie à petite échelle localement." },
+
+  { icon:"⚛️", name:"Petits réacteurs modulaires (SMR)", cat:"nucleaire", horizon:"Premiers déploiements commerciaux visés vers 2030", avantage:"Construction plus rapide et flexible que les grandes centrales", imp:4, desc:"Réacteurs nucléaires compacts et préfabriqués, conçus pour être plus rapides à construire et plus flexibles à déployer que les grandes centrales traditionnelles." },
+  { icon:"⚛️", name:"Réacteurs à sels fondus au thorium", cat:"nucleaire", horizon:"Stade de recherche et prototypes",  avantage:"Combustible plus abondant et déchets potentiellement réduits", imp:3, desc:"Technologie nucléaire alternative utilisant le thorium, plus abondant que l'uranium, avec un potentiel de sûreté et de gestion des déchets amélioré." },
+  { icon:"⚛️", name:"Fusion par confinement magnétique (ITER)", cat:"nucleaire", horizon:"Premiers résultats expérimentaux majeurs attendus vers 2035", avantage:"Énergie potentiellement quasi illimitée et peu de déchets radioactifs à longue durée de vie", imp:5, desc:"Approche de fusion nucléaire utilisant de puissants champs magnétiques pour confiner un plasma extrêmement chaud, au cœur du grand projet international ITER." },
+  { icon:"⚛️", name:"Fusion par confinement inertiel (laser)", cat:"nucleaire", horizon:"Premières démonstrations de gain énergétique net obtenues", avantage:"A récemment démontré un gain d'énergie net en laboratoire", imp:4, desc:"Approche de fusion utilisant des lasers de très haute puissance pour comprimer et chauffer de minuscules capsules de combustible, ayant récemment franchi une étape symbolique." },
+  { icon:"⚛️", name:"Réacteurs à neutrons rapides",  cat:"nucleaire", horizon:"Quelques prototypes en exploitation", avantage:"Peut recycler une partie des déchets nucléaires existants", imp:3, desc:"Réacteurs capables d'utiliser une partie du combustible nucléaire usé, réduisant potentiellement le volume de déchets radioactifs à gérer sur le long terme." },
+  { icon:"⚛️", name:"Micro-réacteurs transportables", cat:"nucleaire", horizon:"Premiers prototypes de démonstration", avantage:"Alimente des sites isolés sans raccordement au réseau", imp:3, desc:"Petits réacteurs nucléaires transportables conçus pour alimenter en électricité des sites isolés, des bases reculées ou des situations d'urgence." },
+
+  { icon:"💧", name:"Hydrogène vert par électrolyse", cat:"hydrogene", horizon:"Déploiement industriel en croissance", avantage:"Produit sans émission de carbone à partir d'énergies renouvelables", imp:4, desc:"Hydrogène produit en séparant l'eau grâce à de l'électricité renouvelable, considéré comme la voie la plus propre de production d'hydrogène." },
+  { icon:"💧", name:"Piles à combustible à hydrogène", cat:"hydrogene", horizon:"Déjà déployée dans certains transports", avantage:"Ne rejette que de l'eau lors de son fonctionnement", imp:4, desc:"Dispositifs convertissant l'hydrogène directement en électricité, déjà utilisés dans certains véhicules, bus et applications industrielles." },
+  { icon:"💧", name:"Hydrogène naturel (blanc)",     cat:"hydrogene", horizon:"Exploration de gisements en cours",  avantage:"Existerait naturellement dans le sous-sol de certaines régions", imp:3, desc:"Hydrogène présent naturellement dans certaines formations géologiques, dont l'exploitation potentielle suscite un intérêt croissant depuis quelques années." },
+  { icon:"💧", name:"Ammoniac vert",                 cat:"hydrogene", horizon:"Premiers projets pilotes en cours", avantage:"Plus facile à stocker et transporter que l'hydrogène pur", imp:3, desc:"Vecteur d'hydrogène plus stable et transportable, envisagé notamment comme carburant propre pour le transport maritime longue distance." },
+  { icon:"💧", name:"Hydrures métalliques",          cat:"hydrogene", horizon:"Stade de recherche et applications de niche", avantage:"Stockage de l'hydrogène plus compact et plus sûr", imp:2, desc:"Matériaux capables d'absorber et de libérer de l'hydrogène de façon contrôlée, offrant une alternative plus sûre au stockage sous haute pression." },
+
+  { icon:"🌋", name:"Systèmes géothermiques stimulés (EGS)", cat:"geothermique", horizon:"Premiers projets commerciaux en développement", avantage:"Rend la géothermie exploitable dans des zones non volcaniques", imp:4, desc:"Technique consistant à fracturer artificiellement la roche profonde pour créer un réservoir géothermique, élargissant considérablement les zones exploitables." },
+  { icon:"🌋", name:"Géothermie profonde à très haute température", cat:"geothermique", horizon:"Stade de recherche et forages expérimentaux", avantage:"Accès à des températures nettement supérieures en profondeur", imp:3, desc:"Forages atteignant des profondeurs extrêmes pour capter des températures très élevées, promettant un rendement énergétique bien supérieur à la géothermie classique." },
+  { icon:"🌋", name:"Pompes à chaleur géothermiques", cat:"geothermique", horizon:"Déjà largement déployée",       avantage:"Chauffage et climatisation très efficaces des bâtiments", imp:4, desc:"Systèmes exploitant la température stable du sous-sol proche pour chauffer ou rafraîchir efficacement les bâtiments toute l'année." },
+  { icon:"🌋", name:"Centrales géothermiques volcaniques", cat:"geothermique", horizon:"Déjà déployée dans les zones volcaniques", avantage:"Production d'électricité continue indépendante de la météo",  imp:3, desc:"Centrales exploitant la chaleur naturelle des zones volcaniques actives, offrant une production électrique stable et continue toute l'année." },
+  { icon:"🌋", name:"Géothermie des puits pétroliers abandonnés", cat:"geothermique", horizon:"Premiers projets pilotes en cours", avantage:"Réutilise une infrastructure existante coûteuse à forer", imp:2, desc:"Concept consistant à reconvertir d'anciens puits de forage pétrolier ou gazier pour en extraire la chaleur résiduelle du sous-sol." },
+
+  { icon:"🌊", name:"Énergie marémotrice",           cat:"marine", horizon:"Déjà déployée dans quelques sites majeurs", avantage:"Production prévisible car liée aux marées, régulières et connues", imp:3, desc:"Exploitation de l'énergie des marées via des barrages ou hydroliennes, offrant l'avantage rare d'une production parfaitement prévisible à l'avance." },
+  { icon:"🌊", name:"Énergie houlomotrice",          cat:"marine", horizon:"Premiers projets pilotes en mer", avantage:"Exploite l'énergie constante des vagues océaniques", imp:3, desc:"Dispositifs convertissant le mouvement des vagues en électricité, une ressource abondante mais encore techniquement complexe à exploiter efficacement." },
+  { icon:"🌊", name:"Énergie thermique des mers (ETM)", cat:"marine", horizon:"Quelques installations pilotes tropicales", avantage:"Exploite la différence de température entre eaux de surface et profondes", imp:2, desc:"Technologie exploitant l'écart de température entre les eaux chaudes de surface et les eaux froides profondes des océans tropicaux pour produire de l'électricité." },
+  { icon:"🌊", name:"Hydroliennes de courants marins", cat:"marine", horizon:"Premiers parcs commerciaux en exploitation", avantage:"Densité énergétique de l'eau bien supérieure à celle de l'air", imp:3, desc:"Turbines sous-marines exploitant les forts courants marins, tirant parti de la densité de l'eau, bien plus élevée que celle de l'air pour une puissance équivalente." },
+  { icon:"🌊", name:"Énergie osmotique",             cat:"marine", horizon:"Stade de recherche et prototypes", avantage:"Exploite le gradient naturel de salinité entre eau douce et eau salée", imp:2, desc:"Technologie exploitant la différence de concentration en sel entre eau douce et eau de mer, notamment à l'embouchure des fleuves, pour produire de l'électricité." },
+
+  { icon:"🌱", name:"Biocarburants d'algues",        cat:"biomasse", horizon:"Stade de recherche et projets pilotes", avantage:"Ne concurrence pas les terres agricoles alimentaires", imp:3, desc:"Carburants produits à partir de micro-algues cultivées en bassins ou photobioréacteurs, sans concurrencer les cultures alimentaires classiques." },
+  { icon:"🌱", name:"Biométhane issu de déchets organiques", cat:"biomasse", horizon:"Déjà largement déployée",     avantage:"Valorise des déchets tout en réduisant les émissions de méthane", imp:4, desc:"Gaz produit par la fermentation de déchets organiques agricoles ou ménagers, injectable directement dans les réseaux de gaz naturel existants." },
+  { icon:"🌱", name:"Biomasse forestière durable",   cat:"biomasse", horizon:"Déjà largement déployée",       avantage:"Utilise des résidus forestiers autrement inexploités", imp:3, desc:"Valorisation énergétique de résidus de bois et de forêts gérées durablement, une source renouvelable à condition d'être exploitée de façon responsable." },
+  { icon:"🌱", name:"Carburants synthétiques (e-fuels)", cat:"biomasse", horizon:"Premiers projets industriels en développement", avantage:"Compatible avec les moteurs et infrastructures existants", imp:3, desc:"Carburants produits en combinant hydrogène vert et CO2 capturé, compatibles avec les moteurs thermiques et infrastructures de distribution existants." },
+  { icon:"🌱", name:"Bioénergie avec captage de carbone (BECSC)", cat:"biomasse", horizon:"Quelques installations pilotes en exploitation", avantage:"Peut produire une énergie à bilan carbone globalement négatif", imp:4, desc:"Combinaison de production d'énergie à partir de biomasse et de captage du CO2 émis, offrant la possibilité rare d'un bilan carbone net négatif." },
+
+  { icon:"🔋", name:"Batteries à flux redox",        cat:"stockage", horizon:"Premiers déploiements à grande échelle", avantage:"Peut stocker de très grandes quantités d'énergie durablement", imp:3, desc:"Batteries stockant l'énergie dans des solutions liquides, particulièrement adaptées au stockage stationnaire de longue durée à grande échelle." },
+  { icon:"🔋", name:"Stockage par air comprimé (CAES)", cat:"stockage", horizon:"Déjà déployée dans plusieurs installations", avantage:"Peut stocker de l'énergie sur de longues périodes à faible coût", imp:3, desc:"Technique consistant à comprimer de l'air dans des cavités souterraines pour restituer de l'électricité aux heures de forte demande." },
+  { icon:"🔋", name:"Stockage gravitaire",           cat:"stockage", horizon:"Premiers projets commerciaux en développement", avantage:"Utilise des matériaux simples et durables comme le béton", imp:3, desc:"Système stockant l'énergie en soulevant des masses lourdes puis en la restituant par leur descente contrôlée, une alternative simple aux batteries chimiques." },
+  { icon:"🔋", name:"Volants d'inertie",             cat:"stockage", horizon:"Déjà déployée pour la stabilisation du réseau", avantage:"Réponse quasi instantanée aux variations du réseau électrique", imp:2, desc:"Roues massives tournant à très grande vitesse pour stocker de l'énergie cinétique, offrant une réponse extrêmement rapide aux fluctuations du réseau." },
+  { icon:"🔋", name:"Batteries sodium-ion",          cat:"stockage", horizon:"Premières commercialisations en cours", avantage:"Utilise des matériaux abondants et moins coûteux que le lithium", imp:4, desc:"Alternative aux batteries lithium-ion utilisant du sodium, un élément beaucoup plus abondant et moins coûteux, particulièrement adaptée au stockage stationnaire." },
+  { icon:"🔋", name:"Stockage thermique par sels fondus", cat:"stockage", horizon:"Déjà déployée avec le solaire à concentration", avantage:"Permet de restituer de la chaleur stockée sur plusieurs heures", imp:3, desc:"Technique stockant l'énergie sous forme de chaleur dans des sels fondus, permettant de restituer de l'électricité même après le coucher du soleil." },
+
+  { icon:"✨", name:"Piézoélectricité",              cat:"emergente", horizon:"Applications de niche déjà déployées", avantage:"Convertit la pression et le mouvement mécanique en électricité", imp:2, desc:"Technologie convertissant la pression ou les vibrations mécaniques en électricité, exploitée à petite échelle dans des sols urbains ou des chaussures." },
+  { icon:"✨", name:"Récupération d'énergie ambiante", cat:"emergente", horizon:"Applications de niche en croissance", avantage:"Alimente des capteurs sans nécessiter de batterie",  imp:2, desc:"Ensemble de techniques captant l'énergie résiduelle de l'environnement (vibrations, chaleur, ondes) pour alimenter de petits appareils autonomes." },
+  { icon:"✨", name:"Biopiles microbiennes",          cat:"emergente", horizon:"Stade de recherche avancée",    avantage:"Produit de l'électricité à partir de matière organique et de bactéries", imp:2, desc:"Dispositifs utilisant l'activité de micro-organismes pour générer de l'électricité à partir de matière organique, notamment dans les eaux usées." },
+  { icon:"✨", name:"Captage expérimental de la foudre", cat:"emergente", horizon:"Concept largement expérimental", avantage:"Exploiterait une énergie naturelle extrêmement intense", imp:1, desc:"Concept visant à capter l'énergie des éclairs naturels, une piste restant à ce jour très expérimentale en raison de son extrême imprévisibilité." },
+  { icon:"✨", name:"Nanogénérateurs triboélectriques", cat:"emergente", horizon:"Stade de recherche avancée",   avantage:"Convertit le frottement et le contact en électricité à très petite échelle", imp:2, desc:"Dispositifs miniatures générant de l'électricité à partir du simple frottement entre deux matériaux, prometteurs pour alimenter des capteurs autonomes." },
+  { icon:"✨", name:"Énergie osmotique urbaine",      cat:"emergente", horizon:"Concept en développement",     avantage:"Valorise les eaux usées urbaines comme source d'énergie", imp:2, desc:"Application du principe de l'énergie osmotique aux eaux usées des villes, une piste explorée pour valoriser un flux jusqu'ici considéré comme un déchet." },
+  { icon:"✨", name:"Réacteurs de fusion compacts (startups privées)", cat:"emergente", horizon:"Premiers prototypes de démonstration attendus dans les années 2030", avantage:"Vise une fusion nucléaire plus rapide à développer que les grands projets publics", imp:3, desc:"Nouvelle génération d'entreprises privées misant sur des approches compactes et rapides de la fusion nucléaire, en parallèle des grands projets internationaux." }
+];
+
+const catLabels = {
+  "solaire":      "☀️ Solaire",
+  "eolien":       "💨 Éolien",
+  "nucleaire":    "⚛️ Nucléaire",
+  "hydrogene":    "💧 Hydrogène",
+  "geothermique": "🌋 Géothermique",
+  "marine":       "🌊 Marine",
+  "biomasse":     "🌱 Biomasse",
+  "stockage":     "🔋 Stockage",
+  "emergente":    "✨ Émergente"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.cat; vb = b.cat; break;
+      case 4: va = a.horizon; vb = b.horizon; break;
+      case 5: va = a.avantage; vb = b.avantage; break;
+      case 6: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="horizon-cell">${d.horizon}</td>
+      <td class="avantage-cell">${d.avantage}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Sources affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Potentiel maximal ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
