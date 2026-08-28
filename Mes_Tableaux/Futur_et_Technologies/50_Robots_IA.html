@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Robots et IA qui Redéfinissent Notre Monde</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f1eefa;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f5f2fb;
+    --text:          #14101f;
+    --text-muted:    #5d5670;
+    --accent:        #5b3ac9;
+    --accent-hover:  #4a2ea3;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #e2ddf0;
+    --row-hover:     #f0ecfa;
+    --row-even:      #f5f2fb;
+    --shadow:        rgba(20,16,31,0.10);
+    --header-bg:     #0d0a1a;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0d0a1a;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(155,124,240,0.16), transparent 70%);
+    --surface:       #171326;
+    --surface-alt:   #1d1830;
+    --text:          #ede9f7;
+    --text-muted:    #a89ec4;
+    --accent:        #9b7cf0;
+    --accent-hover:  #b39cf5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #2c2545;
+    --row-hover:     #221c3a;
+    --row-even:      #1a1530;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #060510;
+    --header-text:   #f2c14e;
+    --chip-text:     #0d0a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/violet façon circuit --- */
+  .tech-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.7rem, 5vw, 3.1rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(91,58,201,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 190px; }
+  .origine-cell{ font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .annee-cell  { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .exploit-cell{ font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 200px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-robot_industriel { background: #4a4a4a; }
+  .type-robot_humanoide  { background: #2e5f7a; }
+  .type-ia_generative    { background: #8a2c6b; }
+  .type-ia_jeu           { background: #b58a1f; }
+  .type-robot_spatial    { background: #1f4f8a; }
+  .type-robot_medical    { background: #a12439; }
+  .type-robot_militaire  { background: #6b7a1f; }
+  .type-robot_domestique { background: #1f7a5c; }
+  .type-ia_recherche     { background: #1f6b8a; }
+
+  /* ÉTOILES IMPACT */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .annee-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Futur &amp; Technologies</a>
+
+<header>
+  <div class="tech-strip"></div>
+  <p class="eyebrow">Intelligences en Marche</p>
+  <h1><span class="ornament">🤖</span> 50 Robots et IA qui Redéfinissent Notre Monde <span class="ornament">🧠</span></h1>
+  <p class="subtitle">Des premiers bras robotisés aux IA génératives — les machines qui transforment notre quotidien</p>
+  <div class="tech-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="robot_industriel">🏭 Robot industriel</button>
+  <button class="filter-btn" data-cat="robot_humanoide">🤖 Robot humanoïde</button>
+  <button class="filter-btn" data-cat="ia_generative">💬 IA générative</button>
+  <button class="filter-btn" data-cat="ia_jeu">🎮 IA de jeu</button>
+  <button class="filter-btn" data-cat="robot_spatial">🚀 Robot spatial</button>
+  <button class="filter-btn" data-cat="robot_medical">🏥 Robot médical</button>
+  <button class="filter-btn" data-cat="robot_militaire">⚔️ Robot militaire</button>
+  <button class="filter-btn" data-cat="robot_domestique">🏠 Robot domestique</button>
+  <button class="filter-btn" data-cat="ia_recherche">🔬 IA de recherche</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Nom <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Créateur / Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Exploit / Particularité <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-robots-ia') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-robots-ia', next);
+});
+
+const DATA = [
+  { icon:"🏭", name:"Unimate",                domaine:"États-Unis (General Motors)", cat:"robot_industriel", annee:"1961", exploit:"Premier robot industriel de l'histoire", imp:5, desc:"Premier bras robotisé programmable jamais installé sur une chaîne de production, marquant le véritable début de l'automatisation industrielle." },
+  { icon:"🏭", name:"Bras robotisés KUKA",    domaine:"Allemagne",             cat:"robot_industriel", annee:"Depuis 1973", exploit:"Pionnier des robots industriels multi-axes",  imp:4, desc:"Fabricant allemand ayant développé l'un des tout premiers robots industriels à six axes, devenu un standard mondial de l'automatisation." },
+  { icon:"🏭", name:"Robots Fanuc",           domaine:"Japon",                 cat:"robot_industriel", annee:"Depuis 1974", exploit:"Parmi les plus grands parcs de robots industriels installés au monde", imp:4, desc:"Fabricant japonais leader mondial de la robotique industrielle, présent dans d'innombrables usines automobiles et électroniques." },
+  { icon:"🏭", name:"ABB IRB",                domaine:"Suisse / Suède",        cat:"robot_industriel", annee:"Depuis 1974", exploit:"Gamme de robots industriels parmi les plus répandues au monde", imp:3, desc:"Famille de bras robotisés industriels utilisée massivement dans l'automobile, l'électronique et la logistique à travers le monde." },
+  { icon:"🏭", name:"Baxter",                 domaine:"États-Unis (Rethink Robotics)", cat:"robot_industriel", annee:"2012", exploit:"Robot collaboratif conçu pour travailler en sécurité près des humains", imp:3, desc:"L'un des premiers robots collaboratifs abordables, capable d'apprendre de nouvelles tâches simplement en guidant ses bras à la main." },
+  { icon:"🏭", name:"Kiva Systems",           domaine:"États-Unis (Amazon)",   cat:"robot_industriel", annee:"2003", exploit:"A révolutionné la logistique des entrepôts", imp:4, desc:"Flotte de robots mobiles autonomes ayant transformé la préparation de commandes en entrepôt, rachetée puis généralisée par Amazon." },
+
+  { icon:"🤖", name:"ASIMO",                  domaine:"Japon (Honda)",         cat:"robot_humanoide", annee:"2000",  exploit:"Robot humanoïde capable de marcher, courir et monter des escaliers", imp:4, desc:"Robot humanoïde emblématique ayant démontré pendant deux décennies des prouesses de mobilité bipède avancée pour l'époque." },
+  { icon:"🤖", name:"Atlas",                  domaine:"États-Unis (Boston Dynamics)", cat:"robot_humanoide", annee:"2013", exploit:"Capable de sauts, de sauts périlleux et de parkour", imp:5, desc:"Robot humanoïde célèbre pour son agilité athlétique spectaculaire, repoussant sans cesse les limites de la mobilité robotique." },
+  { icon:"🤖", name:"Sophia",                 domaine:"Hong Kong (Hanson Robotics)", cat:"robot_humanoide", annee:"2016", exploit:"Premier robot à avoir reçu une citoyenneté officielle", imp:3, desc:"Robot humanoïde social capable d'expressions faciales réalistes, devenu célèbre pour ses apparitions médiatiques et sa citoyenneté saoudienne symbolique." },
+  { icon:"🤖", name:"Pepper",                 domaine:"Japon / France (SoftBank Robotics)", cat:"robot_humanoide", annee:"2014", exploit:"Robot conçu pour reconnaître et répondre aux émotions humaines", imp:3, desc:"Robot d'accueil humanoïde déployé dans des commerces et lieux publics à travers le monde, conçu pour interagir socialement avec les humains." },
+  { icon:"🤖", name:"Optimus (Tesla Bot)",    domaine:"États-Unis (Tesla)",    cat:"robot_humanoide", annee:"2021", exploit:"Vise une production de masse de robots humanoïdes polyvalents", imp:4, desc:"Projet de robot humanoïde destiné à terme aux tâches industrielles et domestiques, porté par les technologies de conduite autonome de Tesla." },
+  { icon:"🤖", name:"QRIO",                   domaine:"Japon (Sony)",          cat:"robot_humanoide", annee:"2003",  exploit:"Robot humanoïde pionnier capable de courir",  imp:2, desc:"Petit robot humanoïde précurseur ayant démontré très tôt des capacités de course et d'équilibre dynamique, avant d'être abandonné par Sony." },
+
+  { icon:"💬", name:"ChatGPT (GPT)",          domaine:"États-Unis (OpenAI)",   cat:"ia_generative", annee:"2022",  exploit:"A démocratisé l'IA conversationnelle à l'échelle mondiale", imp:5, desc:"Modèle de langage ayant atteint des centaines de millions d'utilisateurs en un temps record, transformant l'accès grand public à l'intelligence artificielle." },
+  { icon:"💬", name:"DALL-E",                 domaine:"États-Unis (OpenAI)",   cat:"ia_generative", annee:"2021",  exploit:"Génère des images réalistes à partir de simples descriptions textuelles", imp:4, desc:"Système d'IA générative ayant popularisé la création d'images à partir de texte, ouvrant un nouveau champ créatif accessible à tous." },
+  { icon:"💬", name:"Midjourney",             domaine:"États-Unis",            cat:"ia_generative", annee:"2022",  exploit:"Reconnu pour la qualité artistique de ses créations visuelles", imp:4, desc:"Outil de génération d'images par IA particulièrement apprécié des créatifs pour l'esthétique distinctive et soignée de ses résultats." },
+  { icon:"💬", name:"Stable Diffusion",       domaine:"Allemagne / international", cat:"ia_generative", annee:"2022", exploit:"Premier grand modèle de génération d'images en accès libre", imp:4, desc:"Modèle de génération d'images publié en open source, ayant permis une explosion d'innovations et d'usages créatifs à travers le monde." },
+  { icon:"💬", name:"Claude",                 domaine:"États-Unis (Anthropic)", cat:"ia_generative", annee:"2023",  exploit:"Assistant IA conçu avec un accent particulier sur la sécurité", imp:4, desc:"Famille de modèles de langage conversationnels développée avec une attention particulière portée à la fiabilité et à la sécurité des réponses." },
+  { icon:"💬", name:"Gemini",                 domaine:"États-Unis (Google)",   cat:"ia_generative", annee:"2023",  exploit:"IA multimodale traitant texte, image, audio et vidéo",  imp:4, desc:"Famille de modèles d'intelligence artificielle de Google conçue pour traiter simultanément plusieurs types de données au sein d'un même système." },
+
+  { icon:"🎮", name:"Deep Blue",              domaine:"États-Unis (IBM)",      cat:"ia_jeu",  annee:"1997",  exploit:"Première IA à battre un champion du monde d'échecs en titre", imp:5, desc:"Superordinateur ayant vaincu Garry Kasparov, moment symbolique marquant la première victoire d'une machine sur un champion humain aux échecs." },
+  { icon:"🎮", name:"AlphaGo",                domaine:"Royaume-Uni (DeepMind)", cat:"ia_jeu", annee:"2016",  exploit:"Première IA à battre un champion mondial de Go",  imp:5, desc:"IA ayant vaincu Lee Sedol au jeu de Go, jugé jusqu'alors bien trop complexe intuitivement pour être maîtrisé par une machine." },
+  { icon:"🎮", name:"Watson",                 domaine:"États-Unis (IBM)",      cat:"ia_jeu",  annee:"2011",  exploit:"A battu les meilleurs champions humains du jeu Jeopardy!", imp:4, desc:"Système d'IA ayant surpassé les champions humains du jeu télévisé Jeopardy!, démontrant une compréhension avancée du langage naturel." },
+  { icon:"🎮", name:"AlphaStar",              domaine:"Royaume-Uni (DeepMind)", cat:"ia_jeu", annee:"2019",  exploit:"A atteint le niveau Grand Maître au jeu vidéo StarCraft II", imp:3, desc:"IA ayant atteint un niveau de jeu comparable aux meilleurs joueurs professionnels dans un jeu de stratégie en temps réel particulièrement complexe." },
+  { icon:"🎮", name:"Pluribus",               domaine:"États-Unis (Meta / CMU)", cat:"ia_jeu", annee:"2019",  exploit:"Première IA à battre des professionnels au poker à plusieurs joueurs", imp:3, desc:"IA ayant surpassé des joueurs de poker professionnels dans des parties à plusieurs participants, un défi bien plus complexe que le format à deux joueurs." },
+  { icon:"🎮", name:"MuZero",                 domaine:"Royaume-Uni (DeepMind)", cat:"ia_jeu", annee:"2019",  exploit:"Maîtrise plusieurs jeux sans connaître leurs règles à l'avance", imp:4, desc:"IA généraliste capable d'apprendre à maîtriser des jeux aussi variés que le Go, les échecs ou des jeux vidéo, sans qu'on lui en explique les règles." },
+
+  { icon:"🚀", name:"Curiosity (rover)",      domaine:"États-Unis (NASA)",     cat:"robot_spatial", annee:"2012", exploit:"Rover autonome explorant Mars depuis plus d'une décennie", imp:5, desc:"Robot mobile de la taille d'une voiture explorant la surface martienne de façon largement autonome depuis plus de dix ans." },
+  { icon:"🚀", name:"Robonaut 2",             domaine:"États-Unis (NASA)",     cat:"robot_spatial", annee:"2011", exploit:"Premier robot humanoïde envoyé dans l'espace", imp:3, desc:"Robot humanoïde conçu pour assister les astronautes à bord de la Station spatiale internationale dans des tâches répétitives ou dangereuses." },
+  { icon:"🚀", name:"Canadarm",               domaine:"Canada",                cat:"robot_spatial", annee:"1981", exploit:"Bras robotique ayant assisté d'innombrables missions spatiales", imp:4, desc:"Bras robotique manipulateur canadien ayant équipé la navette spatiale puis la Station spatiale internationale pendant plusieurs décennies." },
+  { icon:"🚀", name:"Ingenuity (hélicoptère martien)", domaine:"États-Unis (NASA)", cat:"robot_spatial", annee:"2021", exploit:"Premier engin à voler de façon motorisée sur une autre planète", imp:5, desc:"Petit hélicoptère autonome ayant réalisé le tout premier vol motorisé et contrôlé sur une planète autre que la Terre." },
+  { icon:"🚀", name:"Valkyrie",               domaine:"États-Unis (NASA)",     cat:"robot_spatial", annee:"2013", exploit:"Robot humanoïde conçu pour de futures missions martiennes", imp:2, desc:"Robot humanoïde développé pour préparer d'éventuelles installations humaines avant l'arrivée d'astronautes sur Mars ou d'autres corps célestes." },
+
+  { icon:"🏥", name:"Système chirurgical Da Vinci", domaine:"États-Unis (Intuitive Surgical)", cat:"robot_medical", annee:"2000", exploit:"Chirurgie mini-invasive assistée par robot la plus répandue au monde", imp:5, desc:"Système robotisé permettant aux chirurgiens de réaliser des interventions d'une précision et d'une finesse inégalées, largement adopté à l'échelle mondiale." },
+  { icon:"🏥", name:"PARO",                   domaine:"Japon",                 cat:"robot_medical", annee:"2003",  exploit:"Robot thérapeutique en forme de phoque pour patients âgés", imp:2, desc:"Robot social conçu pour apporter réconfort émotionnel aux personnes âgées ou atteintes de troubles cognitifs, notamment en établissement de soins." },
+  { icon:"🏥", name:"TUG",                    domaine:"États-Unis (Aethon)",   cat:"robot_medical", annee:"2004",  exploit:"Robot logistique autonome circulant dans les hôpitaux", imp:2, desc:"Robot mobile autonome transportant médicaments, repas et linge à travers les couloirs hospitaliers, libérant du temps pour le personnel soignant." },
+  { icon:"🏥", name:"Robear",                 domaine:"Japon (Riken)",         cat:"robot_medical", annee:"2015",  exploit:"Robot capable de soulever et déplacer des patients en toute sécurité", imp:2, desc:"Robot d'assistance conçu pour aider le personnel soignant à soulever et transférer des patients, réduisant les efforts physiques liés aux soins." },
+  { icon:"🏥", name:"Moxi",                   domaine:"États-Unis (Diligent Robotics)", cat:"robot_medical", annee:"2018", exploit:"Robot assistant infirmier pour tâches logistiques hospitalières", imp:2, desc:"Robot d'assistance conçu pour prendre en charge des tâches logistiques répétitives à l'hôpital, laissant davantage de temps au personnel infirmier pour les patients." },
+
+  { icon:"⚔️", name:"Predator (drone MQ-1)",  domaine:"États-Unis",            cat:"robot_militaire", annee:"1995", exploit:"L'un des premiers drones de combat et de surveillance largement déployés", imp:4, desc:"Drone militaire ayant transformé la surveillance et les frappes de précision, symbole de l'entrée des véhicules aériens sans pilote dans les conflits modernes." },
+  { icon:"⚔️", name:"BigDog",                 domaine:"États-Unis (Boston Dynamics)", cat:"robot_militaire", annee:"2005", exploit:"Robot quadrupède conçu pour transporter du matériel en terrain difficile", imp:3, desc:"Robot à quatre pattes développé pour accompagner des soldats en terrain accidenté, précurseur des robots quadrupèdes civils modernes." },
+  { icon:"⚔️", name:"PackBot",                domaine:"États-Unis (iRobot)",   cat:"robot_militaire", annee:"2002", exploit:"Robot de déminage largement déployé sur le terrain", imp:3, desc:"Robot télécommandé utilisé pour inspecter et neutraliser des engins explosifs, largement déployé dans des zones de conflit à travers le monde." },
+  { icon:"⚔️", name:"Global Hawk (RQ-4)",     domaine:"États-Unis",            cat:"robot_militaire", annee:"1998", exploit:"Drone de surveillance à très haute altitude et longue endurance", imp:3, desc:"Drone de reconnaissance stratégique capable de voler pendant plus de 24 heures à très haute altitude pour la surveillance à grande échelle." },
+  { icon:"⚔️", name:"Switchblade",            domaine:"États-Unis",            cat:"robot_militaire", annee:"2011", exploit:"Drone tactique compact à usage unique",  imp:2, desc:"Petit drone tactique portable conçu pour des frappes de précision ciblées, illustrant la miniaturisation des systèmes de drones militaires." },
+
+  { icon:"🏠", name:"Roomba",                 domaine:"États-Unis (iRobot)",   cat:"robot_domestique", annee:"2002", exploit:"A démocratisé le robot aspirateur autonome grand public", imp:5, desc:"Robot aspirateur autonome ayant introduit la robotique domestique dans des millions de foyers à travers le monde." },
+  { icon:"🏠", name:"Aibo",                   domaine:"Japon (Sony)",          cat:"robot_domestique", annee:"1999", exploit:"Chien robot de compagnie pionnier de la robotique grand public", imp:3, desc:"Chien robot doté d'intelligence artificielle capable d'apprendre et de manifester des comportements, précurseur des robots de compagnie modernes." },
+  { icon:"🏠", name:"Alexa",                  domaine:"États-Unis (Amazon)",   cat:"robot_domestique", annee:"2014", exploit:"A popularisé les assistants vocaux dans le foyer",  imp:4, desc:"Assistant vocal intelligent ayant introduit le contrôle vocal des objets connectés dans un nombre considérable de foyers à travers le monde." },
+  { icon:"🏠", name:"Nest (thermostat intelligent)", domaine:"États-Unis (Google)", cat:"robot_domestique", annee:"2011", exploit:"A popularisé la maison intelligente autoapprenante", imp:3, desc:"Thermostat intelligent capable d'apprendre les habitudes des occupants, précurseur emblématique de l'écosystème de la maison connectée." },
+  { icon:"🏠", name:"Jibo",                   domaine:"États-Unis",            cat:"robot_domestique", annee:"2017", exploit:"Pionnier des robots sociaux domestiques, depuis discontinué", imp:2, desc:"L'un des premiers robots sociaux destinés au foyer, dont l'échec commercial a marqué les défis persistants de ce segment de la robotique." },
+
+  { icon:"🔬", name:"AlphaFold",              domaine:"Royaume-Uni (DeepMind)", cat:"ia_recherche", annee:"2020", exploit:"A résolu un problème scientifique vieux de 50 ans sur le repliement des protéines", imp:5, desc:"IA ayant prédit avec une précision inédite la structure tridimensionnelle de centaines de millions de protéines, accélérant considérablement la recherche biomédicale." },
+  { icon:"🔬", name:"AlexNet",                domaine:"États-Unis (Université de Toronto)", cat:"ia_recherche", annee:"2012", exploit:"A déclenché la révolution moderne de l'apprentissage profond", imp:5, desc:"Réseau de neurones ayant remporté un concours de reconnaissance d'images avec une avance spectaculaire, événement fondateur du renouveau de l'intelligence artificielle." },
+  { icon:"🔬", name:"Watson for Oncology",    domaine:"États-Unis (IBM)",      cat:"ia_recherche", annee:"2015", exploit:"IA d'aide à la décision pour le traitement du cancer", imp:2, desc:"Système d'intelligence artificielle conçu pour analyser des données médicales complexes et proposer des pistes de traitement oncologique personnalisées." },
+  { icon:"🔬", name:"IA de contrôle de plasma (fusion)", domaine:"Royaume-Uni (DeepMind)", cat:"ia_recherche", annee:"2022", exploit:"A appris à contrôler le plasma dans un réacteur à fusion", imp:4, desc:"Intelligence artificielle ayant appris à stabiliser en temps réel le plasma extrêmement instable d'un réacteur expérimental de fusion nucléaire." },
+  { icon:"🔬", name:"IBM Watson Discovery",   domaine:"États-Unis (IBM)",      cat:"ia_recherche", annee:"2016", exploit:"IA d'exploration de vastes bases documentaires scientifiques", imp:2, desc:"Système d'intelligence artificielle conçu pour explorer et synthétiser rapidement de très grands volumes de littérature scientifique et technique." },
+  { icon:"🔬", name:"Eureqa",                 domaine:"États-Unis (Cornell University)", cat:"ia_recherche", annee:"2009", exploit:"IA ayant redécouvert seule des lois fondamentales de la physique", imp:3, desc:"Logiciel d'intelligence artificielle ayant retrouvé de façon autonome, à partir de simples données expérimentales, des lois physiques déjà connues des scientifiques." }
+];
+
+const catLabels = {
+  "robot_industriel": "🏭 Robot industriel",
+  "robot_humanoide":  "🤖 Robot humanoïde",
+  "ia_generative":    "💬 IA générative",
+  "ia_jeu":           "🎮 IA de jeu",
+  "robot_spatial":    "🚀 Robot spatial",
+  "robot_medical":    "🏥 Robot médical",
+  "robot_militaire":  "⚔️ Robot militaire",
+  "robot_domestique": "🏠 Robot domestique",
+  "ia_recherche":     "🔬 IA de recherche"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.domaine; vb = b.domaine; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.annee; vb = b.annee; break;
+      case 6: va = a.exploit; vb = b.exploit; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="origine-cell">${d.domaine}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="annee-cell">${d.annee}</td>
+      <td class="exploit-cell">${d.exploit}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Systèmes affichés : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
