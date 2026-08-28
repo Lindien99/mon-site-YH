@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Startups qui ont Révolutionné leur Secteur</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f1eefa;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f5f2fb;
+    --text:          #14101f;
+    --text-muted:    #5d5670;
+    --accent:        #5b3ac9;
+    --accent-hover:  #4a2ea3;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #e2ddf0;
+    --row-hover:     #f0ecfa;
+    --row-even:      #f5f2fb;
+    --shadow:        rgba(20,16,31,0.10);
+    --header-bg:     #0d0a1a;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0d0a1a;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(155,124,240,0.16), transparent 70%);
+    --surface:       #171326;
+    --surface-alt:   #1d1830;
+    --text:          #ede9f7;
+    --text-muted:    #a89ec4;
+    --accent:        #9b7cf0;
+    --accent-hover:  #b39cf5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #2c2545;
+    --row-hover:     #221c3a;
+    --row-even:      #1a1530;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #060510;
+    --header-text:   #f2c14e;
+    --chip-text:     #0d0a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/violet façon circuit --- */
+  .tech-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.7rem, 5vw, 3.1rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(91,58,201,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 170px; }
+  .pays-cell   { font-size: 0.86rem; color: var(--text-muted); min-width: 150px; }
+  .annee-cell  { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .innov-cell  { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 200px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES SECTEUR */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-tech_grand_public          { background: #2e5f7a; }
+  .type-ecommerce                  { background: #b58a1f; }
+  .type-fintech                    { background: #1f7a5c; }
+  .type-mobilite                   { background: #4a4a4a; }
+  .type-hebergement_partage        { background: #7a4a1f; }
+  .type-reseaux_sociaux            { background: #8a2c6b; }
+  .type-intelligence_artificielle  { background: #1f6b8a; }
+  .type-biotech_sante              { background: #a12439; }
+  .type-spatial_energie            { background: #1f4f8a; }
+
+  /* ÉTOILES IMPACT */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .annee-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Futur &amp; Technologies</a>
+
+<header>
+  <div class="tech-strip"></div>
+  <p class="eyebrow">Graines de Disruption</p>
+  <h1><span class="ornament">💡</span> 50 Startups qui ont Révolutionné leur Secteur <span class="ornament">📈</span></h1>
+  <p class="subtitle">D'un garage à la disruption mondiale — les entreprises qui ont redéfini leur industrie</p>
+  <div class="tech-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="tech_grand_public">📱 Tech grand public</button>
+  <button class="filter-btn" data-cat="ecommerce">🛒 E-commerce</button>
+  <button class="filter-btn" data-cat="fintech">💳 Fintech</button>
+  <button class="filter-btn" data-cat="mobilite">🚗 Mobilité</button>
+  <button class="filter-btn" data-cat="hebergement_partage">🏠 Hébergement &amp; partage</button>
+  <button class="filter-btn" data-cat="reseaux_sociaux">📲 Réseaux sociaux</button>
+  <button class="filter-btn" data-cat="intelligence_artificielle">🤖 Intelligence artificielle</button>
+  <button class="filter-btn" data-cat="biotech_sante">🧬 Biotech &amp; santé</button>
+  <button class="filter-btn" data-cat="spatial_energie">🚀 Spatial &amp; énergie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Startup <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Pays d'origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Secteur <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Fondation <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Innovation / Disruption <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Impact <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-startups') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-startups', next);
+});
+
+const DATA = [
+  { icon:"📱", name:"Apple",                  pays:"États-Unis", cat:"tech_grand_public", annee:"1976", innov:"A démocratisé l'ordinateur personnel puis le smartphone", imp:5, desc:"Fondée dans un garage californien, l'entreprise a transformé l'informatique personnelle puis redéfini l'industrie du téléphone mobile avec l'iPhone." },
+  { icon:"📱", name:"Microsoft",              pays:"États-Unis", cat:"tech_grand_public", annee:"1975", innov:"A démocratisé le logiciel sur ordinateur personnel", imp:5, desc:"Startup fondée par deux jeunes programmeurs devenue le géant mondial du logiciel, imposant Windows comme standard sur des milliards d'ordinateurs." },
+  { icon:"📱", name:"Google",                 pays:"États-Unis", cat:"tech_grand_public", annee:"1998", innov:"A révolutionné l'accès à l'information en ligne", imp:5, desc:"Projet de recherche universitaire devenu le moteur de recherche dominant mondial, transformant durablement l'accès à l'information sur internet." },
+  { icon:"📱", name:"Amazon",                 pays:"États-Unis", cat:"tech_grand_public", annee:"1994", innov:"A transformé le commerce et l'informatique en ligne", imp:5, desc:"Librairie en ligne fondée dans un garage devenue géant mondial du commerce électronique et pionnière du cloud computing avec AWS." },
+  { icon:"📱", name:"Netflix",                pays:"États-Unis", cat:"tech_grand_public", annee:"1997", innov:"A transformé la distribution de contenus audiovisuels", imp:4, desc:"Service de location de DVD par courrier devenu pionnier mondial du streaming, bouleversant durablement l'industrie du divertissement." },
+  { icon:"📱", name:"Dell",                   pays:"États-Unis", cat:"tech_grand_public", annee:"1984", innov:"A révolutionné la vente directe d'ordinateurs personnalisés", imp:3, desc:"Entreprise fondée par un étudiant assemblant des ordinateurs dans sa chambre universitaire, pionnière du modèle de vente directe personnalisée." },
+
+  { icon:"🛒", name:"eBay",                   pays:"États-Unis", cat:"ecommerce", annee:"1995", innov:"A inventé le modèle de la vente aux enchères en ligne grand public", imp:4, desc:"Plateforme pionnière ayant popularisé l'achat et la vente entre particuliers à grande échelle sur internet." },
+  { icon:"🛒", name:"Alibaba",                pays:"Chine",      cat:"ecommerce", annee:"1999", innov:"A transformé le commerce en ligne en Asie et à l'international", imp:5, desc:"Plateforme fondée par un professeur d'anglais devenue l'un des plus grands groupes de commerce électronique et de paiement en ligne au monde." },
+  { icon:"🛒", name:"Shopify",                pays:"Canada",     cat:"ecommerce", annee:"2006", innov:"A démocratisé la création de boutiques en ligne indépendantes", imp:4, desc:"Plateforme ayant permis à des millions de petites entreprises de créer facilement leur propre boutique en ligne sans compétences techniques poussées." },
+  { icon:"🛒", name:"Etsy",                   pays:"États-Unis", cat:"ecommerce", annee:"2005", innov:"A créé un marché mondial dédié aux produits artisanaux et créatifs", imp:3, desc:"Plateforme ayant offert une vitrine mondiale aux artisans et créateurs indépendants, valorisant la production faite main face à la production de masse." },
+  { icon:"🛒", name:"Zalando",                pays:"Allemagne",  cat:"ecommerce", annee:"2008", innov:"A transformé la vente de mode en ligne en Europe", imp:3, desc:"Plateforme européenne de mode en ligne ayant imposé des standards élevés de service client, notamment via une politique de retour gratuite généreuse." },
+
+  { icon:"💳", name:"PayPal",                 pays:"États-Unis", cat:"fintech", annee:"1998", innov:"A démocratisé le paiement en ligne sécurisé",  imp:5, desc:"Service pionnier ayant rendu les transactions en ligne accessibles et sécurisées, posant les bases de l'industrie moderne des paiements numériques." },
+  { icon:"💳", name:"Stripe",                 pays:"États-Unis / Irlande", cat:"fintech", annee:"2010", innov:"A simplifié radicalement l'intégration des paiements en ligne pour les développeurs", imp:5, desc:"Startup fondée par deux frères ayant transformé l'intégration des paiements en ligne en quelques lignes de code, devenant une infrastructure incontournable d'internet." },
+  { icon:"💳", name:"Revolut",                pays:"Royaume-Uni", cat:"fintech", annee:"2015", innov:"A popularisé la banque entièrement mobile en Europe", imp:3, desc:"Néobanque ayant proposé des services bancaires modernes entièrement gérés depuis une application mobile, sans agence physique." },
+  { icon:"💳", name:"Klarna",                 pays:"Suède",      cat:"fintech", annee:"2005", innov:"A popularisé le paiement fractionné en ligne",  imp:3, desc:"Entreprise suédoise ayant généralisé l'option de paiement en plusieurs fois lors des achats en ligne, transformant les habitudes de consommation." },
+  { icon:"💳", name:"Square (Block)",         pays:"États-Unis", cat:"fintech", annee:"2009", innov:"A démocratisé le paiement par carte pour les petits commerçants", imp:4, desc:"Startup ayant transformé un simple smartphone en terminal de paiement, ouvrant l'acceptation des cartes bancaires aux plus petits commerçants." },
+  { icon:"💳", name:"Robinhood",              pays:"États-Unis", cat:"fintech", annee:"2013", innov:"A démocratisé l'investissement boursier sans commission", imp:3, desc:"Application ayant rendu l'investissement en bourse accessible sans frais de courtage, attirant massivement une nouvelle génération d'investisseurs." },
+
+  { icon:"🚗", name:"Uber",                   pays:"États-Unis", cat:"mobilite", annee:"2009", innov:"A inventé le modèle du transport à la demande via application", imp:5, desc:"Startup ayant créé le modèle du transport urbain à la demande via smartphone, bouleversant durablement l'industrie mondiale du taxi." },
+  { icon:"🚗", name:"Lyft",                   pays:"États-Unis", cat:"mobilite", annee:"2012", innov:"A popularisé le covoiturage urbain rémunéré",  imp:3, desc:"Principal concurrent d'Uber aux États-Unis, ayant contribué à généraliser le modèle du covoiturage urbain à grande échelle." },
+  { icon:"🚗", name:"Waymo",                  pays:"États-Unis", cat:"mobilite", annee:"2009", innov:"Pionnier de la voiture entièrement autonome commercialisée", imp:4, desc:"Issue d'un projet de recherche de Google, cette entreprise a été la première à proposer un service de taxi entièrement autonome sans conducteur." },
+  { icon:"🚗", name:"Grab",                   pays:"Singapour",  cat:"mobilite", annee:"2012", innov:"A dominé la mobilité et les services à la demande en Asie du Sud-Est", imp:3, desc:"Super-application ayant conquis l'Asie du Sud-Est en combinant transport, livraison et services financiers en une seule plateforme." },
+  { icon:"🚗", name:"Didi Chuxing",           pays:"Chine",      cat:"mobilite", annee:"2012", innov:"A dominé le marché du transport à la demande en Chine",  imp:4, desc:"Plateforme chinoise de transport à la demande devenue leader incontesté de son marché national, l'un des plus vastes au monde." },
+
+  { icon:"🏠", name:"Airbnb",                 pays:"États-Unis", cat:"hebergement_partage", annee:"2008", innov:"A inventé le modèle de la location de logements entre particuliers", imp:5, desc:"Startup née d'un simple matelas gonflable loué à des congressistes, devenue le symbole mondial de l'économie du partage dans l'hébergement." },
+  { icon:"🏠", name:"WeWork",                 pays:"États-Unis", cat:"hebergement_partage", annee:"2010", innov:"A popularisé le modèle de l'espace de coworking flexible", imp:3, desc:"Entreprise ayant démocratisé les espaces de travail partagés et flexibles, avant de connaître une chute retentissante de sa valorisation." },
+  { icon:"🏠", name:"Booking.com",            pays:"Pays-Bas",   cat:"hebergement_partage", annee:"1996", innov:"A transformé la réservation d'hôtels en ligne",  imp:4, desc:"Plateforme née aux Pays-Bas devenue l'un des plus grands sites de réservation d'hébergements au monde, redéfinissant l'industrie du voyage." },
+  { icon:"🏠", name:"Turo",                   pays:"États-Unis", cat:"hebergement_partage", annee:"2009", innov:"A appliqué le modèle du partage à la location de voitures entre particuliers", imp:2, desc:"Plateforme surnommée « l'Airbnb de la voiture », permettant aux particuliers de louer leur véhicule directement à d'autres particuliers." },
+  { icon:"🏠", name:"Getaround",              pays:"États-Unis", cat:"hebergement_partage", annee:"2009", innov:"A popularisé l'autopartage instantané entre particuliers", imp:2, desc:"Service d'autopartage permettant de louer une voiture entre particuliers de façon quasi instantanée, sans échange de clés physiques." },
+
+  { icon:"📲", name:"Facebook (Meta)",        pays:"États-Unis", cat:"reseaux_sociaux", annee:"2004", innov:"A transformé la manière dont le monde communique en ligne", imp:5, desc:"Réseau social lancé dans une chambre universitaire devenu l'une des plateformes de communication les plus influentes de l'histoire d'internet." },
+  { icon:"📲", name:"Twitter (X)",            pays:"États-Unis", cat:"reseaux_sociaux", annee:"2006", innov:"A inventé le format court de partage d'information en temps réel", imp:4, desc:"Plateforme ayant popularisé le microblogage et transformé la diffusion instantanée de l'information et des débats publics." },
+  { icon:"📲", name:"Instagram",              pays:"États-Unis", cat:"reseaux_sociaux", annee:"2010", innov:"A transformé le partage de photos en phénomène culturel mondial", imp:4, desc:"Application de partage de photos ayant profondément influencé la culture visuelle contemporaine avant d'être rachetée par Facebook." },
+  { icon:"📲", name:"TikTok (ByteDance)",     pays:"Chine",      cat:"reseaux_sociaux", annee:"2016", innov:"A imposé le format vidéo courte comme nouveau standard mondial", imp:5, desc:"Application ayant popularisé mondialement le format vidéo courte, influençant profondément les autres réseaux sociaux et la culture numérique globale." },
+  { icon:"📲", name:"Snapchat",               pays:"États-Unis", cat:"reseaux_sociaux", annee:"2011", innov:"A inventé le concept de message éphémère sur les réseaux sociaux", imp:3, desc:"Application ayant introduit le concept de contenu éphémère, une innovation depuis largement reprise par la plupart des autres plateformes sociales." },
+  { icon:"📲", name:"LinkedIn",               pays:"États-Unis", cat:"reseaux_sociaux", annee:"2003", innov:"A transformé le réseautage professionnel en ligne",  imp:4, desc:"Premier réseau social entièrement dédié au monde professionnel, devenu incontournable pour le recrutement et le développement de carrière." },
+
+  { icon:"🤖", name:"OpenAI",                 pays:"États-Unis", cat:"intelligence_artificielle", annee:"2015", innov:"A démocratisé l'IA générative grand public avec ChatGPT", imp:5, desc:"Laboratoire de recherche devenu entreprise ayant popularisé mondialement l'intelligence artificielle générative auprès du grand public." },
+  { icon:"🤖", name:"DeepMind",               pays:"Royaume-Uni", cat:"intelligence_artificielle", annee:"2010", innov:"A résolu des défis scientifiques majeurs grâce à l'IA", imp:5, desc:"Startup britannique rachetée par Google ayant multiplié les percées scientifiques majeures, du jeu de Go au repliement des protéines." },
+  { icon:"🤖", name:"Anthropic",              pays:"États-Unis", cat:"intelligence_artificielle", annee:"2021", innov:"Développe des IA en mettant l'accent sur la sécurité",  imp:4, desc:"Entreprise fondée par d'anciens chercheurs d'OpenAI, développant des modèles d'intelligence artificielle avec une attention particulière portée à la sécurité et la fiabilité." },
+  { icon:"🤖", name:"Mistral AI",             pays:"France",     cat:"intelligence_artificielle", annee:"2023", innov:"A porté l'ambition européenne dans la course mondiale à l'IA", imp:3, desc:"Startup française devenue rapidement l'un des acteurs européens les plus en vue de l'intelligence artificielle générative face aux géants américains et chinois." },
+  { icon:"🤖", name:"Hugging Face",           pays:"France / États-Unis", cat:"intelligence_artificielle", annee:"2016", innov:"A démocratisé l'accès ouvert aux modèles d'intelligence artificielle", imp:4, desc:"Plateforme devenue référence mondiale du partage ouvert de modèles d'intelligence artificielle, favorisant la collaboration entre chercheurs et développeurs." },
+  { icon:"🤖", name:"Perplexity AI",          pays:"États-Unis", cat:"intelligence_artificielle", annee:"2022", innov:"A réinventé la recherche en ligne grâce à l'IA conversationnelle", imp:3, desc:"Startup ayant proposé un moteur de recherche conversationnel basé sur l'IA, offrant des réponses synthétisées et sourcées plutôt qu'une simple liste de liens." },
+
+  { icon:"🧬", name:"Moderna",                pays:"États-Unis", cat:"biotech_sante", annee:"2010", innov:"A prouvé la viabilité industrielle de la technologie ARN messager", imp:5, desc:"Startup biotechnologique ayant validé à grande échelle la technologie de l'ARN messager grâce à son vaccin développé en un temps record." },
+  { icon:"🧬", name:"23andMe",                pays:"États-Unis", cat:"biotech_sante", annee:"2006", innov:"A démocratisé les tests génétiques grand public",  imp:3, desc:"Entreprise ayant rendu accessible au grand public l'analyse de son propre ADN, ouvrant un débat mondial sur la vie privée génétique." },
+  { icon:"🧬", name:"Illumina",               pays:"États-Unis", cat:"biotech_sante", annee:"1998", innov:"A rendu le séquençage du génome rapide et abordable", imp:4, desc:"Entreprise ayant considérablement réduit le coût et le temps nécessaires au séquençage génétique, accélérant toute la recherche génomique mondiale." },
+  { icon:"🧬", name:"BioNTech",               pays:"Allemagne",  cat:"biotech_sante", annee:"2008", innov:"A développé l'un des tout premiers vaccins à ARN messager approuvés", imp:5, desc:"Startup allemande fondée par un couple de chercheurs ayant développé, en partenariat avec Pfizer, l'un des premiers vaccins à ARN messager approuvés." },
+  { icon:"🧬", name:"Theranos",               pays:"États-Unis", cat:"biotech_sante", annee:"2003", innov:"Prétendait révolutionner les analyses sanguines à partir d'une simple goutte", imp:2, desc:"Startup ayant promis de révolutionner les tests sanguins, avant que ses affirmations technologiques ne s'avèrent frauduleuses, devenant un cas d'école des dérives de la Silicon Valley." },
+
+  { icon:"🚀", name:"SpaceX",                 pays:"États-Unis", cat:"spatial_energie", annee:"2002", innov:"A rendu les fusées réutilisables et réduit drastiquement le coût de l'espace", imp:5, desc:"Startup ayant réussi à faire atterrir et réutiliser des fusées orbitales, transformant radicalement l'économie de l'accès à l'espace." },
+  { icon:"🚀", name:"Tesla",                  pays:"États-Unis", cat:"spatial_energie", annee:"2003", innov:"A rendu la voiture électrique désirable et grand public", imp:5, desc:"Startup automobile ayant transformé la perception de la voiture électrique, poussant l'ensemble de l'industrie automobile mondiale vers l'électrification." },
+  { icon:"🚀", name:"Blue Origin",            pays:"États-Unis", cat:"spatial_energie", annee:"2000", innov:"Pionnier du tourisme spatial suborbital réutilisable", imp:3, desc:"Entreprise spatiale privée développant des lanceurs réutilisables et proposant des vols touristiques suborbitaux aux confins de l'espace." },
+  { icon:"🚀", name:"Rivian",                 pays:"États-Unis", cat:"spatial_energie", annee:"2009", innov:"A lancé l'un des premiers pick-up et utilitaires électriques grand public", imp:3, desc:"Startup automobile ayant développé des véhicules utilitaires et pick-up entièrement électriques, ciblant un segment longtemps délaissé par l'électrification." },
+  { icon:"🚀", name:"ChargePoint",            pays:"États-Unis", cat:"spatial_energie", annee:"2007", innov:"A bâti l'un des plus grands réseaux de recharge électrique au monde", imp:3, desc:"Entreprise ayant développé l'un des plus vastes réseaux de bornes de recharge pour véhicules électriques, essentiel au développement de la mobilité électrique." },
+  { icon:"🚀", name:"Northvolt",              pays:"Suède",      cat:"spatial_energie", annee:"2016", innov:"A porté l'ambition européenne de production de batteries durables", imp:3, desc:"Startup suédoise fondée pour construire une industrie européenne de batteries électriques plus durable, réduisant la dépendance aux fabricants asiatiques." }
+];
+
+const catLabels = {
+  "tech_grand_public":         "📱 Tech grand public",
+  "ecommerce":                 "🛒 E-commerce",
+  "fintech":                   "💳 Fintech",
+  "mobilite":                  "🚗 Mobilité",
+  "hebergement_partage":       "🏠 Hébergement & partage",
+  "reseaux_sociaux":           "📲 Réseaux sociaux",
+  "intelligence_artificielle": "🤖 Intelligence artificielle",
+  "biotech_sante":             "🧬 Biotech & santé",
+  "spatial_energie":           "🚀 Spatial & énergie"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.pays; vb = b.pays; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.annee; vb = b.annee; break;
+      case 6: va = a.innov; vb = b.innov; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="annee-cell">${d.annee}</td>
+      <td class="innov-cell">${d.innov}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Startups affichées : <span>${rows.length}</span></span>
+    <span class="stat">Secteurs représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Impact maximal ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
