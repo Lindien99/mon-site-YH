@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Missions Spatiales Mémorables</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f1eefa;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f5f2fb;
+    --text:          #14101f;
+    --text-muted:    #5d5670;
+    --accent:        #5b3ac9;
+    --accent-hover:  #4a2ea3;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #e2ddf0;
+    --row-hover:     #f0ecfa;
+    --row-even:      #f5f2fb;
+    --shadow:        rgba(20,16,31,0.10);
+    --header-bg:     #0d0a1a;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0d0a1a;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(155,124,240,0.16), transparent 70%);
+    --surface:       #171326;
+    --surface-alt:   #1d1830;
+    --text:          #ede9f7;
+    --text-muted:    #a89ec4;
+    --accent:        #9b7cf0;
+    --accent-hover:  #b39cf5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #2c2545;
+    --row-hover:     #221c3a;
+    --row-even:      #1a1530;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #060510;
+    --header-text:   #f2c14e;
+    --chip-text:     #0d0a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/violet façon circuit --- */
+  .tech-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(91,58,201,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 200px; }
+  .pays-cell   { font-size: 0.86rem; color: var(--text-muted); min-width: 160px; }
+  .annee-cell  { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .partic-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 200px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-pionniere       { background: #a12439; }
+  .type-lunaire         { background: #4a6b7a; }
+  .type-martienne       { background: #b6651d; }
+  .type-habitee         { background: #2e5f7a; }
+  .type-robotique       { background: #4a4a4a; }
+  .type-observatoire    { background: #8a2c6b; }
+  .type-commerciale     { background: #1f6b8a; }
+  .type-interplanetaire { background: #1f4f8a; }
+  .type-tragedie        { background: #5c1a1a; }
+
+  /* ÉTOILES IMPORTANCE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .annee-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Futur &amp; Technologies</a>
+
+<header>
+  <div class="tech-strip"></div>
+  <p class="eyebrow">Épopées vers l'Infini</p>
+  <h1><span class="ornament">🚀</span> 50 Missions Spatiales Mémorables <span class="ornament">🛰️</span></h1>
+  <p class="subtitle">De Spoutnik à James Webb — les épopées qui ont repoussé les frontières de l'humanité</p>
+  <div class="tech-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="pionniere">🛰️ Pionnière</button>
+  <button class="filter-btn" data-cat="lunaire">🌕 Lunaire</button>
+  <button class="filter-btn" data-cat="martienne">🔴 Martienne</button>
+  <button class="filter-btn" data-cat="habitee">🧑‍🚀 Habitée</button>
+  <button class="filter-btn" data-cat="robotique">🤖 Robotique</button>
+  <button class="filter-btn" data-cat="observatoire">🔭 Observatoire</button>
+  <button class="filter-btn" data-cat="commerciale">🚀 Commerciale</button>
+  <button class="filter-btn" data-cat="interplanetaire">🪐 Interplanétaire</button>
+  <button class="filter-btn" data-cat="tragedie">⚠️ Tragédie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Mission <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Pays / Agence <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Réalisation <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Importance <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-missions-spatiales') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-missions-spatiales', next);
+});
+
+const DATA = [
+  { icon:"🛰️", name:"Spoutnik 1",             pays:"URSS",              cat:"pionniere", annee:"1957", partic:"Premier satellite artificiel de l'histoire", imp:5, desc:"Lancement qui a marqué le début de l'ère spatiale et déclenché la course à l'espace entre les États-Unis et l'Union soviétique." },
+  { icon:"🛰️", name:"Vostok 1 (Gagarine)",    pays:"URSS",              cat:"pionniere", annee:"1961", partic:"Premier vol humain dans l'espace",  imp:5, desc:"Youri Gagarine devient le premier être humain à voyager dans l'espace, un tournant décisif dans l'histoire de l'exploration spatiale." },
+  { icon:"🛰️", name:"Explorer 1",              pays:"États-Unis",       cat:"pionniere", annee:"1958", partic:"Premier satellite américain, découverte des ceintures de Van Allen", imp:3, desc:"Réponse américaine à Spoutnik, cette mission a permis la découverte des ceintures de radiation entourant la Terre." },
+  { icon:"🛰️", name:"Mercury-Redstone 3 (Shepard)", pays:"États-Unis", cat:"pionniere", annee:"1961", partic:"Premier Américain dans l'espace",   imp:4, desc:"Alan Shepard devient le premier astronaute américain à voler dans l'espace, quelques semaines après Gagarine." },
+  { icon:"🛰️", name:"Vostok 6 (Terechkova)",  pays:"URSS",              cat:"pionniere", annee:"1963", partic:"Première femme dans l'espace",       imp:4, desc:"Valentina Terechkova devient la première femme à voyager dans l'espace, un symbole fort resté unique pendant près de vingt ans." },
+  { icon:"🛰️", name:"Voskhod 2 (Leonov)",     pays:"URSS",              cat:"pionniere", annee:"1965", partic:"Première sortie extravéhiculaire de l'histoire", imp:4, desc:"Alexeï Leonov réalise la première marche dans l'espace, une étape cruciale vers les futures missions d'assemblage orbital." },
+
+  { icon:"🌕", name:"Apollo 11",              pays:"États-Unis",        cat:"lunaire",   annee:"1969", partic:"Premier alunissage habité de l'histoire", imp:5, desc:"Neil Armstrong et Buzz Aldrin deviennent les premiers humains à marcher sur la Lune, moment fondateur de l'exploration spatiale." },
+  { icon:"🌕", name:"Apollo 13",              pays:"États-Unis",        cat:"lunaire",   annee:"1970", partic:"Mission accidentée transformée en sauvetage réussi", imp:4, desc:"Une explosion en plein vol force l'équipage à abandonner l'alunissage, donnant lieu à l'un des sauvetages les plus célèbres de l'histoire spatiale." },
+  { icon:"🌕", name:"Luna 2",                 pays:"URSS",              cat:"lunaire",   annee:"1959", partic:"Premier objet fabriqué par l'homme à atteindre la Lune", imp:3, desc:"Sonde soviétique ayant percuté intentionnellement la surface lunaire, première fois qu'un engin humain atteignait un autre corps céleste." },
+  { icon:"🌕", name:"Chang'e 4",              pays:"Chine",             cat:"lunaire",   annee:"2019", partic:"Premier alunissage sur la face cachée de la Lune", imp:4, desc:"Mission chinoise historique ayant réalisé le tout premier atterrissage en douceur sur la face cachée, jamais visible depuis la Terre." },
+  { icon:"🌕", name:"Apollo 8",               pays:"États-Unis",        cat:"lunaire",   annee:"1968", partic:"Premier vol habité en orbite autour de la Lune", imp:4, desc:"Premier équipage humain à quitter l'orbite terrestre et à voir la Terre se lever au-dessus de l'horizon lunaire." },
+  { icon:"🌕", name:"Chandrayaan-3",          pays:"Inde",              cat:"lunaire",   annee:"2023", partic:"Premier alunissage réussi près du pôle sud lunaire", imp:4, desc:"Mission indienne ayant fait de l'Inde le premier pays à atterrir avec succès près du pôle sud lunaire, riche en glace d'eau." },
+
+  { icon:"🔴", name:"Viking 1",               pays:"États-Unis",        cat:"martienne", annee:"1976", partic:"Premier atterrissage réussi et fonctionnel sur Mars", imp:5, desc:"Première sonde à se poser et à fonctionner durablement sur la planète rouge, ouvrant l'ère de l'exploration martienne robotique." },
+  { icon:"🔴", name:"Mars Pathfinder (Sojourner)", pays:"États-Unis",   cat:"martienne", annee:"1997", partic:"Premier rover à circuler sur la surface martienne", imp:4, desc:"Mission ayant introduit le tout premier véhicule mobile sur Mars, ouvrant la voie aux grands rovers martiens ultérieurs." },
+  { icon:"🔴", name:"Curiosity",              pays:"États-Unis",        cat:"martienne", annee:"2012", partic:"Rover de la taille d'une voiture toujours actif", imp:5, desc:"Laboratoire mobile ayant confirmé que Mars a jadis pu abriter des conditions favorables à la vie microbienne." },
+  { icon:"🔴", name:"Perseverance",           pays:"États-Unis",        cat:"martienne", annee:"2021", partic:"Rover accompagné du premier hélicoptère extraterrestre", imp:5, desc:"Mission collectant des échantillons martiens en vue d'un retour futur sur Terre, accompagnée du drone Ingenuity, première aéronef à voler sur une autre planète." },
+  { icon:"🔴", name:"Mars Express",           pays:"Europe (ESA)",      cat:"martienne", annee:"2003", partic:"Première mission martienne européenne",  imp:3, desc:"Orbiteur européen toujours actif après plus de vingt ans, ayant confirmé la présence de glace d'eau sur Mars." },
+  { icon:"🔴", name:"Tianwen-1",              pays:"Chine",             cat:"martienne", annee:"2021", partic:"Orbiteur, atterrisseur et rover en une seule mission", imp:4, desc:"Mission chinoise ambitieuse ayant réussi du premier coup à mettre en orbite, atterrir et déployer un rover sur Mars." },
+
+  { icon:"🧑‍🚀", name:"Station spatiale internationale", pays:"International", cat:"habitee", annee:"Depuis 1998", partic:"Plus grande structure jamais construite dans l'espace", imp:5, desc:"Laboratoire orbital permanent fruit d'une collaboration entre plusieurs agences spatiales, occupé sans interruption depuis plus de deux décennies." },
+  { icon:"🧑‍🚀", name:"Skylab",               pays:"États-Unis",        cat:"habitee",   annee:"1973", partic:"Première station spatiale américaine",  imp:3, desc:"Première station spatiale habitée américaine, ayant accueilli trois équipages avant sa retombée incontrôlée sur Terre en 1979." },
+  { icon:"🧑‍🚀", name:"Mir",                  pays:"URSS / Russie",     cat:"habitee",   annee:"1986–2001", partic:"Première station spatiale modulaire de longue durée", imp:4, desc:"Station spatiale soviétique puis russe ayant accueilli des équipages internationaux pendant quinze ans, précurseur de l'ISS." },
+  { icon:"🧑‍🚀", name:"Station spatiale Tiangong", pays:"Chine",        cat:"habitee",   annee:"Depuis 2021", partic:"Station spatiale permanente chinoise", imp:4, desc:"Station spatiale modulaire chinoise en orbite permanente, marquant l'entrée de la Chine dans le cercle restreint des puissances spatiales habitées." },
+  { icon:"🧑‍🚀", name:"Programme Navette spatiale", pays:"États-Unis",  cat:"habitee",   annee:"1981–2011", partic:"Premier véhicule spatial partiellement réutilisable", imp:4, desc:"Programme ayant assuré l'essentiel des vols habités américains pendant trois décennies et la construction de la Station spatiale internationale." },
+  { icon:"🧑‍🚀", name:"Salyout 1",            pays:"URSS",              cat:"habitee",   annee:"1971", partic:"Première station spatiale de l'histoire", imp:3, desc:"Première station spatiale jamais mise en orbite, ouvrant la voie à plus de cinquante ans d'habitation humaine continue de l'espace." },
+
+  { icon:"🤖", name:"Voyager 1",              pays:"États-Unis",        cat:"robotique", annee:"1977", partic:"Objet fabriqué par l'homme le plus éloigné de la Terre", imp:5, desc:"Sonde ayant quitté le système solaire pour entrer dans l'espace interstellaire, toujours en contact avec la Terre après près de cinquante ans." },
+  { icon:"🤖", name:"Voyager 2",              pays:"États-Unis",        cat:"robotique", annee:"1977", partic:"Seule sonde à avoir survolé les quatre géantes gazeuses", imp:5, desc:"Unique mission à avoir visité Jupiter, Saturne, Uranus et Neptune, fournissant des données inégalées sur les confins du système solaire." },
+  { icon:"🤖", name:"Cassini-Huygens",        pays:"États-Unis / Europe", cat:"robotique", annee:"1997", partic:"Exploration approfondie de Saturne et de ses lunes", imp:5, desc:"Mission ayant révolutionné notre connaissance de Saturne, de ses anneaux et de sa lune Titan, sur laquelle un module s'est posé." },
+  { icon:"🤖", name:"Rosetta / Philae",       pays:"Europe (ESA)",      cat:"robotique", annee:"2004", partic:"Premier atterrissage contrôlé sur une comète", imp:4, desc:"Mission européenne ayant accompagné une comète pendant des mois et posé un module à sa surface, une première mondiale." },
+  { icon:"🤖", name:"Juno",                   pays:"États-Unis",        cat:"robotique", annee:"2011", partic:"Étude approfondie de l'atmosphère et du champ magnétique de Jupiter", imp:3, desc:"Sonde en orbite autour de Jupiter ayant révélé des détails inédits sur sa structure interne et ses puissantes tempêtes atmosphériques." },
+
+  { icon:"🔭", name:"Télescope spatial Hubble", pays:"États-Unis / Europe", cat:"observatoire", annee:"1990", partic:"A révolutionné l'astronomie moderne pendant plus de 30 ans", imp:5, desc:"Observatoire spatial ayant transformé notre compréhension de l'univers, produisant certaines des images astronomiques les plus célèbres de l'histoire." },
+  { icon:"🔭", name:"Télescope spatial James Webb", pays:"États-Unis / Europe / Canada", cat:"observatoire", annee:"2021", partic:"Plus puissant télescope spatial jamais construit", imp:5, desc:"Successeur de Hubble observant dans l'infrarouge, capable de scruter les galaxies les plus anciennes de l'univers observable." },
+  { icon:"🔭", name:"Kepler",                 pays:"États-Unis",        cat:"observatoire", annee:"2009", partic:"A découvert plus de 2 600 exoplanètes confirmées", imp:4, desc:"Télescope spatial ayant révolutionné la recherche d'exoplanètes, révélant que les planètes autour d'autres étoiles sont extrêmement communes." },
+  { icon:"🔭", name:"Observatoire Gaia",      pays:"Europe (ESA)",      cat:"observatoire", annee:"2013", partic:"Cartographie de plus d'un milliard d'étoiles de la Voie lactée", imp:4, desc:"Mission ayant produit la carte tridimensionnelle la plus précise jamais réalisée de notre galaxie, transformant l'astronomie galactique." },
+  { icon:"🔭", name:"Observatoire à rayons X Chandra", pays:"États-Unis", cat:"observatoire", annee:"1999", partic:"Observation des phénomènes les plus énergétiques de l'univers", imp:3, desc:"Télescope spatial spécialisé dans les rayons X, permettant d'étudier trous noirs, étoiles à neutrons et rémanents de supernovae." },
+
+  { icon:"🚀", name:"SpaceX Crew Dragon Demo-2", pays:"États-Unis",     cat:"commerciale", annee:"2020", partic:"Premier vol habité commercial vers l'ISS", imp:5, desc:"Premier vol orbital habité opéré par une entreprise privée à destination de la Station spatiale internationale, tournant historique du secteur spatial." },
+  { icon:"🚀", name:"Virgin Galactic SpaceShipTwo", pays:"États-Unis", cat:"commerciale", annee:"Depuis 2018", partic:"Vols touristiques suborbitaux réguliers", imp:3, desc:"Véhicule suborbital privé proposant des vols touristiques offrant quelques minutes d'impesanteur aux confins de l'espace." },
+  { icon:"🚀", name:"Blue Origin New Shepard", pays:"États-Unis",       cat:"commerciale", annee:"Depuis 2021", partic:"Vols touristiques suborbitaux automatisés", imp:3, desc:"Fusée réutilisable et capsule entièrement automatisées proposant des vols suborbitaux touristiques de courte durée." },
+  { icon:"🚀", name:"Inspiration4",           pays:"États-Unis",        cat:"commerciale", annee:"2021", partic:"Premier vol orbital entièrement composé de civils", imp:4, desc:"Première mission orbitale de l'histoire sans astronaute professionnel à bord, marquant une nouvelle étape du tourisme spatial." },
+  { icon:"🚀", name:"Falcon Heavy (vol inaugural)", pays:"États-Unis", cat:"commerciale", annee:"2018", partic:"Fusée opérationnelle la plus puissante de son époque", imp:4, desc:"Vol inaugural d'un lanceur lourd réutilisable ayant marqué les esprits par la double récupération synchronisée de ses propulseurs latéraux." },
+
+  { icon:"🪐", name:"New Horizons",           pays:"États-Unis",        cat:"interplanetaire", annee:"2006", partic:"Premier survol rapproché de Pluton",  imp:5, desc:"Sonde ayant offert les premières images détaillées de Pluton, révélant un monde glacé bien plus complexe qu'on ne l'imaginait." },
+  { icon:"🪐", name:"Galileo",                pays:"États-Unis",        cat:"interplanetaire", annee:"1989", partic:"Première sonde en orbite autour de Jupiter", imp:4, desc:"Mission ayant étudié en détail Jupiter et ses lunes glacées, découvrant des indices d'océans souterrains sur Europe." },
+  { icon:"🪐", name:"Dawn",                   pays:"États-Unis",        cat:"interplanetaire", annee:"2007", partic:"Première sonde à orbiter deux corps distincts du système solaire", impact:"", imp:3, desc:"Mission unique ayant exploré successivement l'astéroïde Vesta et la planète naine Cérès, deux mondes très différents de la ceinture d'astéroïdes." },
+  { icon:"🪐", name:"Hayabusa2",              pays:"Japon",             cat:"interplanetaire", annee:"2014", partic:"Retour d'échantillons d'un astéroïde vers la Terre", imp:4, desc:"Mission japonaise ayant prélevé et rapporté sur Terre des échantillons de l'astéroïde Ryugu, précieux pour comprendre l'origine du système solaire." },
+  { icon:"🪐", name:"Akatsuki",               pays:"Japon",             cat:"interplanetaire", annee:"2010", partic:"Étude de l'atmosphère extrême de Vénus", imp:2, desc:"Sonde japonaise étudiant la dynamique atmosphérique de Vénus après avoir surmonté un échec de mise en orbite initial." },
+
+  { icon:"⚠️", name:"Apollo 1",               pays:"États-Unis",        cat:"tragedie",  annee:"1967", partic:"Incendie mortel lors d'un essai au sol", imp:4, desc:"Tragédie survenue lors d'un test au sol ayant coûté la vie à trois astronautes, entraînant une refonte majeure de la sécurité du programme Apollo." },
+  { icon:"⚠️", name:"Challenger (STS-51-L)",  pays:"États-Unis",        cat:"tragedie",  annee:"1986", partic:"Explosion 73 secondes après le décollage", imp:5, desc:"Catastrophe ayant coûté la vie aux sept membres d'équipage et profondément marqué le programme spatial américain pendant des années." },
+  { icon:"⚠️", name:"Columbia (STS-107)",     pays:"États-Unis",        cat:"tragedie",  annee:"2003", partic:"Désintégration lors de la rentrée atmosphérique", imp:5, desc:"Désastre survenu au retour sur Terre, causé par un dommage au bouclier thermique, ayant conduit à la fin du programme de la navette spatiale." },
+  { icon:"⚠️", name:"Soyouz 1",               pays:"URSS",              cat:"tragedie",  annee:"1967", partic:"Premier décès lors d'un vol spatial en cours", imp:4, desc:"Accident survenu au retour sur Terre ayant coûté la vie au cosmonaute Vladimir Komarov, première mort humaine durant un vol spatial." },
+  { icon:"⚠️", name:"Soyouz 11",              pays:"URSS",              cat:"tragedie",  annee:"1971", partic:"Dépressurisation fatale de la capsule au retour", imp:4, desc:"Tragédie ayant coûté la vie aux trois membres d'équipage de retour de la station Salyout 1, seuls décès humains survenus dans l'espace lui-même." },
+  { icon:"⚠️", name:"Mars Climate Orbiter",   pays:"États-Unis",        cat:"tragedie",  annee:"1999", partic:"Perte de la sonde due à une erreur d'unités de mesure", imp:2, desc:"Sonde martienne perdue à cause d'une confusion entre unités métriques et impériales, devenue un cas d'école sur l'importance de la rigueur technique." }
+];
+
+const catLabels = {
+  "pionniere":       "🛰️ Pionnière",
+  "lunaire":         "🌕 Lunaire",
+  "martienne":       "🔴 Martienne",
+  "habitee":         "🧑‍🚀 Habitée",
+  "robotique":       "🤖 Robotique",
+  "observatoire":    "🔭 Observatoire",
+  "commerciale":     "🚀 Commerciale",
+  "interplanetaire": "🪐 Interplanétaire",
+  "tragedie":        "⚠️ Tragédie"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.pays; vb = b.pays; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.annee; vb = b.annee; break;
+      case 6: va = a.partic; vb = b.partic; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' mission spatiale')}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="pays-cell">${d.pays}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="annee-cell">${d.annee}</td>
+      <td class="partic-cell">${d.partic}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Missions affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Importance maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
