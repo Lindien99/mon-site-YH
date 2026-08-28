@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Technologies qui vont Transformer le XXIᵉ Siècle</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f1eefa;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f5f2fb;
+    --text:          #14101f;
+    --text-muted:    #5d5670;
+    --accent:        #5b3ac9;
+    --accent-hover:  #4a2ea3;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #e2ddf0;
+    --row-hover:     #f0ecfa;
+    --row-even:      #f5f2fb;
+    --shadow:        rgba(20,16,31,0.10);
+    --header-bg:     #0d0a1a;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0d0a1a;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(155,124,240,0.16), transparent 70%);
+    --surface:       #171326;
+    --surface-alt:   #1d1830;
+    --text:          #ede9f7;
+    --text-muted:    #a89ec4;
+    --accent:        #9b7cf0;
+    --accent-hover:  #b39cf5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #2c2545;
+    --row-hover:     #221c3a;
+    --row-even:      #1a1530;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #060510;
+    --header-text:   #f2c14e;
+    --chip-text:     #0d0a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/violet façon circuit --- */
+  .tech-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(91,58,201,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell   { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell   { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 210px; }
+  .domaine-cell{ font-size: 0.86rem; color: var(--text-muted); min-width: 190px; }
+  .horizon-cell{ font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; min-width: 180px; }
+  .impact-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 190px; }
+  .desc-cell   { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-intelligence_artificielle { background: #2e5f7a; }
+  .type-biotechnologie            { background: #1f7a5c; }
+  .type-energie                   { background: #b58a1f; }
+  .type-informatique_quantique    { background: #8a2c6b; }
+  .type-robotique                 { background: #4a4a4a; }
+  .type-espace                    { background: #1f4f8a; }
+  .type-materiaux                 { background: #7a4a1f; }
+  .type-communication             { background: #0f6b6b; }
+  .type-realite_augmentee         { background: #a12439; }
+
+  /* ÉTOILES POTENTIEL */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .horizon-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Futur &amp; Technologies</a>
+
+<header>
+  <div class="tech-strip"></div>
+  <p class="eyebrow">Horizons de Demain</p>
+  <h1><span class="ornament">🚀</span> 50 Technologies qui vont Transformer le XXIᵉ Siècle <span class="ornament">🔮</span></h1>
+  <p class="subtitle">De l'intelligence artificielle à la fusion nucléaire — les innovations qui redessinent notre avenir</p>
+  <div class="tech-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="intelligence_artificielle">🤖 Intelligence artificielle</button>
+  <button class="filter-btn" data-cat="biotechnologie">🧬 Biotechnologie</button>
+  <button class="filter-btn" data-cat="energie">🔋 Énergie</button>
+  <button class="filter-btn" data-cat="informatique_quantique">💻 Informatique quantique</button>
+  <button class="filter-btn" data-cat="robotique">⚙️ Robotique</button>
+  <button class="filter-btn" data-cat="espace">🚀 Espace</button>
+  <button class="filter-btn" data-cat="materiaux">🧪 Matériaux</button>
+  <button class="filter-btn" data-cat="communication">📡 Communication</button>
+  <button class="filter-btn" data-cat="realite_augmentee">🕶️ Réalité augmentée</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Technologie <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Domaine d'application <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Horizon de maturité <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Impact attendu <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Potentiel <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-technologies-futures') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-technologies-futures', next);
+});
+
+const DATA = [
+  { icon:"🤖", name:"Grands modèles de langage (LLM)", domaine:"Génération et compréhension de texte", cat:"intelligence_artificielle", horizon:"Déjà largement déployée",   impact:"Transformation du travail intellectuel et de l'accès au savoir", imp:5, desc:"Systèmes d'IA capables de comprendre et générer du texte de façon fluide, en train de transformer profondément l'écriture, la recherche et le travail de bureau." },
+  { icon:"🤖", name:"IA générative d'images et de vidéos", domaine:"Création visuelle et audiovisuelle", cat:"intelligence_artificielle", horizon:"Déjà largement déployée", impact:"Bouleversement des industries créatives",  imp:4, desc:"Outils capables de créer images, illustrations et vidéos à partir de simples descriptions textuelles, transformant les métiers créatifs et du design." },
+  { icon:"🤖", name:"Véhicules autonomes",           domaine:"Transport et mobilité",              cat:"intelligence_artificielle", horizon:"Déploiement progressif d'ici 2030", impact:"Réduction potentielle des accidents de la route", imp:5, desc:"Véhicules capables de circuler sans conducteur humain, combinant capteurs et intelligence artificielle pour transformer les transports urbains." },
+  { icon:"🤖", name:"IA médicale diagnostique",       domaine:"Santé et diagnostic",                cat:"intelligence_artificielle", horizon:"En déploiement clinique croissant", impact:"Détection plus précoce de nombreuses maladies", imp:5, desc:"Systèmes d'intelligence artificielle capables d'analyser images médicales et données cliniques pour assister les médecins dans leurs diagnostics." },
+  { icon:"🤖", name:"Agents IA autonomes",            domaine:"Automatisation de tâches complexes",  cat:"intelligence_artificielle", horizon:"Émergence rapide depuis 2024",     impact:"Automatisation de tâches numériques multi-étapes", imp:4, desc:"IA capables d'exécuter de façon autonome des séquences de tâches complexes, de la planification à l'exécution, sans supervision constante." },
+  { icon:"🤖", name:"Reconnaissance faciale et biométrie", domaine:"Sécurité et identification",     cat:"intelligence_artificielle", horizon:"Déjà largement déployée",           impact:"Transformation de la sécurité et des débats sur la vie privée", imp:3, desc:"Technologies d'identification biométrique de plus en plus précises, soulevant d'importants débats sur la surveillance et la protection de la vie privée." },
+
+  { icon:"🧬", name:"Édition génétique CRISPR",       domaine:"Génie génétique",                    cat:"biotechnologie", horizon:"Applications thérapeutiques en expansion", impact:"Traitement potentiel de maladies génétiques auparavant incurables", imp:5, desc:"Technique révolutionnaire permettant de modifier précisément l'ADN, ouvrant la voie à des traitements ciblés contre de nombreuses maladies héréditaires." },
+  { icon:"🧬", name:"Thérapies géniques",             domaine:"Traitement de maladies génétiques",  cat:"biotechnologie", horizon:"Premiers traitements déjà approuvés", impact:"Traitements potentiellement curatifs pour maladies rares", imp:4, desc:"Approches thérapeutiques consistant à corriger ou remplacer des gènes défectueux directement à la source des maladies génétiques." },
+  { icon:"🧬", name:"Vaccins à ARN messager",         domaine:"Immunologie et prévention",          cat:"biotechnologie", horizon:"Déjà largement déployée",            impact:"Réponse rapide à de nouvelles menaces sanitaires", imp:5, desc:"Technologie vaccinale ayant démontré sa rapidité de développement, désormais explorée pour de nombreuses autres maladies au-delà des virus respiratoires." },
+  { icon:"🧬", name:"Bio-impression d'organes",       domaine:"Médecine régénérative",              cat:"biotechnologie", horizon:"Stade expérimental avancé",          impact:"Réduction potentielle des pénuries d'organes pour greffe", imp:4, desc:"Technique d'impression 3D utilisant des cellules vivantes pour fabriquer des tissus, voire à terme des organes fonctionnels destinés à la greffe." },
+  { icon:"🧬", name:"Médecine personnalisée (génomique)", domaine:"Santé individualisée",           cat:"biotechnologie", horizon:"En expansion rapide",                impact:"Traitements adaptés au profil génétique individuel", imp:4, desc:"Approche médicale qui adapte diagnostics et traitements au profil génétique unique de chaque patient, plutôt qu'à des protocoles standardisés." },
+  { icon:"🧬", name:"Viande cultivée en laboratoire", domaine:"Alimentation durable",               cat:"biotechnologie", horizon:"Premières commercialisations en cours", impact:"Réduction potentielle de l'impact environnemental de l'élevage", imp:3, desc:"Viande produite à partir de cellules animales cultivées en laboratoire, sans élevage traditionnel, présentée comme alternative plus durable." },
+
+  { icon:"🔋", name:"Batteries à l'état solide",      domaine:"Stockage d'énergie",                 cat:"energie", horizon:"Commercialisation attendue d'ici 2027-2030", impact:"Véhicules électriques à plus grande autonomie et recharge plus rapide", imp:5, desc:"Nouvelle génération de batteries plus sûres et plus performantes que les batteries lithium-ion actuelles, très attendue pour les véhicules électriques." },
+  { icon:"🔋", name:"Fusion nucléaire",               domaine:"Production d'énergie propre",        cat:"energie", horizon:"Premiers réacteurs commerciaux visés vers 2035-2050", impact:"Énergie potentiellement quasi illimitée et peu polluante", imp:5, desc:"Technologie reproduisant le processus qui alimente les étoiles, promettant une source d'énergie abondante et beaucoup plus sûre que la fission nucléaire." },
+  { icon:"🔋", name:"Hydrogène vert",                 domaine:"Carburant et industrie lourde",      cat:"energie", horizon:"Déploiement industriel en croissance", impact:"Décarbonation de secteurs industriels difficiles à électrifier", imp:4, desc:"Hydrogène produit à partir d'énergies renouvelables, envisagé comme solution pour décarboner l'industrie lourde et certains transports." },
+  { icon:"🔋", name:"Panneaux solaires à pérovskite", domaine:"Production d'énergie solaire",       cat:"energie", horizon:"Premières commercialisations en cours", impact:"Cellules solaires plus efficaces et moins coûteuses à produire", imp:4, desc:"Nouvelle génération de cellules photovoltaïques promettant des rendements supérieurs aux panneaux au silicium traditionnels, à moindre coût." },
+  { icon:"🔋", name:"Réseaux électriques intelligents", domaine:"Gestion de la distribution d'énergie", cat:"energie", horizon:"Déploiement progressif en cours", impact:"Meilleure intégration des énergies renouvelables intermittentes", imp:4, desc:"Réseaux électriques capables d'ajuster en temps réel l'offre et la demande, essentiels pour intégrer efficacement les énergies renouvelables." },
+  { icon:"🔋", name:"Stockage d'énergie à grande échelle", domaine:"Stabilisation du réseau électrique", cat:"energie", horizon:"Déploiement en expansion",         impact:"Stabilisation du réseau face à l'intermittence des renouvelables", imp:4, desc:"Solutions de stockage massif d'électricité, des batteries géantes aux systèmes gravitaires, permettant de lisser la production d'énergies renouvelables." },
+
+  { icon:"💻", name:"Ordinateurs quantiques",         domaine:"Calcul haute performance",           cat:"informatique_quantique", horizon:"Prototypes avancés, usage commercial limité", impact:"Résolution de problèmes inaccessibles aux ordinateurs classiques", imp:5, desc:"Machines exploitant les principes de la physique quantique pour effectuer certains calculs des millions de fois plus vite que les ordinateurs classiques." },
+  { icon:"💻", name:"Cryptographie post-quantique",   domaine:"Cybersécurité",                      cat:"informatique_quantique", horizon:"Standardisation en cours",         impact:"Protection des données face à la menace des futurs ordinateurs quantiques", imp:4, desc:"Nouvelles méthodes de chiffrement conçues pour résister aux capacités de calcul des futurs ordinateurs quantiques, essentielles à la cybersécurité future." },
+  { icon:"💻", name:"Capteurs quantiques",            domaine:"Mesure de haute précision",          cat:"informatique_quantique", horizon:"Applications spécialisées en croissance", impact:"Précision inédite pour la navigation et l'imagerie médicale", imp:3, desc:"Capteurs exploitant des phénomènes quantiques pour atteindre des niveaux de précision de mesure inégalés, utiles en navigation et en imagerie médicale." },
+  { icon:"💻", name:"Communication quantique sécurisée", domaine:"Sécurité des télécommunications", cat:"informatique_quantique", horizon:"Premiers réseaux expérimentaux déployés", impact:"Transmission de données théoriquement inviolable", imp:3, desc:"Technologie de transmission de données utilisant les propriétés quantiques pour détecter instantanément toute tentative d'interception." },
+  { icon:"💻", name:"Simulation quantique de molécules", domaine:"Recherche chimique et pharmaceutique", cat:"informatique_quantique", horizon:"Recherche active, applications émergentes", impact:"Accélération de la découverte de nouveaux médicaments et matériaux", imp:4, desc:"Utilisation d'ordinateurs quantiques pour modéliser le comportement de molécules complexes, avec un fort potentiel pour la recherche pharmaceutique." },
+
+  { icon:"⚙️", name:"Robots humanoïdes",              domaine:"Assistance et industrie",             cat:"robotique", horizon:"Premiers déploiements industriels en cours", impact:"Automatisation de tâches nécessitant une dextérité humaine", imp:4, desc:"Robots à forme humaine conçus pour évoluer dans des environnements pensés pour les humains, de plus en plus testés en usine et dans les services." },
+  { icon:"⚙️", name:"Exosquelettes",                  domaine:"Assistance physique et rééducation",  cat:"robotique", horizon:"Déjà utilisés en milieu médical et industriel", impact:"Réduction des blessures physiques au travail et aide à la mobilité", imp:3, desc:"Structures robotisées portées par l'utilisateur pour augmenter sa force ou l'aider à retrouver de la mobilité après une blessure." },
+  { icon:"⚙️", name:"Robots chirurgicaux",            domaine:"Chirurgie assistée",                  cat:"robotique", horizon:"Déjà largement déployée en milieu hospitalier", impact:"Interventions chirurgicales plus précises et moins invasives", imp:4, desc:"Systèmes robotisés permettant aux chirurgiens d'opérer avec une précision et une stabilité accrues, réduisant l'invasivité de nombreuses interventions." },
+  { icon:"⚙️", name:"Drones autonomes",               domaine:"Logistique, agriculture, surveillance", cat:"robotique", horizon:"Déploiement en forte croissance",  impact:"Transformation de la livraison et de la surveillance de zones étendues", imp:4, desc:"Véhicules aériens sans pilote de plus en plus autonomes, utilisés pour la livraison, l'agriculture de précision et la surveillance environnementale." },
+  { icon:"⚙️", name:"Robots agricoles",               domaine:"Agriculture de précision",            cat:"robotique", horizon:"Adoption croissante dans l'agriculture intensive", impact:"Optimisation des rendements et réduction de l'usage de pesticides", imp:3, desc:"Machines robotisées capables de désherber, semer ou récolter avec précision, réduisant le besoin en main-d'œuvre et en produits chimiques." },
+  { icon:"⚙️", name:"Robots collaboratifs (cobots)",  domaine:"Industrie manufacturière",            cat:"robotique", horizon:"Déjà largement déployée en usine",   impact:"Travail sécurisé aux côtés d'opérateurs humains",  imp:3, desc:"Robots industriels conçus pour travailler en toute sécurité directement aux côtés des humains, sans les barrières de protection traditionnelles." },
+
+  { icon:"🚀", name:"Fusées réutilisables",           domaine:"Lancement spatial",                   cat:"espace", horizon:"Déjà largement déployée",           impact:"Réduction drastique du coût d'accès à l'espace", imp:5, desc:"Lanceurs capables d'atterrir et d'être réutilisés après leur mission, ayant considérablement réduit le coût des lancements spatiaux commerciaux." },
+  { icon:"🚀", name:"Constellations de satellites internet", domaine:"Connectivité mondiale",        cat:"espace", horizon:"Déjà largement déployée",           impact:"Accès à internet dans les zones les plus reculées du globe", imp:4, desc:"Réseaux de milliers de satellites en orbite basse fournissant un accès internet même dans les régions les plus isolées de la planète." },
+  { icon:"🚀", name:"Tourisme spatial",                domaine:"Voyage et exploration commerciale",   cat:"espace", horizon:"Premiers vols commerciaux réguliers", impact:"Démocratisation progressive de l'accès à l'espace", imp:3, desc:"Vols spatiaux proposés à des passagers privés, encore coûteux mais marquant les premiers pas d'une accessibilité élargie de l'espace." },
+  { icon:"🚀", name:"Exploitation minière spatiale",   domaine:"Ressources extraterrestres",          cat:"espace", horizon:"Stade exploratoire, missions test en préparation", impact:"Accès potentiel à des ressources rares hors de la Terre", imp:2, desc:"Projets visant à extraire des ressources minérales d'astéroïdes ou de corps célestes, encore à un stade très expérimental." },
+  { icon:"🚀", name:"Bases lunaires permanentes",      domaine:"Exploration et habitat spatial",      cat:"espace", horizon:"Premières missions habitées visées vers 2030", impact:"Tremplin pour l'exploration spatiale plus lointaine", imp:4, desc:"Projets internationaux visant à établir une présence humaine durable sur la Lune, envisagée comme étape vers l'exploration de Mars." },
+
+  { icon:"🧪", name:"Graphène",                        domaine:"Matériaux ultra-résistants",          cat:"materiaux", horizon:"Applications commerciales en expansion", impact:"Matériaux plus légers, plus résistants et meilleurs conducteurs", imp:4, desc:"Matériau composé d'une seule couche d'atomes de carbone, remarquablement résistant et conducteur, aux applications potentielles considérables." },
+  { icon:"🧪", name:"Nanomatériaux",                   domaine:"Ingénierie à l'échelle atomique",     cat:"materiaux", horizon:"Applications déjà présentes dans plusieurs secteurs", impact:"Propriétés inédites pour l'électronique, la médecine et l'énergie", imp:3, desc:"Matériaux conçus et manipulés à l'échelle du nanomètre, offrant des propriétés physiques et chimiques radicalement différentes des matériaux classiques." },
+  { icon:"🧪", name:"Matériaux auto-réparants",        domaine:"Durabilité des infrastructures",      cat:"materiaux", horizon:"Stade de recherche avancée",         impact:"Infrastructures et objets à durée de vie prolongée", imp:3, desc:"Matériaux capables de réparer automatiquement de petites fissures ou dommages, prolongeant la durée de vie des structures et objets." },
+  { icon:"🧪", name:"Impression 3D métallique",        domaine:"Fabrication additive industrielle",   cat:"materiaux", horizon:"Déjà largement déployée dans l'aérospatiale", impact:"Fabrication de pièces complexes impossibles par méthodes traditionnelles", imp:4, desc:"Technique de fabrication additive permettant de créer des pièces métalliques complexes, déjà utilisée dans l'aérospatiale et le médical." },
+  { icon:"🧪", name:"Bioplastiques",                   domaine:"Matériaux durables",                  cat:"materiaux", horizon:"Adoption croissante dans l'emballage", impact:"Réduction potentielle de la pollution plastique",  imp:3, desc:"Plastiques issus de ressources renouvelables et souvent biodégradables, envisagés comme alternative aux plastiques dérivés du pétrole." },
+
+  { icon:"📡", name:"Réseaux 6G",                     domaine:"Télécommunications de nouvelle génération", cat:"communication", horizon:"Standardisation prévue vers 2030", impact:"Débits et latences bien supérieurs à la 5G actuelle", imp:3, desc:"Future génération de réseaux mobiles promettant des vitesses de connexion et une réactivité encore supérieures à celles de la 5G actuelle." },
+  { icon:"📡", name:"Internet des objets (IoT)",      domaine:"Objets et environnements connectés",  cat:"communication", horizon:"Déjà largement déployée",          impact:"Interconnexion massive d'appareils du quotidien",  imp:4, desc:"Réseau croissant d'objets connectés capables de collecter et échanger des données, transformant la maison, la ville et l'industrie." },
+  { icon:"📡", name:"Informatique en périphérie (edge computing)", domaine:"Traitement décentralisé des données", cat:"communication", horizon:"Déploiement en forte croissance", impact:"Traitement de données plus rapide, plus proche de la source", imp:3, desc:"Approche consistant à traiter les données près de leur source plutôt que dans des centres de données distants, réduisant les temps de latence." },
+  { icon:"📡", name:"Interfaces cerveau-machine",     domaine:"Neurotechnologie",                    cat:"communication", horizon:"Premiers essais cliniques en cours", impact:"Communication directe entre le cerveau et des dispositifs externes", imp:4, desc:"Technologies permettant une communication directe entre l'activité cérébrale et des appareils externes, porteuses d'espoir pour certains handicaps." },
+  { icon:"📡", name:"Réseaux maillés décentralisés",  domaine:"Communication sans infrastructure centrale", cat:"communication", horizon:"Applications de niche en croissance", impact:"Communication résiliente en l'absence de réseau traditionnel", imp:2, desc:"Réseaux de communication où chaque appareil relaie les données des autres, utiles notamment en cas de catastrophe ou d'absence d'infrastructure." },
+
+  { icon:"🕶️", name:"Réalité virtuelle (VR)",         domaine:"Immersion numérique",                 cat:"realite_augmentee", horizon:"Déjà largement déployée dans le jeu vidéo", impact:"Nouvelles formes de divertissement, formation et thérapie", imp:4, desc:"Technologie plongeant l'utilisateur dans un environnement numérique immersif, de plus en plus utilisée au-delà du jeu vidéo, en formation et en thérapie." },
+  { icon:"🕶️", name:"Réalité augmentée (AR)",         domaine:"Superposition d'information numérique", cat:"realite_augmentee", horizon:"Déploiement croissant via smartphones et lunettes", impact:"Fusion progressive entre monde physique et informations numériques", imp:4, desc:"Technologie superposant des informations numériques au monde réel en temps réel, avec des applications croissantes en industrie et au quotidien." },
+  { icon:"🕶️", name:"Métavers",                        domaine:"Mondes virtuels persistants",         cat:"realite_augmentee", horizon:"Développement actif, adoption encore limitée", impact:"Nouveaux espaces sociaux, économiques et professionnels virtuels", imp:3, desc:"Concept d'univers numériques persistants et interconnectés, envisagés comme futurs espaces de socialisation, de travail et de commerce." },
+  { icon:"🕶️", name:"Jumeaux numériques",             domaine:"Simulation industrielle et urbaine",  cat:"realite_augmentee", horizon:"Déjà largement déployée dans l'industrie", impact:"Optimisation et simulation d'infrastructures complexes", imp:4, desc:"Répliques virtuelles précises d'objets, de systèmes ou de villes entières, utilisées pour simuler, surveiller et optimiser leur fonctionnement réel." },
+  { icon:"🕶️", name:"Hologrammes interactifs",        domaine:"Communication et affichage 3D",       cat:"realite_augmentee", horizon:"Stade expérimental et applications de niche", impact:"Nouvelles formes de présentation et de communication à distance", imp:2, desc:"Technologies de projection tridimensionnelle interactive, encore émergentes, envisagées pour la communication et la présentation de données." },
+  { icon:"🕶️", name:"Objets connectés portés (wearables)", domaine:"Suivi personnel et santé",       cat:"realite_augmentee", horizon:"Déjà largement déployée",           impact:"Suivi continu de la santé et de l'activité au quotidien", imp:3, desc:"Dispositifs portés au quotidien capables de suivre en continu des données de santé et d'activité, de plus en plus intégrés à la vie courante." }
+];
+
+const catLabels = {
+  "intelligence_artificielle": "🤖 Intelligence artificielle",
+  "biotechnologie":            "🧬 Biotechnologie",
+  "energie":                   "🔋 Énergie",
+  "informatique_quantique":    "💻 Informatique quantique",
+  "robotique":                 "⚙️ Robotique",
+  "espace":                    "🚀 Espace",
+  "materiaux":                 "🧪 Matériaux",
+  "communication":             "📡 Communication",
+  "realite_augmentee":         "🕶️ Réalité augmentée"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.domaine; vb = b.domaine; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.horizon; vb = b.horizon; break;
+      case 6: va = a.impact; vb = b.impact; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="domaine-cell">${d.domaine}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="horizon-cell">${d.horizon}</td>
+      <td class="impact-cell">${d.impact}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Technologies affichées : <span>${rows.length}</span></span>
+    <span class="stat">Domaines représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Potentiel maximal ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

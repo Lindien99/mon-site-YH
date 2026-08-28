@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Futur &amp; Technologies — Yvon H.</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #f1eefa;
+    --surface:     #ffffff;
+    --text:        #14101f;
+    --text-muted:  #5d5670;
+    --accent:      #5b3ac9;
+    --accent-hover:#4a2ea3;
+    --gold:        #c8901f;
+    --border:      #e2ddf0;
+    --shadow:      rgba(20,16,31,0.12);
+  }
+
+  [data-theme="dark"] {
+    --bg:          #0d0a1a;
+    --surface:     #171326;
+    --text:        #ede9f7;
+    --text-muted:  #a89ec4;
+    --accent:      #9b7cf0;
+    --accent-hover:#b39cf5;
+    --gold:        #f2c14e;
+    --border:      #2c2545;
+    --shadow:      rgba(0,0,0,0.50);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(ellipse 900px 500px at 50% -8%, rgba(91,58,201,0.08), transparent 70%);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem 5rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* ── LISERÉ CIRCUIT ── */
+  .tech-strip {
+    max-width: 860px;
+    margin: 0 auto 1.4rem;
+    height: 10px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.50;
+    border-radius: 2px;
+  }
+
+  /* ── NAVIGATION ── */
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 2.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  /* ── EN-TÊTE ── */
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .header-eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.40em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.85;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5.5vw, 3.4rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 0.8rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── GRILLE TABLEAUX ── */
+  .grid-tableaux {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+  }
+
+  .tableau-carte {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  .tableau-carte:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px var(--shadow), 0 0 0 1px rgba(91,58,201,0.35);
+    border-color: var(--accent);
+  }
+
+  .t-num {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.75;
+    margin-bottom: 10px;
+  }
+
+  .t-titre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+
+  .t-desc {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.65;
+    flex: 1;
+  }
+
+  .t-cta {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.30em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1.5px solid rgba(91,58,201,0.4);
+    padding-bottom: 2px;
+    align-self: flex-start;
+    transition: letter-spacing 0.3s, color 0.2s;
+  }
+
+  .tableau-carte:hover .t-cta { letter-spacing: 0.45em; color: var(--accent-hover); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 4.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    opacity: 0.45;
+  }
+
+  /* ── THÈME ── */
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.4rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+
+  @media (max-width: 600px) {
+    body { padding: 1.5rem 1rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="../index.html" class="btn-back">← Retour aux Tableaux</a>
+
+<div class="tech-strip"></div>
+
+<header>
+  <p class="header-eyebrow">Collection Thématique &nbsp;·&nbsp; VI</p>
+  <h1>Futur &amp; Technologies</h1>
+  <p class="page-subtitle">Innovations, intelligence artificielle, espace et sciences de demain</p>
+</header>
+
+<div class="tech-strip"></div>
+
+<div class="grid-tableaux">
+
+  <a href="50_Technologies_Futures.html" class="tableau-carte">
+    <div class="t-num">Tableau 01</div>
+    <div class="t-titre">50 Technologies qui vont Transformer le XXIᵉ Siècle</div>
+    <p class="t-desc">De l'intelligence artificielle à la fusion nucléaire — les innovations qui redessinent notre avenir</p>
+    <span class="t-cta">Ouvrir →</span>
+  </a>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
+</footer>
+
+<script>
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-futur-technologies') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-futur-technologies', next);
+});
+</script>
+
+</body>
+</html>
