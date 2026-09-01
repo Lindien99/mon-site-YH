@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Discours qui ont Changé le Cours de l'Histoire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f7eef2;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(122,31,74,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #faf1f5;
+    --text:          #1f1015;
+    --text-muted:    #6b5560;
+    --accent:        #7a1f4a;
+    --accent-hover:  #611839;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #ecdce4;
+    --row-hover:     #f9edf3;
+    --row-even:      #faf1f5;
+    --shadow:        rgba(31,16,21,0.10);
+    --header-bg:     #150a10;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #150a10;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(217,99,154,0.16), transparent 70%);
+    --surface:       #201319;
+    --surface-alt:   #26161d;
+    --text:          #f5e9ee;
+    --text-muted:    #b89aa6;
+    --accent:        #d9639a;
+    --accent-hover:  #e587b3;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #35222a;
+    --row-hover:     #2a1922;
+    --row-even:      #22141a;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #0a0508;
+    --header-text:   #f2c14e;
+    --chip-text:     #150a10;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/vin façon manuscrit --- */
+  .philo-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(122,31,74,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 220px; }
+  .orateur-cell { font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .annee-cell   { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .contexte-cell{ font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 210px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-guerre_conflit        { background: #a12439; }
+  .type-liberte_independance  { background: #b58a1f; }
+  .type-droits_civiques       { background: #1f6b8a; }
+  .type-revolution            { background: #7a4a1f; }
+  .type-politique_democratie  { background: #2e5f7a; }
+  .type-feminisme             { background: #8a2c6b; }
+  .type-paix_reconciliation   { background: #1f7a5c; }
+  .type-science_exploration   { background: #3f5fa8; }
+  .type-tragedie_memoire      { background: #4a4a4a; }
+
+  /* ÉTOILES PORTÉE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .annee-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Philosophie &amp; Société</a>
+
+<header>
+  <div class="philo-strip"></div>
+  <p class="eyebrow">Mots qui Ont Changé le Monde</p>
+  <h1><span class="ornament">🎙️</span> 50 Discours qui ont Changé le Cours de l'Histoire <span class="ornament">📜</span></h1>
+  <p class="subtitle">De Gettysburg à Rivonia — les paroles qui ont mobilisé, libéré et transformé les nations</p>
+  <div class="philo-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="guerre_conflit">⚔️ Guerre &amp; conflit</button>
+  <button class="filter-btn" data-cat="liberte_independance">🗽 Liberté &amp; indépendance</button>
+  <button class="filter-btn" data-cat="droits_civiques">✊ Droits civiques</button>
+  <button class="filter-btn" data-cat="revolution">🔥 Révolution</button>
+  <button class="filter-btn" data-cat="politique_democratie">🏛️ Politique &amp; démocratie</button>
+  <button class="filter-btn" data-cat="feminisme">👩 Féminisme</button>
+  <button class="filter-btn" data-cat="paix_reconciliation">🕊️ Paix &amp; réconciliation</button>
+  <button class="filter-btn" data-cat="science_exploration">🔬 Science &amp; exploration</button>
+  <button class="filter-btn" data-cat="tragedie_memoire">🕯️ Tragédie &amp; mémoire</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Discours <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Orateur <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Année <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Contexte historique <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Portée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-discours') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-discours', next);
+});
+
+const DATA = [
+  { icon:"⚔️", name:"« Du sang, du labeur, des larmes et de la sueur »", orateur:"Winston Churchill", cat:"guerre_conflit", annee:"1940", contexte:"Premier discours de Churchill comme Premier ministre britannique", imp:5, desc:"Discours prononcé devant la Chambre des communes à l'entrée en fonction de Churchill, préparant la nation britannique aux sacrifices de la guerre à venir." },
+  { icon:"⚔️", name:"Discours du « Jour d'infamie »", orateur:"Franklin D. Roosevelt", cat:"guerre_conflit", annee:"1941", contexte:"Réponse à l'attaque japonaise sur Pearl Harbor", imp:5, desc:"Allocution prononcée au lendemain de l'attaque de Pearl Harbor, annonçant l'entrée en guerre des États-Unis contre le Japon." },
+  { icon:"⚔️", name:"« Nous nous battrons sur les plages »", orateur:"Winston Churchill", cat:"guerre_conflit", annee:"1940", contexte:"Après l'évacuation de Dunkerque", imp:5, desc:"Discours prononcé après l'évacuation britannique de Dunkerque, affirmant la détermination inébranlable du Royaume-Uni face à l'avancée allemande." },
+  { icon:"⚔️", name:"Discours de mobilisation générale", orateur:"Georges Clemenceau", cat:"guerre_conflit", annee:"1918", contexte:"Fin de la Première Guerre mondiale", imp:3, desc:"Allocution du président du Conseil français galvanisant la nation dans les derniers mois décisifs de la Première Guerre mondiale." },
+  { icon:"⚔️", name:"Déclaration de guerre à l'Allemagne", orateur:"Neville Chamberlain", cat:"guerre_conflit", annee:"1939", contexte:"Entrée en guerre du Royaume-Uni", imp:4, desc:"Allocution radiodiffusée annonçant l'entrée en guerre du Royaume-Uni contre l'Allemagne nazie, marquant l'échec de la politique d'apaisement." },
+  { icon:"⚔️", name:"Annonce de la capitulation du Japon", orateur:"Empereur Hirohito", cat:"guerre_conflit", annee:"1945", contexte:"Fin de la Seconde Guerre mondiale dans le Pacifique", imp:5, desc:"Premier discours radiodiffusé de l'empereur du Japon à son peuple, annonçant l'acceptation des conditions de capitulation mettant fin au conflit." },
+
+  { icon:"🗽", name:"« Give me liberty or give me death »", orateur:"Patrick Henry", cat:"liberte_independance", annee:"1775", contexte:"Prélude à la Révolution américaine", imp:5, desc:"Discours prononcé devant la convention de Virginie, appelant à la résistance armée contre la domination britannique avant même l'indépendance américaine." },
+  { icon:"🗽", name:"Discours d'Angostura", orateur:"Simón Bolívar", cat:"liberte_independance", annee:"1819", contexte:"Fondation de la Grande Colombie", imp:4, desc:"Discours fondateur exposant la vision politique de Bolívar pour l'indépendance et l'unité des nations d'Amérique du Sud." },
+  { icon:"🗽", name:"« Tryst with Destiny »", orateur:"Jawaharlal Nehru", cat:"liberte_independance", annee:"1947", contexte:"Indépendance de l'Inde", imp:5, desc:"Discours prononcé à minuit marquant l'indépendance de l'Inde vis-à-vis de l'Empire britannique, devenu l'un des discours fondateurs les plus célèbres d'Asie." },
+  { icon:"🗽", name:"Déclaration d'indépendance du Vietnam", orateur:"Hô Chi Minh", cat:"liberte_independance", annee:"1945", contexte:"Fondation de la République démocratique du Vietnam", imp:4, desc:"Discours proclamant l'indépendance du Vietnam vis-à-vis de la France, s'inspirant des textes fondateurs américain et français sur les droits humains." },
+  { icon:"🗽", name:"Discours d'indépendance du Ghana", orateur:"Kwame Nkrumah", cat:"liberte_independance", annee:"1957", contexte:"Premier pays d'Afrique subsaharienne à obtenir son indépendance", imp:4, desc:"Discours marquant l'indépendance du Ghana, ouvrant symboliquement la vague de décolonisation de l'Afrique subsaharienne." },
+  { icon:"🗽", name:"Proclamation d'indépendance de l'Indonésie", orateur:"Sukarno", cat:"liberte_independance", annee:"1945", contexte:"Fin de l'occupation coloniale néerlandaise et japonaise", imp:4, desc:"Bref discours proclamant l'indépendance de l'Indonésie, point de départ d'une longue lutte pour la reconnaissance internationale du pays." },
+
+  { icon:"✊", name:"« I Have a Dream »", orateur:"Martin Luther King Jr.", cat:"droits_civiques", annee:"1963", contexte:"Marche sur Washington pour l'emploi et la liberté", imp:5, desc:"Discours emblématique du mouvement des droits civiques américain, prononcé devant le Lincoln Memorial, appelant à l'égalité raciale et à la fraternité entre les peuples." },
+  { icon:"✊", name:"« Ain't I a Woman »", orateur:"Sojourner Truth", cat:"droits_civiques", annee:"1851", contexte:"Convention des droits des femmes de l'Ohio", imp:4, desc:"Discours prononcé par une ancienne esclave devenue militante, reliant la cause de l'abolition de l'esclavage à celle des droits des femmes." },
+  { icon:"✊", name:"Discours du box des accusés (procès de Rivonia)", orateur:"Nelson Mandela", cat:"droits_civiques", annee:"1964", contexte:"Procès pour sabotage sous le régime de l'apartheid", imp:5, desc:"Discours de défense prononcé lors de son procès, exposant sa vision d'une société sud-africaine libre et égalitaire, au risque de la peine de mort." },
+  { icon:"✊", name:"« The Ballot or the Bullet »", orateur:"Malcolm X", cat:"droits_civiques", annee:"1964", contexte:"Mouvement afro-américain pour les droits civiques", imp:4, desc:"Discours appelant les Afro-Américains à s'organiser politiquement et à revendiquer pleinement leurs droits civiques, par les urnes ou par la lutte." },
+  { icon:"✊", name:"« What to the Slave is the Fourth of July? »", orateur:"Frederick Douglass", cat:"droits_civiques", annee:"1852", contexte:"Mouvement abolitionniste américain", imp:4, desc:"Discours interrogeant avec force la contradiction entre les idéaux d'indépendance américaine et la persistance de l'esclavage." },
+  { icon:"✊", name:"Discours « Quit India »", orateur:"Mahatma Gandhi", cat:"droits_civiques", annee:"1942", contexte:"Mouvement de désobéissance civile contre l'Empire britannique", imp:5, desc:"Discours lançant le mouvement de désobéissance civile exigeant le retrait immédiat de l'administration britannique de l'Inde." },
+
+  { icon:"🔥", name:"Discours sur la vertu et la terreur", orateur:"Maximilien Robespierre", cat:"revolution", annee:"1794", contexte:"Révolution française, période de la Terreur", imp:4, desc:"Discours théorisant devant la Convention le lien entre vertu révolutionnaire et usage de la terreur comme instrument de gouvernement." },
+  { icon:"🔥", name:"Les Thèses d'avril", orateur:"Vladimir Lénine", cat:"revolution", annee:"1917", contexte:"Révolution russe", imp:5, desc:"Discours-programme exposant les objectifs révolutionnaires bolcheviques peu après le retour de Lénine en Russie, préparant la révolution d'Octobre." },
+  { icon:"🔥", name:"Discours devant l'Assemblée générale de l'ONU", orateur:"Che Guevara", cat:"revolution", annee:"1964", contexte:"Défense de la révolution cubaine à l'international", imp:3, desc:"Discours défendant la révolution cubaine et dénonçant l'impérialisme devant les représentants des nations du monde entier." },
+  { icon:"🔥", name:"« L'histoire m'acquittera »", orateur:"Fidel Castro", cat:"revolution", annee:"1953", contexte:"Procès suite à l'attaque de la caserne Moncada", imp:4, desc:"Plaidoirie prononcée lors de son propre procès, devenue par la suite un manifeste politique fondateur du mouvement révolutionnaire cubain." },
+  { icon:"🔥", name:"Discours de l'audace", orateur:"Georges Danton", cat:"revolution", annee:"1792", contexte:"Révolution française, menace d'invasion étrangère", imp:4, desc:"Discours appelant à la mobilisation générale de la nation française face à la menace d'invasion des armées étrangères coalisées." },
+
+  { icon:"🏛️", name:"Discours de Gettysburg", orateur:"Abraham Lincoln", cat:"politique_democratie", annee:"1863", contexte:"Guerre de Sécession américaine", imp:5, desc:"Bref discours prononcé lors de l'inauguration d'un cimetière militaire, redéfinissant les idéaux fondateurs de la démocratie américaine en quelques phrases devenues célèbres." },
+  { icon:"🏛️", name:"Discours d'investiture présidentielle", orateur:"John F. Kennedy", cat:"politique_democratie", annee:"1961", contexte:"Investiture présidentielle américaine", imp:5, desc:"Discours d'investiture appelant les citoyens américains à l'engagement civique et au service de leur nation et du monde." },
+  { icon:"🏛️", name:"Discours de victoire électorale de 2008", orateur:"Barack Obama", cat:"politique_democratie", annee:"2008", contexte:"Élection du premier président afro-américain des États-Unis", imp:5, desc:"Discours prononcé après sa victoire, marquant un moment historique pour la démocratie américaine et suscitant un espoir mondial de renouveau." },
+  { icon:"🏛️", name:"« The only thing we have to fear is fear itself »", orateur:"Franklin D. Roosevelt", cat:"politique_democratie", annee:"1933", contexte:"Investiture en pleine Grande Dépression", imp:5, desc:"Discours d'investiture cherchant à rassurer une nation américaine plongée dans la crise économique la plus grave de son histoire." },
+  { icon:"🏛️", name:"Oraison funèbre", orateur:"Périclès", cat:"politique_democratie", annee:"~431 av. J.-C.", contexte:"Guerre du Péloponnèse, Athènes antique", imp:4, desc:"Discours funèbre rendant hommage aux soldats athéniens tombés au combat, exaltant les valeurs fondatrices de la démocratie athénienne." },
+  { icon:"🏛️", name:"Appel du 18 juin", orateur:"Charles de Gaulle", cat:"politique_democratie", annee:"1940", contexte:"Défaite française face à l'Allemagne nazie", imp:5, desc:"Appel radiodiffusé depuis Londres invitant les Français à poursuivre la résistance après la défaite militaire de la France en 1940." },
+
+  { icon:"👩", name:"« Freedom or Death »", orateur:"Emmeline Pankhurst", cat:"feminisme", annee:"1913", contexte:"Mouvement suffragiste britannique", imp:4, desc:"Discours défendant les méthodes radicales du mouvement suffragiste britannique dans sa lutte pour l'obtention du droit de vote des femmes." },
+  { icon:"👩", name:"Discours sur la loi relative à l'interruption volontaire de grossesse", orateur:"Simone Veil", cat:"feminisme", annee:"1974", contexte:"Débat parlementaire français sur la loi IVG", imp:5, desc:"Discours prononcé devant l'Assemblée nationale française, défendant avec courage la légalisation de l'interruption volontaire de grossesse." },
+  { icon:"👩", name:"Discours devant les Nations unies", orateur:"Malala Yousafzai", cat:"feminisme", annee:"2013", contexte:"Défense du droit des filles à l'éducation", imp:5, desc:"Discours prononcé devant l'Assemblée des Nations unies, appelant à garantir l'accès à l'éducation pour toutes les filles du monde." },
+  { icon:"👩", name:"Discours HeForShe", orateur:"Emma Watson", cat:"feminisme", annee:"2014", contexte:"Lancement d'une campagne des Nations unies pour l'égalité des genres", imp:3, desc:"Discours prononcé devant l'ONU appelant les hommes à s'engager activement aux côtés des femmes dans la lutte pour l'égalité des genres." },
+  { icon:"👩", name:"Discours sur le droit de vote des femmes", orateur:"Susan B. Anthony", cat:"feminisme", annee:"1873", contexte:"Procès suite à un vote illégal aux États-Unis", imp:4, desc:"Plaidoirie prononcée après avoir été jugée pour avoir illégalement voté, défendant le droit constitutionnel des femmes à participer aux élections." },
+
+  { icon:"🕊️", name:"Discours d'investiture présidentielle", orateur:"Nelson Mandela", cat:"paix_reconciliation", annee:"1994", contexte:"Première élection multiraciale d'Afrique du Sud", imp:5, desc:"Discours d'investiture prononcé après les premières élections multiraciales sud-africaines, appelant à la réconciliation nationale après l'apartheid." },
+  { icon:"🕊️", name:"Discours sur la non-violence", orateur:"Mahatma Gandhi", cat:"paix_reconciliation", annee:"1930", contexte:"Marche du sel, résistance non-violente", imp:5, desc:"Allocution exposant la philosophie de la résistance non-violente comme moyen de lutte politique, largement reprise par les mouvements pacifistes ultérieurs." },
+  { icon:"🕊️", name:"Discours devant la Knesset", orateur:"Anouar el-Sadate", cat:"paix_reconciliation", annee:"1977", contexte:"Processus de paix israélo-égyptien", imp:5, desc:"Discours historique prononcé par le président égyptien devant le Parlement israélien, ouvrant la voie aux accords de paix entre les deux pays." },
+  { icon:"🕊️", name:"Discours de la poignée de main historique", orateur:"Yitzhak Rabin", cat:"paix_reconciliation", annee:"1993", contexte:"Signature des accords d'Oslo", imp:5, desc:"Discours prononcé lors de la signature des accords de paix israélo-palestiniens, symbolisant un espoir de résolution du conflit au Moyen-Orient." },
+  { icon:"🕊️", name:"Discours de réception du prix Nobel de la paix", orateur:"Dalaï-Lama", cat:"paix_reconciliation", annee:"1989", contexte:"Reconnaissance internationale de la cause tibétaine", imp:4, desc:"Discours prononcé lors de la remise du prix Nobel de la paix, plaidant pour une résolution pacifique de la question tibétaine." },
+
+  { icon:"🔬", name:"« We choose to go to the Moon »", orateur:"John F. Kennedy", cat:"science_exploration", annee:"1962", contexte:"Programme spatial américain Apollo", imp:5, desc:"Discours prononcé à l'université Rice, engageant les États-Unis dans la course à l'espace et l'objectif d'un alunissage avant la fin de la décennie." },
+  { icon:"🔬", name:"Discours du « Point bleu pâle »", orateur:"Carl Sagan", cat:"science_exploration", annee:"1994", contexte:"Réflexion inspirée d'une photographie de la Terre prise depuis l'espace", imp:4, desc:"Réflexion célèbre sur la fragilité et la petitesse de la Terre vue depuis les confins du système solaire, invitant à l'humilité collective." },
+  { icon:"🔬", name:"Discours sur la responsabilité scientifique", orateur:"Albert Einstein", cat:"science_exploration", annee:"1945", contexte:"Après l'utilisation de la bombe atomique", imp:4, desc:"Allocution appelant les scientifiques à assumer leur responsabilité morale face aux conséquences potentiellement destructrices de leurs découvertes." },
+  { icon:"🔬", name:"« Un petit pas pour l'homme »", orateur:"Neil Armstrong", cat:"science_exploration", annee:"1969", contexte:"Premier pas sur la Lune",   imp:5, desc:"Brève déclaration prononcée au moment de poser le pied sur la Lune, devenue l'une des phrases les plus célèbres de l'histoire de l'exploration spatiale." },
+  { icon:"🔬", name:"Discours sur l'avenir de l'humanité", orateur:"Stephen Hawking", cat:"science_exploration", annee:"2017", contexte:"Réflexion sur les défis existentiels de l'humanité", imp:3, desc:"Allocution mettant en garde contre les grands défis à long terme de l'humanité et plaidant pour l'exploration spatiale comme voie de survie." },
+
+  { icon:"🕯️", name:"Discours suite à la catastrophe de Challenger", orateur:"Ronald Reagan", cat:"tragedie_memoire", annee:"1986", contexte:"Explosion de la navette spatiale Challenger", imp:5, desc:"Allocution télévisée rendant hommage aux astronautes disparus lors de l'explosion de la navette, offrant réconfort à une nation endeuillée." },
+  { icon:"🕯️", name:"Discours après les attentats du 11 septembre", orateur:"George W. Bush", cat:"tragedie_memoire", annee:"2001", contexte:"Attentats terroristes contre les États-Unis", imp:5, desc:"Allocution prononcée au lendemain des attentats, cherchant à rassurer et unifier la nation américaine face à un traumatisme sans précédent." },
+  { icon:"🕯️", name:"Discours de réception du prix Nobel de la paix", orateur:"Elie Wiesel", cat:"tragedie_memoire", annee:"1986", contexte:"Devoir de mémoire de l'Holocauste", imp:5, desc:"Discours appelant à ne jamais oublier les horreurs de l'Holocauste et à rester vigilant face à toute forme d'indifférence envers la souffrance humaine." },
+  { icon:"🕯️", name:"« Never was so much owed »", orateur:"Winston Churchill", cat:"tragedie_memoire", annee:"1940", contexte:"Hommage aux pilotes de la bataille d'Angleterre", imp:4, desc:"Discours rendant hommage au courage des pilotes de la Royal Air Force ayant défendu le Royaume-Uni durant la bataille d'Angleterre." },
+  { icon:"🕯️", name:"Discours de commémoration à Auschwitz", orateur:"Angela Merkel", cat:"tragedie_memoire", annee:"2019", contexte:"Devoir de mémoire allemand face à l'Holocauste", imp:4, desc:"Discours prononcé sur le site du camp d'Auschwitz, réaffirmant la responsabilité historique et morale de l'Allemagne face aux crimes nazis." },
+  { icon:"🕯️", name:"Discours d'Hiroshima", orateur:"Barack Obama", cat:"tragedie_memoire", annee:"2016", contexte:"Première visite d'un président américain en exercice à Hiroshima", imp:5, desc:"Discours prononcé sur les lieux du premier bombardement nucléaire de l'histoire, appelant à un monde débarrassé de l'arme atomique." }
+];
+
+const catLabels = {
+  "guerre_conflit":       "⚔️ Guerre & conflit",
+  "liberte_independance": "🗽 Liberté & indépendance",
+  "droits_civiques":      "✊ Droits civiques",
+  "revolution":           "🔥 Révolution",
+  "politique_democratie": "🏛️ Politique & démocratie",
+  "feminisme":            "👩 Féminisme",
+  "paix_reconciliation":  "🕊️ Paix & réconciliation",
+  "science_exploration":  "🔬 Science & exploration",
+  "tragedie_memoire":     "🕯️ Tragédie & mémoire"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.orateur; vb = b.orateur; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.annee; vb = b.annee; break;
+      case 6: va = a.contexte; vb = b.contexte; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name+' '+d.orateur)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="orateur-cell">${d.orateur}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="annee-cell">${d.annee}</td>
+      <td class="contexte-cell">${d.contexte}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Discours affichés : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Portée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
