@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Droits Humains et leur Conquête Historique</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f7eef2;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(122,31,74,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #faf1f5;
+    --text:          #1f1015;
+    --text-muted:    #6b5560;
+    --accent:        #7a1f4a;
+    --accent-hover:  #611839;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #ecdce4;
+    --row-hover:     #f9edf3;
+    --row-even:      #faf1f5;
+    --shadow:        rgba(31,16,21,0.10);
+    --header-bg:     #150a10;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #150a10;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(217,99,154,0.16), transparent 70%);
+    --surface:       #201319;
+    --surface-alt:   #26161d;
+    --text:          #f5e9ee;
+    --text-muted:    #b89aa6;
+    --accent:        #d9639a;
+    --accent-hover:  #e587b3;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #35222a;
+    --row-hover:     #2a1922;
+    --row-even:      #22141a;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #0a0508;
+    --header-text:   #f2c14e;
+    --chip-text:     #150a10;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré or/vin façon manuscrit --- */
+  .philo-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(122,31,74,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 220px; }
+  .contexte-cell{ font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .annee-cell   { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .acteurs-cell { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 200px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-droits_civils        { background: #2e5f7a; }
+  .type-droits_politiques    { background: #b58a1f; }
+  .type-droits_sociaux       { background: #1f7a5c; }
+  .type-droits_travail       { background: #b6651d; }
+  .type-abolition_esclavage  { background: #5c3a1f; }
+  .type-egalite_femmes       { background: #8a2c6b; }
+  .type-droits_enfants       { background: #3f5fa8; }
+  .type-droits_minorites     { background: #1f6b8a; }
+  .type-droit_international  { background: #6b7a1f; }
+
+  /* ÉTOILES PORTÉE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .annee-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Philosophie &amp; Société</a>
+
+<header>
+  <div class="philo-strip"></div>
+  <p class="eyebrow">Conquêtes de la Dignité Humaine</p>
+  <h1><span class="ornament">⚖️</span> 50 Droits Humains et leur Conquête Historique <span class="ornament">✊</span></h1>
+  <p class="subtitle">De l'habeas corpus à la Cour pénale internationale — l'histoire des luttes pour la dignité humaine</p>
+  <div class="philo-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="droits_civils">⚖️ Droits civils</button>
+  <button class="filter-btn" data-cat="droits_politiques">🗳️ Droits politiques</button>
+  <button class="filter-btn" data-cat="droits_sociaux">🏥 Droits sociaux</button>
+  <button class="filter-btn" data-cat="droits_travail">👷 Droits du travail</button>
+  <button class="filter-btn" data-cat="abolition_esclavage">⛓️ Abolition de l'esclavage</button>
+  <button class="filter-btn" data-cat="egalite_femmes">👩 Égalité des femmes</button>
+  <button class="filter-btn" data-cat="droits_enfants">🧒 Droits des enfants</button>
+  <button class="filter-btn" data-cat="droits_minorites">🏳️‍🌈 Droits des minorités</button>
+  <button class="filter-btn" data-cat="droit_international">🌐 Droit international</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Droit <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Contexte / Région <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Conquête <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Acteurs clés <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Portée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Histoire de la conquête</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-droits-humains') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-droits-humains', next);
+});
+
+const DATA = [
+  { icon:"⚖️", name:"Habeas corpus",         contexte:"Angleterre",       cat:"droits_civils", annee:"1679 (loi anglaise)", acteurs:"Parlement anglais",  imp:5, desc:"Principe garantissant qu'une personne détenue soit présentée devant un juge, empêchant l'emprisonnement arbitraire sans jugement." },
+  { icon:"⚖️", name:"Présomption d'innocence", contexte:"France",          cat:"droits_civils", annee:"1789 (Déclaration des droits de l'homme)", acteurs:"Révolution française", imp:5, desc:"Principe selon lequel tout accusé est considéré innocent jusqu'à preuve contraire, pilier fondamental des systèmes judiciaires modernes." },
+  { icon:"⚖️", name:"Liberté d'expression",  contexte:"International",    cat:"droits_civils", annee:"1789-1948",           acteurs:"Révolutionnaires, rédacteurs de la DUDH", imp:5, desc:"Droit de exprimer ses opinions sans censure arbitraire, progressivement inscrit dans les constitutions puis dans le droit international." },
+  { icon:"⚖️", name:"Liberté de religion",   contexte:"International",    cat:"droits_civils", annee:"1598 (édit de Nantes) - 1948", acteurs:"Divers mouvements de tolérance religieuse", imp:5, desc:"Droit de croire, pratiquer ou ne pas pratiquer une religion sans persécution, conquis progressivement après des siècles de conflits religieux." },
+  { icon:"⚖️", name:"Droit à un procès équitable", contexte:"International", cat:"droits_civils", annee:"1948 (DUDH)",       acteurs:"Nations unies",       imp:4, desc:"Garantit à toute personne accusée le droit à une défense, un jugement public et impartial devant un tribunal indépendant." },
+  { icon:"⚖️", name:"Interdiction absolue de la torture", contexte:"International", cat:"droits_civils", annee:"1984 (Convention contre la torture)", acteurs:"Nations unies", imp:5, desc:"Interdiction sans aucune exception de la torture et des traitements cruels, inhumains ou dégradants, reconnue comme norme impérative du droit international." },
+
+  { icon:"🗳️", name:"Suffrage universel masculin", contexte:"France",     cat:"droits_politiques", annee:"1848",           acteurs:"Révolution de 1848", imp:5, desc:"Extension du droit de vote à tous les hommes indépendamment de leur fortune, mettant fin au suffrage censitaire réservé aux plus riches." },
+  { icon:"🗳️", name:"Droit de se présenter aux élections", contexte:"International", cat:"droits_politiques", annee:"XIXᵉ-XXᵉ siècle", acteurs:"Mouvements démocratiques", imp:4, desc:"Droit de tout citoyen éligible à se porter candidat à une fonction élective, progressivement élargi au-delà des seules élites sociales." },
+  { icon:"🗳️", name:"Liberté de la presse",  contexte:"International",    cat:"droits_politiques", annee:"1789-1948",       acteurs:"Journalistes, révolutionnaires", imp:5, desc:"Droit de publier et diffuser des informations sans censure préalable, essentiel au contrôle démocratique du pouvoir." },
+  { icon:"🗳️", name:"Droit de pétition",     contexte:"International",    cat:"droits_politiques", annee:"1689 (Bill of Rights anglais)", acteurs:"Parlement anglais",  imp:3, desc:"Droit des citoyens d'adresser collectivement des demandes ou des plaintes aux autorités sans crainte de représailles." },
+  { icon:"🗳️", name:"Liberté de réunion et d'association", contexte:"International", cat:"droits_politiques", annee:"1789-1948", acteurs:"Mouvements démocratiques", imp:4, desc:"Droit de se rassembler et de former des organisations librement, fondamental à l'action collective et à la vie démocratique." },
+  { icon:"🗳️", name:"Fin du suffrage censitaire", contexte:"Europe",       cat:"droits_politiques", annee:"XIXᵉ siècle",     acteurs:"Mouvements ouvriers et démocratiques", imp:4, desc:"Abolition progressive du système réservant le droit de vote aux seuls citoyens payant un impôt suffisant, ouvrant la voie au suffrage universel." },
+
+  { icon:"🏥", name:"Droit à l'éducation",   contexte:"International",    cat:"droits_sociaux", annee:"1948 (DUDH)", acteurs:"Réformateurs éducatifs, Nations unies", imp:5, desc:"Reconnaissance du droit de tout enfant à recevoir une instruction, gratuite au niveau élémentaire selon les textes internationaux." },
+  { icon:"🏥", name:"Droit à la santé",      contexte:"International",    cat:"droits_sociaux", annee:"1946 (Constitution de l'OMS)", acteurs:"Organisation mondiale de la santé", imp:5, desc:"Reconnaissance du droit de chacun à jouir du meilleur état de santé physique et mentale possible, fondement des systèmes de santé publique." },
+  { icon:"🏥", name:"Droit à la sécurité sociale", contexte:"Allemagne puis international", cat:"droits_sociaux", annee:"1880s (Allemagne), 1948 (DUDH)", acteurs:"Otto von Bismarck, réformateurs sociaux", imp:4, desc:"Droit à une protection contre les risques de maladie, chômage ou vieillesse, initié par les premières assurances sociales allemandes." },
+  { icon:"🏥", name:"Droit au logement",     contexte:"International",    cat:"droits_sociaux", annee:"1948 (DUDH)",       acteurs:"Nations unies",       imp:3, desc:"Reconnaissance du droit à un logement décent comme composante du droit à un niveau de vie suffisant." },
+  { icon:"🏥", name:"Droit à un niveau de vie suffisant", contexte:"International", cat:"droits_sociaux", annee:"1948 (DUDH)", acteurs:"Nations unies",       imp:4, desc:"Droit englobant l'alimentation, le vêtement, le logement et les soins nécessaires à une existence digne, inscrit dans la Déclaration universelle." },
+
+  { icon:"👷", name:"Journée de travail de 8 heures", contexte:"International", cat:"droits_travail", annee:"1919 (Convention OIT)", acteurs:"Mouvement ouvrier, Organisation internationale du travail", imp:5, desc:"Limitation de la durée quotidienne du travail, conquise après des décennies de luttes ouvrières contre des journées de travail excessives." },
+  { icon:"👷", name:"Droit de grève",        contexte:"France",           cat:"droits_travail", annee:"1864 (légalisation en France)", acteurs:"Mouvement ouvrier",  imp:5, desc:"Reconnaissance légale du droit des travailleurs de cesser collectivement le travail pour défendre leurs revendications." },
+  { icon:"👷", name:"Droit syndical",        contexte:"France",           cat:"droits_travail", annee:"1884 (loi Waldeck-Rousseau)", acteurs:"Mouvement ouvrier",  imp:5, desc:"Droit de constituer et d'adhérer librement à des syndicats pour défendre collectivement les intérêts des travailleurs." },
+  { icon:"👷", name:"Salaire minimum",       contexte:"Nouvelle-Zélande puis international", cat:"droits_travail", annee:"1894 (Nouvelle-Zélande)", acteurs:"Mouvements ouvriers et réformateurs sociaux", imp:4, desc:"Instauration d'un seuil de rémunération plancher visant à protéger les travailleurs contre l'exploitation salariale." },
+  { icon:"👷", name:"Congés payés",          contexte:"France",           cat:"droits_travail", annee:"1936 (Front populaire)", acteurs:"Front populaire, mouvement ouvrier", imp:5, desc:"Instauration de congés annuels rémunérés, conquête emblématique des grandes grèves et négociations sociales des années 1930." },
+  { icon:"👷", name:"Droit à la retraite",   contexte:"Allemagne puis international", cat:"droits_travail", annee:"1889 (Allemagne)", acteurs:"Otto von Bismarck, mouvements ouvriers", imp:4, desc:"Reconnaissance du droit à une pension après la fin de la vie active, initiée par le premier système public d'assurance vieillesse allemand." },
+
+  { icon:"⛓️", name:"Abolition de la traite négrière transatlantique", contexte:"Empire britannique", cat:"abolition_esclavage", annee:"1807 (Royaume-Uni)", acteurs:"Mouvement abolitionniste britannique", imp:5, desc:"Interdiction du commerce transatlantique d'êtres humains réduits en esclavage, première étape majeure vers l'abolition complète de l'esclavage." },
+  { icon:"⛓️", name:"Abolition de l'esclavage aux États-Unis", contexte:"États-Unis", cat:"abolition_esclavage", annee:"1865 (13ᵉ amendement)", acteurs:"Abraham Lincoln, mouvement abolitionniste", imp:5, desc:"Interdiction constitutionnelle de l'esclavage aux États-Unis à l'issue de la guerre de Sécession, mettant fin légalement à des siècles d'esclavage." },
+  { icon:"⛓️", name:"Abolition de l'esclavage dans l'Empire britannique", contexte:"Empire britannique", cat:"abolition_esclavage", annee:"1833", acteurs:"Mouvement abolitionniste britannique",  imp:5, desc:"Loi abolissant l'esclavage dans l'ensemble des colonies britanniques, aboutissement de décennies de campagne abolitionniste." },
+  { icon:"⛓️", name:"Deuxième abolition de l'esclavage en France", contexte:"France et colonies", cat:"abolition_esclavage", annee:"1848", acteurs:"Victor Schœlcher, Deuxième République", imp:5, desc:"Décret abolissant définitivement l'esclavage dans les colonies françaises, porté notamment par Victor Schœlcher." },
+  { icon:"⛓️", name:"Fin du travail forcé colonial", contexte:"Empires coloniaux", cat:"abolition_esclavage", annee:"1930 (Convention OIT sur le travail forcé)", acteurs:"Organisation internationale du travail", imp:4, desc:"Convention internationale visant à abolir les pratiques de travail forcé imposées dans de nombreux territoires coloniaux." },
+
+  { icon:"👩", name:"Droit de vote des femmes", contexte:"International (Nouvelle-Zélande, pionnière en 1893)", cat:"egalite_femmes", annee:"1893-1944 (selon les pays)", acteurs:"Mouvement suffragiste",  imp:5, desc:"Extension du droit de vote aux femmes, obtenue pays par pays après des décennies de campagnes suffragistes à travers le monde." },
+  { icon:"👩", name:"Droit à l'égalité salariale", contexte:"International", cat:"egalite_femmes", annee:"1951 (Convention OIT n°100)", acteurs:"Organisation internationale du travail, mouvements féministes", imp:4, desc:"Principe d'un salaire égal pour un travail de valeur égale entre hommes et femmes, encore inégalement appliqué dans la pratique." },
+  { icon:"👩", name:"Droit à la contraception et à l'avortement", contexte:"International (selon les pays)", cat:"egalite_femmes", annee:"1967-1975 (selon les pays)", acteurs:"Mouvements féministes",   imp:4, desc:"Reconnaissance progressive, selon les pays, du droit des femmes à disposer de leur corps en matière de contraception et d'interruption de grossesse." },
+  { icon:"👩", name:"Droit de propriété des femmes mariées", contexte:"Royaume-Uni puis international", cat:"egalite_femmes", annee:"1870-1882 (Royaume-Uni)", acteurs:"Mouvement des droits des femmes", imp:4, desc:"Reconnaissance du droit des femmes mariées à posséder et gérer leurs propres biens, indépendamment de l'autorité de leur époux." },
+  { icon:"👩", name:"Droit à l'éducation des filles", contexte:"International", cat:"egalite_femmes", annee:"XIXᵉ-XXᵉ siècle (progressif selon les pays)", acteurs:"Réformatrices de l'éducation", imp:5, desc:"Accès progressif des filles à l'instruction sur un pied d'égalité avec les garçons, encore inégal dans certaines régions du monde." },
+
+  { icon:"🧒", name:"Convention internationale des droits de l'enfant", contexte:"International", cat:"droits_enfants", annee:"1989", acteurs:"Nations unies",       imp:5, desc:"Traité international définissant les droits fondamentaux de l'enfant, le plus largement ratifié de tous les traités relatifs aux droits humains." },
+  { icon:"🧒", name:"Abolition du travail des enfants", contexte:"International", cat:"droits_enfants", annee:"1919-1999 (conventions OIT successives)", acteurs:"Organisation internationale du travail", imp:5, desc:"Interdiction progressive du travail des jeunes enfants, obtenue à travers plusieurs conventions internationales successives." },
+  { icon:"🧒", name:"Protection contre le mariage des enfants", contexte:"International", cat:"droits_enfants", annee:"1962 (Convention sur le consentement au mariage)", acteurs:"Nations unies",       imp:4, desc:"Cadre international visant à fixer un âge minimum au mariage et à garantir le consentement libre des futurs époux." },
+  { icon:"🧒", name:"Droit à la scolarité obligatoire", contexte:"International (selon les pays)", cat:"droits_enfants", annee:"XIXᵉ-XXᵉ siècle (progressif selon les pays)", acteurs:"Réformateurs éducatifs", imp:5, desc:"Instauration progressive de l'obligation scolaire pour tous les enfants, indépendamment de leur origine sociale." },
+  { icon:"🧒", name:"Droit à l'identité (enregistrement des naissances)", contexte:"International", cat:"droits_enfants", annee:"1989 (Convention des droits de l'enfant)", acteurs:"Nations unies",       imp:3, desc:"Droit de tout enfant à être enregistré dès sa naissance et à disposer d'une identité juridique reconnue." },
+
+  { icon:"🏳️‍🌈", name:"Fin de la ségrégation raciale aux États-Unis", contexte:"États-Unis", cat:"droits_minorites", annee:"1964 (Civil Rights Act)", acteurs:"Martin Luther King Jr., mouvement des droits civiques", imp:5, desc:"Abolition légale de la ségrégation raciale institutionnalisée aux États-Unis, aboutissement d'un long mouvement pour les droits civiques." },
+  { icon:"🏳️‍🌈", name:"Fin de l'apartheid en Afrique du Sud", contexte:"Afrique du Sud", cat:"droits_minorites", annee:"1994",                acteurs:"Nelson Mandela, mouvement anti-apartheid", imp:5, desc:"Démantèlement du système de ségrégation raciale institutionnalisée sud-africain, marqué par les premières élections multiraciales du pays." },
+  { icon:"🏳️‍🌈", name:"Droit au mariage entre personnes de même sexe", contexte:"International (selon les pays)", cat:"droits_minorites", annee:"2001-présent (selon les pays, Pays-Bas pionniers)", acteurs:"Mouvements LGBTQ+", imp:4, desc:"Reconnaissance légale progressive du mariage entre personnes de même sexe, pays par pays, à partir des Pays-Bas en 2001." },
+  { icon:"🏳️‍🌈", name:"Droits des personnes en situation de handicap", contexte:"International", cat:"droits_minorites", annee:"2006 (Convention relative aux droits des personnes handicapées)", acteurs:"Nations unies, associations de personnes handicapées", imp:4, desc:"Cadre international garantissant l'égalité des droits et l'accessibilité pour les personnes en situation de handicap." },
+  { icon:"🏳️‍🌈", name:"Droits des peuples autochtones", contexte:"International", cat:"droits_minorites", annee:"2007 (Déclaration des Nations unies)", acteurs:"Nations unies, organisations autochtones", imp:4, desc:"Reconnaissance internationale des droits collectifs des peuples autochtones sur leurs terres, cultures et modes de vie traditionnels." },
+  { icon:"🏳️‍🌈", name:"Loi américaine sur les droits civiques", contexte:"États-Unis", cat:"droits_minorites", annee:"1964",                acteurs:"Lyndon B. Johnson, mouvement des droits civiques", imp:5, desc:"Loi fédérale interdisant la discrimination fondée sur la race, la couleur, la religion, le sexe ou l'origine nationale aux États-Unis." },
+
+  { icon:"🌐", name:"Déclaration universelle des droits de l'homme", contexte:"International", cat:"droit_international", annee:"1948", acteurs:"Nations unies, Eleanor Roosevelt", imp:5, desc:"Texte fondateur adopté après la Seconde Guerre mondiale, énonçant les droits fondamentaux devant être reconnus à tout être humain." },
+  { icon:"🌐", name:"Conventions de Genève",  contexte:"International",    cat:"droit_international", annee:"1949 (version moderne)", acteurs:"Comité international de la Croix-Rouge", imp:5, desc:"Ensemble de traités établissant les règles humanitaires applicables en temps de guerre, protégeant civils et prisonniers de conflits." },
+  { icon:"🌐", name:"Convention contre la torture", contexte:"International", cat:"droit_international", annee:"1984",               acteurs:"Nations unies",       imp:5, desc:"Traité international interdisant formellement la torture et instaurant des mécanismes de prévention et de sanction." },
+  { icon:"🌐", name:"Cour pénale internationale", contexte:"International", cat:"droit_international", annee:"1998 (Statut de Rome), 2002 (entrée en vigueur)", acteurs:"Communauté internationale", imp:5, desc:"Première juridiction permanente internationale compétente pour juger les crimes de génocide, crimes contre l'humanité et crimes de guerre." },
+  { icon:"🌐", name:"Convention sur l'élimination des discriminations envers les femmes", contexte:"International", cat:"droit_international", annee:"1979", acteurs:"Nations unies",       imp:4, desc:"Traité international engageant les États signataires à éliminer toute forme de discrimination fondée sur le sexe." },
+  { icon:"🌐", name:"Pacte international relatif aux droits civils et politiques", contexte:"International", cat:"droit_international", annee:"1966", acteurs:"Nations unies",       imp:5, desc:"Traité international contraignant garantissant un ensemble étendu de droits civils et politiques fondamentaux aux États signataires." }
+];
+
+const catLabels = {
+  "droits_civils":       "⚖️ Droits civils",
+  "droits_politiques":   "🗳️ Droits politiques",
+  "droits_sociaux":      "🏥 Droits sociaux",
+  "droits_travail":      "👷 Droits du travail",
+  "abolition_esclavage": "⛓️ Abolition de l'esclavage",
+  "egalite_femmes":      "👩 Égalité des femmes",
+  "droits_enfants":      "🧒 Droits des enfants",
+  "droits_minorites":    "🏳️‍🌈 Droits des minorités",
+  "droit_international": "🌐 Droit international"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.contexte; vb = b.contexte; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.annee; vb = b.annee; break;
+      case 6: va = a.acteurs; vb = b.acteurs; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="contexte-cell">${d.contexte}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="annee-cell">${d.annee}</td>
+      <td class="acteurs-cell">${d.acteurs}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Droits affichés : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Portée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
