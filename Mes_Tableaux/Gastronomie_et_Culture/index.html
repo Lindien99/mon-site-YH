@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastronomie &amp; Culture — Yvon H.</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #eef2f5;
+    --bg-spot:     radial-gradient(ellipse 900px 500px at 50% -8%, rgba(31,90,122,0.08), transparent 70%);
+    --surface:     #ffffff;
+    --text:        #10171f;
+    --text-muted:  #56636b;
+    --accent:      #1f5a7a;
+    --accent-hover:#18465f;
+    --gold:        #c8901f;
+    --border:      #dce4e8;
+    --card-hover:  rgba(31,90,122,0.06);
+    --shadow:      rgba(16,23,31,0.12);
+  }
+
+  [data-theme="dark"] {
+    --bg:          #0a1218;
+    --bg-spot:     radial-gradient(ellipse 900px 500px at 50% -8%, rgba(99,182,217,0.16), transparent 70%);
+    --surface:     #131c24;
+    --text:        #e9f0f4;
+    --text-muted:  #9aabb4;
+    --accent:      #63b6d9;
+    --accent-hover:#87c8e5;
+    --gold:        #f2c14e;
+    --border:      #223039;
+    --card-hover:  rgba(99,182,217,0.08);
+    --shadow:      rgba(0,0,0,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem 5rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* ── LISERÉ SIGNATURE ── */
+  .mat-strip {
+    max-width: 820px;
+    margin: 0 auto 1.6rem;
+    height: 10px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.5;
+    border-radius: 2px;
+  }
+
+  /* ── NAVIGATION ── */
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity 0.25s, color 0.25s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  /* ── EN-TÊTE ── */
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .header-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.85;
+    margin-bottom: 0.8rem;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 0.8rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .header-divider {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 1.2rem auto;
+    opacity: 0.6;
+  }
+
+  /* ── GRILLE TABLEAUX ── */
+  .grid-tableaux {
+    max-width: 820px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+  }
+
+  .tableau-carte {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 30px 26px;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s, background 0.3s;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .tableau-carte:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 36px var(--shadow);
+    border-color: var(--accent);
+    background: var(--card-hover);
+  }
+
+  .t-num {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.75;
+    margin-bottom: 10px;
+  }
+
+  .t-titre {
+    font-size: clamp(0.95rem, 2vw, 1.12rem);
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .t-desc {
+    font-size: 0.93rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    flex: 1;
+  }
+
+  .t-cta {
+    display: inline-block;
+    margin-top: 18px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(31,90,122,0.35);
+    padding-bottom: 2px;
+    align-self: flex-start;
+    transition: letter-spacing 0.3s;
+  }
+  [data-theme="dark"] .t-cta { border-bottom-color: rgba(99,182,217,0.35); }
+  .tableau-carte:hover .t-cta { letter-spacing: 0.46em; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 4.5rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.4;
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    padding: 0.5rem 1.4rem;
+    border: 1.5px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+
+  @media (max-width: 600px) {
+    body { padding: 1.5rem 1rem 4rem; }
+    .grid-tableaux { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="../index.html" class="btn-back">← Retour aux Tableaux</a>
+
+<div class="mat-strip"></div>
+
+<header>
+  <p class="header-eyebrow">Collection Thématique &nbsp;·&nbsp; VIII</p>
+  <h1>Gastronomie &amp; Culture</h1>
+  <div class="header-divider"></div>
+  <p class="page-subtitle">Cuisines du monde, recettes traditionnelles, matériaux et arts de la table</p>
+</header>
+
+<div class="grid-tableaux">
+
+  <a href="50_Matériaux_Révolutionnaires.html" class="tableau-carte">
+    <div class="t-num">Tableau 01</div>
+    <div class="t-titre">50 Matériaux qui ont Révolutionné l'Humanité</div>
+    <p class="t-desc">Du bois et de la pierre au silicium et au graphène — les matières qui ont façonné les civilisations</p>
+    <span class="t-cta">Ouvrir →</span>
+  </a>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 — Collection Personnelle Yvon H.</p>
+</footer>
+
+<script>
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-gastronomie-culture') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-gastronomie-culture', next);
+});
+</script>
+
+</body>
+</html>

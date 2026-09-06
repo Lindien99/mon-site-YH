@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Matériaux qui ont Révolutionné l'Humanité</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #eef2f5;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(31,90,122,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #f1f5f7;
+    --text:          #10171f;
+    --text-muted:    #56636b;
+    --accent:        #1f5a7a;
+    --accent-hover:  #18465f;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #dce4e8;
+    --row-hover:     #edf4f7;
+    --row-even:      #f1f5f7;
+    --shadow:        rgba(16,23,31,0.10);
+    --header-bg:     #0a1218;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #0a1218;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(99,182,217,0.16), transparent 70%);
+    --surface:       #131c24;
+    --surface-alt:   #182229;
+    --text:          #e9f0f4;
+    --text-muted:    #9aabb4;
+    --accent:        #63b6d9;
+    --accent-hover:  #87c8e5;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #223039;
+    --row-hover:     #1a2830;
+    --row-even:      #162129;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #05090c;
+    --header-text:   #f2c14e;
+    --chip-text:     #0a1218;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* --- SIGNATURE : liseré métal/or façon alliage --- */
+  .mat-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  /* FILTRES */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(31,90,122,0.35);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 200px; }
+  .origine-cell { font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .periode-cell { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .carac-cell   { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 220px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  /* BADGES TYPE */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-materiaux_naturels    { background: #6b7a1f; }
+  .type-metaux_anciens        { background: #a1662d; }
+  .type-metaux_modernes       { background: #4a4a4a; }
+  .type-ceramiques_verre      { background: #7a4a1f; }
+  .type-polymeres_plastiques  { background: #2e5f7a; }
+  .type-composites_avances    { background: #1f6b8a; }
+  .type-semi_conducteurs      { background: #3f5fa8; }
+  .type-nanomateriaux         { background: #8a2c6b; }
+  .type-biomateriaux_futurs   { background: #1f7a5c; }
+
+  /* ÉTOILES PORTÉE */
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  /* LIENS GOOGLE */
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  /* STATS */
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .periode-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Gastronomie &amp; Culture</a>
+
+<header>
+  <div class="mat-strip"></div>
+  <p class="eyebrow">De la Pierre Taillée au Graphène</p>
+  <h1><span class="ornament">⚙️</span> 50 Matériaux qui ont Révolutionné l'Humanité <span class="ornament">🔬</span></h1>
+  <p class="subtitle">Du bois et de la pierre au silicium et au graphène — les matières qui ont façonné les civilisations</p>
+  <div class="mat-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="materiaux_naturels">🌳 Matériaux naturels</button>
+  <button class="filter-btn" data-cat="metaux_anciens">🥉 Métaux anciens</button>
+  <button class="filter-btn" data-cat="metaux_modernes">⚙️ Métaux modernes</button>
+  <button class="filter-btn" data-cat="ceramiques_verre">🏺 Céramiques &amp; verre</button>
+  <button class="filter-btn" data-cat="polymeres_plastiques">🧪 Polymères &amp; plastiques</button>
+  <button class="filter-btn" data-cat="composites_avances">🚀 Composites avancés</button>
+  <button class="filter-btn" data-cat="semi_conducteurs">💻 Semi-conducteurs</button>
+  <button class="filter-btn" data-cat="nanomateriaux">🔬 Nanomatériaux</button>
+  <button class="filter-btn" data-cat="biomateriaux_futurs">🧬 Biomatériaux &amp; futur</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Matériau <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Caractéristique clé <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Portée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+// --- Thème sombre / clair ---
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-materiaux') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-materiaux', next);
+});
+
+const DATA = [
+  { icon:"🪵", name:"Bois",                      origine:"Préhistoire mondiale", cat:"materiaux_naturels", periode:"Paléolithique", carac:"Matériau de construction et combustible renouvelable", imp:5, desc:"Premier matériau façonné par l'humanité, utilisé pour outils, habitations et transport — encore essentiel aujourd'hui pour la construction durable." },
+  { icon:"🪨", name:"Pierre",                     origine:"Préhistoire mondiale", cat:"materiaux_naturels", periode:"Paléolithique", carac:"Résistance et durabilité pour outils et monuments", imp:5, desc:"Des premiers outils taillés aux pyramides et cathédrales, la pierre a permis les constructions les plus durables de l'histoire humaine." },
+  { icon:"🏺", name:"Argile",                     origine:"Mésopotamie",       cat:"materiaux_naturels", periode:"~10000 av. J.-C.", carac:"Malléable à l'état humide, durcit à la cuisson", imp:4, desc:"Base de la poterie, des tablettes d'écriture cunéiforme et de l'architecture en brique crue des premières civilisations." },
+  { icon:"🧥", name:"Cuir",                       origine:"Préhistoire mondiale", cat:"materiaux_naturels", periode:"Paléolithique", carac:"Résistant, souple, imperméable après tannage",  imp:3, desc:"Matériau essentiel du vêtement, du harnachement et de l'équipement militaire pendant des millénaires." },
+  { icon:"🐑", name:"Laine",                      origine:"Mésopotamie / Anatolie", cat:"materiaux_naturels", periode:"~6000 av. J.-C.", carac:"Fibre isolante naturelle issue de la tonte animale", imp:3, desc:"Fibre textile domestiquée très tôt, essentielle à l'habillement dans les climats froids et à l'économie pastorale antique." },
+  { icon:"🌾", name:"Lin",                        origine:"Levant / Égypte",   cat:"materiaux_naturels", periode:"~8000 av. J.-C.", carac:"Fibre végétale résistante utilisée pour tissus et papier", imp:3, desc:"Utilisé pour les tissus funéraires égyptiens et les toiles de peinture, l'une des plus anciennes fibres textiles cultivées." },
+  { icon:"📜", name:"Papier",                     origine:"Chine",             cat:"materiaux_naturels", periode:"105 apr. J.-C.", carac:"Support léger et économique pour l'écriture", imp:5, desc:"Invention chinoise attribuée à Cai Lun, elle révolutionne la diffusion du savoir bien avant l'imprimerie." },
+
+  { icon:"🔶", name:"Cuivre",                     origine:"Moyen-Orient",      cat:"metaux_anciens", periode:"~9000 av. J.-C.", carac:"Premier métal façonné par martelage puis fusion", imp:4, desc:"Premier métal exploité par l'homme, il ouvre la voie à la métallurgie et à l'âge du bronze." },
+  { icon:"🟤", name:"Bronze",                     origine:"Mésopotamie",       cat:"metaux_anciens", periode:"~3300 av. J.-C.", carac:"Alliage cuivre-étain, plus dur que le cuivre pur", imp:5, desc:"Alliage fondateur de l'âge du bronze, il révolutionne les armes, outils et objets rituels des civilisations antiques." },
+  { icon:"⚙️", name:"Fer",                        origine:"Anatolie (Hittites)", cat:"metaux_anciens", periode:"~1200 av. J.-C.", carac:"Plus abondant et plus dur que le bronze",   imp:5, desc:"Son exploitation généralisée inaugure l'âge du fer, transformant l'agriculture, la guerre et l'artisanat." },
+  { icon:"🟡", name:"Or",                         origine:"Régions multiples", cat:"metaux_anciens", periode:"Préhistoire",     carac:"Inaltérable, malléable, rare et précieux",  imp:4, desc:"Symbole universel de richesse et de pouvoir, il fonde les premiers systèmes monétaires et l'orfèvrerie." },
+  { icon:"⚪", name:"Argent",                     origine:"Anatolie / Grèce",  cat:"metaux_anciens", periode:"~4000 av. J.-C.", carac:"Métal précieux conducteur, antibactérien naturel", imp:3, desc:"Utilisé dès l'Antiquité pour la monnaie et l'orfèvrerie, ses propriétés antibactériennes sont redécouvertes aujourd'hui." },
+  { icon:"🔘", name:"Étain",                      origine:"Asie centrale / Cornouailles", cat:"metaux_anciens", periode:"~3500 av. J.-C.", carac:"Métal mou essentiel à la fabrication du bronze", imp:3, desc:"Composant clé du bronze, son commerce à longue distance structure les routes commerciales de l'Antiquité." },
+
+  { icon:"🔩", name:"Acier",                      origine:"Inde puis Europe industrielle", cat:"metaux_modernes", periode:"Antiquité, industrialisé au XIXᵉ siècle", carac:"Alliage fer-carbone alliant résistance et flexibilité", imp:5, desc:"Le procédé Bessemer (1856) permet sa production de masse, fondement de la révolution industrielle et des infrastructures modernes." },
+  { icon:"🍴", name:"Acier inoxydable",           origine:"Angleterre",        cat:"metaux_modernes", periode:"1913",             carac:"Résistant à la corrosion grâce au chrome",  imp:4, desc:"Découvert par Harry Brearley, il révolutionne la coutellerie, la médecine et l'industrie alimentaire." },
+  { icon:"✈️", name:"Aluminium",                  origine:"France / Danemark", cat:"metaux_modernes", periode:"1886 (procédé Hall-Héroult)", carac:"Léger, résistant à la corrosion, bon conducteur", imp:5, desc:"Autrefois plus précieux que l'or, il devient accessible grâce à l'électrolyse, essentiel à l'aviation et à l'emballage moderne." },
+  { icon:"🛫", name:"Titane",                     origine:"Angleterre",        cat:"metaux_modernes", periode:"1791 (découverte), XXᵉ siècle (usage industriel)", carac:"Très résistant, léger et biocompatible", imp:4, desc:"Utilisé en aérospatiale, en implants médicaux et en horlogerie de luxe pour sa résistance exceptionnelle au poids." },
+  { icon:"💡", name:"Tungstène",                  origine:"Suède",             cat:"metaux_modernes", periode:"1781",             carac:"Point de fusion le plus élevé de tous les métaux", imp:3, desc:"Utilisé dans les filaments d'ampoules, les outils de coupe et les alliages résistants à la chaleur extrême." },
+  { icon:"🏭", name:"Fonte",                      origine:"Chine",             cat:"metaux_modernes", periode:"~500 av. J.-C. (Chine), généralisée en Europe au XVIIIᵉ siècle", carac:"Alliage fer-carbone riche, rigide mais cassant", imp:3, desc:"Utilisée dès l'Antiquité chinoise, elle devient centrale à la révolution industrielle pour machines, ponts et canalisations." },
+
+  { icon:"🏺", name:"Céramique",                  origine:"Chine / Moyen-Orient", cat:"ceramiques_verre", periode:"~24000 av. J.-C.", carac:"Argile cuite, dure et résistante à l'eau", imp:4, desc:"Parmi les premiers matériaux transformés par le feu, essentielle à la conservation alimentaire et à l'art depuis la préhistoire." },
+  { icon:"🍶", name:"Porcelaine",                 origine:"Chine",             cat:"ceramiques_verre", periode:"VIIᵉ siècle",     carac:"Céramique fine, translucide et très résistante", imp:3, desc:"Secret de fabrication chinois jalousement gardé pendant des siècles, symbole de raffinement et moteur du commerce international." },
+  { icon:"🪟", name:"Verre",                      origine:"Mésopotamie / Égypte", cat:"ceramiques_verre", periode:"~3500 av. J.-C.", carac:"Transparent, malléable à chaud, recyclable", imp:5, desc:"De la verrerie antique aux fibres optiques modernes, un matériau aux usages en constante réinvention." },
+  { icon:"🏛️", name:"Béton",                      origine:"Rome antique",      cat:"ceramiques_verre", periode:"~200 av. J.-C. (béton romain), 1824 (ciment Portland)", carac:"Mélange de liant, granulats et eau, moulable et durable", imp:5, desc:"Le béton romain a permis le Panthéon et le Colisée ; le ciment Portland moderne fonde toute la construction contemporaine." },
+  { icon:"🏢", name:"Béton armé",                 origine:"France",            cat:"ceramiques_verre", periode:"1849 (Joseph Monier)", carac:"Combine résistance à la compression du béton et à la traction de l'acier", imp:5, desc:"Invention de Joseph Monier, il rend possibles les gratte-ciel, ponts et infrastructures massives du monde moderne." },
+  { icon:"🧱", name:"Brique",                     origine:"Mésopotamie",       cat:"ceramiques_verre", periode:"~7000 av. J.-C.", carac:"Argile moulée et séchée ou cuite, modulaire", imp:4, desc:"Matériau de construction standardisé le plus ancien, base des premières villes fortifiées et bâtiments monumentaux." },
+
+  { icon:"🎾", name:"Caoutchouc naturel",         origine:"Amazonie (Amérique du Sud)", cat:"polymeres_plastiques", periode:"Usage précolombien, industrialisé au XIXᵉ siècle", carac:"Élastique et imperméable, issu du latex d'hévéa", imp:4, desc:"Utilisé par les civilisations précolombiennes, sa vulcanisation par Charles Goodyear en 1839 le rend industriellement exploitable." },
+  { icon:"📻", name:"Bakélite",                   origine:"Belgique / États-Unis", cat:"polymeres_plastiques", periode:"1907",         carac:"Premier plastique entièrement synthétique, thermodurcissable", imp:5, desc:"Inventée par Leo Baekeland, elle marque le début de l'ère des plastiques synthétiques industriels." },
+  { icon:"🧦", name:"Nylon",                      origine:"États-Unis",        cat:"polymeres_plastiques", periode:"1935",             carac:"Fibre synthétique résistante et élastique", imp:5, desc:"Développé par DuPont, il révolutionne l'industrie textile dès les bas nylon puis d'innombrables usages industriels." },
+  { icon:"🚰", name:"PVC (polychlorure de vinyle)", origine:"Allemagne / États-Unis", cat:"polymeres_plastiques", periode:"1926 (procédé industriel)", carac:"Plastique rigide ou souple, résistant et peu coûteux", imp:4, desc:"L'un des plastiques les plus produits au monde, utilisé en plomberie, câblage et construction." },
+  { icon:"🛍️", name:"Polyéthylène",               origine:"Angleterre",        cat:"polymeres_plastiques", periode:"1933",             carac:"Plastique le plus produit au monde, léger et flexible", imp:5, desc:"Découvert accidentellement à l'ICI, il devient le plastique le plus utilisé au monde, des sacs aux tuyauteries." },
+  { icon:"🛡️", name:"Kevlar",                     origine:"États-Unis",        cat:"polymeres_plastiques", periode:"1965",             carac:"Fibre synthétique cinq fois plus résistante que l'acier à poids égal", imp:4, desc:"Inventée par Stephanie Kwolek chez DuPont, elle révolutionne les gilets pare-balles et équipements de protection." },
+  { icon:"🍳", name:"Téflon (PTFE)",              origine:"États-Unis",        cat:"polymeres_plastiques", periode:"1938",             carac:"Antiadhésif, résistant à la chaleur et aux produits chimiques", imp:3, desc:"Découvert accidentellement par Roy Plunkett, il révolutionne les ustensiles de cuisine et l'aérospatiale." },
+  { icon:"🥤", name:"Polystyrène",                origine:"Allemagne",         cat:"polymeres_plastiques", periode:"1839 (découverte), 1931 (industriel)", carac:"Léger, isolant, peu coûteux à produire", imp:3, desc:"Largement utilisé dans l'emballage et l'isolation, il est aujourd'hui au cœur des débats sur la pollution plastique." },
+
+  { icon:"🚴", name:"Fibre de carbone",           origine:"Angleterre",        cat:"composites_avances", periode:"1963",             carac:"Extrêmement légère et résistante, utilisée en composite", imp:5, desc:"Révolutionne l'aérospatiale, l'automobile de sport et le sport de haut niveau grâce à son rapport résistance-poids exceptionnel." },
+  { icon:"⛵", name:"Fibre de verre",             origine:"États-Unis",        cat:"composites_avances", periode:"Années 1930",      carac:"Fibres de verre fines noyées dans une résine", imp:4, desc:"Matériau composite économique et polyvalent, utilisé en construction navale, automobile et isolation." },
+  { icon:"🚀", name:"Composite carbone-époxy",    origine:"États-Unis",        cat:"composites_avances", periode:"Années 1960-1970", carac:"Combine légèreté du carbone et rigidité de la résine époxy", imp:4, desc:"Devenu incontournable en aviation civile et militaire, il réduit considérablement le poids des structures." },
+  { icon:"✈️", name:"Superalliages",              origine:"Royaume-Uni",       cat:"composites_avances", periode:"Années 1940",      carac:"Résistance extrême aux hautes températures et à la corrosion", imp:4, desc:"Essentiels aux réacteurs d'avions et aux turbines, capables de résister à des conditions extrêmes de chaleur et de pression." },
+  { icon:"🔭", name:"Métamatériaux",              origine:"International (recherche moderne)", cat:"composites_avances", periode:"Années 2000", carac:"Structures artificielles aux propriétés physiques inédites", imp:3, desc:"Conçus pour manipuler les ondes électromagnétiques de façons impossibles dans la nature, promesses de « cape d'invisibilité »." },
+
+  { icon:"💻", name:"Silicium",                   origine:"États-Unis",        cat:"semi_conducteurs", periode:"1947 (invention du transistor)", carac:"Semi-conducteur à la base de toute l'électronique moderne", imp:5, desc:"Élément le plus abondant de la croûte terrestre après l'oxygène, fondement de l'ère numérique via les puces électroniques." },
+  { icon:"📻", name:"Germanium",                  origine:"Allemagne",         cat:"semi_conducteurs", periode:"1886 (découverte), 1947 (premier transistor)", carac:"Premier semi-conducteur utilisé pour les transistors", imp:3, desc:"Utilisé dans les tout premiers transistors avant d'être largement supplanté par le silicium, plus abondant et stable." },
+  { icon:"📡", name:"Arséniure de gallium",       origine:"États-Unis",        cat:"semi_conducteurs", periode:"Années 1960",      carac:"Semi-conducteur rapide utilisé en hyperfréquences et LED", imp:3, desc:"Essentiel aux communications sans fil, aux LED et aux cellules solaires à haut rendement." },
+  { icon:"☀️", name:"Silicium polycristallin",    origine:"International",     cat:"semi_conducteurs", periode:"1954 (première cellule solaire)", carac:"Forme de silicium utilisée dans les panneaux photovoltaïques", imp:4, desc:"Base de l'industrie solaire mondiale, il permet la conversion directe de la lumière en électricité à grande échelle." },
+
+  { icon:"🔬", name:"Graphène",                   origine:"Royaume-Uni",       cat:"nanomateriaux", periode:"2004",             carac:"Feuillet de carbone monoatomique, extrêmement résistant et conducteur", imp:5, desc:"Isolé par Geim et Novoselov (prix Nobel 2010), il promet de révolutionner l'électronique, les batteries et les matériaux composites." },
+  { icon:"🧵", name:"Nanotubes de carbone",       origine:"Japon",             cat:"nanomateriaux", periode:"1991",             carac:"Structures cylindriques de carbone, résistance et conductivité exceptionnelles", imp:4, desc:"Découverts par Sumio Iijima, plus résistants que l'acier à poids égal, prometteurs pour l'électronique et les matériaux ultralégers." },
+  { icon:"☁️", name:"Aérogel",                    origine:"États-Unis",        cat:"nanomateriaux", periode:"1931",             carac:"Matériau solide le plus léger connu, excellent isolant thermique", imp:3, desc:"Surnommé « fumée figée », utilisé par la NASA pour capturer des particules de poussière cosmique et isoler les combinaisons spatiales." },
+  { icon:"🌈", name:"Points quantiques",          origine:"URSS / États-Unis", cat:"nanomateriaux", periode:"1981",             carac:"Nanocristaux semi-conducteurs aux propriétés optiques ajustables", imp:3, desc:"Utilisés dans les écrans QLED et l'imagerie médicale, leur couleur d'émission dépend précisément de leur taille nanométrique." },
+
+  { icon:"🦴", name:"Nitinol (mémoire de forme)", origine:"États-Unis",        cat:"biomateriaux_futurs", periode:"1959",           carac:"Alliage retrouvant sa forme initiale sous l'effet de la chaleur", imp:3, desc:"Utilisé en médecine pour les stents cardiovasculaires et en aérospatiale pour des structures déployables." },
+  { icon:"🌱", name:"Bioplastiques",              origine:"International",     cat:"biomateriaux_futurs", periode:"Années 1990-2000", carac:"Plastiques biodégradables issus de ressources renouvelables", imp:3, desc:"Développés en réponse à la pollution plastique, ils cherchent à concilier fonctionnalité et impact environnemental réduit." },
+  { icon:"⚡", name:"Matériaux supraconducteurs", origine:"Pays-Bas",          cat:"biomateriaux_futurs", periode:"1911 (découverte), 1986 (haute température)", carac:"Conduisent l'électricité sans résistance à très basse température", imp:4, desc:"Essentiels aux IRM médicales, aux trains à lévitation magnétique et aux futurs réacteurs à fusion nucléaire." },
+  { icon:"🦴", name:"Hydroxyapatite (os synthétique)", origine:"International (recherche médicale)", cat:"biomateriaux_futurs", periode:"Années 1970-1980", carac:"Céramique biocompatible reproduisant la structure minérale de l'os", imp:3, desc:"Utilisée pour les greffes osseuses et implants dentaires, elle s'intègre naturellement au tissu osseux humain." }
+];
+
+const catLabels = {
+  "materiaux_naturels":   "🌳 Matériaux naturels",
+  "metaux_anciens":       "🥉 Métaux anciens",
+  "metaux_modernes":      "⚙️ Métaux modernes",
+  "ceramiques_verre":     "🏺 Céramiques & verre",
+  "polymeres_plastiques": "🧪 Polymères & plastiques",
+  "composites_avances":   "🚀 Composites avancés",
+  "semi_conducteurs":     "💻 Semi-conducteurs",
+  "nanomateriaux":        "🔬 Nanomatériaux",
+  "biomateriaux_futurs":  "🧬 Biomatériaux & futur"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.origine; vb = b.origine; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.periode; vb = b.periode; break;
+      case 6: va = a.carac; vb = b.carac; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="origine-cell">${d.origine}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="periode-cell">${d.periode}</td>
+      <td class="carac-cell">${d.carac}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Matériaux affichés : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Portée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
