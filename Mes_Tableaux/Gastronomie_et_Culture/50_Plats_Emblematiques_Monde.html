@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Plats Emblématiques des Cuisines du Monde</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f7f0ea;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(200,84,31,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #faf3ec;
+    --text:          #241608;
+    --text-muted:    #6b5748;
+    --accent:        #c8541f;
+    --accent-hover:  #a54318;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #ecdccb;
+    --row-hover:     #fbf1e6;
+    --row-even:      #faf3ec;
+    --shadow:        rgba(36,22,8,0.10);
+    --header-bg:     #1a0f08;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #1a0f08;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(230,140,90,0.16), transparent 70%);
+    --surface:       #241708;
+    --surface-alt:   #2b1c0c;
+    --text:          #f5ece0;
+    --text-muted:    #c4a692;
+    --accent:        #e6875a;
+    --accent-hover:  #f0a583;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #3a2718;
+    --row-hover:     #2f1f10;
+    --row-even:      #271a0d;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #0a0603;
+    --header-text:   #f2c14e;
+    --chip-text:     #1a0f08;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .mat-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(200,84,31,0.35);
+  }
+
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 190px; }
+  .origine-cell { font-size: 0.86rem; color: var(--text-muted); min-width: 160px; }
+  .periode-cell { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .carac-cell   { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 220px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-europe                  { background: #2e5f7a; }
+  .type-asie_orientale          { background: #a12439; }
+  .type-asie_du_sud             { background: #b58a1f; }
+  .type-asie_du_sud_est         { background: #1f7a5c; }
+  .type-moyen_orient            { background: #6b3a8a; }
+  .type-afrique                 { background: #b6651d; }
+  .type-amerique_latine         { background: #1f6b8a; }
+  .type-amerique_nord_oceanie   { background: #4a4a4a; }
+
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .periode-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Gastronomie &amp; Culture</a>
+
+<header>
+  <div class="mat-strip"></div>
+  <p class="eyebrow">Tour du Monde en 50 Assiettes</p>
+  <h1><span class="ornament">🍽️</span> 50 Plats Emblématiques des Cuisines du Monde <span class="ornament">🌍</span></h1>
+  <p class="subtitle">De la paella au pad thaï — les plats qui racontent l'histoire et l'identité des peuples</p>
+  <div class="mat-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Tous</button>
+  <button class="filter-btn" data-cat="europe">🇪🇺 Europe</button>
+  <button class="filter-btn" data-cat="asie_orientale">🥢 Asie de l'Est</button>
+  <button class="filter-btn" data-cat="asie_du_sud">🍛 Asie du Sud</button>
+  <button class="filter-btn" data-cat="asie_du_sud_est">🍜 Asie du Sud-Est</button>
+  <button class="filter-btn" data-cat="moyen_orient">🕌 Moyen-Orient</button>
+  <button class="filter-btn" data-cat="afrique">🌍 Afrique</button>
+  <button class="filter-btn" data-cat="amerique_latine">🌮 Amérique latine</button>
+  <button class="filter-btn" data-cat="amerique_nord_oceanie">🍔 Amérique du Nord &amp; Océanie</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Plat <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Région <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Caractéristique clé <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Renommée <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-plats') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-plats', next);
+});
+
+const DATA = [
+  { icon:"🥘", name:"Paella",              origine:"Espagne",       cat:"europe", periode:"XIXᵉ siècle",  carac:"Riz safrané aux fruits de mer et viandes", imp:5, desc:"Née à Valence, cette recette de riz festive est devenue le plat espagnol le plus reconnu à l'international." },
+  { icon:"🍕", name:"Pizza Margherita",    origine:"Italie",        cat:"europe", periode:"1889",          carac:"Pâte garnie de tomate, mozzarella et basilic", imp:5, desc:"Créée en hommage à la reine Margherita, ses couleurs rappellent le drapeau italien ; c'est le plat italien le plus exporté au monde." },
+  { icon:"🍗", name:"Coq au vin",          origine:"France",        cat:"europe", periode:"XIXᵉ siècle",  carac:"Volaille mijotée lentement dans du vin rouge", imp:3, desc:"Plat rustique de la cuisine bourgeoise française, symbole du mijoté traditionnel et du savoir-faire régional." },
+  { icon:"🍲", name:"Goulasch",            origine:"Hongrie",       cat:"europe", periode:"Moyen Âge",     carac:"Ragoût de bœuf au paprika",              imp:4, desc:"Né chez les bouviers hongrois nomades, il devient le plat national de la Hongrie et un pilier d'Europe centrale." },
+  { icon:"🐟", name:"Fish and chips",      origine:"Royaume-Uni",   cat:"europe", periode:"XIXᵉ siècle",  carac:"Poisson pané frit accompagné de frites",  imp:4, desc:"Popularisé par l'immigration juive séfarade à Londres, il devient l'emblème culinaire populaire britannique." },
+  { icon:"🍆", name:"Moussaka",            origine:"Grèce",         cat:"europe", periode:"XXᵉ siècle",   carac:"Gratin d'aubergines, viande hachée et béchamel", imp:3, desc:"Codifiée par le chef Nikolaos Tselementes dans les années 1920, elle devient un symbole de la gastronomie grecque moderne." },
+  { icon:"🥟", name:"Pierogi",             origine:"Pologne",       cat:"europe", periode:"Moyen Âge",     carac:"Raviolis farcis d'origine slave",         imp:3, desc:"Plat médiéval devenu pilier identitaire de la cuisine polonaise et d'Europe de l'Est, décliné en garnitures sucrées ou salées." },
+
+  { icon:"🍣", name:"Sushi",               origine:"Japon",         cat:"asie_orientale", periode:"XIXᵉ siècle", carac:"Riz vinaigré associé à du poisson cru", imp:5, desc:"Né comme technique de conservation du poisson, il est raffiné à Edo (Tokyo) et devient un symbole mondial de la gastronomie japonaise." },
+  { icon:"🍜", name:"Ramen",               origine:"Japon",         cat:"asie_orientale", periode:"Début XXᵉ siècle", carac:"Nouilles en bouillon d'origine chinoise", imp:5, desc:"Adopté et réinventé au Japon, le ramen devient un emblème culinaire national aux innombrables variantes régionales." },
+  { icon:"🦆", name:"Canard laqué de Pékin", origine:"Chine",       cat:"asie_orientale", periode:"XIVᵉ siècle", carac:"Peau laquée croustillante, chair fondante", imp:4, desc:"Plat impérial documenté sous la dynastie Ming, symbole du raffinement de la haute cuisine chinoise." },
+  { icon:"🥬", name:"Kimchi",              origine:"Corée",         cat:"asie_orientale", periode:"Antiquité", carac:"Légumes fermentés et épicés",            imp:4, desc:"Tradition remontant à plusieurs millénaires, il constitue un pilier identitaire incontournable de la table coréenne." },
+  { icon:"🍚", name:"Bibimbap",            origine:"Corée",         cat:"asie_orientale", periode:"XIXᵉ siècle", carac:"Riz garni de légumes, viande et œuf",    imp:3, desc:"Né dans les campagnes coréennes comme moyen d'utiliser les restes, il devient une vitrine raffinée de la cuisine coréenne moderne." },
+  { icon:"🥟", name:"Dim sum",             origine:"Chine (Canton)", cat:"asie_orientale", periode:"Route de la soie", carac:"Bouchées variées servies avec le thé", imp:4, desc:"Tradition cantonaise ancienne liée aux relais commerciaux, aujourd'hui incontournable des brunchs chinois dans le monde entier." },
+  { icon:"🍲", name:"Phở",                 origine:"Vietnam",       cat:"asie_orientale", periode:"Début XXᵉ siècle", carac:"Soupe de nouilles de riz au bœuf",   imp:4, desc:"Née à Hanoï, influencée par la cuisine française coloniale, elle devient le plat national vietnamien le plus célèbre à l'étranger." },
+
+  { icon:"🍛", name:"Butter Chicken",      origine:"Inde",          cat:"asie_du_sud", periode:"1950s",     carac:"Poulet mariné dans une sauce tomate crémeuse au beurre", imp:5, desc:"Créé à Delhi pour recycler du poulet tandoori, il devient l'ambassadeur le plus populaire de la cuisine indienne à l'étranger." },
+  { icon:"🍚", name:"Biryani",             origine:"Inde",          cat:"asie_du_sud", periode:"Époque moghole", carac:"Riz épicé en couches avec viande ou légumes", imp:5, desc:"Héritier des cuisines moghole et perse, ce plat de fête est aujourd'hui l'un des plus consommés du sous-continent indien." },
+  { icon:"🥣", name:"Dal",                 origine:"Inde",          cat:"asie_du_sud", periode:"Antiquité védique", carac:"Lentilles mijotées, base quotidienne", imp:3, desc:"Aliment de base depuis l'Antiquité védique, il incarne la simplicité nourrissante de la cuisine indienne populaire." },
+  { icon:"🥟", name:"Samosa",              origine:"Asie centrale / Inde", cat:"asie_du_sud", periode:"Moyen Âge", carac:"Beignet triangulaire farci et frit", imp:3, desc:"Originaire du Moyen-Orient médiéval, il se diffuse via les routes commerciales jusqu'en Asie du Sud où il devient incontournable." },
+  { icon:"🍗", name:"Poulet tandoori",     origine:"Inde",          cat:"asie_du_sud", periode:"Tradition perso-moghole", carac:"Viande marinée cuite au four tandoor", imp:4, desc:"Issu de la tradition perso-moghole, popularisé mondialement au XXᵉ siècle, il symbolise la cuisine indienne au restaurant." },
+  { icon:"🍛", name:"Dal Bhat",            origine:"Népal",         cat:"asie_du_sud", periode:"Traditionnel", carac:"Riz et lentilles, repas quotidien himalayen", imp:2, desc:"Repas de base consommé depuis des siècles dans l'Himalaya, structurant le rythme alimentaire quotidien népalais." },
+
+  { icon:"🍜", name:"Pad Thaï",            origine:"Thaïlande",     cat:"asie_du_sud_est", periode:"1930s", carac:"Nouilles de riz sautées, sucrées-salées-acidulées", imp:5, desc:"Créé dans les années 1930 pour renforcer l'identité nationale thaïlandaise, il devient le plat le plus connu du pays à l'étranger." },
+  { icon:"🍖", name:"Rendang",             origine:"Indonésie",     cat:"asie_du_sud_est", periode:"Traditionnel minangkabau", carac:"Bœuf mijoté longuement au lait de coco et épices", imp:5, desc:"Plat minangkabau classé parmi les meilleurs plats du monde par CNN, symbole des fêtes et cérémonies indonésiennes." },
+  { icon:"🍚", name:"Nasi goreng",         origine:"Indonésie",     cat:"asie_du_sud_est", periode:"Traditionnel", carac:"Riz frit épicé du quotidien",           imp:4, desc:"Plat populaire transformé en symbole culinaire national indonésien, décliné avec viande, œuf et sambal." },
+  { icon:"🍜", name:"Laksa",               origine:"Malaisie / Singapour", cat:"asie_du_sud_est", periode:"Culture peranakan", carac:"Soupe de nouilles épicée fusion chinoise-malaise", imp:3, desc:"Née de la rencontre des cuisines chinoise et malaise (peranakan), elle illustre le métissage culinaire de l'Asie du Sud-Est." },
+  { icon:"🍗", name:"Adobo",               origine:"Philippines",   cat:"asie_du_sud_est", periode:"Époque coloniale espagnole", carac:"Viande mijotée au vinaigre et à la sauce soja", imp:4, desc:"Technique de conservation espagnole adaptée aux ingrédients locaux, devenue plat national philippin par excellence." },
+  { icon:"🍲", name:"Tom Yum",             origine:"Thaïlande",     cat:"asie_du_sud_est", periode:"Traditionnel", carac:"Soupe acidulée et épicée aux crevettes", imp:4, desc:"Emblème de l'équilibre entre acide, piquant et sucré caractéristique de la cuisine thaïlandaise." },
+
+  { icon:"🥙", name:"Houmous",             origine:"Levant",        cat:"moyen_orient", periode:"Antiquité", carac:"Purée de pois chiches et tahini",       imp:4, desc:"Plat ancestral revendiqué par plusieurs pays du Levant, aujourd'hui mondialisé et décliné à l'infini." },
+  { icon:"🧆", name:"Falafel",             origine:"Égypte / Levant", cat:"moyen_orient", periode:"Antiquité", carac:"Boulettes frites de légumineuses",     imp:4, desc:"Plat populaire devenu symbole incontournable de la street food levantine et de la cuisine végétarienne mondiale." },
+  { icon:"🌯", name:"Chawarma",            origine:"Levant / Turquie", cat:"moyen_orient", periode:"Époque ottomane", carac:"Viande grillée en broche verticale", imp:4, desc:"Dérivé ottoman du kebab, généralisé au XXᵉ siècle, il devient un incontournable de la street food mondiale." },
+  { icon:"🍢", name:"Kebab",               origine:"Turquie",       cat:"moyen_orient", periode:"Empire ottoman", carac:"Viande grillée sur brochette",           imp:4, desc:"Tradition ottomane diffusée mondialement par l'émigration turque, devenue plat de rue emblématique en Europe." },
+  { icon:"🍲", name:"Tajine",              origine:"Maghreb",       cat:"moyen_orient", periode:"Tradition berbère", carac:"Ragoût mijoté dans un plat conique en terre cuite", imp:4, desc:"Tradition berbère façonnant l'identité culinaire nord-africaine, nommée d'après le plat de cuisson lui-même." },
+  { icon:"🍚", name:"Couscous",            origine:"Maghreb",       cat:"moyen_orient", periode:"Tradition berbère ancestrale", carac:"Semoule de blé cuite à la vapeur", imp:5, desc:"Plat ancestral berbère classé au patrimoine culturel immatériel de l'UNESCO en 2020, symbole de partage maghrébin." },
+
+  { icon:"🫓", name:"Injera et Wat",       origine:"Éthiopie",      cat:"afrique", periode:"Traditionnel ancestral", carac:"Galette fermentée de teff et ragoûts épicés", imp:4, desc:"Base du repas partagé éthiopien depuis des siècles, l'injera sert à la fois d'assiette et de couvert comestible." },
+  { icon:"🍚", name:"Jollof rice",         origine:"Afrique de l'Ouest", cat:"afrique", periode:"XIXᵉ siècle", carac:"Riz épicé à la tomate",                 imp:4, desc:"Plat emblématique disputé entre le Nigeria, le Ghana et le Sénégal, symbole de fierté culinaire ouest-africaine." },
+  { icon:"🍛", name:"Bobotie",             origine:"Afrique du Sud", cat:"afrique", periode:"XVIIᵉ siècle", carac:"Gratin de viande épicée nappé d'œuf",   imp:3, desc:"Héritage culinaire des colons malais du Cap, il illustre le métissage culturel unique de l'Afrique du Sud." },
+  { icon:"🐟", name:"Thiéboudienne",       origine:"Sénégal",       cat:"afrique", periode:"Traditionnel", carac:"Riz au poisson et légumes mijotés",      imp:4, desc:"Plat national sénégalais inscrit au patrimoine culturel immatériel de l'UNESCO, symbole de convivialité partagée." },
+  { icon:"🌶️", name:"Poulet piri-piri",    origine:"Mozambique / Angola", cat:"afrique", periode:"Époque coloniale portugaise", carac:"Poulet mariné au piment piri-piri", imp:3, desc:"Héritage de la rencontre entre épices portugaises et piment africain, largement popularisé à l'international." },
+  { icon:"🍠", name:"Fufu",                origine:"Afrique centrale et de l'Ouest", cat:"afrique", periode:"Traditionnel ancestral", carac:"Pâte d'igname ou de manioc pilée", imp:3, desc:"Aliment de base accompagnant les ragoûts depuis des siècles, symbole du repas partagé en Afrique subsaharienne." },
+
+  { icon:"🌮", name:"Tacos",               origine:"Mexique",       cat:"amerique_latine", periode:"Précolombien", carac:"Tortilla de maïs garnie",              imp:5, desc:"Tradition préhispanique enrichie après la colonisation espagnole, devenue l'un des plats mexicains les plus exportés." },
+  { icon:"🐟", name:"Ceviche",             origine:"Pérou",         cat:"amerique_latine", periode:"Précolombien", carac:"Poisson cru mariné au citron",         imp:4, desc:"Technique de préparation précolombienne devenue plat national péruvien, aujourd'hui star de la gastronomie mondiale." },
+  { icon:"🍲", name:"Feijoada",            origine:"Brésil",        cat:"amerique_latine", periode:"Époque coloniale", carac:"Ragoût de haricots noirs et viande de porc", imp:4, desc:"Né des traditions afro-brésiliennes de l'époque coloniale, il devient le plat national convivial du Brésil." },
+  { icon:"🍫", name:"Mole poblano",        origine:"Mexique",       cat:"amerique_latine", periode:"XVIIᵉ siècle", carac:"Sauce complexe au chocolat et piments", imp:4, desc:"Plat baroque né dans les couvents coloniaux de Puebla, mêlant héritages indigène, espagnol et africain." },
+  { icon:"🥩", name:"Asado",               origine:"Argentine / Uruguay", cat:"amerique_latine", periode:"Tradition gaucho", carac:"Grillade de viande au feu de bois",  imp:4, desc:"Tradition gaucho des pampas devenue rituel social incontournable de l'identité argentine et uruguayenne." },
+  { icon:"🥟", name:"Empanadas",           origine:"Amérique latine", cat:"amerique_latine", periode:"Héritage ibérique", carac:"Chaussons farcis d'origine ibérique",  imp:3, desc:"Adaptés dans toute l'Amérique latine avec des garnitures locales, symbole de la cuisine de rue continentale." },
+
+  { icon:"🍔", name:"Hamburger",           origine:"États-Unis",    cat:"amerique_nord_oceanie", periode:"Début XXᵉ siècle", carac:"Viande hachée servie entre deux pains", imp:5, desc:"Popularisé au début du XXᵉ siècle, il devient le symbole mondial de la restauration rapide américaine." },
+  { icon:"🍖", name:"Barbecue (BBQ)",      origine:"États-Unis",    cat:"amerique_nord_oceanie", periode:"XIXᵉ siècle", carac:"Viande fumée lentement à basse température", imp:4, desc:"Héritage des traditions autochtones et afro-américaines du Sud des États-Unis, pilier de l'identité culinaire régionale." },
+  { icon:"🍟", name:"Poutine",             origine:"Canada (Québec)", cat:"amerique_nord_oceanie", periode:"1950s", carac:"Frites, fromage en grains et sauce brune", imp:4, desc:"Née dans le Québec rural des années 1950, elle devient l'emblème culinaire canadien reconnu à l'international." },
+  { icon:"🥣", name:"Clam chowder",        origine:"États-Unis",    cat:"amerique_nord_oceanie", periode:"XVIIIᵉ siècle", carac:"Soupe crémeuse aux palourdes",       imp:3, desc:"Tradition de Nouvelle-Angleterre héritée des colons européens, plat réconfortant emblématique de la côte Est." },
+  { icon:"🍰", name:"Pavlova",             origine:"Australie / Nouvelle-Zélande", cat:"amerique_nord_oceanie", periode:"1920s", carac:"Dessert meringué garni de fruits frais", imp:3, desc:"Nommé en l'honneur de la ballerine russe Anna Pavlova, il reste disputé entre Australiens et Néo-Zélandais." },
+  { icon:"🍞", name:"Vegemite",            origine:"Australie",     cat:"amerique_nord_oceanie", periode:"1922", carac:"Pâte à tartiner salée à base de levure",  imp:2, desc:"Créée en 1922, cette pâte au goût puissant est devenue un symbole culinaire identitaire fort de l'Australie." }
+];
+
+const catLabels = {
+  "europe":                "🇪🇺 Europe",
+  "asie_orientale":         "🥢 Asie de l'Est",
+  "asie_du_sud":            "🍛 Asie du Sud",
+  "asie_du_sud_est":        "🍜 Asie du Sud-Est",
+  "moyen_orient":           "🕌 Moyen-Orient",
+  "afrique":                "🌍 Afrique",
+  "amerique_latine":        "🌮 Amérique latine",
+  "amerique_nord_oceanie":  "🍔 Amérique du Nord & Océanie"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.origine; vb = b.origine; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.periode; vb = b.periode; break;
+      case 6: va = a.carac; vb = b.carac; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="origine-cell">${d.origine}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="periode-cell">${d.periode}</td>
+      <td class="carac-cell">${d.carac}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Plats affichés : <span>${rows.length}</span></span>
+    <span class="stat">Régions représentées : <span>${nbTypes}</span></span>
+    <span class="stat">Renommée maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

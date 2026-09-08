@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Épices et leur Influence sur l'Histoire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #f7f1e6;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(184,84,20,0.08), transparent 70%);
+    --surface:       #ffffff;
+    --surface-alt:   #faf3e6;
+    --text:          #241608;
+    --text-muted:    #6b5748;
+    --accent:        #b8541f;
+    --accent-hover:  #944318;
+    --gold:          #c8901f;
+    --gold-soft:     #b8860b;
+    --border:        #ecdcc0;
+    --row-hover:     #fbf2e1;
+    --row-even:      #faf3e6;
+    --shadow:        rgba(36,22,8,0.10);
+    --header-bg:     #1a0f05;
+    --header-text:   #f2c14e;
+    --chip-text:     #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg:            #1a0f05;
+    --bg-spot:       radial-gradient(ellipse 900px 500px at 50% -8%, rgba(230,150,80,0.16), transparent 70%);
+    --surface:       #241708;
+    --surface-alt:   #2b1c0c;
+    --text:          #f5ecdd;
+    --text-muted:    #c4a68c;
+    --accent:        #e6975a;
+    --accent-hover:  #f0b083;
+    --gold:          #f2c14e;
+    --gold-soft:     #e8b93f;
+    --border:        #3a2714;
+    --row-hover:     #2f1f10;
+    --row-even:      #271a0b;
+    --shadow:        rgba(0,0,0,0.45);
+    --header-bg:     #0a0603;
+    --header-text:   #f2c14e;
+    --chip-text:     #1a0f05;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image: var(--bg-spot);
+    background-attachment: fixed;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .mat-strip {
+    max-width: 1350px;
+    margin: 0 auto 1.6rem;
+    height: 12px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 5px, transparent 5px 9px, var(--accent) 9px 11px, transparent 11px 18px);
+    opacity: 0.55;
+    border-radius: 2px;
+  }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.8vw, 3rem);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  h1 .ornament { color: var(--gold); font-size: 0.8em; vertical-align: 0.05em; }
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+  }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    justify-content: center; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(184,84,20,0.35);
+  }
+
+  .table-wrap {
+    max-width: 1350px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.93rem; }
+
+  thead tr { background: var(--header-bg); }
+  thead th {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--header-text);
+    padding: 1rem 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid var(--accent);
+  }
+  thead th:hover { color: #ffffff; }
+  thead th .sort-icon { margin-left: 0.3em; opacity: 0.55; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--gold); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+  td { padding: 0.75rem 0.9rem; vertical-align: middle; line-height: 1.45; }
+
+  td:first-child {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    width: 2.6rem;
+  }
+  .icon-cell    { text-align: center; font-size: 1.3rem; width: 2.8rem; }
+  .name-cell    { font-family: 'Manrope', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); min-width: 190px; }
+  .origine-cell { font-size: 0.86rem; color: var(--text-muted); min-width: 170px; }
+  .periode-cell { font-size: 0.84rem; color: var(--gold-soft); font-weight: 600; white-space: nowrap; }
+  .carac-cell   { font-size: 0.84rem; color: var(--accent); font-weight: 600; min-width: 220px; }
+  .desc-cell    { font-size: 0.85rem; color: var(--text-muted); min-width: 230px; }
+
+  .type-badge {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.63rem;
+    letter-spacing: 0.03em;
+    padding: 0.26rem 0.55rem;
+    border-radius: 999px;
+    color: var(--chip-text);
+    white-space: nowrap;
+  }
+  .type-epices_route_commerciale    { background: #2e5f7a; }
+  .type-epices_precieuses           { background: #b58a1f; }
+  .type-epices_piquantes            { background: #a12439; }
+  .type-epices_asiatiques           { background: #1f7a5c; }
+  .type-herbes_mediterraneennes     { background: #4a7a1f; }
+  .type-epices_ameriques            { background: #6b3a1f; }
+  .type-epices_moyen_orient         { background: #6b3a8a; }
+  .type-herbes_aromatiques_fraiches { background: #1f6b8a; }
+  .type-epices_modernes_synthese    { background: #4a4a4a; }
+
+  .stars { color: var(--gold); font-size: 0.98rem; letter-spacing: 0.03em; }
+
+  a.g-name {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  a.g-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  sup.arr { font-size: 0.58em; opacity: 0.55; }
+
+  .stats-bar {
+    max-width: 1350px;
+    margin: 1.4rem auto 0;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .stat {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+  .stat span { color: var(--accent); font-weight: 800; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  footer { text-align: center; margin-top: 3rem; font-size: 0.82rem; color: var(--text-muted); }
+
+  @media (max-width: 750px) {
+    .periode-cell { display: none; }
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.25s, color 0.2s;
+  }
+  .btn-back:hover { opacity: 1; color: var(--accent); }
+
+  .theme-toggle {
+    display: block;
+    margin: 0 auto 1.2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border: 1.5px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--accent); color: #ffffff; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" type="button">🌙 Écran sombre</button>
+
+<a href="index.html" class="btn-back">← Gastronomie &amp; Culture</a>
+
+<header>
+  <div class="mat-strip"></div>
+  <p class="eyebrow">De la Route des Épices aux Cuisines Modernes</p>
+  <h1><span class="ornament">🌶️</span> 50 Épices et leur Influence sur l'Histoire <span class="ornament">⭐</span></h1>
+  <p class="subtitle">Du poivre et du safran au curcuma et au piment — les épices qui ont motivé conquêtes, commerce et découvertes</p>
+  <div class="mat-strip" style="margin-top:1.6rem"></div>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">Toutes</button>
+  <button class="filter-btn" data-cat="epices_route_commerciale">🚢 Route commerciale</button>
+  <button class="filter-btn" data-cat="epices_precieuses">💰 Épices précieuses</button>
+  <button class="filter-btn" data-cat="epices_piquantes">🌶️ Épices piquantes</button>
+  <button class="filter-btn" data-cat="epices_asiatiques">🍛 Épices asiatiques</button>
+  <button class="filter-btn" data-cat="herbes_mediterraneennes">🌿 Herbes méditerranéennes</button>
+  <button class="filter-btn" data-cat="epices_ameriques">🌽 Épices des Amériques</button>
+  <button class="filter-btn" data-cat="epices_moyen_orient">🕌 Épices du Moyen-Orient</button>
+  <button class="filter-btn" data-cat="herbes_aromatiques_fraiches">🌱 Herbes fraîches</button>
+  <button class="filter-btn" data-cat="epices_modernes_synthese">🏭 Épices modernes</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th data-col="0">N° <span class="sort-icon">⇅</span></th>
+      <th data-col="1"></th>
+      <th data-col="2">Épice <span class="sort-icon">⇅</span></th>
+      <th data-col="3">Origine <span class="sort-icon">⇅</span></th>
+      <th data-col="4">Type <span class="sort-icon">⇅</span></th>
+      <th data-col="5">Période <span class="sort-icon">⇅</span></th>
+      <th data-col="6">Caractéristique clé <span class="sort-icon">⇅</span></th>
+      <th data-col="7">Influence <span class="sort-icon">⇅</span></th>
+      <th data-col="8">Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<footer>
+  <p>— Compilé à des fins éducatives et culturelles — © 2026 —</p>
+</footer>
+
+<script>
+const G = "https://www.google.com/search?q=";
+const q = s => encodeURIComponent(s);
+
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️ Écran clair';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙 Écran sombre';
+  }
+}
+const savedTheme = localStorage.getItem('theme-50-epices') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme-50-epices', next);
+});
+
+const DATA = [
+  { icon:"⚫", name:"Poivre noir",           origine:"Inde (côte de Malabar)", cat:"epices_route_commerciale", periode:"Antiquité (commerce dès -2000)", carac:"« Roi des épices », grain séché du poivrier", imp:5, desc:"Épice la plus commercée de l'histoire, moteur des routes maritimes vers l'Inde et cause indirecte de la découverte des Amériques par Colomb." },
+  { icon:"🟤", name:"Cannelle",              origine:"Sri Lanka / Chine", cat:"epices_route_commerciale", periode:"Antiquité égyptienne (~2000 av. J.-C.)", carac:"Écorce séchée et enroulée d'un arbre tropical", imp:5, desc:"Épice précieuse de l'Égypte antique utilisée pour l'embaumement, son monopole commercial motive les explorations portugaises vers l'Asie." },
+  { icon:"🌸", name:"Girofle",               origine:"Îles Moluques (Indonésie)", cat:"epices_route_commerciale", periode:"Antiquité chinoise (~200 av. J.-C.)", carac:"Bouton floral séché au parfum puissant", imp:4, desc:"Son monopole insulaire déclenche les guerres coloniales des Moluques entre Portugais, Espagnols et Néerlandais aux XVIᵉ-XVIIᵉ siècles." },
+  { icon:"🌰", name:"Noix de muscade",       origine:"Îles Banda (Indonésie)", cat:"epices_route_commerciale", periode:"Moyen Âge européen", carac:"Graine aromatique au parfum chaud et sucré", imp:4, desc:"Épice si précieuse qu'elle motive un échange territorial entre Anglais et Néerlandais (Manhattan contre l'île de Run) en 1667." },
+  { icon:"🟢", name:"Cardamome",             origine:"Inde du Sud",       cat:"epices_route_commerciale", periode:"Antiquité (mentionnée à Babylone)", carac:"Capsule aromatique surnommée « reine des épices »", imp:4, desc:"Troisième épice la plus chère au monde après le safran et la vanille, essentielle au commerce des routes de la soie et des épices." },
+  { icon:"⭐", name:"Anis étoilé",           origine:"Chine du Sud",      cat:"epices_route_commerciale", periode:"Antiquité chinoise", carac:"Fruit en forme d'étoile au parfum anisé puissant", imp:3, desc:"Diffusé via la route de la soie, il devient essentiel à la pharmacopée chinoise et à la synthèse moderne du Tamiflu." },
+
+  { icon:"🌼", name:"Safran",                origine:"Grèce / Perse",     cat:"epices_precieuses", periode:"Antiquité (~2000 av. J.-C. en Crète)", carac:"Stigmates de crocus récoltés à la main, épice la plus chère au monde", imp:5, desc:"Il faut 150 000 fleurs pour un kilo de safran ; utilisé comme teinture royale, remède et épice depuis l'Antiquité méditerranéenne." },
+  { icon:"🤎", name:"Vanille",               origine:"Mexique (civilisation totonaque)", cat:"epices_precieuses", periode:"Précolombien, diffusée après 1520", carac:"Gousse fermentée d'une orchidée grimpante", imp:5, desc:"Réservée à l'élite aztèque puis introduite en Europe par les conquistadors, elle reste la deuxième épice la plus chère au monde." },
+  { icon:"💎", name:"Mastic de Chios",       origine:"Grèce (île de Chios)", cat:"epices_precieuses", periode:"Antiquité grecque", carac:"Résine aromatique récoltée sur un arbre unique à Chios", imp:2, desc:"Résine si précieuse qu'elle valut à l'île de Chios des privilèges fiscaux sous l'Empire ottoman." },
+  { icon:"🖤", name:"Cardamome noire",       origine:"Népal / Inde du Nord", cat:"epices_precieuses", periode:"Antiquité himalayenne", carac:"Variété fumée à la saveur intense", imp:2, desc:"Moins connue que la cardamome verte, elle reste essentielle aux cuisines himalayennes et à la médecine ayurvédique traditionnelle." },
+
+  { icon:"🌶️", name:"Piment",               origine:"Amérique centrale (Mexique)", cat:"epices_piquantes", periode:"~6000 av. J.-C. (domestication)", carac:"Fruit brûlant contenant de la capsaïcine", imp:5, desc:"Domestiqué en Mésoamérique, diffusé mondialement après 1492, il devient l'épice la plus consommée de la planète aujourd'hui." },
+  { icon:"🔴", name:"Poivre de Cayenne",     origine:"Guyane française",  cat:"epices_piquantes", periode:"Diffusion coloniale XVIIIᵉ siècle", carac:"Piment séché et moulu, très piquant", imp:3, desc:"Popularisé par le commerce colonial français, il devient un ingrédient de base des cuisines créoles et occidentales." },
+  { icon:"🫚", name:"Gingembre",             origine:"Asie du Sud-Est",   cat:"epices_piquantes", periode:"Antiquité chinoise (~2000 av. J.-C.)", carac:"Rhizome piquant aux vertus digestives", imp:4, desc:"L'une des premières épices exportées d'Asie vers l'Europe et Rome antique, encore essentielle à la médecine traditionnelle chinoise." },
+  { icon:"🥬", name:"Raifort",               origine:"Europe de l'Est",   cat:"epices_piquantes", periode:"Antiquité (mentionné en Égypte)", carac:"Racine piquante utilisée râpée en condiment", imp:2, desc:"Utilisé depuis l'Antiquité égyptienne et grecque, il devient un condiment traditionnel d'Europe centrale et de la cuisine juive ashkénaze." },
+  { icon:"🟢", name:"Wasabi",                origine:"Japon",             cat:"epices_piquantes", periode:"VIIᵉ siècle", carac:"Rhizome piquant à la saveur volatile", imp:3, desc:"Cultivé au Japon depuis plus de 1300 ans, il devient indissociable de la gastronomie japonaise et de sa diffusion mondiale." },
+  { icon:"🌶️", name:"Poivre du Sichuan",     origine:"Chine (Sichuan)",   cat:"epices_piquantes", periode:"Antiquité chinoise", carac:"Baie provoquant un engourdissement caractéristique", imp:3, desc:"Essentiel à la cuisine du Sichuan, il crée la sensation unique du « mala » (piquant-engourdissant) prisée dans toute l'Asie." },
+  { icon:"🌿", name:"Poivre long",           origine:"Inde",              cat:"epices_piquantes", periode:"Antiquité (commerce romain)", carac:"Plus piquant et sucré que le poivre noir classique", imp:2, desc:"Plus prisé que le poivre noir dans la Rome antique, il décline ensuite au profit de ce dernier, plus facile à transporter." },
+
+  { icon:"🟡", name:"Curcuma",               origine:"Inde",              cat:"epices_asiatiques", periode:"Antiquité védique (~2000 av. J.-C.)", carac:"Rhizome jaune vif aux propriétés colorantes et médicinales", imp:5, desc:"Pilier de la médecine ayurvédique et des rituels hindous depuis des millénaires, aujourd'hui étudié pour ses vertus anti-inflammatoires." },
+  { icon:"🟤", name:"Cumin",                 origine:"Moyen-Orient / Égypte", cat:"epices_asiatiques", periode:"Antiquité égyptienne (~2000 av. J.-C.)", carac:"Graine aromatique utilisée dans l'embaumement et la cuisine", imp:4, desc:"Utilisé dans l'embaumement égyptien antique, il devient une épice fondamentale des cuisines indienne, moyen-orientale et mexicaine." },
+  { icon:"🌿", name:"Coriandre (graine)",    origine:"Moyen-Orient",      cat:"epices_asiatiques", periode:"Antiquité (retrouvée à Thèbes)", carac:"Graine aromatique aux notes agrumées", imp:3, desc:"L'une des plus anciennes épices cultivées, retrouvée dans les tombes égyptiennes, essentielle aux cuisines indienne et méditerranéenne." },
+  { icon:"🌾", name:"Fenugrec",              origine:"Moyen-Orient / Inde", cat:"epices_asiatiques", periode:"Antiquité (utilisé en Égypte antique)", carac:"Graine amère aux vertus digestives et galactogènes", imp:3, desc:"Cultivé depuis l'Antiquité égyptienne, il reste essentiel aux mélanges d'épices indiens et à la médecine traditionnelle." },
+  { icon:"🫚", name:"Galanga",               origine:"Asie du Sud-Est",   cat:"epices_asiatiques", periode:"Antiquité chinoise", carac:"Rhizome proche du gingembre, saveur poivrée et citronnée", imp:2, desc:"Introduit en Europe médiévale via la route de la soie, il reste incontournable des cuisines thaïlandaise et indonésienne." },
+  { icon:"🍛", name:"Curry (mélange)",       origine:"Inde britannique",  cat:"epices_asiatiques", periode:"XVIIIᵉ siècle", carac:"Mélange d'épices standardisé créé pour l'exportation", imp:4, desc:"Invention commerciale britannique simplifiant la complexité des masalas indiens, il diffuse la cuisine indienne dans le monde entier." },
+  { icon:"⭐", name:"Cinq-épices chinois",   origine:"Chine",             cat:"epices_asiatiques", periode:"Antiquité chinoise", carac:"Mélange d'anis étoilé, girofle, cannelle, poivre du Sichuan et fenouil", imp:3, desc:"Conçu selon la philosophie taoïste des cinq éléments, il équilibre les cinq saveurs fondamentales de la cuisine chinoise." },
+
+  { icon:"🌿", name:"Origan",                origine:"Grèce",             cat:"herbes_mediterraneennes", periode:"Antiquité grecque", carac:"Herbe aromatique séchée, symbole méditerranéen", imp:3, desc:"Son nom grec signifie « joie de la montagne » ; associée aux mariages dans la Grèce antique, elle devient un pilier de la cuisine italienne." },
+  { icon:"🌿", name:"Thym",                  origine:"Bassin méditerranéen", cat:"herbes_mediterraneennes", periode:"Antiquité égyptienne", carac:"Herbe utilisée aussi en embaumement et médecine", imp:3, desc:"Utilisé pour l'embaumement égyptien et purifier les temples grecs, il reste une herbe essentielle du bouquet garni français." },
+  { icon:"🍃", name:"Laurier",               origine:"Méditerranée",      cat:"herbes_mediterraneennes", periode:"Antiquité grecque", carac:"Feuille aromatique, symbole de victoire", imp:3, desc:"Les couronnes de laurier récompensaient poètes et athlètes dans la Grèce antique ; sa feuille aromatique reste essentielle aux bouillons." },
+  { icon:"🌿", name:"Romarin",               origine:"Méditerranée",      cat:"herbes_mediterraneennes", periode:"Antiquité romaine", carac:"Herbe associée à la mémoire et à la fidélité", imp:3, desc:"Symbole de mémoire dans les rites funéraires antiques et les mariages, il parfume durablement les cuisines française et italienne." },
+  { icon:"🌿", name:"Basilic",               origine:"Inde puis bassin méditerranéen", cat:"herbes_mediterraneennes", periode:"Antiquité (sacré en Inde)", carac:"Herbe sacrée en Inde, star de la cuisine italienne", imp:4, desc:"Plante sacrée de l'hindouisme (tulsi), elle devient en Europe la base du pesto génois et symbole de la cuisine italienne." },
+  { icon:"🌿", name:"Sauge",                 origine:"Bassin méditerranéen", cat:"herbes_mediterraneennes", periode:"Antiquité romaine", carac:"Herbe médicinale à la réputation de « plante qui sauve »", imp:2, desc:"Son nom latin salvia signifie « sauver » ; utilisée en médecine depuis l'Antiquité romaine avant de devenir un condiment culinaire." },
+  { icon:"🌿", name:"Aneth",                 origine:"Méditerranée orientale", cat:"herbes_mediterraneennes", periode:"Antiquité égyptienne", carac:"Herbe aux notes anisées, fraîche ou en graine", imp:2, desc:"Utilisé depuis l'Égypte antique à des fins médicinales, il devient central dans les cuisines scandinave, russe et d'Europe de l'Est." },
+
+  { icon:"🔴", name:"Paprika",               origine:"Amérique centrale puis Hongrie", cat:"epices_ameriques", periode:"XVIᵉ siècle (introduction), XIXᵉ siècle (Hongrie)", carac:"Piment doux séché et moulu, doux ou fumé", imp:4, desc:"Introduit d'Amérique par les Ottomans, il devient l'épice nationale hongroise et redéfinit le goulasch et la cuisine d'Europe centrale." },
+  { icon:"🟠", name:"Achiote (rocou)",       origine:"Amérique centrale (civilisation maya)", cat:"epices_ameriques", periode:"Précolombien", carac:"Graine colorante rouge-orangé au goût terreux", imp:3, desc:"Utilisé par les Mayas comme colorant corporel et culinaire, il reste essentiel aux cuisines du Yucatán et des Caraïbes." },
+  { icon:"🌿", name:"Épazote",               origine:"Mexique",           cat:"epices_ameriques", periode:"Précolombien", carac:"Herbe aromatique puissante utilisée avec les haricots", imp:2, desc:"Utilisée depuis l'époque précolombienne pour parfumer et faciliter la digestion des plats de haricots mexicains." },
+  { icon:"🌶️", name:"Piment chipotle",       origine:"Mexique (civilisation aztèque)", cat:"epices_ameriques", periode:"Précolombien", carac:"Piment jalapeño fumé et séché", imp:3, desc:"Technique de fumage aztèque permettant la conservation du piment, il apporte une saveur fumée caractéristique à la cuisine mexicaine." },
+
+  { icon:"🔴", name:"Sumac",                 origine:"Levant / Moyen-Orient", cat:"epices_moyen_orient", periode:"Antiquité (utilisé avant le citron)", carac:"Baie acidulée séchée et moulue", imp:3, desc:"Utilisé dans la cuisine levantine avant l'introduction des agrumes, il reste essentiel au mélange za'atar et aux salades du Moyen-Orient." },
+  { icon:"🌿", name:"Za'atar",               origine:"Levant",            cat:"epices_moyen_orient", periode:"Antiquité levantine", carac:"Mélange de thym, sumac, sésame et sel", imp:3, desc:"Mélange emblématique de la cuisine levantine, consommé traditionnellement au petit-déjeuner avec de l'huile d'olive et du pain." },
+  { icon:"⚫", name:"Nigelle",               origine:"Moyen-Orient",      cat:"epices_moyen_orient", periode:"Antiquité (tombe de Toutânkhamon)", carac:"Petite graine noire au goût poivré", imp:3, desc:"Surnommée « graine de bénédiction » dans la tradition islamique, retrouvée dans le tombeau de Toutânkhamon en Égypte antique." },
+  { icon:"🍛", name:"Ras el hanout",         origine:"Maghreb",           cat:"epices_moyen_orient", periode:"Époque précoloniale maghrébine", carac:"Mélange complexe pouvant contenir plus de 30 épices", imp:3, desc:"Signifiant « tête de l'échoppe » en arabe, ce mélange rassemble traditionnellement les meilleures épices du marchand, signature de chaque famille." },
+  { icon:"🌶️", name:"Harissa",               origine:"Tunisie",           cat:"epices_moyen_orient", periode:"XVIᵉ siècle (après introduction du piment)", carac:"Pâte de piments et épices", imp:3, desc:"Née après l'introduction du piment américain au Maghreb, elle devient la signature piquante incontournable de la cuisine tunisienne." },
+
+  { icon:"🌿", name:"Persil",                origine:"Méditerranée orientale", cat:"herbes_aromatiques_fraiches", periode:"Antiquité grecque", carac:"Herbe fraîche universelle, garniture et condiment", imp:3, desc:"Associé aux rites funéraires dans la Grèce antique, il devient l'herbe aromatique la plus utilisée des cuisines occidentales." },
+  { icon:"🌿", name:"Ciboulette",            origine:"Asie / Europe",     cat:"herbes_aromatiques_fraiches", periode:"Antiquité chinoise (~3000 av. J.-C.)", carac:"Herbe fine au goût d'oignon doux", imp:2, desc:"Cultivée en Chine depuis des millénaires, elle se diffuse en Europe médiévale comme condiment frais raffiné." },
+  { icon:"🌿", name:"Estragon",              origine:"Asie centrale",     cat:"herbes_aromatiques_fraiches", periode:"Moyen Âge (introduction en Europe)", carac:"Herbe anisée essentielle à la cuisine française classique", imp:2, desc:"Introduit en Europe par les invasions mongoles, il devient un pilier des sauces classiques de la haute gastronomie française." },
+  { icon:"🌿", name:"Menthe",                origine:"Méditerranée",      cat:"herbes_aromatiques_fraiches", periode:"Antiquité égyptienne", carac:"Herbe fraîche mentholée aux usages culinaires et médicinaux", imp:3, desc:"Retrouvée dans les tombes égyptiennes antiques, elle devient essentielle au thé maghrébin, au mojito et aux cuisines du monde entier." },
+  { icon:"🌿", name:"Basilic thaï",          origine:"Asie du Sud-Est",   cat:"herbes_aromatiques_fraiches", periode:"Antiquité asiatique", carac:"Variété au goût anisé plus prononcé", imp:2, desc:"Essentiel aux cuisines thaïlandaise et vietnamienne, il apporte une note anisée caractéristique aux soupes et sautés d'Asie du Sud-Est." },
+
+  { icon:"🧪", name:"Glutamate monosodique", origine:"Japon",             cat:"epices_modernes_synthese", periode:"1908 (Kikunae Ikeda)", carac:"Exhausteur de goût synthétisant l'umami", imp:4, desc:"Isolé par le chimiste japonais Kikunae Ikeda à partir d'algues kombu, il révèle scientifiquement la cinquième saveur, l'umami." },
+  { icon:"🧪", name:"Vanilline (vanille synthétique)", origine:"Allemagne", cat:"epices_modernes_synthese", periode:"1874", carac:"Molécule aromatique de synthèse imitant la vanille naturelle", imp:3, desc:"Synthétisée pour pallier la rareté et le coût de la vanille naturelle, elle domine aujourd'hui l'immense majorité du marché mondial." },
+  { icon:"🍛", name:"Poudre de curry industrielle", origine:"Royaume-Uni", cat:"epices_modernes_synthese", periode:"XIXᵉ siècle", carac:"Mélange standardisé produit industriellement pour l'export", imp:3, desc:"Créée par les marques britanniques pour simplifier et exporter la complexité des épices indiennes dans le monde entier." },
+  { icon:"🧊", name:"Bouillon cube",         origine:"Allemagne / Suisse", cat:"epices_modernes_synthese", periode:"1908 (Maggi)", carac:"Concentré déshydraté d'épices, sel et exhausteurs de goût", imp:4, desc:"Révolutionne la cuisine domestique du XXᵉ siècle en rendant accessible en quelques secondes une base aromatique complexe." },
+  { icon:"🌶️", name:"Sel épicé cajun",       origine:"États-Unis (Louisiane)", cat:"epices_modernes_synthese", periode:"XXᵉ siècle", carac:"Mélange moderne de piments, ail, oignon et herbes séchées", imp:2, desc:"Né de la fusion des cuisines française, africaine et amérindienne en Louisiane, il illustre la créativité des mélanges d'épices contemporains." }
+];
+
+const catLabels = {
+  "epices_route_commerciale":    "🚢 Route commerciale",
+  "epices_precieuses":           "💰 Épices précieuses",
+  "epices_piquantes":            "🌶️ Épices piquantes",
+  "epices_asiatiques":           "🍛 Épices asiatiques",
+  "herbes_mediterraneennes":     "🌿 Herbes méditerranéennes",
+  "epices_ameriques":            "🌽 Épices des Amériques",
+  "epices_moyen_orient":         "🕌 Épices du Moyen-Orient",
+  "herbes_aromatiques_fraiches": "🌱 Herbes fraîches",
+  "epices_modernes_synthese":    "🏭 Épices modernes"
+};
+
+let currentCat = "all";
+let sortCol = 0, sortAsc = true;
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5-n); }
+
+function typeBadge(cat) {
+  return `<span class="type-badge type-${cat}">${catLabels[cat]||cat}</span>`;
+}
+
+function render() {
+  let rows = DATA.filter(d => currentCat === "all" || d.cat === currentCat);
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 0: va = DATA.indexOf(a); vb = DATA.indexOf(b); break;
+      case 2: va = a.name; vb = b.name; break;
+      case 3: va = a.origine; vb = b.origine; break;
+      case 4: va = a.cat; vb = b.cat; break;
+      case 5: va = a.periode; vb = b.periode; break;
+      case 6: va = a.carac; vb = b.carac; break;
+      case 7: va = a.imp; vb = b.imp; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('tbody').innerHTML = rows.map((d,i) => `
+    <tr data-cat="${d.cat}">
+      <td>${i+1}</td>
+      <td class="icon-cell">${d.icon}</td>
+      <td class="name-cell"><a class="g-name" href="${G}${q(d.name)}" target="_blank">${d.name}<sup class="arr"> ↗</sup></a></td>
+      <td class="origine-cell">${d.origine}</td>
+      <td>${typeBadge(d.cat)}</td>
+      <td class="periode-cell">${d.periode}</td>
+      <td class="carac-cell">${d.carac}</td>
+      <td class="stars" title="${d.imp}/5">${stars(d.imp)}</td>
+      <td class="desc-cell">${d.desc}</td>
+    </tr>`).join('');
+
+  const nbTypes = new Set(rows.map(d=>d.cat)).size;
+  const max5 = rows.filter(d=>d.imp===5).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">Épices affichées : <span>${rows.length}</span></span>
+    <span class="stat">Types représentés : <span>${nbTypes}</span></span>
+    <span class="stat">Influence maximale ★★★★★ : <span>${max5}</span></span>`;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
