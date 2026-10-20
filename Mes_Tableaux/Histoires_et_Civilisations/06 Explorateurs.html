@@ -195,18 +195,32 @@
   footer { text-align: center; margin-top: 3rem; font-style: italic; font-size: 0.83rem; color: var(--sepia-light); }
   /* BOUTON RETOUR */
   .btn-back {
-    display: inline-block;
-    margin-bottom: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0.7rem 1rem;
     font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.35em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--sepia-mid);
+    color: #fff3d0;
+    background: var(--sepia-dark);
+    border: 2px solid var(--gold);
+    border-radius: 4px;
     text-decoration: none;
-    opacity: 0.7;
-    transition: opacity 0.25s;
+    box-shadow: 0 3px 10px var(--shadow);
+    transition: background-color 0.25s, color 0.25s, transform 0.25s;
   }
-  .btn-back:hover { opacity: 1; }
+  .btn-back:hover {
+    background: var(--gold);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+  .btn-back:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+  }
 </style>
 </head>
 <body>
